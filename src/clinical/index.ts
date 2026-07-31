@@ -1,23 +1,16 @@
-export * from './engine'
-
-export * from './guides'
-
-export * from './models/ClinicalAnalysis'
-
-export * from './providers/ClinicalProvider'
-
-export * from './recommendations'
-
-export * from './rules/ClinicalRule'
-
-export * from './selector/ClinicalGuideSelector'
-
-export * from './shared/ClinicalClassification'
-
-export * from './targets'
-
-export * from './types/ClinicalGuide'
-
+export * from './alerts/ClinicalAlert'
 export * from './cardiosync/classification'
-
+export * from './engine'
 export * from './esc2024/classification'
+export * from './guides'
+export * from './models/ClinicalAnalysis'
+export * from './providers/ClinicalProvider'
+export * from './recommendations'
+export * from './report/ClinicalReport'
+export * from './risk/CardiovascularRisk'
+export * from './rules/ClinicalRule'
+export * from './selector/ClinicalGuideSelector'
+export * from './shared/ClinicalClassification'
+export * from './targets'
+export * from './trends/TrendAnalysis'
+export * from './types/ClinicalGuide'
