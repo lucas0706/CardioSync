@@ -1,20 +1,21 @@
-import { Button, Card, Screen, Text } from '@/components/ui'
+import { useState } from 'react'
+
+import { MeasurementForm } from '@/components/forms/MeasurementForm'
+import { MeasurementHistory } from '@/components/forms/MeasurementHistory'
+import { Screen } from '@/components/ui'
 
 export default function HomeScreen() {
+  const [refreshKey, setRefreshKey] = useState(0)
+
   return (
     <Screen>
-      <Card>
-        <Text variant="h2">CardioSync</Text>
+      <MeasurementForm
+        onSaved={() => setRefreshKey((value) => value + 1)}
+      />
 
-        <Text>
-          Infraestructura inicial completada.
-        </Text>
-
-        <Button
-          title="Comenzar"
-          onPress={() => {}}
-        />
-      </Card>
+      <MeasurementHistory
+        refreshKey={refreshKey}
+      />
     </Screen>
   )
 }
