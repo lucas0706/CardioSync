@@ -23,7 +23,40 @@ export const measurementSchema = z.object({
     .max(400)
     .optional(),
 
-  notes: z.string().optional(),
+  notes: z
+    .string()
+    .optional(),
+
+  arm: z
+    .enum([
+      'left',
+      'right',
+    ])
+    .optional(),
+
+  position: z
+    .enum([
+      'sitting',
+      'standing',
+      'lying',
+    ])
+    .optional(),
+
+  context: z
+    .string()
+    .optional(),
+
+  symptoms: z
+    .string()
+    .optional(),
+
+  medicationTaken: z
+    .boolean()
+    .optional(),
+
+  medicationName: z
+    .string()
+    .optional(),
 })
 
 export type MeasurementFormData =

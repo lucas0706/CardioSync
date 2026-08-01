@@ -35,6 +35,8 @@ export interface BloodPressureRecord {
 
   medicationName?: string
 
+  medicationIds?: string[]
+
   notes?: string
 
   guideline?: string
