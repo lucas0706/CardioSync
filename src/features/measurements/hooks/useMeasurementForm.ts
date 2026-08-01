@@ -9,9 +9,28 @@ import {
 export function useMeasurementForm() {
   return useForm<MeasurementFormData>({
     resolver: zodResolver(measurementSchema),
+
     defaultValues: {
       systolic: 120,
+
       diastolic: 80,
+
+      heartRate: undefined,
+
+      weight: undefined,
+
+      notes: '',
+
+      arm: 'left',
+
+      position: 'sitting',
+      context: '',
+
+      symptoms: '',
+
+      medicationTaken: false,
+
+      medicationName: '',
     },
   })
 }
