@@ -67,14 +67,6 @@ export function MeasurementForm({
         error={errors.heartRate?.message}
       />
 
-      <AppTextField
-        control={control}
-        name="weight"
-        label="Peso"
-        keyboardType="decimal-pad"
-        error={errors.weight?.message}
-      />
-
       <AppSelectField
         control={control}
         name="arm"

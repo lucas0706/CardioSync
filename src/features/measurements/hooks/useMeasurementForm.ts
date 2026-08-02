@@ -14,7 +14,6 @@ export function useMeasurementForm() {
       systolic: undefined,
       diastolic: undefined,
       heartRate: undefined,
-      weight: undefined,
       notes: '',
       arm: undefined,
       position: undefined,

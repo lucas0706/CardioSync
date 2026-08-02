@@ -1,7 +1,8 @@
-import { BloodPressureRecord } from '@/domain/measurements/BloodPressureRecord'
-
-export interface MeasurementFormValues
-  extends Omit<
-    BloodPressureRecord,
-    'id' | 'createdAt' | 'updatedAt'
-  > {}
+export interface MeasurementFormValues {
+  systolic: number
+  diastolic: number
+  heartRate?: number
+  arm?: 'left' | 'right'
+  position?: 'sitting' | 'standing' | 'lying'
+  notes?: string
+}

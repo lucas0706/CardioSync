@@ -20,8 +20,6 @@ export function createMeasurement(
 
     heartRate: values.heartRate,
 
-    weight: values.weight,
-
     arm: values.arm ?? undefined,
 
     position: values.position ?? undefined,
