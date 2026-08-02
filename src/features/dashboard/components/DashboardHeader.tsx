@@ -1,6 +1,7 @@
 import { StyleSheet, View } from 'react-native'
 
 import { Text } from '@/components/ui'
+import { theme } from '@/theme'
 
 export function DashboardHeader() {
   const hour = new Date().getHours()
@@ -12,14 +13,23 @@ export function DashboardHeader() {
       ? 'Buenas tardes'
       : 'Buenas noches'
 
+  const subtitle =
+    hour < 12
+      ? 'Así está tu presión hoy'
+      : 'Resumen de tus últimas mediciones'
+
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>
+      <View style={styles.badge}>
+        <Text style={styles.badgeText}>Monitoreo diario</Text>
+      </View>
+
+      <Text variant="h1" style={styles.title}>
         {greeting}
       </Text>
 
       <Text style={styles.subtitle}>
-        CardioSync
+        {subtitle}
       </Text>
     </View>
   )
@@ -27,17 +37,33 @@ export function DashboardHeader() {
 
 const styles = StyleSheet.create({
   container: {
-    marginBottom: 24,
+    marginBottom: 8,
+    gap: 8,
+  },
+
+  badge: {
+    alignSelf: 'flex-start',
+    backgroundColor: theme.colors.primary,
+    borderRadius: 999,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+  },
+
+  badgeText: {
+    color: theme.colors.white,
+    fontSize: 12,
+    fontWeight: '600',
   },
 
   title: {
-    fontSize: 28,
+    fontSize: 30,
     fontWeight: '700',
+    color: theme.colors.text,
   },
 
   subtitle: {
-    fontSize: 16,
-    opacity: 0.7,
-    marginTop: 4,
+    fontSize: 15,
+    color: theme.colors.textSecondary,
+    lineHeight: 22,
   },
 })
