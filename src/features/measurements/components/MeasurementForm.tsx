@@ -5,16 +5,29 @@ import {
   AppSelectField,
   AppTextField,
 } from '@/components/form'
-import { createMeasurement } from '@/features/measurements/mappers/createMeasurement'
+import { BloodPressureRecord } from '@/domain/measurements/BloodPressureRecord'
 import { useMeasurementForm } from '@/features/measurements/hooks/useMeasurementForm'
+import {
+  createMeasurement,
+  updateMeasurement,
+} from '@/features/measurements/mappers/createMeasurement'
+import {
+  MeasurementFormData,
+} from '@/features/measurements/schema/measurement.schema'
 import { measurementService } from '@/features/measurements/services/MeasurementService'
 
 type Props = {
-  onSaved?: () => void
+  onSaved?: (record?: BloodPressureRecord) => void
+  mode?: 'create' | 'edit'
+  initialValues?: Partial<MeasurementFormData>
+  existingRecord?: BloodPressureRecord
 }
 
 export function MeasurementForm({
   onSaved,
+  mode = 'create',
+  initialValues,
+  existingRecord,
 }: Props) {
   const {
     control,
@@ -24,20 +37,26 @@ export function MeasurementForm({
       errors,
       isSubmitting,
     },
-  } = useMeasurementForm()
+  } = useMeasurementForm(initialValues)
 
   const submit = handleSubmit(
     async (values) => {
-      const measurement =
-        createMeasurement(values)
+      let measurement: BloodPressureRecord
 
-      measurementService.create(
-        measurement,
-      )
+      if (mode === 'edit' && existingRecord) {
+        measurement = updateMeasurement(
+          values,
+          existingRecord,
+        )
+        measurementService.update(measurement)
+      } else {
+        measurement = createMeasurement(values)
+        measurementService.create(measurement)
+      }
 
       reset()
 
-      onSaved?.()
+      onSaved?.(measurement)
     },
   )
 
@@ -57,6 +76,14 @@ export function MeasurementForm({
         label="Presión diastólica"
         keyboardType="number-pad"
         error={errors.diastolic?.message}
+      />
+
+      <AppTextField
+        control={control}
+        name="dateTime"
+        label="Fecha y hora"
+        placeholder="2024-01-01T12:00:00.000Z"
+        error={errors.dateTime?.message}
       />
 
       <AppTextField
@@ -115,7 +142,7 @@ export function MeasurementForm({
       />
 
       <AppButton
-        title="Guardar medición"
+        title={mode === 'edit' ? 'Guardar cambios' : 'Guardar medición'}
         onPress={submit}
         loading={isSubmitting}
       />

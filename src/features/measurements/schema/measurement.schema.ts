@@ -1,6 +1,8 @@
 import { z } from 'zod'
 
 export const measurementSchema = z.object({
+  dateTime: z.string().min(1),
+
   systolic: z.number().min(40).max(300),
 
   diastolic: z.number().min(20).max(200),

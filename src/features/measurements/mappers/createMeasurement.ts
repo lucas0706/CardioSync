@@ -12,7 +12,7 @@ export function createMeasurement(
       '-' +
       Math.random().toString(36).slice(2),
 
-    dateTime: now,
+    dateTime: values.dateTime ?? now,
 
     systolic: values.systolic,
 
@@ -28,6 +28,25 @@ export function createMeasurement(
 
     createdAt: now,
 
+    updatedAt: now,
+  }
+}
+
+export function updateMeasurement(
+  values: MeasurementFormData,
+  existingRecord: BloodPressureRecord,
+): BloodPressureRecord {
+  const now = new Date().toISOString()
+
+  return {
+    ...existingRecord,
+    dateTime: values.dateTime ?? existingRecord.dateTime,
+    systolic: values.systolic,
+    diastolic: values.diastolic,
+    heartRate: values.heartRate,
+    arm: values.arm ?? undefined,
+    position: values.position ?? undefined,
+    notes: values.notes,
     updatedAt: now,
   }
 }

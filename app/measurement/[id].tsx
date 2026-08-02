@@ -1,18 +1,41 @@
 import { useLocalSearchParams, useRouter } from 'expo-router'
-import { useMemo } from 'react'
+import { useEffect, useState } from 'react'
 import { StyleSheet, View } from 'react-native'
 
 import { Screen, Text } from '@/components/ui'
+import { BloodPressureRecord } from '@/domain/measurements/BloodPressureRecord'
 import { MeasurementDetail } from '@/features/measurements/components/MeasurementDetail'
+import { MeasurementForm } from '@/features/measurements/components/MeasurementForm'
 import { measurementService } from '@/features/measurements/services/MeasurementService'
 
 export default function MeasurementDetailScreen() {
   const router = useRouter()
   const { id } = useLocalSearchParams<{ id: string }>()
+  const [record, setRecord] = useState<BloodPressureRecord | null>(null)
+  const [isEditing, setIsEditing] = useState(false)
 
-  const record = useMemo(() => {
-    return measurementService.getAll().find((item) => item.id === id)
+  useEffect(() => {
+    const existing = measurementService
+      .getAll()
+      .find((item) => item.id === id)
+
+    setRecord(existing ?? null)
+    setIsEditing(false)
   }, [id])
+
+  const handleSaved = (updatedRecord?: BloodPressureRecord) => {
+    if (updatedRecord) {
+      setRecord(updatedRecord)
+    } else {
+      const existing = measurementService
+        .getAll()
+        .find((item) => item.id === id)
+
+      setRecord(existing ?? null)
+    }
+
+    setIsEditing(false)
+  }
 
   if (!record) {
     return (
@@ -33,7 +56,27 @@ export default function MeasurementDetailScreen() {
           </Text>
         </View>
 
-        <MeasurementDetail record={record} />
+        {isEditing ? (
+          <MeasurementForm
+            mode="edit"
+            existingRecord={record}
+            initialValues={{
+              dateTime: record.dateTime,
+              systolic: record.systolic,
+              diastolic: record.diastolic,
+              heartRate: record.heartRate,
+              notes: record.notes ?? '',
+              arm: record.arm,
+              position: record.position,
+            }}
+            onSaved={handleSaved}
+          />
+        ) : (
+          <MeasurementDetail
+            record={record}
+            onEdit={() => setIsEditing(true)}
+          />
+        )}
       </View>
     </Screen>
   )

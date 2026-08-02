@@ -8,9 +8,11 @@ import { classifyBloodPressure } from '@/features/measurements/utils/classifyBlo
 
 type Props = {
   record: BloodPressureRecord
+  onEdit?: () => void
+  onDelete?: () => void
 }
 
-export function MeasurementDetail({ record }: Props) {
+export function MeasurementDetail({ record, onEdit, onDelete }: Props) {
   const classification = classifyBloodPressure(
     record.systolic,
     record.diastolic,
@@ -91,8 +93,8 @@ export function MeasurementDetail({ record }: Props) {
       )}
 
       <View style={styles.actions}>
-        <AppButton title="Editar" onPress={() => undefined} />
-        <AppButton title="Eliminar" onPress={() => undefined} />
+        <AppButton title="Editar" onPress={onEdit ?? (() => undefined)} />
+        <AppButton title="Eliminar" onPress={onDelete ?? (() => undefined)} />
       </View>
     </ScrollView>
   )
