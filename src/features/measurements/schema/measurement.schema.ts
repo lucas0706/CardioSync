@@ -41,14 +41,6 @@ export const measurementSchema = z.object({
       'lying',
     ])
     .optional(),
-
-  context: z
-    .string()
-    .optional(),
-
-  symptoms: z
-    .string()
-    .optional(),
 })
 
 export type MeasurementFormData =

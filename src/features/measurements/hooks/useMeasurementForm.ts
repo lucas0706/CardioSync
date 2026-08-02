@@ -24,9 +24,6 @@ export function useMeasurementForm() {
       arm: 'left',
 
       position: 'sitting',
-      context: '',
-
-      symptoms: '',
     },
   })
 }

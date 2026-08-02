@@ -115,22 +115,6 @@ export function MeasurementForm({
 
       <AppTextField
         control={control}
-        name="context"
-        label="Contexto"
-        error={errors.context?.message}
-      />
-
-      <AppTextField
-        control={control}
-        name="symptoms"
-        label="Síntomas"
-        multiline
-        numberOfLines={3}
-        error={errors.symptoms?.message}
-      />
-
-      <AppTextField
-        control={control}
         name="notes"
         label="Notas"
         multiline
