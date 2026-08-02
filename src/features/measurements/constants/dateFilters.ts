@@ -4,6 +4,7 @@ export type MeasurementDateFilter =
   | 'month'
   | 'sixMonths'
   | 'year'
+  | 'custom'
 
 export const MEASUREMENT_DATE_FILTERS: Array<{
   key: MeasurementDateFilter
@@ -14,4 +15,5 @@ export const MEASUREMENT_DATE_FILTERS: Array<{
   { key: 'month', label: 'Último mes' },
   { key: 'sixMonths', label: 'Últimos 6 meses' },
   { key: 'year', label: 'Último año' },
+  { key: 'custom', label: 'Personalizado' },
 ]
