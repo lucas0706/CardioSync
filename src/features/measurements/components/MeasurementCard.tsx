@@ -30,84 +30,71 @@ export function MeasurementCard({
       }
     >
       <Card>
-        <View style={styles.header}>
-          <ClassificationBadge classification={classification} />
-
-          <Text style={styles.date}>
-            {formatDateTime(record.dateTime)}
-          </Text>
-        </View>
-
-        <Text style={styles.pressure}>
-          {record.systolic}/{record.diastolic}
-        </Text>
-
-        <View style={styles.info}>
-          {record.heartRate != null && (
-            <Text style={styles.metaText}>
-              ❤️ {record.heartRate} lpm
+        <View style={styles.content}>
+          <View style={styles.leftColumn}>
+            <Text style={styles.pressure}>
+              {record.systolic}/{record.diastolic} mmHg
             </Text>
-          )}
 
-          {(record.arm || record.position) && (
-            <Text style={styles.metaText}>
-              {record.arm === 'left' ? 'Izq.' : record.arm === 'right' ? 'Der.' : ''}
-              {record.arm && record.position ? ' · ' : ''}
-              {record.position === 'sitting'
-                ? 'Sentado'
-                : record.position === 'standing'
-                  ? 'De pie'
-                  : record.position === 'lying'
-                    ? 'Acostado'
-                    : ''}
+            <Text style={styles.secondaryLine}>
+              {[
+                record.heartRate != null ? `❤️ ${record.heartRate} bpm` : null,
+                formatDateTime(record.dateTime),
+                record.arm === 'left'
+                  ? 'Brazo izquierdo'
+                  : record.arm === 'right'
+                    ? 'Brazo derecho'
+                    : null,
+                record.position === 'sitting'
+                  ? 'Sentado'
+                  : record.position === 'standing'
+                    ? 'De pie'
+                    : record.position === 'lying'
+                      ? 'Acostado'
+                      : null,
+              ]
+                .filter(Boolean)
+                .join(' • ')}
             </Text>
-          )}
-        </View>
+          </View>
 
-        {record.notes ? (
-          <Text style={styles.notes}>
-            {record.notes}
-          </Text>
-        ) : null}
+          <View style={styles.rightColumn}>
+            <ClassificationBadge classification={classification} />
+          </View>
+        </View>
       </Card>
     </Pressable>
   )
 }
 
 const styles = StyleSheet.create({
-  header: {
+  content: {
     alignItems: 'center',
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 8,
+    gap: 10,
   },
 
-  date: {
-    color: '#64748B',
-    fontSize: 12,
-    opacity: 0.9,
-  },
-
-  pressure: {
-    fontSize: 28,
-    fontWeight: '700',
-    lineHeight: 32,
-    marginBottom: 6,
-  },
-
-  info: {
+  leftColumn: {
+    flex: 1,
     gap: 2,
   },
 
-  metaText: {
-    color: '#475569',
-    fontSize: 12,
+  pressure: {
+    color: '#0F172A',
+    fontSize: 20,
+    fontWeight: '700',
+    lineHeight: 24,
   },
 
-  notes: {
+  secondaryLine: {
     color: '#64748B',
     fontSize: 12,
-    marginTop: 8,
-    opacity: 0.9,
+    lineHeight: 16,
+  },
+
+  rightColumn: {
+    alignItems: 'flex-end',
+    justifyContent: 'center',
   },
 })
