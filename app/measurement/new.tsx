@@ -10,8 +10,14 @@ export default function NewMeasurementScreen() {
   return (
     <Screen>
       <View style={styles.container}>
-        <ScrollView showsVerticalScrollIndicator={false}>
-          <MeasurementForm onSaved={() => router.back()} />
+        <ScrollView
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+        >
+          <View style={styles.formWrapper}>
+            <MeasurementForm onSaved={() => router.back()} />
+          </View>
         </ScrollView>
       </View>
     </Screen>
@@ -21,6 +27,17 @@ export default function NewMeasurementScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    position: 'relative',
+  },
+
+  scrollContent: {
+    flexGrow: 1,
+    justifyContent: 'center',
+    paddingVertical: 16,
+  },
+
+  formWrapper: {
+    width: '100%',
+    maxWidth: 480,
+    alignSelf: 'center',
   },
 })
