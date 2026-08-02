@@ -1,7 +1,6 @@
 import { StyleSheet, View } from 'react-native'
 
 import {
-  AppBooleanField,
   AppButton,
   AppSelectField,
   AppTextField,
@@ -130,20 +129,6 @@ export function MeasurementForm({
         error={errors.symptoms?.message}
       />
 
-      <AppBooleanField
-        control={control}
-        name="medicationTaken"
-        label="¿Tomó medicación?"
-        error={errors.medicationTaken?.message}
-      />
-
-      <AppTextField
-        control={control}
-        name="medicationName"
-        label="Medicamento tomado"
-        error={errors.medicationName?.message}
-      />
-
       <AppTextField
         control={control}
         name="notes"
@@ -164,6 +149,6 @@ export function MeasurementForm({
 
 const styles = StyleSheet.create({
   container: {
-    gap: 16,
+    gap: 14,
   },
 })

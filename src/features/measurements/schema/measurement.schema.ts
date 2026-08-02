@@ -49,14 +49,6 @@ export const measurementSchema = z.object({
   symptoms: z
     .string()
     .optional(),
-
-  medicationTaken: z
-    .boolean()
-    .optional(),
-
-  medicationName: z
-    .string()
-    .optional(),
 })
 
 export type MeasurementFormData =

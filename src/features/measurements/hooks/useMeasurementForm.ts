@@ -27,10 +27,6 @@ export function useMeasurementForm() {
       context: '',
 
       symptoms: '',
-
-      medicationTaken: false,
-
-      medicationName: '',
     },
   })
 }

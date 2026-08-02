@@ -29,12 +29,6 @@ export function createMeasurement(
     context: values.context,
 
     symptoms: values.symptoms,
-
-    medicationTaken:
-      values.medicationTaken,
-
-    medicationName:
-      values.medicationName,
     notes: values.notes,
 
     createdAt: now,
