@@ -6,12 +6,23 @@ import { DashboardHeader } from '@/features/dashboard/components/DashboardHeader
 import { LatestMeasurementCard } from '@/features/dashboard/components/LatestMeasurementCard'
 import { SummaryCard } from '@/features/dashboard/components/SummaryCard'
 import { useDashboard } from '@/features/dashboard/hooks/useDashboard'
+import { useMeasurements } from '@/features/measurements/hooks/useMeasurements'
 import { theme } from '@/theme'
 
 export default function HomeScreen() {
   const summary = useDashboard()
+  const { measurements } = useMeasurements()
   const router = useRouter()
   const hasMeasurements = summary.totalMeasurements > 0
+
+  const lastUpdated = measurements[0]?.dateTime
+    ? new Date(measurements[0].dateTime).toLocaleString('es-ES', {
+        day: '2-digit',
+        month: 'short',
+        hour: '2-digit',
+        minute: '2-digit',
+      })
+    : '--'
 
   return (
     <Screen>
@@ -30,7 +41,7 @@ export default function HomeScreen() {
 
         <View style={styles.sectionHeader}>
           <Text variant="title" style={styles.sectionTitle}>
-            Resumen rápido
+            Resumen clínico
           </Text>
           <Text style={styles.sectionSubtitle}>
             Información clave de tu seguimiento
@@ -40,31 +51,29 @@ export default function HomeScreen() {
         <View style={styles.summaryGrid}>
           <View style={styles.summaryItem}>
             <SummaryCard
-              title="Promedio"
+              title="Promedio semanal"
               value={
                 summary.totalMeasurements === 0
-                  ? "--/--"
+                  ? '--/--'
                   : `${summary.averageSystolic}/${summary.averageDiastolic}`
               }
+              subtitle="Media de tus registros"
             />
           </View>
 
           <View style={styles.summaryItem}>
             <SummaryCard
-              title="Registros"
+              title="Cantidad de registros"
               value={summary.totalMeasurements.toString()}
+              subtitle="Mediciones guardadas"
             />
           </View>
 
           <View style={styles.summaryItem}>
             <SummaryCard
-              title="Pulso"
-              value={
-                summary.averageHeartRate == null
-                  ? "--"
-                  : `${summary.averageHeartRate}`
-              }
-              subtitle="Promedio"
+              title="Última actualización"
+              value={lastUpdated}
+              subtitle="Registro más reciente"
             />
           </View>
         </View>
