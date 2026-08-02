@@ -1,7 +1,7 @@
 import { useRouter } from 'expo-router'
 import { ScrollView, StyleSheet, View } from 'react-native'
 
-import { Card, FloatingActionButton, Screen, Text } from '@/components/ui'
+import { Button, Card, FloatingActionButton, Screen, Text } from '@/components/ui'
 import { DashboardHeader } from '@/features/dashboard/components/DashboardHeader'
 import { LatestMeasurementCard } from '@/features/dashboard/components/LatestMeasurementCard'
 import { SummaryCard } from '@/features/dashboard/components/SummaryCard'
@@ -83,11 +83,15 @@ export default function HomeScreen() {
           <Card>
             <View style={styles.emptyState}>
               <Text variant="title" style={styles.emptyTitle}>
-                Tu seguimiento está listo para comenzar
+                Aún no registraste mediciones
               </Text>
               <Text style={styles.emptyText}>
-                Guarda tu primera medición para ver aquí un resumen claro y ordenado.
+                Registra tu primera toma para empezar a ver tu resumen clínico y seguir tu presión de forma sencilla.
               </Text>
+              <Button
+                title="Registrar primera medición"
+                onPress={() => router.push('/measurement/new')}
+              />
             </View>
           </Card>
         ) : null}
