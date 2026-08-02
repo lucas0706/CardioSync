@@ -8,6 +8,7 @@ import { SummaryCard } from '@/features/dashboard/components/SummaryCard'
 import { useDashboard } from '@/features/dashboard/hooks/useDashboard'
 import { useMeasurements } from '@/features/measurements/hooks/useMeasurements'
 import { theme } from '@/theme'
+import { formatDateTime } from '@/utils/date'
 
 export default function HomeScreen() {
   const summary = useDashboard()
@@ -15,14 +16,7 @@ export default function HomeScreen() {
   const router = useRouter()
   const hasMeasurements = summary.totalMeasurements > 0
 
-  const lastUpdated = measurements[0]?.dateTime
-    ? new Date(measurements[0].dateTime).toLocaleString('es-ES', {
-        day: '2-digit',
-        month: 'short',
-        hour: '2-digit',
-        minute: '2-digit',
-      })
-    : '--'
+  const lastUpdated = formatDateTime(measurements[0]?.dateTime)
 
   return (
     <Screen>

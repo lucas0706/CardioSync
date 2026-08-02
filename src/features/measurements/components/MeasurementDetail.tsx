@@ -5,6 +5,7 @@ import { Text } from '@/components/ui'
 import { BloodPressureRecord } from '@/domain/measurements/BloodPressureRecord'
 import { ClassificationBadge } from '@/features/measurements/components/ClassificationBadge'
 import { classifyBloodPressure } from '@/features/measurements/utils/classifyBloodPressure'
+import { formatDateTime } from '@/utils/date'
 
 type Props = {
   record: BloodPressureRecord
@@ -28,7 +29,7 @@ export function MeasurementDetail({ record, onEdit, onDelete }: Props) {
 
         <Text style={styles.title}>Detalle de medición</Text>
         <Text style={styles.date}>
-          {new Date(record.dateTime).toLocaleString()}
+          {formatDateTime(record.dateTime)}
         </Text>
       </View>
 
