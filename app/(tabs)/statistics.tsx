@@ -6,7 +6,7 @@ import {
   SectionTitle,
   Text,
 } from '@/components/ui'
-import { BloodPressureChart } from '@/features/dashboard/components/BloodPressureChart'
+import { ClinicalChart } from '@/components/charts/ClinicalChart'
 import { StatisticsService } from '@/features/dashboard/services/StatisticsService'
 import { useMeasurements } from '@/features/measurements/hooks/useMeasurements'
 import { formatDateTime } from '@/utils/date'
@@ -52,8 +52,8 @@ export default function StatisticsScreen() {
             Evolución de la presión
           </Text>
 
-          <BloodPressureChart
-            data={measurements}
+          <ClinicalChart
+            records={measurements}
           />
         </Card>
 
