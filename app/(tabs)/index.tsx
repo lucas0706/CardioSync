@@ -1,14 +1,14 @@
-import { useState } from 'react'
+
 import { useRouter } from 'expo-router'
 import { ScrollView, StyleSheet, View } from 'react-native'
 
 import { Button, Card, FloatingActionButton, Screen, Text } from '@/components/ui'
-import { ClinicalChart } from '@/components/charts/ClinicalChart'
+import { ClinicalChartContainer } from '@/components/charts/ClinicalChartContainer'
 import { ClinicalSeriesSelector } from '@/components/charts/ClinicalSeriesSelector'
 
 import { getAvailableClinicalSeries } from '@/components/charts/utils/getAvailableClinicalSeries'
 import { ClinicalSeries } from '@/components/charts/types/ClinicalSeries'
-import { ClinicalTargets } from '@/clinical/targets'
+
 import { DashboardHeader } from '@/features/dashboard/components/DashboardHeader'
 import { LatestMeasurementCard } from '@/features/dashboard/components/LatestMeasurementCard'
 import { SummaryCard } from '@/features/dashboard/components/SummaryCard'
@@ -22,15 +22,6 @@ export default function HomeScreen() {
   const { measurements } = useMeasurements()
   const router = useRouter()
 
-  const availableSeries =
-    getAvailableClinicalSeries(
-      measurements,
-    )
-
-  const [selectedSeries, setSelectedSeries] =
-    useState<ClinicalSeries[]>(
-      () => availableSeries,
-    )
   const hasMeasurements = summary.totalMeasurements > 0
 
   const lastUpdated = formatDateTime(measurements[0]?.dateTime)
@@ -90,26 +81,8 @@ export default function HomeScreen() {
           </View>
         </View>
 
-        <ClinicalSeriesSelector
-          availableSeries={
-            availableSeries
-          }
-          selectedSeries={
-            selectedSeries
-          }
-          onChange={
-            setSelectedSeries
-          }
-        />
-
-        <ClinicalChart
+        <ClinicalChartContainer
           records={measurements}
-          target={
-            ClinicalTargets.default
-          }
-          series={
-            selectedSeries
-          }
         />
 
         {!hasMeasurements ? (
