@@ -7,8 +7,6 @@ export const measurementSchema = z.object({
 
   heartRate: z.number().min(20).max(250).optional(),
 
-  weight: z.number().min(20).max(400).optional(),
-
   notes: z.string().optional(),
 
   arm: z
