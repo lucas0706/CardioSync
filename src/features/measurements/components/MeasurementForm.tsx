@@ -1,3 +1,4 @@
+import { useEffect, useMemo, useState } from 'react'
 import { StyleSheet, View } from 'react-native'
 
 import {
@@ -15,6 +16,7 @@ import {
   MeasurementFormData,
 } from '@/features/measurements/schema/measurement.schema'
 import { measurementService } from '@/features/measurements/services/MeasurementService'
+import { formatDateTime } from '@/utils/date'
 
 type Props = {
   onSaved?: (record?: BloodPressureRecord) => void
@@ -33,24 +35,59 @@ export function MeasurementForm({
     control,
     handleSubmit,
     reset,
+    setValue,
+    watch,
     formState: {
       errors,
       isSubmitting,
     },
   } = useMeasurementForm(initialValues)
 
+  const [displayDate, setDisplayDate] = useState('')
+  const watchedDateTime = watch('dateTime')
+
+  useEffect(() => {
+    if (!watchedDateTime) {
+      setDisplayDate('')
+      return
+    }
+
+    const nextDisplayDate = formatDateTime(watchedDateTime)
+    if (nextDisplayDate !== displayDate) {
+      setDisplayDate(nextDisplayDate)
+    }
+  }, [watchedDateTime, displayDate])
+
+  const parsedDateTime = useMemo(() => {
+    if (!watchedDateTime) {
+      return ''
+    }
+
+    const parsed = new Date(watchedDateTime)
+    if (Number.isNaN(parsed.getTime())) {
+      return ''
+    }
+
+    return parsed.toISOString()
+  }, [watchedDateTime])
+
   const submit = handleSubmit(
     async (values) => {
+      const normalizedValues = {
+        ...values,
+        dateTime: values.dateTime ?? parsedDateTime,
+      }
+
       let measurement: BloodPressureRecord
 
       if (mode === 'edit' && existingRecord) {
         measurement = updateMeasurement(
-          values,
+          normalizedValues,
           existingRecord,
         )
         measurementService.update(measurement)
       } else {
-        measurement = createMeasurement(values)
+        measurement = createMeasurement(normalizedValues)
         measurementService.create(measurement)
       }
 
@@ -82,7 +119,19 @@ export function MeasurementForm({
         control={control}
         name="dateTime"
         label="Fecha y hora"
-        placeholder="2024-01-01T12:00:00.000Z"
+        placeholder="DD/MM/AAAA - HH:mm"
+        value={displayDate}
+        onChangeText={(text) => {
+          setDisplayDate(text)
+
+          const parsed = new Date(text)
+          if (!Number.isNaN(parsed.getTime())) {
+            setValue('dateTime', parsed.toISOString(), {
+              shouldDirty: true,
+              shouldValidate: true,
+            })
+          }
+        }}
         error={errors.dateTime?.message}
       />
 
