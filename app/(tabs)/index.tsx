@@ -3,7 +3,6 @@ import { useRouter } from 'expo-router'
 import { ScrollView, StyleSheet, View } from 'react-native'
 
 import { Button, Card, FloatingActionButton, Screen, Text } from '@/components/ui'
-import { ClinicalChartContainer } from '@/components/charts/ClinicalChartContainer'
 import { ClinicalSeriesSelector } from '@/components/charts/ClinicalSeriesSelector'
 
 import { getAvailableClinicalSeries } from '@/components/charts/utils/getAvailableClinicalSeries'
@@ -80,10 +79,6 @@ export default function HomeScreen() {
             />
           </View>
         </View>
-
-        <ClinicalChartContainer
-          records={measurements}
-        />
 
         {!hasMeasurements ? (
           <Card>
