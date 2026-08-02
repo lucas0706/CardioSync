@@ -31,8 +31,8 @@ export function SummaryCard({
 
 const styles = StyleSheet.create({
   container: {
-    gap: 6,
-    minHeight: 112,
+    gap: 4,
+    minHeight: 96,
     justifyContent: 'center',
   },
 
@@ -43,7 +43,7 @@ const styles = StyleSheet.create({
   },
 
   value: {
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: '700',
     color: theme.colors.text,
   },

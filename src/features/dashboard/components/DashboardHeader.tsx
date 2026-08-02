@@ -37,9 +37,9 @@ export function DashboardHeader() {
 
 const styles = StyleSheet.create({
   container: {
-    marginTop: 4,
-    marginBottom: 8,
-    gap: 8,
+    marginTop: 2,
+    marginBottom: 4,
+    gap: 6,
   },
 
   badge: {
@@ -57,14 +57,14 @@ const styles = StyleSheet.create({
   },
 
   title: {
-    fontSize: 30,
+    fontSize: 26,
     fontWeight: '700',
     color: theme.colors.text,
   },
 
   subtitle: {
-    fontSize: 15,
+    fontSize: 14,
     color: theme.colors.textSecondary,
-    lineHeight: 22,
+    lineHeight: 20,
   },
 })

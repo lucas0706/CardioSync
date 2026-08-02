@@ -29,6 +29,7 @@ export default function HomeScreen() {
       <ScrollView
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
+        scrollEnabled={false}
       >
         <DashboardHeader />
 
@@ -99,16 +100,16 @@ export default function HomeScreen() {
 
 const styles = StyleSheet.create({
   content: {
-    gap: 20,
-    paddingBottom: 40,
+    gap: 12,
+    paddingBottom: 12,
   },
 
   heroSection: {
-    marginTop: 4,
+    marginTop: 2,
   },
 
   sectionHeader: {
-    gap: 4,
+    gap: 2,
   },
 
   sectionTitle: {
