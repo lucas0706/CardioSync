@@ -1,4 +1,6 @@
 import { BloodPressureRecord } from '@/domain/measurements/BloodPressureRecord'
+import { ClassificationResult } from '@/features/measurements/constants/classification'
+import { classifyBloodPressure } from '@/features/measurements/utils/classifyBloodPressure'
 
 export class StatisticsService {
   constructor(
@@ -11,43 +13,94 @@ export class StatisticsService {
 
   get averageSystolic() {
     return Math.round(
-      this.records.reduce((s, r) => s + r.systolic, 0) /
+      this.records.reduce((sum, record) => sum + record.systolic, 0) /
         this.records.length,
     )
   }
 
   get averageDiastolic() {
     return Math.round(
-      this.records.reduce((s, r) => s + r.diastolic, 0) /
+      this.records.reduce((sum, record) => sum + record.diastolic, 0) /
         this.records.length,
     )
   }
 
   get maxSystolic() {
-    return Math.max(...this.records.map((r) => r.systolic))
+    return Math.max(...this.records.map((record) => record.systolic))
   }
 
   get minSystolic() {
-    return Math.min(...this.records.map((r) => r.systolic))
+    return Math.min(...this.records.map((record) => record.systolic))
   }
 
   get maxDiastolic() {
-    return Math.max(...this.records.map((r) => r.diastolic))
+    return Math.max(...this.records.map((record) => record.diastolic))
   }
 
   get minDiastolic() {
-    return Math.min(...this.records.map((r) => r.diastolic))
+    return Math.min(...this.records.map((record) => record.diastolic))
   }
 
   get averageHeartRate() {
-    const hr = this.records
-      .map((r) => r.heartRate)
-      .filter((v): v is number => v !== undefined)
+    const values = this.records
+      .map((record) => record.heartRate)
+      .filter((value): value is number => value !== undefined)
 
-    if (!hr.length) return null
+    if (!values.length) {
+      return null
+    }
 
     return Math.round(
-      hr.reduce((a, b) => a + b, 0) / hr.length,
+      values.reduce((sum, value) => sum + value, 0) /
+        values.length,
+    )
+  }
+
+  get predominantClassification() {
+    const map = new Map<
+      ClassificationResult['category'],
+      {
+        count: number
+        label: string
+      }
+    >()
+
+    this.records.forEach((record) => {
+      const result = classifyBloodPressure(
+        record.systolic,
+        record.diastolic,
+      )
+
+      const current = map.get(result.category)
+
+      map.set(result.category, {
+        count: (current?.count ?? 0) + 1,
+        label: result.label,
+      })
+    })
+
+    return (
+      [...map.values()].sort(
+        (a, b) => b.count - a.count,
+      )[0]?.label ?? '-'
+    )
+  }
+
+  get normalPercentage() {
+    if (!this.records.length) {
+      return 0
+    }
+
+    const normal = this.records.filter(
+      (record) =>
+        classifyBloodPressure(
+          record.systolic,
+          record.diastolic,
+        ).category === 'normal',
+    ).length
+
+    return Math.round(
+      (normal / this.records.length) * 100,
     )
   }
 }
