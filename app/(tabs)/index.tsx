@@ -2,6 +2,7 @@ import { useRouter } from 'expo-router'
 import { ScrollView, StyleSheet, View } from 'react-native'
 
 import { Button, Card, FloatingActionButton, Screen, Text } from '@/components/ui'
+import { ClinicalChart } from '@/components/charts/ClinicalChart'
 import { DashboardHeader } from '@/features/dashboard/components/DashboardHeader'
 import { LatestMeasurementCard } from '@/features/dashboard/components/LatestMeasurementCard'
 import { SummaryCard } from '@/features/dashboard/components/SummaryCard'
@@ -72,6 +73,14 @@ export default function HomeScreen() {
             />
           </View>
         </View>
+
+        <ClinicalChart
+          records={measurements}
+          target={{
+            systolic: 120,
+            diastolic: 80,
+          }}
+        />
 
         {!hasMeasurements ? (
           <Card>
