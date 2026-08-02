@@ -24,6 +24,7 @@ import { ClinicalChartProps } from './types/ClinicalChartProps'
 import { useClinicalChartData } from './hooks/useClinicalChartData'
 import { useClinicalChartConfig } from './hooks/useClinicalChartConfig'
 import { useClinicalTargetLines } from './hooks/useClinicalTargetLines'
+import { useClinicalChartFont } from './hooks/useClinicalChartFont'
 
 import { getClinicalYKeys } from './utils/getClinicalYKeys'
 
@@ -56,6 +57,9 @@ export function ClinicalChart({
     })
 
 
+  const font =
+    useClinicalChartFont()
+
   const transform =
     useChartTransformState({
       scaleX: 1,
@@ -79,6 +83,32 @@ export function ClinicalChart({
               series,
             )
           }
+
+          xAxis={{
+            tickCount: 6,
+            formatXLabel: value =>
+              new Date(String(value)).toLocaleDateString(
+                [],
+                {
+                  day: '2-digit',
+                  month: '2-digit',
+                },
+              ),
+            font,
+            labelColor: '#64748B',
+              lineColor: '#CBD5E1',
+          }}
+
+          yAxis={[
+            {
+              tickCount: 6,
+              font,
+              formatYLabel: value =>
+                `${Math.round(Number(value))}`,
+              labelColor: '#64748B',
+              lineColor: '#CBD5E1',
+            },
+          ]}
 
           chartPressState={
             press.state
