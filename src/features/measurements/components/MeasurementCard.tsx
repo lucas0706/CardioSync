@@ -72,25 +72,25 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flexDirection: 'row',
     justifyContent: 'space-between',
-    gap: 10,
+    gap: 8,
   },
 
   leftColumn: {
     flex: 1,
-    gap: 2,
+    gap: 1,
   },
 
   pressure: {
     color: '#0F172A',
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: '700',
-    lineHeight: 24,
+    lineHeight: 20,
   },
 
   secondaryLine: {
     color: '#64748B',
-    fontSize: 12,
-    lineHeight: 16,
+    fontSize: 11,
+    lineHeight: 14,
   },
 
   rightColumn: {

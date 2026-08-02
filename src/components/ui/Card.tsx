@@ -10,8 +10,8 @@ export function Card({ children }: PropsWithChildren) {
 const styles = StyleSheet.create({
   card: {
     backgroundColor: theme.colors.surface,
-    borderRadius: 14,
-    paddingHorizontal: 10,
-    paddingVertical: 8,
+    borderRadius: 12,
+    paddingHorizontal: 8,
+    paddingVertical: 6,
   },
 })
