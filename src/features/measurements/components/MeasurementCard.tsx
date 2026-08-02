@@ -1,4 +1,5 @@
-import { StyleSheet, View } from 'react-native'
+import { useRouter } from 'expo-router'
+import { Pressable, StyleSheet, View } from 'react-native'
 
 import { Card, Text } from '@/components/ui'
 import { BloodPressureRecord } from '@/domain/measurements/BloodPressureRecord'
@@ -12,14 +13,23 @@ type Props = {
 export function MeasurementCard({
   record,
 }: Props) {
+  const router = useRouter()
   const classification = classifyBloodPressure(
     record.systolic,
     record.diastolic,
   )
 
   return (
-    <Card>
-      <View style={styles.header}>
+    <Pressable
+      onPress={() =>
+        router.push({
+          pathname: '/measurement/[id]',
+          params: { id: record.id },
+        })
+      }
+    >
+      <Card>
+        <View style={styles.header}>
         <ClassificationBadge
           classification={classification}
         />
@@ -47,12 +57,13 @@ export function MeasurementCard({
         )}
       </View>
 
-      {record.notes ? (
-        <Text style={styles.notes}>
-          {record.notes}
-        </Text>
-      ) : null}
-    </Card>
+        {record.notes ? (
+          <Text style={styles.notes}>
+            {record.notes}
+          </Text>
+        ) : null}
+      </Card>
+    </Pressable>
   )
 }
 
