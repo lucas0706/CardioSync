@@ -26,9 +26,6 @@ export function createMeasurement(
 
     position: values.position,
 
-    context: values.context,
-
-    symptoms: values.symptoms,
     notes: values.notes,
 
     createdAt: now,
