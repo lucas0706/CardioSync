@@ -37,6 +37,7 @@ export function DashboardHeader() {
 
 const styles = StyleSheet.create({
   container: {
+    marginTop: 4,
     marginBottom: 8,
     gap: 8,
   },
