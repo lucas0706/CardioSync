@@ -7,6 +7,7 @@ export class StatisticsService {
     private readonly records: BloodPressureRecord[],
   ) {}
 
+
   get total() {
     return this.records.length
   }
