@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { StyleSheet, View } from 'react-native'
 
 import { ClinicalSeriesSelector } from './ClinicalSeriesSelector'
 import { defaultClinicalSeries } from './constants/clinicalSeries'
@@ -32,7 +33,7 @@ export function ClinicalChartContainer({
   )
 
   return (
-    <>
+    <View style={styles.container}>
       <ClinicalSeriesSelector
         availableSeries={
           availableSeries
@@ -54,6 +55,12 @@ export function ClinicalChartContainer({
           selectedSeries
         }
       />
-    </>
+    </View>
   )
 }
+
+const styles = StyleSheet.create({
+  container: {
+    gap: 16,
+  },
+})
