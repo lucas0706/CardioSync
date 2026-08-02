@@ -20,11 +20,9 @@ export default function StatisticsScreen() {
         />
 
         <Card>
-          <Text variant="title">
-            Sin datos
-          </Text>
+          <Text variant="title">Sin datos</Text>
 
-          <Text style={styles.subtitle}>
+          <Text style={styles.description}>
             Registrá tu primera medición para comenzar a visualizar estadísticas.
           </Text>
         </Card>
@@ -35,28 +33,32 @@ export default function StatisticsScreen() {
   const count = measurements.length
 
   const avgSys = Math.round(
-    measurements.reduce((a, m) => a + m.systolic, 0) / count,
+    measurements.reduce((sum, item) => sum + item.systolic, 0) / count,
   )
 
   const avgDia = Math.round(
-    measurements.reduce((a, m) => a + m.diastolic, 0) / count,
+    measurements.reduce((sum, item) => sum + item.diastolic, 0) / count,
   )
 
-  const hrValues = measurements.filter(
-    (m) => m.heartRate != null,
-  )
+  const heartRates = measurements
+    .map((item) => item.heartRate)
+    .filter((value): value is number => value !== undefined)
 
-  const avgHr =
-    hrValues.length > 0
+  const avgHeartRate =
+    heartRates.length > 0
       ? Math.round(
-          hrValues.reduce(
-            (a, m) => a + (m.heartRate ?? 0),
-            0,
-          ) / hrValues.length,
+          heartRates.reduce((sum, value) => sum + value, 0) /
+            heartRates.length,
         )
       : null
 
-  const last = measurements[0]
+  const maxSys = Math.max(...measurements.map((m) => m.systolic))
+  const minSys = Math.min(...measurements.map((m) => m.systolic))
+
+  const maxDia = Math.max(...measurements.map((m) => m.diastolic))
+  const minDia = Math.min(...measurements.map((m) => m.diastolic))
+
+  const latest = measurements[0]
 
   return (
     <Screen>
@@ -79,22 +81,30 @@ export default function StatisticsScreen() {
         </Card>
 
         <Card style={styles.card}>
-          <Text variant="caption">
-            FC promedio
-          </Text>
-
+          <Text variant="caption">Máxima</Text>
           <Text variant="h2">
-            {avgHr ?? '--'}
+            {maxSys}/{maxDia}
           </Text>
         </Card>
 
         <Card style={styles.card}>
-          <Text variant="caption">
-            Última medición
+          <Text variant="caption">Mínima</Text>
+          <Text variant="h2">
+            {minSys}/{minDia}
           </Text>
+        </Card>
 
+        <Card style={styles.card}>
+          <Text variant="caption">FC promedio</Text>
+          <Text variant="h2">
+            {avgHeartRate ?? '--'}
+          </Text>
+        </Card>
+
+        <Card style={styles.card}>
+          <Text variant="caption">Última medición</Text>
           <Text variant="body">
-            {last.dateTime}
+            {latest.dateTime}
           </Text>
         </Card>
       </View>
@@ -103,16 +113,17 @@ export default function StatisticsScreen() {
 }
 
 const styles = StyleSheet.create({
-  subtitle: {
-    marginTop: 8,
-    opacity: 0.7,
-  },
-
   grid: {
     gap: 16,
   },
 
   card: {
     gap: 8,
+  },
+
+  description: {
+    marginTop: 8,
+    opacity: 0.7,
+    lineHeight: 22,
   },
 })
