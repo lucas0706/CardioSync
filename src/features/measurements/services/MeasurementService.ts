@@ -10,6 +10,10 @@ export class MeasurementService {
     bloodPressureRepository.create(record)
   }
 
+  update(record: BloodPressureRecord): void {
+    bloodPressureRepository.update(record)
+  }
+
   count(): number {
     return bloodPressureRepository.count()
   }

@@ -65,6 +65,35 @@ export class BloodPressureRepository {
     )
   }
 
+  update(record: BloodPressureRecord): void {
+    database.runSync(
+      `
+      UPDATE blood_pressure_records
+      SET
+        dateTime = ?,
+        systolic = ?,
+        diastolic = ?,
+        heartRate = ?,
+        notes = ?,
+        arm = ?,
+        position = ?,
+        updatedAt = ?
+      WHERE id = ?
+      `,
+      [
+        record.dateTime,
+        record.systolic,
+        record.diastolic,
+        record.heartRate ?? null,
+        record.notes ?? null,
+        record.arm ?? null,
+        record.position ?? null,
+        record.updatedAt,
+        record.id,
+      ],
+    )
+  }
+
   count(): number {
     const row = database.getFirstSync<{ total: number }>(
       `
