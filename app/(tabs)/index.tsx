@@ -1,6 +1,7 @@
+import { useRouter } from 'expo-router'
 import { ScrollView, StyleSheet, View } from 'react-native'
 
-import { Screen } from '@/components/ui'
+import { FloatingActionButton, Screen } from '@/components/ui'
 import { DashboardHeader } from '@/features/dashboard/components/DashboardHeader'
 import { LatestMeasurementCard } from '@/features/dashboard/components/LatestMeasurementCard'
 import { SummaryCard } from '@/features/dashboard/components/SummaryCard'
@@ -8,6 +9,7 @@ import { useDashboard } from '@/features/dashboard/hooks/useDashboard'
 
 export default function HomeScreen() {
   const summary = useDashboard()
+  const router = useRouter()
 
   return (
     <Screen>
@@ -48,6 +50,8 @@ export default function HomeScreen() {
           />
         </View>
       </ScrollView>
+
+      <FloatingActionButton onPress={() => router.push('/measurement/new')} />
     </Screen>
   )
 }

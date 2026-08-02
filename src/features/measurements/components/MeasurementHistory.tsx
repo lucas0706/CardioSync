@@ -6,7 +6,7 @@ import { MeasurementCard } from '@/features/measurements/components/MeasurementC
 import { useMeasurements } from '@/features/measurements/hooks/useMeasurements'
 
 type Props = {
-  refreshKey: number
+  refreshKey?: number
 }
 
 export function MeasurementHistory({ refreshKey }: Props) {

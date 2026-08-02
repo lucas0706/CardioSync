@@ -1,23 +1,19 @@
-import { Screen } from '@/components/ui'
-import { MeasurementForm } from '@/features/measurements/components/MeasurementForm'
-import { MeasurementHistory } from '@/features/measurements/components/MeasurementHistory'
+import { useRouter } from 'expo-router'
 import { ScrollView } from 'react-native'
-import { useState } from 'react'
+
+import { FloatingActionButton, Screen } from '@/components/ui'
+import { MeasurementHistory } from '@/features/measurements/components/MeasurementHistory'
 
 export default function MeasurementsScreen() {
-  const [refreshKey, setRefreshKey] = useState(0)
+  const router = useRouter()
 
   return (
     <Screen>
       <ScrollView showsVerticalScrollIndicator={false}>
-        <MeasurementForm
-          onSaved={() => setRefreshKey((k) => k + 1)}
-        />
-
-        <MeasurementHistory
-          refreshKey={refreshKey}
-        />
+        <MeasurementHistory />
       </ScrollView>
+
+      <FloatingActionButton onPress={() => router.push('/measurement/new')} />
     </Screen>
   )
 }
