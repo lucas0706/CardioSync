@@ -65,8 +65,8 @@ export function LatestMeasurementCard({
 
 const styles = StyleSheet.create({
   container: {
-    gap: 10,
-    paddingVertical: 4,
+    gap: 8,
+    paddingVertical: 2,
   },
 
   header: {
@@ -82,7 +82,7 @@ const styles = StyleSheet.create({
   },
 
   pressure: {
-    fontSize: 42,
+    fontSize: 36,
     fontWeight: '700',
     color: theme.colors.text,
   },
