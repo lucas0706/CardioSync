@@ -1,3 +1,4 @@
+import { useFocusEffect } from 'expo-router'
 import { useCallback, useEffect, useState } from 'react'
 
 import { BloodPressureRecord } from '@/domain/measurements/BloodPressureRecord'
@@ -20,6 +21,12 @@ export function useMeasurements() {
   useEffect(() => {
     refresh()
   }, [refresh])
+
+  useFocusEffect(
+    useCallback(() => {
+      refresh()
+    }, [refresh]),
+  )
 
   return {
     loading,
