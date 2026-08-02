@@ -37,37 +37,67 @@ function Component<T extends FieldValues>(
     <Controller
       control={control}
       name={name}
-      render={({ field }) => (
-        <View style={styles.container}>
-          <Text style={styles.label}>{label}</Text>
+      render={({ field }) => {
+        const isNumericInput =
+          props.keyboardType === 'number-pad' ||
+          props.keyboardType === 'decimal-pad' ||
+          props.keyboardType === 'numeric'
 
-          <TextInput
-            ref={ref}
-            style={[
-              styles.input,
-              error && styles.inputError,
-              style,
-            ]}
-            value={
-              field.value == null
-                ? ''
-                : String(field.value)
-            }
-            onChangeText={field.onChange}
-            onBlur={field.onBlur}
-            placeholderTextColor="#94A3B8"
-            selectionColor="#2563EB"
-            selectTextOnFocus
-            {...props}
-          />
+        const handleChangeText = (text: string) => {
+          if (!isNumericInput) {
+            field.onChange(text)
+            return
+          }
 
-          {error ? (
-            <Text style={styles.error}>
-              {error}
-            </Text>
-          ) : null}
-        </View>
-      )}
+          if (text === '') {
+            field.onChange(undefined)
+            return
+          }
+
+          const parsedValue =
+            props.keyboardType === 'decimal-pad'
+              ? Number.parseFloat(text)
+              : Number.parseInt(text, 10)
+
+          field.onChange(
+            Number.isNaN(parsedValue)
+              ? undefined
+              : parsedValue,
+          )
+        }
+
+        return (
+          <View style={styles.container}>
+            <Text style={styles.label}>{label}</Text>
+
+            <TextInput
+              ref={ref}
+              style={[
+                styles.input,
+                error && styles.inputError,
+                style,
+              ]}
+              value={
+                field.value == null
+                  ? ''
+                  : String(field.value)
+              }
+              onChangeText={handleChangeText}
+              onBlur={field.onBlur}
+              placeholderTextColor="#94A3B8"
+              selectionColor="#2563EB"
+              selectTextOnFocus
+              {...props}
+            />
+
+            {error ? (
+              <Text style={styles.error}>
+                {error}
+              </Text>
+            ) : null}
+          </View>
+        )
+      }}
     />
   )
 }
