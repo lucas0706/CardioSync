@@ -3,6 +3,7 @@ import { ScrollView, StyleSheet, View } from 'react-native'
 
 import { Button, Card, FloatingActionButton, Screen, Text } from '@/components/ui'
 import { ClinicalChart } from '@/components/charts/ClinicalChart'
+import { ClinicalTargets } from '@/clinical/targets'
 import { DashboardHeader } from '@/features/dashboard/components/DashboardHeader'
 import { LatestMeasurementCard } from '@/features/dashboard/components/LatestMeasurementCard'
 import { SummaryCard } from '@/features/dashboard/components/SummaryCard'
@@ -76,10 +77,9 @@ export default function HomeScreen() {
 
         <ClinicalChart
           records={measurements}
-          target={{
-            systolic: 120,
-            diastolic: 80,
-          }}
+          target={
+            ClinicalTargets.default
+          }
         />
 
         {!hasMeasurements ? (
