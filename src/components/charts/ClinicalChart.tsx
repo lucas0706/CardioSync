@@ -1,3 +1,5 @@
+import React from 'react'
+
 import {
   CartesianChart,
   Line,
@@ -14,25 +16,57 @@ import { ClinicalEmptyState } from './ClinicalEmptyState'
 import { ClinicalTargetLine } from './ClinicalTargetLine'
 import { ClinicalTooltip } from './ClinicalTooltip'
 import { useClinicalTooltip } from './hooks/useClinicalTooltip'
+import { defaultClinicalSeries } from './constants/clinicalSeries'
 import { ClinicalChartDataPoint } from './types/ClinicalChartData'
 import { ClinicalChartProps } from './types/ClinicalChartProps'
+import { ClinicalSeries } from './types/ClinicalSeries'
 import { buildChartData } from './utils/buildChartData'
 import { downsampleClinicalData } from './utils/downsampleClinicalData'
+import {
+  ClinicalNumericKey,
+  getClinicalYKeys,
+} from './utils/getClinicalYKeys'
 
 export function ClinicalChart({
   records,
   target,
+  series,
 }: ClinicalChartProps) {
   const data = downsampleClinicalData(
     buildChartData(records),
   )
 
+  const activeSeries: ClinicalSeries[] =
+    series ?? defaultClinicalSeries
+
+  const yKeys = getClinicalYKeys(
+    activeSeries,
+  )
+
   const chartPressState =
-    useChartPressState({
+    useChartPressState<{
+      x: string
+      y: {
+        systolic: number
+        diastolic: number
+        heartRate: number
+        weight: number
+        glucose: number
+        spo2: number
+        temperature: number
+        respiratoryRate: number
+      }
+    }>({
       x: '',
       y: {
         systolic: 0,
         diastolic: 0,
+        heartRate: 0,
+        weight: 0,
+        glucose: 0,
+        spo2: 0,
+        temperature: 0,
+        respiratoryRate: 0,
       },
     })
 
@@ -67,14 +101,11 @@ export function ClinicalChart({
         <CartesianChart<
           ClinicalChartDataPoint,
           'date',
-          'systolic' | 'diastolic'
+          ClinicalNumericKey
         >
           data={data}
           xKey="date"
-          yKeys={[
-            'systolic',
-            'diastolic',
-          ]}
+          yKeys={yKeys}
           chartPressState={
             chartPressState.state
           }
@@ -126,29 +157,25 @@ export function ClinicalChart({
                 color="#1976D2"
               />
 
-              <Line
-                points={points.systolic}
-                color="#D32F2F"
-                strokeWidth={3}
-              />
+              {activeSeries.map(
+                (item) => (
+                  <React.Fragment
+                    key={item.key}
+                  >
+                    <Line
+                      points={points[item.key]}
+                      color={item.color}
+                      strokeWidth={3}
+                    />
 
-              <Scatter
-                points={points.systolic}
-                color="#D32F2F"
-                radius={5}
-              />
-
-              <Line
-                points={points.diastolic}
-                color="#1976D2"
-                strokeWidth={3}
-              />
-
-              <Scatter
-                points={points.diastolic}
-                color="#1976D2"
-                radius={5}
-              />
+                    <Scatter
+                      points={points[item.key]}
+                      color={item.color}
+                      radius={5}
+                    />
+                  </React.Fragment>
+                ),
+              )}
             </>
           )}
         </CartesianChart>
