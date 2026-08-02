@@ -11,19 +11,13 @@ export function useMeasurementForm() {
     resolver: zodResolver(measurementSchema),
 
     defaultValues: {
-      systolic: 120,
-
-      diastolic: 80,
-
+      systolic: undefined,
+      diastolic: undefined,
       heartRate: undefined,
-
       weight: undefined,
-
       notes: '',
-
-      arm: 'left',
-
-      position: 'sitting',
+      arm: undefined,
+      position: undefined,
     },
   })
 }

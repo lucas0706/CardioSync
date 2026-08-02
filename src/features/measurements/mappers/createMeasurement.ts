@@ -22,9 +22,9 @@ export function createMeasurement(
 
     weight: values.weight,
 
-    arm: values.arm,
+    arm: values.arm ?? undefined,
 
-    position: values.position,
+    position: values.position ?? undefined,
 
     notes: values.notes,
 

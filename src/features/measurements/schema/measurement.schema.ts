@@ -1,46 +1,25 @@
 import { z } from 'zod'
 
 export const measurementSchema = z.object({
-  systolic: z
-    .number()
-    .min(40)
-    .max(300),
+  systolic: z.number().min(40).max(300),
 
-  diastolic: z
-    .number()
-    .min(20)
-    .max(200),
+  diastolic: z.number().min(20).max(200),
 
-  heartRate: z
-    .number()
-    .min(20)
-    .max(250)
-    .optional(),
+  heartRate: z.number().min(20).max(250).optional(),
 
-  weight: z
-    .number()
-    .min(20)
-    .max(400)
-    .optional(),
+  weight: z.number().min(20).max(400).optional(),
 
-  notes: z
-    .string()
-    .optional(),
+  notes: z.string().optional(),
 
   arm: z
-    .enum([
-      'left',
-      'right',
-    ])
-    .optional(),
+    .enum(['left', 'right'])
+    .optional()
+    .nullable(),
 
   position: z
-    .enum([
-      'sitting',
-      'standing',
-      'lying',
-    ])
-    .optional(),
+    .enum(['sitting', 'standing', 'lying'])
+    .optional()
+    .nullable(),
 })
 
 export type MeasurementFormData =
