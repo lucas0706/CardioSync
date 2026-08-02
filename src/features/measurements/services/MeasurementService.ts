@@ -14,6 +14,10 @@ export class MeasurementService {
     bloodPressureRepository.update(record)
   }
 
+  delete(id: string): void {
+    bloodPressureRepository.delete(id)
+  }
+
   count(): number {
     return bloodPressureRepository.count()
   }

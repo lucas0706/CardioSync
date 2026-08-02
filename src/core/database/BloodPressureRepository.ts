@@ -94,6 +94,16 @@ export class BloodPressureRepository {
     )
   }
 
+  delete(id: string): void {
+    database.runSync(
+      `
+      DELETE FROM blood_pressure_records
+      WHERE id = ?
+      `,
+      [id],
+    )
+  }
+
   count(): number {
     const row = database.getFirstSync<{ total: number }>(
       `

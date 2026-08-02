@@ -1,6 +1,6 @@
 import { useLocalSearchParams, useRouter } from 'expo-router'
 import { useEffect, useState } from 'react'
-import { StyleSheet, View } from 'react-native'
+import { Alert, StyleSheet, View } from 'react-native'
 
 import { Screen, Text } from '@/components/ui'
 import { BloodPressureRecord } from '@/domain/measurements/BloodPressureRecord'
@@ -35,6 +35,29 @@ export default function MeasurementDetailScreen() {
     }
 
     setIsEditing(false)
+  }
+
+  const handleDelete = () => {
+    Alert.alert(
+      '¿Eliminar esta medición?',
+      '',
+      [
+        {
+          text: 'Cancelar',
+          style: 'cancel',
+        },
+        {
+          text: 'Eliminar',
+          style: 'destructive',
+          onPress: () => {
+            if (record?.id) {
+              measurementService.delete(record.id)
+              router.back()
+            }
+          },
+        },
+      ],
+    )
   }
 
   if (!record) {
@@ -75,6 +98,7 @@ export default function MeasurementDetailScreen() {
           <MeasurementDetail
             record={record}
             onEdit={() => setIsEditing(true)}
+            onDelete={handleDelete}
           />
         )}
       </View>
