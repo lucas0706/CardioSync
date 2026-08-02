@@ -31,32 +31,38 @@ export function MeasurementCard({
     >
       <Card>
         <View style={styles.header}>
-        <ClassificationBadge
-          classification={classification}
-        />
+          <ClassificationBadge classification={classification} />
 
-        <Text style={styles.date}>
-          {formatDateTime(record.dateTime)}
+          <Text style={styles.date}>
+            {formatDateTime(record.dateTime)}
+          </Text>
+        </View>
+
+        <Text style={styles.pressure}>
+          {record.systolic}/{record.diastolic}
         </Text>
-      </View>
 
-      <Text style={styles.pressure}>
-        {record.systolic}/{record.diastolic}
-      </Text>
+        <View style={styles.info}>
+          {record.heartRate != null && (
+            <Text style={styles.metaText}>
+              ❤️ {record.heartRate} lpm
+            </Text>
+          )}
 
-      <View style={styles.info}>
-        {record.heartRate != null && (
-          <Text>
-            ❤️ {record.heartRate} lpm
-          </Text>
-        )}
-
-        {record.weight != null && (
-          <Text>
-            ⚖️ {record.weight} kg
-          </Text>
-        )}
-      </View>
+          {(record.arm || record.position) && (
+            <Text style={styles.metaText}>
+              {record.arm === 'left' ? 'Izq.' : record.arm === 'right' ? 'Der.' : ''}
+              {record.arm && record.position ? ' · ' : ''}
+              {record.position === 'sitting'
+                ? 'Sentado'
+                : record.position === 'standing'
+                  ? 'De pie'
+                  : record.position === 'lying'
+                    ? 'Acostado'
+                    : ''}
+            </Text>
+          )}
+        </View>
 
         {record.notes ? (
           <Text style={styles.notes}>
@@ -73,25 +79,35 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 12,
+    marginBottom: 8,
   },
 
   date: {
-    opacity: 0.6,
+    color: '#64748B',
+    fontSize: 12,
+    opacity: 0.9,
   },
 
   pressure: {
-    fontSize: 34,
+    fontSize: 28,
     fontWeight: '700',
-    marginBottom: 12,
+    lineHeight: 32,
+    marginBottom: 6,
   },
 
   info: {
-    gap: 6,
+    gap: 2,
+  },
+
+  metaText: {
+    color: '#475569',
+    fontSize: 12,
   },
 
   notes: {
-    marginTop: 12,
-    opacity: 0.75,
+    color: '#64748B',
+    fontSize: 12,
+    marginTop: 8,
+    opacity: 0.9,
   },
 })
