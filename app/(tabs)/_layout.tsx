@@ -17,7 +17,14 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="measurements"
         options={{
-          title: 'Registro',
+          title: 'Registros',
+        }}
+      />
+
+      <Tabs.Screen
+        name="settings"
+        options={{
+          title: 'Configuración',
         }}
       />
 
@@ -37,13 +44,6 @@ export default function TabsLayout() {
 
       <Tabs.Screen
         name="reports"
-        options={{
-          href: null,
-        }}
-      />
-
-      <Tabs.Screen
-        name="settings"
         options={{
           href: null,
         }}
