@@ -1,0 +1,268 @@
+# CardioSync — Roadmap
+
+| Campo | Valor |
+|-------|--------|
+| Documento | 02_ROADMAP.md |
+| Tipo | Roadmap Oficial del Proyecto |
+| Estado | Activo |
+| Versión | Sincronizada con la versión del proyecto |
+| Última actualización | 2026-08-03 |
+
+---
+
+# Objetivo
+
+Este documento registra la evolución oficial de CardioSync.
+
+Cada fase del proyecto deberá actualizar este documento para reflejar exactamente el estado del desarrollo.
+
+---
+
+# Estados utilizados
+
+| Estado | Significado |
+|---------|-------------|
+| ✅ COMPLETADO | Funcionalidad implementada, validada y documentada. |
+| 🚧 EN DESARROLLO | Fase actualmente en ejecución. |
+| 📋 PLANIFICADO | Fase prevista para futuras versiones. |
+
+---
+
+# Fases completadas
+
+## Arquitectura Base
+
+**Estado:** ✅ COMPLETADO
+
+### Objetivo
+
+Definir la arquitectura inicial del proyecto.
+
+### Funcionalidades implementadas
+
+- Organización del repositorio.
+- Arquitectura modular.
+- Infraestructura base.
+
+---
+
+## Measurements
+
+**Estado:** ✅ COMPLETADO
+
+### Objetivo
+
+Implementar el registro de mediciones.
+
+### Funcionalidades implementadas
+
+- Captura de mediciones.
+- Validación.
+- Persistencia.
+- Historial.
+
+---
+
+## Dashboard
+
+**Estado:** ✅ COMPLETADO
+
+### Objetivo
+
+Visualizar la información del usuario.
+
+### Funcionalidades implementadas
+
+- Dashboard principal.
+- Indicadores.
+- Gráficos.
+
+---
+
+## Statistics
+
+**Estado:** ✅ COMPLETADO
+
+### Objetivo
+
+Implementar el motor estadístico.
+
+### Funcionalidades implementadas
+
+- Estadísticas.
+- Tendencias.
+- Promedios.
+- Variabilidad.
+- Métricas.
+
+---
+
+## Clinical Foundation
+
+**Estado:** ✅ COMPLETADO
+
+### Objetivo
+
+Preparar la infraestructura inicial del dominio clínico.
+
+### Funcionalidades implementadas
+
+- Organización inicial del módulo Clinical.
+- Base para la futura evolución clínica.
+
+---
+
+# Fase actual
+
+## Refactorización Final del Dominio
+
+**Estado:** 🚧 EN DESARROLLO
+
+### Objetivo
+
+Simplificar completamente el modelo de dominio.
+
+BloodPressureRecord deberá representar exclusivamente una medición de presión arterial.
+
+Toda la información clínica será trasladada progresivamente a contextos especializados.
+
+### Resultado esperado
+
+- Dominio más simple.
+- Menor acoplamiento.
+- Base para el Clinical Domain.
+
+---
+
+# Próximas fases
+
+## 1. Diseño del Clinical Domain
+
+**Estado:** 📋 PLANIFICADO
+
+---
+
+## 2. Diseño del Clinical Rule Engine
+
+**Estado:** 📋 PLANIFICADO
+
+---
+
+## 3. Diseño del Clinical Analysis Engine
+
+**Estado:** 📋 PLANIFICADO
+
+---
+
+## 4. Pantalla de Configuración
+
+**Estado:** 📋 PLANIFICADO
+
+---
+
+## 5. Diseño de Reportes
+
+**Estado:** 📋 PLANIFICADO
+
+---
+
+## 6. Implementación del Clinical Rule Engine
+
+**Estado:** 📋 PLANIFICADO
+
+---
+
+## 7. Implementación del Clinical Analysis Engine
+
+**Estado:** 📋 PLANIFICADO
+
+---
+
+## 8. Implementación de Reportes PDF
+
+**Estado:** 📋 PLANIFICADO
+
+---
+
+## 9. Integración Health Connect
+
+**Estado:** 📋 PLANIFICADO
+
+---
+
+## 10. Dashboard Dinámico
+
+**Estado:** 📋 PLANIFICADO
+
+---
+
+## 11. Funcionalidades V2
+
+**Estado:** 📋 PLANIFICADO
+
+---
+
+# Línea temporal
+
+Arquitectura Base
+
+↓
+
+Measurements
+
+↓
+
+Dashboard
+
+↓
+
+Statistics
+
+↓
+
+Clinical Foundation
+
+↓
+
+🚧 Refactorización Final del Dominio
+
+↓
+
+📋 Clinical Domain
+
+↓
+
+📋 Clinical Rule Engine
+
+↓
+
+📋 Clinical Analysis Engine
+
+↓
+
+📋 Configuración
+
+↓
+
+📋 Reportes
+
+↓
+
+📋 Health Connect
+
+↓
+
+📋 Dashboard Dinámico
+
+↓
+
+📋 Funcionalidades V2
+
+---
+
+# Política de actualización
+
+Este documento deberá actualizarse obligatoriamente al finalizar cada fase.
+
+Una fase no podrá considerarse finalizada hasta que este roadmap refleje exactamente el estado real del proyecto.
+
