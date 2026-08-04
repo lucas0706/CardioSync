@@ -1,3 +1,7 @@
+import type { Arm } from './types/Arm'
+import type { CuffSize } from './types/CuffSize'
+import type { Position } from './types/Position'
+
 /**
  * Aggregate Root representing a blood pressure measurement.
  *
@@ -7,75 +11,50 @@
  * extracted into ClinicalContext in a future roadmap phase.
  */
 export interface BloodPressureRecord {
-  // ---------------------------------------------------------------------------
   // Identity
-  // ---------------------------------------------------------------------------
 
   id: string
-
   createdAt: string
-
   updatedAt: string
 
-  // ---------------------------------------------------------------------------
-  // Measurement
-  // ---------------------------------------------------------------------------
+  // Core measurement
 
   dateTime: string
 
   systolic: number
-
   diastolic: number
-
   heartRate?: number
 
-  // ---------------------------------------------------------------------------
-  // Measurement Conditions
-  // ---------------------------------------------------------------------------
+  // Measurement conditions
 
-  arm?: 'left' | 'right'
-
-  position?: 'sitting' | 'standing' | 'lying'
-
+  arm?: Arm
+  position?: Position
   device?: string
-
-  cuffSize?: 'small' | 'medium' | 'large'
+  cuffSize?: CuffSize
 
   notes?: string
 
-  // ---------------------------------------------------------------------------
   // Reserved for future ClinicalContext
-  // ---------------------------------------------------------------------------
 
   weight?: number
-
   height?: number
-
   bmi?: number
 
   glucose?: number
-
   spo2?: number
-
   temperature?: number
-
   respiratoryRate?: number
 
   pain?: number
 
   context?: string
-
   symptoms?: string
 
   medicationTaken?: boolean
-
   medicationName?: string
-
   medicationIds?: string[]
 
-  // ---------------------------------------------------------------------------
   // Reserved for future clinical analysis
-  // ---------------------------------------------------------------------------
 
   guideline?: string
 }
