@@ -1,5 +1,4 @@
 import type { Arm } from './types/Arm'
-import type { CuffSize } from './types/CuffSize'
 import type { Position } from './types/Position'
 
 /**
@@ -30,7 +29,6 @@ export interface BloodPressureRecord {
   arm?: Arm
   position?: Position
   device?: string
-  cuffSize?: CuffSize
 
   notes?: string
 

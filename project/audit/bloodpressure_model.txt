@@ -1,0 +1,1 @@
+src/domain/measurements/BloodPressureRecord.ts:1:export interface BloodPressureRecord {
