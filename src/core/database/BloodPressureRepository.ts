@@ -16,11 +16,14 @@ export class BloodPressureRepository {
     database.runSync(
       `
       INSERT INTO blood_pressure_records (
+        -- Core measurement
         id,
         dateTime,
         systolic,
         diastolic,
         heartRate,
+
+        -- Legacy compatibility
         weight,
         height,
         glucose,
@@ -28,11 +31,16 @@ export class BloodPressureRepository {
         temperature,
         respiratoryRate,
         pain,
+
+        -- Measurement metadata
         notes,
         arm,
         position,
         device,
+
+        -- Future analysis
         guideline,
+
         createdAt,
         updatedAt
       )
@@ -42,11 +50,14 @@ export class BloodPressureRepository {
       )
       `,
       [
+        // Core measurement
         record.id,
         record.dateTime,
         record.systolic,
         record.diastolic,
         record.heartRate ?? null,
+
+        // Legacy compatibility
         record.weight ?? null,
         record.height ?? null,
         record.glucose ?? null,
@@ -54,11 +65,16 @@ export class BloodPressureRepository {
         record.temperature ?? null,
         record.respiratoryRate ?? null,
         record.pain ?? null,
+
+        // Measurement metadata
         record.notes ?? null,
         record.arm ?? null,
         record.position ?? null,
         record.device ?? null,
+
+        // Future analysis
         record.guideline ?? null,
+
         record.createdAt,
         record.updatedAt,
       ],
