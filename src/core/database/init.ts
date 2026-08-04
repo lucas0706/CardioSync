@@ -36,7 +36,6 @@ export function initializeDatabase() {
 
       device TEXT,
 
-      cuffSize TEXT,
 
       context TEXT,
 
