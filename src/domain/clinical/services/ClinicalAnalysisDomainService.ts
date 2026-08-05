@@ -10,6 +10,7 @@ import {
   HypertensionLoadRule,
   TimeInTargetRule,
   VariabilityRule,
+  ClinicalClassificationRule,
 } from '../rules/hypertension'
 
 import type {
@@ -32,12 +33,16 @@ export class ClinicalAnalysisDomainService
     new HypertensionLoadRule(),
     new TimeInTargetRule(),
     new VariabilityRule(),
+    new ClinicalClassificationRule(),
   ]
 
   analyze(input: ClinicalAnalysisInput): ClinicalAnalysis {
     const context: ClinicalRuleContext = {
       guideline:
         input.guideline ?? ConsensoArgentinaHTA2025,
+
+      clinicalResult:
+        input.clinicalResult,
 
       evaluatedAt: new Date().toISOString(),
     }
