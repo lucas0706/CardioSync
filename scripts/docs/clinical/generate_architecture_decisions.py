@@ -1,3 +1,7 @@
+from pathlib import Path
+
+
+CONTENT = r"""
 # Architecture Decisions
 
 Version: 1.0
@@ -283,3 +287,17 @@ Pendiente:
 - revisión clínica final;
 - implementación;
 - validación mediante pruebas.
+
+
+"""
+
+
+def main():
+    output = Path("docs/clinical/16_ARCHITECTURE_DECISIONS.md")
+    output.parent.mkdir(parents=True, exist_ok=True)
+    output.write_text(CONTENT.strip() + "\n", encoding="utf-8")
+    print(output)
+
+
+if __name__ == "__main__":
+    main()
