@@ -36,7 +36,6 @@ export class BloodPressureRepository {
         notes,
         arm,
         position,
-        device,
 
         -- Future analysis
         guideline,
@@ -70,7 +69,6 @@ export class BloodPressureRepository {
         record.notes ?? null,
         record.arm ?? null,
         record.position ?? null,
-        record.device ?? null,
 
         // Future analysis
         record.guideline ?? null,

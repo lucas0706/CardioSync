@@ -16,7 +16,6 @@ export const BLOOD_PRESSURE_CORE_FIELDS = [
   'heartRate',
   'arm',
   'position',
-  'device',
   'notes',
   'createdAt',
   'updatedAt',
