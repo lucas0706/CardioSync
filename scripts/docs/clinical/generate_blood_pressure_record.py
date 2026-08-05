@@ -12,44 +12,62 @@ Phase: Clinical Knowledge Base
 
 # 1. Objetivo
 
-Definir BloodPressureRecord como entidad principal del dominio clínico de
+Definir BloodPressureRecord como la entidad central del dominio clínico de
 CardioSync.
 
-BloodPressureRecord representa el evento de registro de una medición de presión
-arterial.
-
-Es el núcleo del sistema.
+BloodPressureRecord representa un evento de medición de presión arterial
+registrado en el sistema.
 
 ---
 
 # 2. Principio fundamental
 
-CardioSync sigue el principio:
+La medición es el núcleo del dominio.
 
-La medición existe antes que la interpretación.
+CardioSync mantiene la separación:
 
-Una medición registrada debe permanecer disponible independientemente de:
+Registro:
 
-- la guía clínica seleccionada;
-- el contexto disponible;
-- el análisis generado.
+BloodPressureRecord
+
+
+Contexto:
+
+ClinicalContext
+
+
+Interpretación:
+
+ClinicalAnalysis
+
+
+Estadística:
+
+Statistics
+
 
 ---
 
 # 3. Responsabilidad
 
-BloodPressureRecord representa:
+BloodPressureRecord responde:
 
-- qué se midió;
-- cuándo se midió;
-- qué valores fueron obtenidos.
+¿Qué medición fue registrada?
 
-No representa:
+Incluye:
+
+- valores obtenidos;
+- fecha y hora;
+- información propia del evento de medición.
+
+
+No incluye:
 
 - clasificación clínica;
 - diagnóstico;
 - riesgo;
 - recomendaciones.
+
 
 ---
 
@@ -67,6 +85,8 @@ BloodPressureRecord
 
 ├── heartRate?
 
+├── weight?
+
 ├── notes?
 
 ├── source
@@ -78,7 +98,7 @@ BloodPressureRecord
 
 ---
 
-# 5. Datos principales
+# 5. Datos obligatorios
 
 ## Systolic
 
@@ -104,30 +124,34 @@ mmHg.
 
 ## DateTime
 
-Momento exacto del registro.
+Momento en que fue realizada la medición.
 
 Permite:
 
 - análisis temporal;
-- estadísticas;
-- correlación con contexto.
+- correlación con contexto;
+- estadísticas.
 
 
 ---
 
 # 6. Datos opcionales
 
-Una medición puede incorporar:
+Pueden existir datos complementarios:
 
 - frecuencia cardíaca;
+- peso;
 - notas;
-- información técnica adicional.
+- información técnica.
 
-Los datos complementarios no deben impedir el registro principal.
+
+Estos datos no deben impedir el registro principal.
 
 ---
 
 # 7. Relación con ClinicalContext
+
+Una medición puede existir sin contexto.
 
 Modelo:
 
@@ -142,18 +166,16 @@ BloodPressureRecord
 ClinicalContext
 
 
-La medición puede existir sin contexto.
-
 El contexto puede agregarse posteriormente.
 
 ---
 
 # 8. Relación con Statistics
 
-Statistics utiliza múltiples BloodPressureRecord para generar:
+Statistics utiliza múltiples mediciones para analizar:
 
-- promedios;
 - tendencias;
+- promedios;
 - variabilidad;
 - evolución temporal.
 
@@ -169,7 +191,7 @@ ClinicalAnalysis utiliza:
 - ClinicalGuideline.
 
 
-El análisis nunca modifica el registro original.
+El análisis nunca modifica la medición original.
 
 ---
 
@@ -177,25 +199,23 @@ El análisis nunca modifica el registro original.
 
 Fuentes posibles:
 
-- ingreso manual;
+- manual;
 - importación;
 - Health Connect;
 - dispositivos futuros.
 
 
-El origen debe conservarse como metadata.
+El origen debe mantenerse como metadata.
 
 ---
 
-# 11. Inmutabilidad clínica
+# 11. Integridad histórica
 
-Los valores originales de una medición deben conservarse.
+Los registros de mediciones deben conservar trazabilidad.
 
-Si existe una corrección:
+Las modificaciones deben ser explícitas.
 
-debe quedar registrada como modificación del dato,
-
-no como alteración silenciosa del histórico.
+No se deben alterar silenciosamente datos históricos.
 
 ---
 
@@ -213,7 +233,7 @@ La interpretación clínica permanece separada del registro.
 
 ## ADR-003
 
-Los datos externos se adaptan al dominio, no modifican el dominio.
+Las fuentes externas se adaptan al dominio.
 
 
 ---
@@ -222,10 +242,10 @@ Los datos externos se adaptan al dominio, no modifican el dominio.
 
 Evitar:
 
-- mezclar reglas clínicas;
-- almacenar resultados interpretados;
-- perder el valor original;
-- depender de una única fuente de datos.
+- mezclar reglas clínicas con almacenamiento;
+- guardar diagnósticos dentro del registro;
+- depender de un proveedor específico;
+- perder valores originales.
 
 
 ---
@@ -250,10 +270,9 @@ Draft.
 
 Pendiente:
 
-- revisión final del modelo existente;
-- alineación con implementación actual;
-- validación contra exportaciones externas.
-
+- revisión contra modelo actual de src/domain;
+- alineación con exportación/importación;
+- validación clínica final.
 
 """
 
