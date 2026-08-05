@@ -1,3 +1,7 @@
+from pathlib import Path
+
+
+CONTENT = r"""
 # ClinicalAnalysis
 
 Version: 1.0
@@ -271,3 +275,17 @@ Pendiente:
 - implementación del motor clínico;
 - reglas específicas por guía;
 - validación clínica.
+
+
+"""
+
+
+def main():
+    output = Path("docs/clinical/10_CLINICAL_ANALYSIS.md")
+    output.parent.mkdir(parents=True, exist_ok=True)
+    output.write_text(CONTENT.strip() + "\n", encoding="utf-8")
+    print(output)
+
+
+if __name__ == "__main__":
+    main()
