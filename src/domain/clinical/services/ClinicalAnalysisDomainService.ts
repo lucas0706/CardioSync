@@ -1,6 +1,9 @@
 import * as Crypto from 'expo-crypto'
 
 import type { ClinicalAnalysis } from '../models/ClinicalAnalysis'
+import type { ClinicalRule } from '../rules/ClinicalRule'
+import { HomeBloodPressureControlRule } from '../rules/hypertension'
+
 import type {
   ClinicalAnalysisInput,
   ClinicalAnalysisService,
@@ -9,14 +12,25 @@ import type {
 /**
  * Initial domain implementation for clinical analysis.
  *
- * Clinical rules will be introduced progressively
- * from the Clinical Knowledge Base.
+ * Clinical rules are injected through composition.
  */
 
 export class ClinicalAnalysisDomainService
   implements ClinicalAnalysisService
 {
+  private readonly rules: ClinicalRule[] = [
+    new HomeBloodPressureControlRule(),
+  ]
+
   analyze(input: ClinicalAnalysisInput): ClinicalAnalysis {
+    const findings = input.statistics
+      ? this.rules.flatMap((rule) =>
+          rule.evaluate({
+            statistics: input.statistics,
+          }),
+        )
+      : []
+
     return {
       id: Crypto.randomUUID(),
 
@@ -28,10 +42,12 @@ export class ClinicalAnalysisDomainService
 
       statistics: input.statistics,
 
-      findings: [],
+      findings,
 
       summary:
-        'Clinical analysis initialized. Clinical rules pending implementation.',
+        findings.length > 0
+          ? 'Clinical findings generated.'
+          : 'No clinical findings detected.',
     }
   }
 }
