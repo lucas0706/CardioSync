@@ -1,6 +1,7 @@
 import * as Crypto from 'expo-crypto'
 
 import type { ClinicalAnalysis } from '../models/ClinicalAnalysis'
+import { ConsensoArgentinaHTA2025 } from '../guidelines'
 import type { ClinicalRule } from '../rules/ClinicalRule'
 import type { ClinicalRuleContext } from '../rules/ClinicalRuleContext'
 import {
@@ -35,7 +36,8 @@ export class ClinicalAnalysisDomainService
 
   analyze(input: ClinicalAnalysisInput): ClinicalAnalysis {
     const context: ClinicalRuleContext = {
-      guideline: input.guideline,
+      guideline:
+        input.guideline ?? ConsensoArgentinaHTA2025,
 
       evaluatedAt: new Date().toISOString(),
     }
@@ -58,7 +60,8 @@ export class ClinicalAnalysisDomainService
 
       createdAt: new Date().toISOString(),
 
-      guideline: input.guideline,
+      guideline:
+        input.guideline ?? ConsensoArgentinaHTA2025,
 
       statistics: input.statistics,
 
