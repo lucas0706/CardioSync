@@ -37,9 +37,7 @@ export function initializeDatabase() {
       device TEXT,
 
 
-      context TEXT,
 
-      symptoms TEXT,
 
       medicationTaken INTEGER,
 
