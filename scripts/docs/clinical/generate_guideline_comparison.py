@@ -1,3 +1,7 @@
+from pathlib import Path
+
+
+CONTENT = r"""
 # Guideline Comparison
 
 Version: 1.0
@@ -212,3 +216,17 @@ Pendiente:
 - extracción detallada de cada guía;
 - tablas comparativas;
 - definición de reglas implementables.
+
+
+"""
+
+
+def main():
+    output = Path("docs/clinical/15_GUIDELINE_COMPARISON.md")
+    output.parent.mkdir(parents=True, exist_ok=True)
+    output.write_text(CONTENT.strip() + "\n", encoding="utf-8")
+    print(output)
+
+
+if __name__ == "__main__":
+    main()
