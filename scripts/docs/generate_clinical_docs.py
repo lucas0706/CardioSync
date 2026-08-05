@@ -1,3 +1,7 @@
+from pathlib import Path
+
+
+DOCUMENT = """
 # ClinicalContext
 
 Version: 1.0
@@ -114,3 +118,21 @@ Fuentes:
 # Estado
 
 Draft.
+"""
+
+
+def main():
+    path = Path("docs/clinical/03_CLINICAL_CONTEXT.md")
+
+    path.parent.mkdir(parents=True, exist_ok=True)
+
+    path.write_text(
+        DOCUMENT.strip() + "\n",
+        encoding="utf-8"
+    )
+
+    print(f"Created {path}")
+
+
+if __name__ == "__main__":
+    main()
