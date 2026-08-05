@@ -98,7 +98,6 @@ La interfaz conserva propiedades históricas que ya no forman parte del flujo pr
 
 ## Campos pendientes de evaluación
 
-- device
 - cuffSize
 - guideline
 

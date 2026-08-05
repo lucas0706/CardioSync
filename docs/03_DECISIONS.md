@@ -230,3 +230,172 @@ Si una nueva integración requiere modificar entidades centrales, revisar este A
 - 01_ARCHITECTURE.md
 - 04_CLINICAL_DOMAIN.md
 
+
+---
+
+# ADR-003
+
+## Título
+
+Separación entre la medición y el contexto clínico
+
+---
+
+## Fecha
+
+2026-08-05
+
+---
+
+## Estado
+
+Activa
+
+---
+
+## Contexto
+
+Durante la Fase 5 se realizó una auditoría completa del dominio de CardioSync.
+
+La auditoría mostró que `BloodPressureRecord` había acumulado información perteneciente a distintos dominios:
+
+- Medición.
+- Contexto clínico.
+- Antropometría.
+- Oxigenación.
+- Medicación.
+- Síntomas.
+- Datos heredados de versiones anteriores.
+
+Esta mezcla dificulta la evolución del dominio y aumenta el acoplamiento entre la medición y la información clínica complementaria.
+
+---
+
+## Problema
+
+`BloodPressureRecord` debe representar exclusivamente una medición de presión arterial.
+
+Toda la información adicional pertenece al contexto clínico del paciente y no a la medición en sí.
+
+Mantener ambos conceptos dentro de la misma entidad dificulta:
+
+- La evolución del dominio.
+- La implementación de ClinicalContext.
+- La implementación de ClinicalRuleEngine.
+- La implementación de ClinicalAnalysisEngine.
+- El mantenimiento del modelo.
+
+---
+
+## Decisión
+
+CardioSync separará conceptualmente ambos dominios.
+
+### BloodPressureRecord
+
+Representará únicamente la medición.
+
+Ejemplos:
+
+- Fecha y hora.
+- Presión sistólica.
+- Presión diastólica.
+- Frecuencia cardíaca.
+- Brazo.
+- Posición.
+- Notas.
+
+### ClinicalContext
+
+Representará información clínica opcional asociada a una medición.
+
+Ejemplos:
+
+- Peso.
+- Altura.
+- IMC.
+- Saturación de oxígeno.
+- Frecuencia respiratoria.
+- Medicación.
+- Síntomas cardiovasculares.
+
+ClinicalContext no se implementará durante la Fase 5.
+
+La Fase 5 únicamente prepara el dominio para dicha separación.
+
+---
+
+## Justificación
+
+Esta decisión:
+
+- Reduce el acoplamiento.
+- Simplifica BloodPressureRecord.
+- Facilita futuras refactorizaciones.
+- Evita mezclar conceptos diferentes dentro de una misma entidad.
+- Permite que ClinicalContext evolucione de forma independiente.
+
+---
+
+## Alternativas descartadas
+
+Mantener toda la información clínica dentro de BloodPressureRecord.
+
+Se descartó por generar un modelo demasiado grande, difícil de mantener y poco alineado con la arquitectura prevista para las siguientes fases.
+
+---
+
+## Consecuencias
+
+Positivas:
+
+- Dominio más claro.
+- Mejor separación de responsabilidades.
+- Base sólida para ClinicalRuleEngine.
+- Base sólida para ClinicalAnalysisEngine.
+- Mejor preparación para futuras integraciones.
+
+Negativas:
+
+- Será necesaria una migración controlada cuando se implemente ClinicalContext.
+
+---
+
+## Qué puede romper esta decisión
+
+- Volver a incorporar información clínica directamente en BloodPressureRecord.
+- Utilizar BloodPressureRecord como historia clínica general.
+
+---
+
+## Síntomas
+
+- Aparición de numerosos campos opcionales.
+- Mezcla de información de la medición con información del paciente.
+- Crecimiento excesivo de BloodPressureRecord.
+
+---
+
+## Diagnóstico
+
+Si un nuevo dato describe el estado del paciente y no la medición de presión arterial, debe evaluarse primero si pertenece a ClinicalContext antes de agregarse al dominio principal.
+
+---
+
+## Archivos afectados
+
+- src/domain/measurements/BloodPressureRecord.ts
+- src/core/database/BloodPressureRepository.ts
+- src/core/database/init.ts
+- docs/13_DOMAIN_REFACTOR.md
+
+---
+
+## Documentos relacionados
+
+- 00_PROJECT_MASTER_CONTEXT.md
+- 01_ARCHITECTURE.md
+- 02_ROADMAP.md
+- 04_CLINICAL_DOMAIN.md
+- 13_DOMAIN_REFACTOR.md
+

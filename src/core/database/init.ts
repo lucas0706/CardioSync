@@ -34,7 +34,6 @@ export function initializeDatabase() {
 
       position TEXT,
 
-      device TEXT,
 
 
 

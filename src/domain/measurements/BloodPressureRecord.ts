@@ -28,7 +28,6 @@ export interface BloodPressureRecord {
 
   arm?: Arm
   position?: Position
-  device?: string
 
   notes?: string
 
