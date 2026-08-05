@@ -1,3 +1,7 @@
+from pathlib import Path
+
+
+CONTENT = r"""
 # RecommendationEngine
 
 Version: 1.0
@@ -229,3 +233,17 @@ Pendiente:
 - definición de reglas por guía;
 - validación clínica;
 - integración con ClinicalAnalysisEngine.
+
+
+"""
+
+
+def main():
+    output = Path("docs/clinical/11_RECOMMENDATION_ENGINE.md")
+    output.parent.mkdir(parents=True, exist_ok=True)
+    output.write_text(CONTENT.strip() + "\n", encoding="utf-8")
+    print(output)
+
+
+if __name__ == "__main__":
+    main()
