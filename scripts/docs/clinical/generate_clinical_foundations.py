@@ -1,3 +1,7 @@
+from pathlib import Path
+
+
+CONTENT = r"""
 # Clinical Foundations
 
 Version: 1.0
@@ -163,3 +167,17 @@ Pendiente:
 - incorporación detallada de evidencia de guías;
 - revisión clínica;
 - aprobación.
+
+
+"""
+
+
+def main():
+    output = Path("docs/clinical/01_CLINICAL_FOUNDATIONS.md")
+    output.parent.mkdir(parents=True, exist_ok=True)
+    output.write_text(CONTENT.strip() + "\n", encoding="utf-8")
+    print(output)
+
+
+if __name__ == "__main__":
+    main()
