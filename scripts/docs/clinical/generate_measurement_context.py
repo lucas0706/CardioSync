@@ -1,3 +1,7 @@
+from pathlib import Path
+
+
+CONTENT = r"""
 # MeasurementContext
 
 Version: 1.0
@@ -228,3 +232,16 @@ Pendiente de revisión conjunta con:
 - Anthropometry;
 - VitalSigns;
 - ClinicalAnalysis.
+
+"""
+
+
+def main():
+    output = Path("docs/clinical/04_MEASUREMENT_CONTEXT.md")
+    output.parent.mkdir(parents=True, exist_ok=True)
+    output.write_text(CONTENT.strip() + "\n", encoding="utf-8")
+    print(output)
+
+
+if __name__ == "__main__":
+    main()
