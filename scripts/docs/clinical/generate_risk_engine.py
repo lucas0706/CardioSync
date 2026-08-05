@@ -1,3 +1,7 @@
+from pathlib import Path
+
+
+CONTENT = r"""
 # RiskEngine
 
 Version: 1.0
@@ -198,3 +202,17 @@ Pendiente:
 - definición de modelos de riesgo;
 - reglas específicas;
 - validación clínica.
+
+
+"""
+
+
+def main():
+    output = Path("docs/clinical/13_RISK_ENGINE.md")
+    output.parent.mkdir(parents=True, exist_ok=True)
+    output.write_text(CONTENT.strip() + "\n", encoding="utf-8")
+    print(output)
+
+
+if __name__ == "__main__":
+    main()
