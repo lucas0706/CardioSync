@@ -1,3 +1,7 @@
+from pathlib import Path
+
+
+CONTENT = r"""
 # BloodPressureRecord
 
 Version: 1.0
@@ -249,3 +253,17 @@ Pendiente:
 - revisión final del modelo existente;
 - alineación con implementación actual;
 - validación contra exportaciones externas.
+
+
+"""
+
+
+def main():
+    output = Path("docs/clinical/02_BLOOD_PRESSURE_RECORD.md")
+    output.parent.mkdir(parents=True, exist_ok=True)
+    output.write_text(CONTENT.strip() + "\n", encoding="utf-8")
+    print(output)
+
+
+if __name__ == "__main__":
+    main()
