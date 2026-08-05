@@ -1,4 +1,5 @@
 import type { Arm } from './types/Arm'
+import type { MeasurementOrigin } from './types/MeasurementOrigin'
 import type { Position } from './types/Position'
 
 /**
@@ -29,6 +30,10 @@ export interface BloodPressureRecord {
   arm?: Arm
   position?: Position
 
+  // Data provenance
+
+  origin?: MeasurementOrigin
+
   notes?: string
 
   // Reserved for future ClinicalContext
@@ -43,8 +48,6 @@ export interface BloodPressureRecord {
   respiratoryRate?: number
 
   pain?: number
-
-
 
   // Reserved for future clinical analysis
 
