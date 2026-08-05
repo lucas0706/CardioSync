@@ -13,6 +13,10 @@ import {
   ClinicalClassificationRule,
 } from '../rules/hypertension'
 
+import {
+  CardiovascularRiskRule,
+} from '../rules/cardiovascular'
+
 import type {
   ClinicalAnalysisInput,
   ClinicalAnalysisService,
@@ -34,6 +38,7 @@ export class ClinicalAnalysisDomainService
     new TimeInTargetRule(),
     new VariabilityRule(),
     new ClinicalClassificationRule(),
+    new CardiovascularRiskRule(),
   ]
 
   analyze(input: ClinicalAnalysisInput): ClinicalAnalysis {
@@ -44,19 +49,31 @@ export class ClinicalAnalysisDomainService
       clinicalResult:
         input.clinicalResult,
 
+      clinicalContext:
+        input.context,
+
       evaluatedAt: new Date().toISOString(),
     }
 
-    const findings = input.statistics
-      ? this.rules.flatMap((rule) =>
-          rule.evaluate(
-            {
-              statistics: input.statistics,
-            },
-            context,
-          ),
+    const findings = this.rules.flatMap((rule) => {
+      if (
+        rule instanceof CardiovascularRiskRule
+      ) {
+        return rule.evaluate(
+          {
+            clinicalContext: input.context,
+          },
+          context,
         )
-      : []
+      }
+
+      return rule.evaluate(
+        {
+          statistics: input.statistics,
+        },
+        context,
+      )
+    })
 
     return {
       id: Crypto.randomUUID(),

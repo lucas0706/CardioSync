@@ -1,4 +1,5 @@
 import type { ClinicalGuideline } from '../models/ClinicalGuideline'
+import type { ClinicalContext } from '../models/ClinicalContext'
 import type { ClinicalResult } from '@/clinical/engine'
 
 /**
@@ -12,6 +13,8 @@ export interface ClinicalRuleContext {
   guideline?: ClinicalGuideline
 
   clinicalResult?: ClinicalResult
+
+  clinicalContext?: ClinicalContext
 
   evaluatedAt: string
 }
