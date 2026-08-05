@@ -1,3 +1,7 @@
+from pathlib import Path
+
+
+CONTENT = r"""
 # CardiovascularSymptoms
 
 Version: 1.0
@@ -306,3 +310,17 @@ Pendiente de integración con:
 - ClinicalGuideline;
 - ClinicalAnalysis;
 - AlertEngine.
+
+
+"""
+
+
+def main():
+    output = Path("docs/clinical/07_CARDIOVASCULAR_SYMPTOMS.md")
+    output.parent.mkdir(parents=True, exist_ok=True)
+    output.write_text(CONTENT.strip() + "\n", encoding="utf-8")
+    print(output)
+
+
+if __name__ == "__main__":
+    main()
