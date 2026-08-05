@@ -40,7 +40,6 @@ export function initializeDatabase() {
 
 
 
-      medicationName TEXT,
 
       notes TEXT,
 

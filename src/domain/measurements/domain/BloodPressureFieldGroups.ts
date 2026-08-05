@@ -31,8 +31,6 @@ export const CLINICAL_CONTEXT_CANDIDATE_FIELDS = [
   'temperature',
   'respiratoryRate',
   'pain',
-  'medicationName',
-  'medicationIds',
 ] as const
 
 export const ANALYSIS_METADATA_FIELDS = [
