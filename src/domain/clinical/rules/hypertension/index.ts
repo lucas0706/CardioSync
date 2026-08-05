@@ -37,3 +37,12 @@ export {
 export type {
   VariabilityRuleInput,
 } from './VariabilityRule'
+
+
+export {
+  ClinicalClassificationRule,
+} from './ClinicalClassificationRule'
+
+export type {
+  ClinicalClassificationRuleInput,
+} from './ClinicalClassificationRule'
