@@ -95,7 +95,6 @@ La interfaz conserva propiedades históricas que ya no forman parte del flujo pr
 - temperature
 - respiratoryRate
 - pain
-- medicationTaken
 - medicationName
 - medicationIds
 

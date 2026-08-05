@@ -31,7 +31,6 @@ export const CLINICAL_CONTEXT_CANDIDATE_FIELDS = [
   'temperature',
   'respiratoryRate',
   'pain',
-  'medicationTaken',
   'medicationName',
   'medicationIds',
 ] as const

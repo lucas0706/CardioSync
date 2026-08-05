@@ -39,7 +39,6 @@ export function initializeDatabase() {
 
 
 
-      medicationTaken INTEGER,
 
       medicationName TEXT,
 
