@@ -45,8 +45,6 @@ export interface BloodPressureRecord {
 
   pain?: number
 
-  context?: string
-  symptoms?: string
 
   medicationTaken?: boolean
   medicationName?: string
