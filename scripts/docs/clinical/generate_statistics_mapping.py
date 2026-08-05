@@ -1,3 +1,7 @@
+from pathlib import Path
+
+
+CONTENT = r"""
 # Statistics Mapping
 
 Version: 1.0
@@ -213,3 +217,17 @@ Pendiente:
 - revisión con Statistics V2 existente;
 - mapeo definitivo de métricas;
 - integración con ClinicalAnalysis.
+
+
+"""
+
+
+def main():
+    output = Path("docs/clinical/14_STATISTICS_MAPPING.md")
+    output.parent.mkdir(parents=True, exist_ok=True)
+    output.write_text(CONTENT.strip() + "\n", encoding="utf-8")
+    print(output)
+
+
+if __name__ == "__main__":
+    main()
