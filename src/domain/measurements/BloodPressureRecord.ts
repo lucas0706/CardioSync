@@ -46,8 +46,6 @@ export interface BloodPressureRecord {
   pain?: number
 
 
-  medicationName?: string
-  medicationIds?: string[]
 
   // Reserved for future clinical analysis
 
