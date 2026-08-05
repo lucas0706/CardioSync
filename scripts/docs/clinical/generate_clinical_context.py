@@ -1,3 +1,7 @@
+from pathlib import Path
+
+
+CONTENT = r"""
 # ClinicalContext
 
 Version: 1.0
@@ -271,3 +275,16 @@ Fuentes:
 - ESC Guidelines 2024.
 - AHA/ACC Guideline 2025.
 - ISH Global Hypertension Practice Guidelines 2020.
+
+"""
+
+
+def main():
+    output = Path("docs/clinical/03_CLINICAL_CONTEXT.md")
+    output.parent.mkdir(parents=True, exist_ok=True)
+    output.write_text(CONTENT.strip() + "\n", encoding="utf-8")
+    print(output)
+
+
+if __name__ == "__main__":
+    main()
