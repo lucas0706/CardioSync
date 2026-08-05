@@ -3,7 +3,13 @@ import * as Crypto from 'expo-crypto'
 import type { ClinicalAnalysis } from '../models/ClinicalAnalysis'
 import type { ClinicalRule } from '../rules/ClinicalRule'
 import type { ClinicalRuleContext } from '../rules/ClinicalRuleContext'
-import { HomeBloodPressureControlRule } from '../rules/hypertension'
+import {
+  HomeBloodPressureControlRule,
+  TrendRule,
+  HypertensionLoadRule,
+  TimeInTargetRule,
+  VariabilityRule,
+} from '../rules/hypertension'
 
 import type {
   ClinicalAnalysisInput,
@@ -21,6 +27,10 @@ export class ClinicalAnalysisDomainService
 {
   private readonly rules: ClinicalRule[] = [
     new HomeBloodPressureControlRule(),
+    new TrendRule(),
+    new HypertensionLoadRule(),
+    new TimeInTargetRule(),
+    new VariabilityRule(),
   ]
 
   analyze(input: ClinicalAnalysisInput): ClinicalAnalysis {
