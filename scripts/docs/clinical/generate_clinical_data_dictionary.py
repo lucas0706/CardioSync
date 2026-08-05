@@ -1,3 +1,7 @@
+from pathlib import Path
+
+
+CONTENT = r"""
 # Clinical Data Dictionary
 
 Version: 1.0
@@ -278,3 +282,17 @@ Pendiente:
 - mapeo completo FHIR;
 - mapeo LOINC;
 - validación final del dominio.
+
+
+"""
+
+
+def main():
+    output = Path("docs/clinical/18_CLINICAL_DATA_DICTIONARY.md")
+    output.parent.mkdir(parents=True, exist_ok=True)
+    output.write_text(CONTENT.strip() + "\n", encoding="utf-8")
+    print(output)
+
+
+if __name__ == "__main__":
+    main()
