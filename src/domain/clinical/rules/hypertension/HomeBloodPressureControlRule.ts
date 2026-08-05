@@ -3,6 +3,7 @@ import * as Crypto from 'expo-crypto'
 import type { StatisticsSummary } from '@/domain/statistics/models/StatisticsSummary'
 
 import type { ClinicalRule } from '../ClinicalRule'
+import type { ClinicalRuleContext } from '../ClinicalRuleContext'
 import type { ClinicalFinding } from '../../models/ClinicalFinding'
 
 /**
@@ -22,6 +23,7 @@ export class HomeBloodPressureControlRule
 {
   evaluate(
     input: HomeBloodPressureControlInput,
+    context: ClinicalRuleContext,
   ): ClinicalFinding[] {
     const { statistics } = input
 
@@ -46,6 +48,8 @@ export class HomeBloodPressureControlRule
           'El promedio de mediciones domiciliarias supera valores de referencia utilizados para seguimiento.',
 
         severity: 'moderate',
+
+        guidelineId: context.guideline?.id,
 
         createdAt: new Date().toISOString(),
       },

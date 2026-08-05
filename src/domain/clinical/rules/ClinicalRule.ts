@@ -1,4 +1,5 @@
 import type { ClinicalFinding } from '../models/ClinicalFinding'
+import type { ClinicalRuleContext } from './ClinicalRuleContext'
 
 /**
  * Contract for clinical interpretation rules.
@@ -10,5 +11,8 @@ import type { ClinicalFinding } from '../models/ClinicalFinding'
  */
 
 export interface ClinicalRule<TInput = unknown> {
-  evaluate(input: TInput): ClinicalFinding[]
+  evaluate(
+    input: TInput,
+    context: ClinicalRuleContext,
+  ): ClinicalFinding[]
 }
