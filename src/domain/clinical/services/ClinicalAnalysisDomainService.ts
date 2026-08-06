@@ -11,6 +11,7 @@ import {
   TimeInTargetRule,
   VariabilityRule,
   ClinicalClassificationRule,
+TherapeuticTargetRule,
 } from '../rules/hypertension'
 
 import {
