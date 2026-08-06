@@ -46,3 +46,11 @@ export {
 export type {
   ClinicalClassificationRuleInput,
 } from './ClinicalClassificationRule'
+
+export {
+  TherapeuticTargetRule,
+} from './TherapeuticTargetRule'
+
+export type {
+  TherapeuticTargetInput,
+} from './TherapeuticTargetRule'
