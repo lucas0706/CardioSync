@@ -57,25 +57,31 @@ export class ClinicalAnalysisDomainService
       evaluatedAt: new Date().toISOString(),
     }
 
-    const findings = this.rules.flatMap((rule) => {
-      if (
-        rule instanceof CardiovascularRiskRule
-      ) {
+      const findings = this.rules.flatMap((rule) => {
+        if (
+          rule instanceof CardiovascularRiskRule ||
+          rule instanceof TherapeuticTargetRule
+        ) {
+          if (!input.statistics) {
+            return []
+          }
+
+          return rule.evaluate(
+            {
+              statistics: input.statistics,
+              clinicalContext: input.context,
+            },
+            context,
+          )
+        }
+
         return rule.evaluate(
           {
-            clinicalContext: input.context,
+            statistics: input.statistics,
           },
           context,
         )
-      }
-
-      return rule.evaluate(
-        {
-          statistics: input.statistics,
-        },
-        context,
-      )
-    })
+      })
 
     return {
       id: Crypto.randomUUID(),
