@@ -5,7 +5,7 @@ import type { ClinicalRule } from '../ClinicalRule'
 import type { ClinicalRuleContext } from '../ClinicalRuleContext'
 
 import {
-  ClinicalTargetRepository,
+  ClinicalTargetSelector,
 } from '../../targets'
 
 import type { StatisticsSummary } from '@/domain/statistics/models/StatisticsSummary'
@@ -20,7 +20,7 @@ export interface TherapeuticTargetInput {
 
 
 export class TherapeuticTargetRule
-  implements ClinicalRule<TherapeuticTargetInput>
+implements ClinicalRule
 {
   evaluate(
     input: TherapeuticTargetInput,
@@ -34,17 +34,18 @@ export class TherapeuticTargetRule
       return []
     }
 
-    const targets =
-      ClinicalTargetRepository.getTargets(
+
+    const target =
+      ClinicalTargetSelector.select(
+        input.clinicalContext,
         guidelineId,
       )
 
-    const target =
-      targets[0]
 
     if (!target) {
       return []
     }
+
 
     const systolic =
       input.statistics.averageSystolic
