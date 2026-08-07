@@ -4,7 +4,7 @@ export const ConsensoArgentinaHTA2025Targets: ClinicalTarget[] = [
   {
     id: 'arg-hta-2025-adults-16-79',
 
-    guidelineId: 'consenso-argentina-hta-2025',
+    guidelineId: 'consenso-hta-argentina-2025',
 
     population: 'adultos_16_79',
 
@@ -31,7 +31,7 @@ export const ConsensoArgentinaHTA2025Targets: ClinicalTarget[] = [
   {
     id: 'arg-hta-2025-adults-16-79-desirable',
 
-    guidelineId: 'consenso-argentina-hta-2025',
+    guidelineId: 'consenso-hta-argentina-2025',
 
     population: 'adultos_16_79',
 
@@ -58,7 +58,7 @@ export const ConsensoArgentinaHTA2025Targets: ClinicalTarget[] = [
   {
     id: 'arg-hta-2025-elderly-80',
 
-    guidelineId: 'consenso-argentina-hta-2025',
+    guidelineId: 'consenso-hta-argentina-2025',
 
     population: 'mayores_80',
 

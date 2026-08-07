@@ -39,6 +39,7 @@ export class ClinicalAnalysisDomainService
     new TimeInTargetRule(),
     new VariabilityRule(),
     new ClinicalClassificationRule(),
+    new TherapeuticTargetRule(),
     new CardiovascularRiskRule(),
   ]
 
