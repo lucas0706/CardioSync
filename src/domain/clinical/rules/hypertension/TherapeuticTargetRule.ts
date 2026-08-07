@@ -9,10 +9,13 @@ import {
 } from '../../targets'
 
 import type { StatisticsSummary } from '@/domain/statistics/models/StatisticsSummary'
+import type { ClinicalContext } from '../../models/ClinicalContext'
 
 
 export interface TherapeuticTargetInput {
   statistics: StatisticsSummary
+
+  clinicalContext: ClinicalContext
 }
 
 
