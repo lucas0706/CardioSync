@@ -9,7 +9,7 @@ export class ClinicalTargetRepository {
     guidelineId: string,
   ): ClinicalTarget[] {
     switch (guidelineId) {
-      case 'consenso-argentina-hta-2025':
+      case 'consenso-hta-argentina-2025':
         return ConsensoArgentinaHTA2025Targets
 
       default:
