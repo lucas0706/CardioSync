@@ -38,6 +38,7 @@ export interface ClinicalContext {
 
   // Special populations
 
+    age?: number
   pregnancy?: boolean
 
   olderAdult?: boolean

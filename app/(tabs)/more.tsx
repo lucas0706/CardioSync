@@ -23,6 +23,14 @@ export default function MoreScreen() {
           <Text>📄 Reportes</Text>
         </Pressable>
 
+          <Pressable
+            style={styles.item}
+            onPress={() => router.push('/clinical-test')}
+          >
+            <Text>🧪 Clinical Test</Text>
+          </Pressable>
+
+
         <Pressable
           style={styles.item}
           onPress={() => router.push('/(tabs)/settings')}
