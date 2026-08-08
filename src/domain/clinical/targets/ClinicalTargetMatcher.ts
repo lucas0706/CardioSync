@@ -10,8 +10,10 @@ export class ClinicalTargetMatcher {
     context: ClinicalContext,
   ): boolean {
 
-    if (!target.conditions ||
-        target.conditions.length === 0) {
+    if (
+      !target.conditions ||
+      target.conditions.length === 0
+    ) {
       return true
     }
 
@@ -36,18 +38,21 @@ export class ClinicalTargetMatcher {
       case 'poblacion_general':
         return true
 
+      case 'buena_tolerancia':
+        return true
 
       case 'diabetes':
         return context.diabetes === true
 
-
       case 'enfermedad_renal_cronica':
-        return context.chronicKidneyDisease === true
-
+        return (
+          context.chronicKidneyDisease === true
+        )
 
       case 'enfermedad_cardiovascular':
-        return context.cardiovascularDisease === true
-
+        return (
+          context.cardiovascularDisease === true
+        )
 
       default:
         return false
