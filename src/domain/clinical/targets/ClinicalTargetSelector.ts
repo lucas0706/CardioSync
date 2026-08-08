@@ -24,64 +24,64 @@ export class ClinicalTargetSelector {
       )
 
 
-    const applicableTargets =
-      targets.filter(
-        (target) =>
-          ClinicalTargetMatcher.matches(
-            target,
-            context,
-          ),
-      )
-
-
-    if (context.age !== undefined) {
-
-      const population =
-        context.age >= 80
+    const population =
+      context.age !== undefined
+        ? context.age >= 80
+          ? 'mayores_80'
+          : 'adultos_16_79'
+        : context.olderAdult
           ? 'mayores_80'
           : 'adultos_16_79'
 
 
-      return (
-        applicableTargets.find(
+    const applicableTargets =
+      targets
+        .filter(
           (target) =>
-            target.population === population,
+            target.population === population &&
+            ClinicalTargetMatcher.matches(
+              target,
+              context,
+            ),
         )
-        ??
-        targets.find(
-          (target) =>
-            target.population === population,
+        .sort(
+          (a, b) =>
+            this.getSpecificityScore(b) -
+            this.getSpecificityScore(a),
         )
-      )
-    }
-
-
-    if (context.olderAdult) {
-
-      return (
-        applicableTargets.find(
-          (target) =>
-            target.population === 'mayores_80',
-        )
-        ??
-        targets.find(
-          (target) =>
-            target.population === 'mayores_80',
-        )
-      )
-    }
 
 
     return (
-      applicableTargets.find(
-        (target) =>
-          target.population === 'adultos_16_79',
-      )
+      applicableTargets[0]
       ??
       targets.find(
         (target) =>
-          target.population === 'adultos_16_79',
+          target.population === population,
       )
+    )
+  }
+
+
+  private static getSpecificityScore(
+    target: ClinicalTarget,
+  ): number {
+
+    if (!target.conditions) {
+      return 0
+    }
+
+
+    return target.conditions.reduce(
+      (score, condition) => {
+
+        if (condition === 'poblacion_general') {
+          return score
+        }
+
+        return score + 10
+
+      },
+      0,
     )
   }
 }
