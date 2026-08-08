@@ -8,6 +8,10 @@ import {
   ClinicalTargetSelector,
 } from '../../targets'
 
+import {
+  TargetRangeEvaluator,
+} from '../../targets/utils/TargetRangeEvaluator'
+
 import type { StatisticsSummary } from '@/domain/statistics/models/StatisticsSummary'
 import type { ClinicalContext } from '../../models/ClinicalContext'
 
@@ -22,6 +26,7 @@ export interface TherapeuticTargetInput {
 export class TherapeuticTargetRule
 implements ClinicalRule
 {
+
   evaluate(
     input: TherapeuticTargetInput,
     context: ClinicalRuleContext,
@@ -29,6 +34,7 @@ implements ClinicalRule
 
     const guidelineId =
       context.guideline?.id
+
 
     if (!guidelineId) {
       return []
@@ -55,10 +61,14 @@ implements ClinicalRule
 
 
     const controlled =
-      target.systolic?.max !== undefined &&
-      target.diastolic?.max !== undefined &&
-      systolic <= target.systolic.max &&
-      diastolic <= target.diastolic.max
+      TargetRangeEvaluator.isWithinRange(
+        systolic,
+        target.systolic,
+      ) &&
+      TargetRangeEvaluator.isWithinRange(
+        diastolic,
+        target.diastolic,
+      )
 
 
     return [
