@@ -2,19 +2,28 @@ import { Text, View } from 'react-native'
 
 import { ClinicalAnalysisDomainService } from '@/domain/clinical/services/ClinicalAnalysisDomainService'
 
+import {
+  ClinicalTargetSelector,
+  ClinicalTargetRepository,
+} from '@/domain/clinical/targets'
+
 import type { StatisticsSummary } from '@/domain/statistics/models/StatisticsSummary'
 
 
 const statistics: StatisticsSummary = {
+
   totalMeasurements: 30,
 
   averageSystolic: 145,
+
   averageDiastolic: 75,
 
   maximumSystolic: 150,
+
   maximumDiastolic: 80,
 
   minimumSystolic: 140,
+
   minimumDiastolic: 70,
 
   pulsePressureAverage: 70,
@@ -22,9 +31,11 @@ const statistics: StatisticsSummary = {
   meanArterialPressureAverage: 91,
 
   systolicStandardDeviation: 5,
+
   diastolicStandardDeviation: 3,
 
   systolicVariability: 5,
+
   diastolicVariability: 3,
 
   hypertensionLoad: 0,
@@ -37,10 +48,56 @@ const statistics: StatisticsSummary = {
 }
 
 
+type TestScenario =
+  | 'CKD'
+  | 'GENERAL'
+  | 'ELDERLY'
+
+
+function getTestScenario(): TestScenario {
+  return 'ELDERLY'
+}
+
+
+const TEST_SCENARIO =
+  getTestScenario()
+
+
+const clinicalContext =
+  TEST_SCENARIO === 'ELDERLY'
+    ? {
+        patientId: 'test-user',
+        age: 85,
+      }
+    : TEST_SCENARIO === 'GENERAL'
+      ? {
+          patientId: 'test-user',
+          age: 60,
+        }
+      : {
+          patientId: 'test-user',
+          age: 60,
+          chronicKidneyDisease: true,
+        }
+
+
 export default function ClinicalTestScreen() {
 
   const service =
     new ClinicalAnalysisDomainService()
+
+
+  const selectedTarget =
+    ClinicalTargetSelector.select(
+      clinicalContext,
+      'consenso-hta-argentina-2025',
+    )
+
+
+  const allTargets =
+    ClinicalTargetRepository.getTargets(
+      'consenso-hta-argentina-2025',
+    )
 
 
   const result =
@@ -49,34 +106,134 @@ export default function ClinicalTestScreen() {
 
       statistics,
 
-      context: {
-        patientId: 'test-user',
-        age: 85,
-      },
+      context: clinicalContext,
     })
 
 
   return (
+
     <View style={{ padding: 40 }}>
 
       <Text>
-        Clinical Target Selector Age Test
+        Clinical Target Debug
+      </Text>
+
+
+      <Text>
+        CONTEXT
       </Text>
 
       <Text>
-        Findings: {result.findings.length}
+        Age: {clinicalContext.age}
+      </Text>
+
+      <Text>
+        Chronic Kidney Disease: {String(
+          clinicalContext.chronicKidneyDisease,
+        )}
+      </Text>
+
+
+      <Text>
+        {' '}
+      </Text>
+
+
+      <Text>
+        STATISTICS
+      </Text>
+
+      <Text>
+        Average systolic: {statistics.averageSystolic}
+      </Text>
+
+      <Text>
+        Average diastolic: {statistics.averageDiastolic}
+      </Text>
+
+
+      <Text>
+        {' '}
+      </Text>
+
+
+      <Text>
+        ALL TARGETS
       </Text>
 
       {
-        result.findings.map(
-          (finding) => (
-            <Text key={finding.id}>
-              {finding.title}
+        allTargets.map(
+          (target: import('@/domain/clinical/targets').ClinicalTarget) => (
+            <Text key={target.id}>
+              {target.id}
+              {' | '}
+              {target.conditions?.join(',')}
             </Text>
           ),
         )
       }
 
+
+      <Text>
+        SELECTED TARGET
+      </Text>
+
+      <Text>
+        {selectedTarget?.id ?? 'none'}
+      </Text>
+
+
+      <Text>
+        {selectedTarget?.description ?? ''}
+      </Text>
+
+
+      <Text>
+        Systolic target:
+        {' '}
+        {selectedTarget?.systolic?.min ?? '-'}
+        {' '}
+        -
+        {' '}
+        {selectedTarget?.systolic?.max ?? '-'}
+      </Text>
+
+
+      <Text>
+        Diastolic target:
+        {' '}
+        {selectedTarget?.diastolic?.min ?? '-'}
+        {' '}
+        -
+        {' '}
+        {selectedTarget?.diastolic?.max ?? '-'}
+      </Text>
+
+
+      <Text>
+        {' '}
+      </Text>
+
+
+      <Text>
+        FINDINGS: {result.findings.length}
+      </Text>
+
+
+      {
+        result.findings.map(
+          (finding) => (
+
+            <Text key={finding.id}>
+              {finding.title}
+            </Text>
+
+          ),
+        )
+      }
+
+
     </View>
+
   )
 }

@@ -1,81 +1,114 @@
 import type { ClinicalTarget } from '../ClinicalTarget'
 
 export const ConsensoArgentinaHTA2025Targets: ClinicalTarget[] = [
-  {
-    id: 'arg-hta-2025-adults-16-79',
 
-    guidelineId: 'consenso-hta-argentina-2025',
+{
+id: 'arg-hta-2025-adults-16-79',
 
-    population: 'adultos_16_79',
+guidelineId: 'consenso-hta-argentina-2025',
 
-    systolic: {
-      max: 140,
-    },
+population: 'adultos_16_79',
 
-    diastolic: {
-      max: 90,
-    },
+systolic: {
+  max: 140,
+},
 
-    conditions: [
-      'poblacion_general',
-    ],
+diastolic: {
+  max: 90,
+},
 
-    recommendationClass: 'I',
+conditions: [
+  'poblacion_general',
+],
 
-    evidenceLevel: 'A',
+recommendationClass: 'I',
 
-    description:
-      'Objetivo primario de presión arterial para pacientes de 16 a 79 años.',
-  },
+evidenceLevel: 'A',
 
-  {
-    id: 'arg-hta-2025-adults-16-79-desirable',
+description:
+  'Objetivo primario de presión arterial para pacientes de 16 a 79 años.',
+},
 
-    guidelineId: 'consenso-hta-argentina-2025',
 
-    population: 'adultos_16_79',
+{
+id: 'arg-hta-2025-adults-16-79-desirable',
 
-    systolic: {
-      max: 130,
-    },
+guidelineId: 'consenso-hta-argentina-2025',
 
-    diastolic: {
-      max: 80,
-    },
+population: 'adultos_16_79',
 
-    conditions: [
-      'buena_tolerancia',
-    ],
+systolic: {
+  max: 130,
+},
 
-    recommendationClass: 'I',
+diastolic: {
+  max: 80,
+},
 
-    evidenceLevel: 'A',
+conditions: [
+  'buena_tolerancia',
+],
 
-    description:
-      'Objetivo deseable si es tolerado.',
-  },
+recommendationClass: 'I',
 
-  {
-    id: 'arg-hta-2025-elderly-80',
+evidenceLevel: 'A',
 
-    guidelineId: 'consenso-hta-argentina-2025',
+description:
+  'Objetivo deseable si es tolerado.',
+},
 
-    population: 'mayores_80',
 
-    systolic: {
-      min: 140,
-      max: 150,
-    },
+{
+id: 'arg-hta-2025-ckd',
 
-    diastolic: {
-      max: 80,
-    },
+guidelineId: 'consenso-hta-argentina-2025',
 
-    recommendationClass: 'I',
+population: 'adultos_16_79',
 
-    evidenceLevel: 'A',
+systolic: {
+  min: 120,
+  max: 129,
+},
 
-    description:
-      'Objetivo para pacientes mayores de 80 años.',
-  },
+diastolic: {
+  max: 80,
+},
+
+conditions: [
+  'enfermedad_renal_cronica',
+],
+
+recommendationClass: 'I',
+
+evidenceLevel: 'A',
+
+description:
+  'Objetivo terapéutico para pacientes con enfermedad renal crónica cuando es tolerado.',
+},
+
+
+{
+id: 'arg-hta-2025-elderly-80',
+
+guidelineId: 'consenso-hta-argentina-2025',
+
+population: 'mayores_80',
+
+systolic: {
+  min: 140,
+  max: 150,
+},
+
+diastolic: {
+  max: 80,
+},
+
+recommendationClass: 'I',
+
+evidenceLevel: 'A',
+
+description:
+  'Objetivo para pacientes mayores de 80 años.',
+},
+
 ]
