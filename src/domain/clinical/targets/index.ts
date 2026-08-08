@@ -7,3 +7,7 @@ export {
 export {
   ClinicalTargetSelector,
 } from './ClinicalTargetSelector'
+
+export {
+  ClinicalTargetMatcher,
+} from './ClinicalTargetMatcher'
