@@ -93,6 +93,38 @@ description:
 },
 
 
+
+{
+id: 'arg-hta-2025-diabetes',
+
+guidelineId: 'consenso-hta-argentina-2025',
+
+population: 'adultos_16_79',
+
+systolic: {
+  max: 130,
+},
+
+diastolic: {
+  max: 80,
+},
+
+conditions: [
+  'diabetes',
+],
+
+priority: 70,
+
+recommendationClass: 'I',
+
+evidenceLevel: 'A',
+
+description:
+  'Objetivo terapéutico para pacientes con diabetes mellitus cuando es tolerado.',
+},
+
+
+
 {
 id: 'arg-hta-2025-elderly-80',
 
