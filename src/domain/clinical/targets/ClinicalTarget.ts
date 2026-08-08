@@ -53,6 +53,13 @@ export interface ClinicalTarget {
 
 
   /**
+   * Selection priority when multiple targets apply.
+   * Higher values represent more specific clinical contexts.
+   */
+  priority?: number
+
+
+  /**
    * Safety warnings.
    */
   warnings?: string[]

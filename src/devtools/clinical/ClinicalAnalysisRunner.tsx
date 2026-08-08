@@ -55,7 +55,7 @@ type TestScenario =
 
 
 function getTestScenario(): TestScenario {
-  return 'ELDERLY'
+  return 'CKD'
 }
 
 

@@ -46,8 +46,8 @@ export class ClinicalTargetSelector {
         )
         .sort(
           (a, b) =>
-            this.getSpecificityScore(b) -
-            this.getSpecificityScore(a),
+            (b.priority ?? 0) -
+            (a.priority ?? 0),
         )
 
 
@@ -58,30 +58,6 @@ export class ClinicalTargetSelector {
         (target) =>
           target.population === population,
       )
-    )
-  }
-
-
-  private static getSpecificityScore(
-    target: ClinicalTarget,
-  ): number {
-
-    if (!target.conditions) {
-      return 0
-    }
-
-
-    return target.conditions.reduce(
-      (score, condition) => {
-
-        if (condition === 'poblacion_general') {
-          return score
-        }
-
-        return score + 10
-
-      },
-      0,
     )
   }
 }
