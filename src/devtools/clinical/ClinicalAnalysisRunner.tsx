@@ -52,10 +52,11 @@ type TestScenario =
   | 'CKD'
   | 'GENERAL'
   | 'ELDERLY'
+  | 'DIABETES'
 
 
 function getTestScenario(): TestScenario {
-  return 'CKD'
+  return 'DIABETES'
 }
 
 
@@ -74,11 +75,17 @@ const clinicalContext =
           patientId: 'test-user',
           age: 60,
         }
-      : {
-          patientId: 'test-user',
-          age: 60,
-          chronicKidneyDisease: true,
-        }
+      : TEST_SCENARIO === 'DIABETES'
+        ? {
+            patientId: 'test-user',
+            age: 60,
+            diabetes: true,
+          }
+        : {
+            patientId: 'test-user',
+            age: 60,
+            chronicKidneyDisease: true,
+          }
 
 
 export default function ClinicalTestScreen() {
