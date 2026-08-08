@@ -21,6 +21,8 @@ conditions: [
   'poblacion_general',
 ],
 
+priority: 0,
+
 recommendationClass: 'I',
 
 evidenceLevel: 'A',
@@ -48,6 +50,8 @@ diastolic: {
 conditions: [
   'buena_tolerancia',
 ],
+
+priority: 10,
 
 recommendationClass: 'I',
 
@@ -78,6 +82,8 @@ conditions: [
   'enfermedad_renal_cronica',
 ],
 
+priority: 100,
+
 recommendationClass: 'I',
 
 evidenceLevel: 'A',
@@ -93,6 +99,8 @@ id: 'arg-hta-2025-elderly-80',
 guidelineId: 'consenso-hta-argentina-2025',
 
 population: 'mayores_80',
+
+priority: 80,
 
 systolic: {
   min: 140,
