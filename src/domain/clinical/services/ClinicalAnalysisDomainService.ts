@@ -4,6 +4,11 @@ import type { ClinicalAnalysis } from '../models/ClinicalAnalysis'
 import { ConsensoArgentinaHTA2025 } from '../guidelines'
 import type { ClinicalRule } from '../rules/ClinicalRule'
 import type { ClinicalRuleContext } from '../rules/ClinicalRuleContext'
+
+import {
+  BloodPressureSafetyRule,
+BloodPressureClassificationRule,
+} from '../rules'
 import {
   HomeBloodPressureControlRule,
   TrendRule,
@@ -41,6 +46,8 @@ export class ClinicalAnalysisDomainService
     new ClinicalClassificationRule(),
     new TherapeuticTargetRule(),
     new CardiovascularRiskRule(),
+    new BloodPressureSafetyRule(),
+new BloodPressureClassificationRule(),
   ]
 
   analyze(input: ClinicalAnalysisInput): ClinicalAnalysis {
@@ -58,6 +65,27 @@ export class ClinicalAnalysisDomainService
     }
 
       const findings = this.rules.flatMap((rule) => {
+
+          if (
+            rule instanceof BloodPressureSafetyRule ||
+            rule instanceof BloodPressureClassificationRule
+          ) {
+            if (!input.statistics) {
+              return []
+            }
+
+            return rule.evaluate(
+              {
+                averageSystolic:
+                  input.statistics.averageSystolic,
+
+                averageDiastolic:
+                  input.statistics.averageDiastolic,
+              },
+              context,
+            )
+          }
+
         if (
           rule instanceof CardiovascularRiskRule ||
           rule instanceof TherapeuticTargetRule
