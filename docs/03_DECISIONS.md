@@ -399,3 +399,57 @@ Si un nuevo dato describe el estado del paciente y no la medición de presión a
 - 04_CLINICAL_DOMAIN.md
 - 13_DOMAIN_REFACTOR.md
 
+
+---
+
+## Consolidación de la clasificación de presión arterial
+
+**Estado:** Activa.
+
+Se identificaron dos mecanismos que producían findings con el mismo tipo `blood-pressure-classification`:
+
+- `ClinicalClassificationRule`, basado en el árbol histórico `src/clinical/engine`.
+- `BloodPressureClassificationRule`, basado en `StatisticsSummary`.
+
+Esto representaba dos fuentes de verdad para la clasificación clínica.
+
+Se decidió mantener `BloodPressureClassificationRule` como la clasificación del Clinical Domain V1 porque Clinical Analysis trabaja sobre el conjunto de mediciones y su `StatisticsSummary`.
+
+`ClinicalClassificationRule` fue eliminado del dominio clínico activo.
+
+El árbol histórico `src/clinical/` no fue eliminado en esta fase. Su migración o retiro deberá tratarse como una tarea arquitectónica independiente.
+
+---
+
+
+---
+
+## Independencia de períodos entre módulos
+
+**Estado:** Adoptada.
+
+Los módulos de CardioSync no compartirán un único estado global de período.
+
+Cada módulo puede seleccionar independientemente el período que necesita.
+
+Ejemplo:
+
+- Historial: puede mostrar todos los registros sin aplicar un período.
+- Estadísticas: puede utilizar 7 días, 30 días, 90 días o un período personalizado.
+- Reports: podrá seleccionar independientemente, por ejemplo, 30 días para una exportación.
+- Clinical Analysis: analizará el conjunto de datos que corresponda al contexto de análisis y no dependerá de un estado global de período.
+
+La infraestructura de filtrado temporal puede reutilizarse cuando corresponda, pero los modelos de filtro no deben acoplar artificialmente las features entre sí.
+
+`StatisticsFilter` y `PeriodFilter` permanecen actualmente dentro de `src/domain/statistics/`.
+
+No se creará todavía un filtro temporal global ni un nuevo dominio temporal común.
+
+Si en futuras features aparece una necesidad real de compartir únicamente el concepto de rango temporal, se podrá introducir una abstracción común como `DateRange` sin trasladar el estado de período de una feature a otra.
+
+Principio:
+
+**Compartir infraestructura cuando corresponda; mantener independientes las responsabilidades y el estado de cada módulo.**
+
+---
+

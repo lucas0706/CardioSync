@@ -8,7 +8,6 @@ export {
   HypertensionLoadRule,
   TimeInTargetRule,
   VariabilityRule,
-  ClinicalClassificationRule,
   TherapeuticTargetRule,
 } from './hypertension'
 
@@ -18,7 +17,6 @@ export type {
   HypertensionLoadRuleInput,
   TimeInTargetRuleInput,
   VariabilityRuleInput,
-  ClinicalClassificationRuleInput,
   TherapeuticTargetInput,
 } from './hypertension'
 

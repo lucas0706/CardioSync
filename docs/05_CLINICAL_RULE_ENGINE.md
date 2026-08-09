@@ -212,3 +212,18 @@ La implementación comenzará luego de:
 2. Definir Clinical Domain.
 3. Definir modelos clínicos definitivos.
 
+
+---
+
+## Eliminación de duplicidad de clasificación
+
+Se eliminó `ClinicalClassificationRule` de la composición del Clinical Rule Engine y posteriormente del código activo.
+
+La clasificación de presión arterial queda centralizada en:
+
+`BloodPressureClassificationRule`.
+
+Esto evita producir dos findings con el mismo tipo desde fuentes de clasificación diferentes.
+
+---
+

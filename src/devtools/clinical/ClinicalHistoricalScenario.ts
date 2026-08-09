@@ -121,5 +121,14 @@ export function runClinicalHistoricalScenario() {
     ),
   )
 
+  console.log(
+    'HISTORICAL STRUCTURED RESULT',
+    JSON.stringify(
+      result.result,
+      null,
+      2,
+    ),
+  )
+
   return result
 }
