@@ -21,3 +21,19 @@ export type {
   ClinicalClassificationRuleInput,
   TherapeuticTargetInput,
 } from './hypertension'
+
+export {
+  BloodPressureSafetyRule,
+} from './safety'
+
+export type {
+  BloodPressureSafetyRuleInput,
+} from './safety'
+
+export {
+  BloodPressureClassificationRule,
+} from './blood-pressure'
+
+export type {
+  BloodPressureClassificationRuleInput,
+} from './blood-pressure'
