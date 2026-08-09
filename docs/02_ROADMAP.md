@@ -308,3 +308,28 @@ Será una fuente adicional de datos. No conocerá ni dependerá de `PeriodFilter
 
 ---
 
+
+---
+
+## Clinical Context de producción
+
+### Pendiente antes de integrar Clinical Analysis con Statistics
+
+Crear una fuente de `ClinicalContext` de aplicación que permita proporcionar, cuando corresponda:
+
+- patientId;
+- edad;
+- condiciones clínicas relevantes;
+- factores de riesgo;
+- contexto necesario para selección de objetivos.
+
+No utilizar los escenarios de `devtools` como fuente de datos de producción.
+
+Una vez disponible:
+
+`Statistics filteredMeasurements + StatisticsSummary + ClinicalContext`
+
+podrán alimentar `ClinicalAnalysisDomainService`.
+
+---
+
