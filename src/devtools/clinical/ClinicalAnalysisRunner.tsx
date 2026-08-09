@@ -117,11 +117,11 @@ export default function ClinicalTestScreen() {
       </Text>
 
       <Text>
-        Average systolic: {statistics.averageSystolic}
+        Average systolic: {statistics?.averageSystolic ?? '-'}
       </Text>
 
       <Text>
-        Average diastolic: {statistics.averageDiastolic}
+        Average diastolic: {statistics?.averageDiastolic ?? '-'}
       </Text>
 
 

@@ -266,3 +266,45 @@ Este documento deberá actualizarse obligatoriamente al finalizar cada fase.
 
 Una fase no podrá considerarse finalizada hasta que este roadmap refleje exactamente el estado real del proyecto.
 
+
+---
+
+## Decisión de períodos por módulo
+
+Los períodos son independientes por feature.
+
+### Historial
+
+Su función principal es visualizar registros. Puede mostrar todos los registros sin filtro temporal o utilizar posteriormente filtros propios de navegación.
+
+### Estadísticas
+
+Mantiene su infraestructura actual:
+
+- 7 días
+- 30 días
+- 90 días
+- personalizado
+
+Utiliza `StatisticsFilter` y `PeriodFilter`.
+
+### Clinical Analysis
+
+No tendrá un período global propio. Analizará los registros correspondientes al conjunto temporal que determine su consumidor.
+
+### Reports
+
+Tendrá posteriormente su propia selección temporal para generación de informes y exportaciones.
+
+Ejemplo:
+
+`Reports = últimos 30 días`
+
+Esto no modifica el período seleccionado en Statistics ni el estado de History.
+
+### Health Connect
+
+Será una fuente adicional de datos. No conocerá ni dependerá de `PeriodFilter`.
+
+---
+

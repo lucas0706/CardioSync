@@ -4,19 +4,20 @@ import type { ClinicalAnalysis } from '../models/ClinicalAnalysis'
 import { ConsensoArgentinaHTA2025 } from '../guidelines'
 import type { ClinicalRule } from '../rules/ClinicalRule'
 import type { ClinicalRuleContext } from '../rules/ClinicalRuleContext'
+import { buildClinicalAnalysisResult } from './ClinicalAnalysisResultBuilder'
 
 import {
   BloodPressureSafetyRule,
-BloodPressureClassificationRule,
+  BloodPressureClassificationRule,
 } from '../rules'
+
 import {
   HomeBloodPressureControlRule,
   TrendRule,
   HypertensionLoadRule,
   TimeInTargetRule,
   VariabilityRule,
-  ClinicalClassificationRule,
-TherapeuticTargetRule,
+  TherapeuticTargetRule,
 } from '../rules/hypertension'
 
 import {
@@ -32,8 +33,10 @@ import type {
  * Initial domain implementation for clinical analysis.
  *
  * Clinical rules are executed through composition.
+ *
+ * Statistics are calculated outside this service.
+ * This service only orchestrates clinical interpretation.
  */
-
 export class ClinicalAnalysisDomainService
   implements ClinicalAnalysisService
 {
@@ -43,11 +46,10 @@ export class ClinicalAnalysisDomainService
     new HypertensionLoadRule(),
     new TimeInTargetRule(),
     new VariabilityRule(),
-    new ClinicalClassificationRule(),
     new TherapeuticTargetRule(),
     new CardiovascularRiskRule(),
     new BloodPressureSafetyRule(),
-new BloodPressureClassificationRule(),
+    new BloodPressureClassificationRule(),
   ]
 
   analyze(input: ClinicalAnalysisInput): ClinicalAnalysis {
@@ -61,69 +63,85 @@ new BloodPressureClassificationRule(),
       clinicalContext:
         input.context,
 
-      evaluatedAt: new Date().toISOString(),
+      evaluatedAt:
+        new Date().toISOString(),
     }
 
-      const findings = this.rules.flatMap((rule) => {
-
-          if (
-            rule instanceof BloodPressureSafetyRule ||
-            rule instanceof BloodPressureClassificationRule
-          ) {
-            if (!input.statistics) {
-              return []
-            }
-
-            return rule.evaluate(
-              {
-                averageSystolic:
-                  input.statistics.averageSystolic,
-
-                averageDiastolic:
-                  input.statistics.averageDiastolic,
-              },
-              context,
-            )
-          }
-
-        if (
-          rule instanceof CardiovascularRiskRule ||
-          rule instanceof TherapeuticTargetRule
-        ) {
-          if (!input.statistics) {
-            return []
-          }
-
-          return rule.evaluate(
-            {
-              statistics: input.statistics,
-              clinicalContext: input.context,
-            },
-            context,
-          )
+    const findings = this.rules.flatMap((rule) => {
+      if (
+        rule instanceof BloodPressureSafetyRule ||
+        rule instanceof BloodPressureClassificationRule
+      ) {
+        if (!input.statistics) {
+          return []
         }
 
         return rule.evaluate(
           {
-            statistics: input.statistics,
+            averageSystolic:
+              input.statistics.averageSystolic,
+
+            averageDiastolic:
+              input.statistics.averageDiastolic,
           },
           context,
         )
-      })
+      }
+
+      if (
+        rule instanceof CardiovascularRiskRule ||
+        rule instanceof TherapeuticTargetRule
+      ) {
+        if (!input.statistics) {
+          return []
+        }
+
+        return rule.evaluate(
+          {
+            statistics:
+              input.statistics,
+
+            clinicalContext:
+              input.context,
+          },
+          context,
+        )
+      }
+
+      return rule.evaluate(
+        {
+          statistics:
+            input.statistics,
+        },
+        context,
+      )
+    })
+
+    const result =
+      buildClinicalAnalysisResult(
+        findings,
+        input.statistics,
+      )
 
     return {
-      id: Crypto.randomUUID(),
+      id:
+        Crypto.randomUUID(),
 
-      patientId: input.context.patientId,
+      patientId:
+        input.context.patientId,
 
-      createdAt: new Date().toISOString(),
+      createdAt:
+        new Date().toISOString(),
 
       guideline:
         input.guideline ?? ConsensoArgentinaHTA2025,
 
-      statistics: input.statistics,
+      statistics:
+        input.statistics,
 
       findings,
+
+      result,
 
       summary:
         findings.length > 0

@@ -249,3 +249,18 @@ Orden previsto:
 4. Implementar ClinicalRuleEngine.
 5. Implementar ClinicalAnalysisEngine.
 
+
+---
+
+## Consolidación de clasificación
+
+Clinical Analysis V1 utiliza una única regla activa para producir el finding `blood-pressure-classification`:
+
+`BloodPressureClassificationRule`.
+
+La antigua `ClinicalClassificationRule`, que adaptaba `ClinicalResult` proveniente del árbol histórico `src/clinical/engine`, fue retirada del dominio activo para evitar dos fuentes de verdad.
+
+El árbol histórico `src/clinical/` permanece intacto por ahora.
+
+---
+

@@ -103,3 +103,38 @@ Cada fase completada deberá agregar:
 - Decisiones asociadas.
 - Documentación actualizada.
 
+
+---
+
+# 2026-08-09 — Consolidación de clasificación clínica
+
+### Cambios
+
+- Identificada duplicidad entre `ClinicalClassificationRule` y `BloodPressureClassificationRule`.
+- Retirada `ClinicalClassificationRule` del Clinical Domain.
+- Eliminado su export del Rule Engine.
+- Conservada `BloodPressureClassificationRule` como única fuente activa de clasificación.
+- Validado el escenario histórico después de la consolidación.
+- Preservado sin modificaciones el árbol histórico `src/clinical/`.
+
+### Resultado
+
+Clinical Analysis V1 mantiene los mismos cuatro findings históricos sin duplicar la clasificación.
+
+
+---
+
+# 2026-08-09 — Independencia de períodos por módulo
+
+### Decisión
+
+Se definió que Historial, Estadísticas, Clinical Analysis y Reports no compartirán un único estado global de período.
+
+Se reutilizará infraestructura temporal cuando corresponda, evitando acoplar los modelos de cada feature.
+
+`StatisticsFilter` y `PeriodFilter` permanecen dentro del dominio de Statistics.
+
+No se introduce todavía una abstracción temporal global.
+
+---
+

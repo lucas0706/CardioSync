@@ -1,5 +1,6 @@
 import type { StatisticsSummary } from '../../statistics/models/StatisticsSummary'
 import type { ClinicalFinding } from './ClinicalFinding'
+import type { ClinicalAnalysisResult } from './ClinicalAnalysisResult'
 import type { ClinicalGuideline } from './ClinicalGuideline'
 
 /**
@@ -32,6 +33,9 @@ export interface ClinicalAnalysis {
 
   findings: ClinicalFinding[]
 
+
+  // Structured representation of the same findings
+  result: ClinicalAnalysisResult
   // General interpretation
 
   summary?: string

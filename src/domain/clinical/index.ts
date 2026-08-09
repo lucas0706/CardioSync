@@ -5,3 +5,5 @@ export type { ClinicalGuideline } from './models/ClinicalGuideline'
 export type { ClinicalFinding } from './models/ClinicalFinding'
 
 export type { ClinicalAnalysis } from './models/ClinicalAnalysis'
+
+export type { ClinicalAnalysisResult } from './models/ClinicalAnalysisResult'
