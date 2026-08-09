@@ -250,3 +250,25 @@ La clasificación quedó representada por un único finding `blood-pressure-clas
 
 ---
 
+
+---
+
+## Integración con Statistics
+
+Clinical Analysis V1 está diseñado para consumir el `StatisticsSummary` correspondiente al período analizado.
+
+La selección del período no pertenece al Clinical Engine.
+
+Statistics determina:
+
+- registros filtrados;
+- estadísticas correspondientes al período.
+
+Clinical Analysis interpreta esos datos.
+
+La integración de producción permanece pendiente porque todavía no existe una fuente persistente/runtime de `ClinicalContext`.
+
+Los escenarios de `src/devtools/clinical/` no deben utilizarse como fuente de contexto para la aplicación.
+
+---
+

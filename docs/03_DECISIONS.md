@@ -453,3 +453,43 @@ Principio:
 
 ---
 
+
+---
+
+## Integración de Clinical Analysis con Statistics
+
+**Estado:** Preparada conceptualmente; integración de UI pendiente.
+
+Statistics ya dispone de:
+
+- período seleccionado;
+- registros filtrados;
+- StatisticsSummary.
+
+ClinicalAnalysisDomainService recibe:
+
+- measurements;
+- StatisticsSummary;
+- ClinicalContext;
+- guideline.
+
+No se conecta todavía Clinical Analysis directamente a `useStatistics()` porque la aplicación aún no dispone de una fuente de producción para `ClinicalContext`.
+
+El contexto actualmente utilizado en `src/devtools/clinical/` corresponde a escenarios de validación y no debe utilizarse como contexto de producción.
+
+La integración futura deberá proporcionar al Clinical Analysis el mismo conjunto temporal representado por `StatisticsSummary`, junto con un `ClinicalContext` real.
+
+No se introducirá un contexto clínico ficticio ni se acoplará Clinical Analysis a `StatisticsFilter`.
+
+---
+
+## Dependencia histórica de Statistics con Clinical Engine
+
+`StatisticsEngine` todavía acepta opcionalmente `ClinicalEngine` y utiliza `ClinicalClassificationCalculator` para generar `predominantClassification` y `classificationDistribution`.
+
+Esta dependencia pertenece al árbol histórico `src/clinical/` y no debe confundirse con la nueva arquitectura de `src/domain/clinical/`.
+
+Su migración o eliminación se tratará en una fase independiente para evitar modificar simultáneamente Statistics y Clinical Analysis.
+
+---
+
