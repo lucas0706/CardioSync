@@ -1,52 +1,16 @@
 import { Text, View } from 'react-native'
 
-import { ClinicalAnalysisDomainService } from '@/domain/clinical/services/ClinicalAnalysisDomainService'
-
 import {
   ClinicalTargetSelector,
   ClinicalTargetRepository,
 } from '@/domain/clinical/targets'
 
-import type { StatisticsSummary } from '@/domain/statistics/models/StatisticsSummary'
+import { runClinicalHistoricalScenario } from './ClinicalHistoricalScenario'
 
 
-const statistics: StatisticsSummary = {
+const historicalResult = runClinicalHistoricalScenario()
 
-  totalMeasurements: 30,
-
-  averageSystolic: 160,
-
-  averageDiastolic: 100,
-
-  maximumSystolic: 150,
-
-  maximumDiastolic: 80,
-
-  minimumSystolic: 140,
-
-  minimumDiastolic: 70,
-
-  pulsePressureAverage: 70,
-
-  meanArterialPressureAverage: 91,
-
-  systolicStandardDeviation: 5,
-
-  diastolicStandardDeviation: 3,
-
-  systolicVariability: 5,
-
-  diastolicVariability: 3,
-
-  hypertensionLoad: 0,
-
-  timeInTarget: 100,
-
-  adherence: 100,
-
-  trend: 'stable',
-}
-
+const statistics = historicalResult.statistics
 
 type TestScenario =
   | 'CKD'
@@ -90,10 +54,6 @@ const clinicalContext =
 
 export default function ClinicalTestScreen() {
 
-  const service =
-    new ClinicalAnalysisDomainService()
-
-
   const selectedTarget =
     ClinicalTargetSelector.select(
       clinicalContext,
@@ -108,13 +68,7 @@ export default function ClinicalTestScreen() {
 
 
   const result =
-    service.analyze({
-      measurements: [],
-
-      statistics,
-
-      context: clinicalContext,
-    })
+    historicalResult
 
 
 
