@@ -60,6 +60,15 @@ implements ClinicalRule
       input.statistics.averageDiastolic
 
 
+
+      const belowSafetyThreshold =
+        systolic < 120 ||
+        diastolic < 70
+
+      if (belowSafetyThreshold) {
+        return []
+      }
+
     const controlled =
       TargetRangeEvaluator.isWithinRange(
         systolic,
