@@ -14,9 +14,9 @@ const statistics: StatisticsSummary = {
 
   totalMeasurements: 30,
 
-  averageSystolic: 145,
+  averageSystolic: 160,
 
-  averageDiastolic: 75,
+  averageDiastolic: 100,
 
   maximumSystolic: 150,
 
@@ -117,12 +117,24 @@ export default function ClinicalTestScreen() {
     })
 
 
+
+
+
+    console.log(
+      'DEBUG FINDINGS',
+      JSON.stringify(
+        result.findings,
+        null,
+        2,
+      ),
+    )
+
   return (
 
     <View style={{ padding: 40 }}>
 
       <Text>
-        Clinical Target Debug
+        Clinical Target Debug V2 TEST
       </Text>
 
 
