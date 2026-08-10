@@ -4,7 +4,8 @@ import { Pressable, StyleSheet, View } from 'react-native'
 import { Card, Text } from '@/components/ui'
 import { BloodPressureRecord } from '@/domain/measurements/BloodPressureRecord'
 import { ClassificationBadge } from '@/features/measurements/components/ClassificationBadge'
-import { classifyBloodPressure } from '@/features/measurements/utils/classifyBloodPressure'
+import { BloodPressureSafetyWarning } from '@/features/measurements/components/BloodPressureSafetyWarning'
+import { BloodPressureClassifier } from '@/domain/clinical/classification'
 import { formatDateTime } from '@/utils/date'
 
 type Props = {
@@ -15,7 +16,7 @@ export function MeasurementCard({
   record,
 }: Props) {
   const router = useRouter()
-  const classification = classifyBloodPressure(
+  const classification = BloodPressureClassifier.classify(
     record.systolic,
     record.diastolic,
   )
@@ -60,6 +61,9 @@ export function MeasurementCard({
 
           <View style={styles.rightColumn}>
             <ClassificationBadge classification={classification} />
+            <BloodPressureSafetyWarning
+              warnings={classification.safetyWarnings}
+            />
           </View>
         </View>
       </Card>

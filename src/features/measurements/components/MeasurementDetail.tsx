@@ -4,7 +4,8 @@ import { AppButton } from '@/components/form'
 import { Text } from '@/components/ui'
 import { BloodPressureRecord } from '@/domain/measurements/BloodPressureRecord'
 import { ClassificationBadge } from '@/features/measurements/components/ClassificationBadge'
-import { classifyBloodPressure } from '@/features/measurements/utils/classifyBloodPressure'
+import { BloodPressureSafetyWarning } from '@/features/measurements/components/BloodPressureSafetyWarning'
+import { BloodPressureClassifier } from '@/domain/clinical/classification'
 import { formatDateTime } from '@/utils/date'
 
 type Props = {
@@ -14,7 +15,7 @@ type Props = {
 }
 
 export function MeasurementDetail({ record, onEdit, onDelete }: Props) {
-  const classification = classifyBloodPressure(
+  const classification = BloodPressureClassifier.classify(
     record.systolic,
     record.diastolic,
   )
@@ -26,6 +27,10 @@ export function MeasurementDetail({ record, onEdit, onDelete }: Props) {
     >
       <View style={styles.headerCard}>
         <ClassificationBadge classification={classification} />
+
+        <BloodPressureSafetyWarning
+          warnings={classification.safetyWarnings}
+        />
 
         <Text style={styles.title}>Detalle de medición</Text>
         <Text style={styles.date}>
