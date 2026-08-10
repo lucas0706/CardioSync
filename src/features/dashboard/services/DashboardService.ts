@@ -15,6 +15,7 @@ export class DashboardService {
         averageHeartRate: null,
         latestSystolic: null,
         latestDiastolic: null,
+    latestDateTime: null,
       }
     }
 
@@ -59,6 +60,7 @@ export class DashboardService {
       latestSystolic: records[0].systolic,
 
       latestDiastolic: records[0].diastolic,
+  latestDateTime: records[0].dateTime,
     }
   }
 }

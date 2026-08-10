@@ -12,18 +12,16 @@ import { DashboardHeader } from '@/features/dashboard/components/DashboardHeader
 import { LatestMeasurementCard } from '@/features/dashboard/components/LatestMeasurementCard'
 import { SummaryCard } from '@/features/dashboard/components/SummaryCard'
 import { useDashboard } from '@/features/dashboard/hooks/useDashboard'
-import { useMeasurements } from '@/features/measurements/hooks/useMeasurements'
 import { theme } from '@/theme'
 import { formatDateTime } from '@/utils/date'
 
 export default function HomeScreen() {
   const summary = useDashboard()
-  const { measurements } = useMeasurements()
   const router = useRouter()
 
   const hasMeasurements = summary.totalMeasurements > 0
 
-  const lastUpdated = formatDateTime(measurements[0]?.dateTime)
+  const lastUpdated = formatDateTime(summary.latestDateTime)
 
   return (
     <Screen>
