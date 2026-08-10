@@ -1,6 +1,7 @@
 import type { BloodPressureRecord } from '@/domain/measurements/BloodPressureRecord'
 
 import type { BloodPressureReport } from '../models/BloodPressureReport'
+import { buildReportClinicalChart } from './ReportClinicalChartService'
 
 function escapeHtml(value: string): string {
   return value
@@ -814,6 +815,34 @@ export class ReportHtmlService {
               font-size: 8px;
             }
 
+            .clinical-chart-legend {
+              display: flex;
+              flex-direction: row;
+              flex-wrap: wrap;
+              gap: 14px;
+              margin-top: 8px;
+              padding: 8px 4px;
+            }
+
+            .clinical-chart-legend-item {
+              display: flex;
+              align-items: center;
+              gap: 6px;
+              color: #374151;
+              font-size: 9px;
+            }
+
+            .clinical-chart-legend-line {
+              display: inline-block;
+              width: 22px;
+              height: 3px;
+              border-radius: 2px;
+            }
+
+            .clinical-chart-legend-unit {
+              color: #6b7280;
+            }
+
             .records-section {
               page-break-before: auto;
             }
@@ -868,7 +897,7 @@ export class ReportHtmlService {
 
           ${buildSummarySection(report)}
 
-          ${buildBloodPressureChart(
+          ${buildReportClinicalChart(
             report.records,
           )}
 
