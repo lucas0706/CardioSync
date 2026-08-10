@@ -38,7 +38,6 @@ export class BloodPressureClassificationRule
           `Clasificación de presión arterial: ${classification.label}.`,
 
         severity:
-          classification.category === 'optimal' ||
           classification.category === 'normal'
             ? 'low'
             : 'moderate',
