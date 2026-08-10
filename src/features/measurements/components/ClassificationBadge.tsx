@@ -1,10 +1,11 @@
 import { StyleSheet, View } from 'react-native'
 
 import { Text } from '@/components/ui'
-import { ClassificationResult } from '@/features/measurements/constants/classification'
+
+import type { BloodPressureClassification } from '@/domain/clinical/classification'
 
 type Props = {
-  classification: ClassificationResult
+  classification: BloodPressureClassification
 }
 
 export function ClassificationBadge({

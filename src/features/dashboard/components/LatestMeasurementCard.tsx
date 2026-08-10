@@ -1,7 +1,8 @@
 import { StyleSheet, View } from 'react-native'
 
 import { Card, Text } from '@/components/ui'
-import { classifyBloodPressure } from '@/features/measurements/utils/classifyBloodPressure'
+import { BloodPressureSafetyWarning } from '@/features/measurements/components/BloodPressureSafetyWarning'
+import { BloodPressureClassifier } from '@/domain/clinical/classification'
 import { theme } from '@/theme'
 
 type Props = {
@@ -21,7 +22,7 @@ export function LatestMeasurementCard({
     : '-- / --'
 
   const classification = hasMeasurement
-    ? classifyBloodPressure(systolic, diastolic)
+    ? BloodPressureClassifier.classify(systolic, diastolic)
     : null
 
   return (
@@ -57,6 +58,12 @@ export function LatestMeasurementCard({
           >
             {classification?.label ?? 'Sin mediciones'}
           </Text>
+
+          {hasMeasurement ? (
+            <BloodPressureSafetyWarning
+              warnings={classification?.safetyWarnings ?? []}
+            />
+          ) : null}
         </View>
       </View>
     </Card>
