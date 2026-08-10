@@ -2,14 +2,11 @@ import type { ClinicalContext } from '../models/ClinicalContext'
 
 import type { ClinicalTarget } from './ClinicalTarget'
 
-
 export class ClinicalTargetMatcher {
-
   static matches(
     target: ClinicalTarget,
     context: ClinicalContext,
   ): boolean {
-
     if (
       !target.conditions ||
       target.conditions.length === 0
@@ -17,9 +14,8 @@ export class ClinicalTargetMatcher {
       return true
     }
 
-
     return target.conditions.every(
-      (condition) =>
+      condition =>
         this.evaluateCondition(
           condition,
           context,
@@ -27,19 +23,16 @@ export class ClinicalTargetMatcher {
     )
   }
 
-
   private static evaluateCondition(
     condition: string,
     context: ClinicalContext,
   ): boolean {
-
     switch (condition) {
-
       case 'poblacion_general':
         return true
 
       case 'buena_tolerancia':
-        return true
+        return false
 
       case 'diabetes':
         return context.diabetes === true

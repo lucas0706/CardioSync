@@ -1,9 +1,9 @@
 import { StatisticsDomainService } from '@/domain/statistics'
 import type { BloodPressureRecord } from '@/domain/measurements/BloodPressureRecord'
+import type { ClinicalContext } from '@/domain/clinical/models/ClinicalContext'
 import { ClinicalAnalysisDomainService } from '@/domain/clinical/services/ClinicalAnalysisDomainService'
 
 function createHistoricalRecords(): BloodPressureRecord[] {
-
   const values = [
     [128, 78],
     [130, 80],
@@ -37,20 +37,16 @@ function createHistoricalRecords(): BloodPressureRecord[] {
     [135, 83],
   ]
 
-
   return values.map(
     ([systolic, diastolic], index) => {
-
-      const date =
-        new Date()
+      const date = new Date()
 
       date.setDate(
         date.getDate() - (30 - index),
       )
 
       return {
-        id:
-          `test-${index}`,
+        id: `test-${index}`,
 
         dateTime:
           date.toISOString(),
@@ -62,32 +58,30 @@ function createHistoricalRecords(): BloodPressureRecord[] {
           date.toISOString(),
 
         systolic,
-
         diastolic,
 
-        origin:
-          'manual',
+        origin: 'manual',
       }
     },
   )
 }
 
-
-export function runClinicalHistoricalScenario() {
-
+export function runClinicalHistoricalScenario(
+  context: ClinicalContext = {
+    patientId: 'test-patient',
+    age: 55,
+  },
+) {
   const records =
     createHistoricalRecords()
-
 
   const statistics =
     StatisticsDomainService.getSummary(
       records,
     )
 
-
   const service =
     new ClinicalAnalysisDomainService()
-
 
   const result =
     service.analyze({
@@ -95,12 +89,17 @@ export function runClinicalHistoricalScenario() {
 
       statistics,
 
-      context: {
-        patientId: 'test-patient',
-        age: 55,
-      },
+      context,
     })
 
+  console.log(
+    'HISTORICAL CONTEXT',
+    JSON.stringify(
+      context,
+      null,
+      2,
+    ),
+  )
 
   console.log(
     'HISTORICAL STATISTICS',
@@ -110,7 +109,6 @@ export function runClinicalHistoricalScenario() {
       2,
     ),
   )
-
 
   console.log(
     'HISTORICAL FINDINGS',
