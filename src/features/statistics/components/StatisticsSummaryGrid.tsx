@@ -1,5 +1,11 @@
 import { StyleSheet, View } from 'react-native'
 
+import {
+  BloodPressureClassifier,
+} from '@/domain/clinical/classification'
+import type {
+  BloodPressureCategory,
+} from '@/domain/clinical/classification'
 import type { StatisticsSummary } from '@/domain/statistics/models'
 
 import { StatisticsMetricCard } from './StatisticsMetricCard'
@@ -90,7 +96,11 @@ export function StatisticsSummaryGrid({
       <StatisticsMetricCard
         title="Clasificación predominante"
         value={
-          summary.predominantClassification ?? '--'
+          summary.predominantClassification
+            ? BloodPressureClassifier.getClassification(
+                summary.predominantClassification as BloodPressureCategory,
+              ).label
+            : '--'
         }
       />
     </View>
