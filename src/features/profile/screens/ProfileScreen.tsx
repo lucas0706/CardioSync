@@ -18,6 +18,7 @@ import {
 import {
   NumberField,
   SelectField,
+  TextField,
 } from '@/components/ui/form'
 
 import type { ClinicalContext } from '@/domain/clinical/models/ClinicalContext'
@@ -176,6 +177,15 @@ export default function ProfileScreen() {
         <Card>
           <SectionTitle
             title="Datos básicos"
+          />
+
+          <TextField
+            label="Nombre"
+            placeholder="Ej. Lucas"
+            value={profile.name}
+            onChange={name =>
+              update({ name })
+            }
           />
 
           <NumberField

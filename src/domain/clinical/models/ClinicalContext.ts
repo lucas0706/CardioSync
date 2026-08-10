@@ -17,6 +17,8 @@ export interface ClinicalContext {
 
   patientId: string
 
+name?: string
+
   // Demographic information
 
   age?: number

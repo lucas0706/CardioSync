@@ -172,3 +172,35 @@ Se eliminó la lectura duplicada de useMeasurements() desde HomeScreen.
 ### Checkpoint
 
 8e18767 — fix: centralize dashboard measurement summary
+
+## 2026-08-10 — Statistics V2 / ClinicalChart Checkpoint
+
+### Statistics
+
+- Consolidación de las series clínicas principales en un único gráfico.
+- Integración de presión sistólica, presión diastólica y frecuencia cardíaca.
+- Conservación del filtrado temporal existente.
+- Integración con los registros obtenidos mediante `useMeasurements()`.
+
+### ClinicalChart
+
+- Corrección del renderizado de frecuencia cardíaca.
+- Corrección del renderizado de múltiples series.
+- Recuperación de las etiquetas de los ejes.
+- Recuperación de las fechas del eje X.
+- Recuperación de los valores numéricos del eje Y.
+- Integración de la fuente utilizada por los ejes mediante `useClinicalChartFont`.
+- Incorporación de leyenda con nombre y unidad.
+- Unificación de las series principales dentro del mismo gráfico.
+
+### Paleta Statistics
+
+- Sistólica: `#388E3C` — verde.
+- Diastólica: `#1976D2` — azul.
+- Frecuencia cardíaca: `#D32F2F` — rojo.
+
+### Validación
+
+- TypeScript strict sin errores.
+- `git diff --check` sin errores.
+

@@ -1,4 +1,6 @@
-import { ClinicalChartDataPoint } from '../types/ClinicalChartData'
+import {
+  ClinicalChartDataPoint,
+} from '../types/ClinicalChartData'
 
 const DEFAULT_LIMIT = 500
 
@@ -10,26 +12,59 @@ export function downsampleClinicalData(
     return data
   }
 
-  const bucketSize = Math.ceil(data.length / limit)
+  const bucketSize =
+    Math.ceil(
+      data.length / limit,
+    )
+
   const result: ClinicalChartDataPoint[] = []
 
-  for (let i = 0; i < data.length; i += bucketSize) {
-    const bucket = data.slice(i, i + bucketSize)
+  for (
+    let i = 0;
+    i < data.length;
+    i += bucketSize
+  ) {
+    const bucket =
+      data.slice(
+        i,
+        i + bucketSize,
+      )
 
-    result.push(
+    if (bucket.length === 0) {
+      continue
+    }
+
+    const selected =
       bucket.reduce(
-        (a, b) =>
-          (b.systolic ?? 0) > (a.systolic ?? 0)
-            ? b
-            : a,
+        (best, current) => {
+          const bestTime =
+            new Date(
+              best.date,
+            ).getTime()
+
+          const currentTime =
+            new Date(
+              current.date,
+            ).getTime()
+
+          return currentTime >
+            bestTime
+            ? current
+            : best
+        },
         bucket[0],
-      ),
-    )
+      )
+
+    result.push(selected)
   }
 
   return result.sort(
     (a, b) =>
-      new Date(a.date).getTime() -
-      new Date(b.date).getTime(),
+      new Date(
+        a.date,
+      ).getTime() -
+      new Date(
+        b.date,
+      ).getTime(),
   )
 }

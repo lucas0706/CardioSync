@@ -4,6 +4,7 @@ import { database } from './database'
 
 type ClinicalProfileRow = {
   patientId: string
+  name: string | null
 
   age: number | null
   sex: 'male' | 'female' | null
@@ -49,6 +50,7 @@ function mapRowToClinicalContext(
 ): ClinicalContext {
   return {
     patientId: row.patientId,
+    name: row.name ?? undefined,
 
     age: row.age ?? undefined,
     sex: row.sex ?? undefined,
@@ -92,6 +94,7 @@ export class ClinicalProfileRepository {
       database.getFirstSync<ClinicalProfileRow>(
         `SELECT
           patientId,
+          name,
           age,
           sex,
           height,
@@ -121,35 +124,41 @@ export class ClinicalProfileRepository {
     database.runSync(
       `INSERT OR REPLACE INTO clinical_profile (
         patientId,
-
+        name,
         age,
         sex,
-
         height,
         weight,
         bmi,
-
         smoking,
         diabetes,
         dyslipidemia,
-
         cardiovascularDisease,
         heartFailure,
         strokeHistory,
         peripheralVascularDisease,
-
         chronicKidneyDisease
       )
       VALUES (
         ?,
-        ?, ?,
-        ?, ?, ?,
-        ?, ?, ?,
-        ?, ?, ?, ?,
+        ?,
+        ?,
+        ?,
+        ?,
+        ?,
+        ?,
+        ?,
+        ?,
+        ?,
+        ?,
+        ?,
+        ?,
+        ?,
         ?
       )`,
       [
         context.patientId,
+        context.name ?? null,
 
         context.age ?? null,
         context.sex ?? null,

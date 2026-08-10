@@ -333,3 +333,23 @@ podrán alimentar `ClinicalAnalysisDomainService`.
 
 ---
 
+
+## Checkpoint 2026-08-10 — Statistics V2
+
+Statistics V2 queda en estado funcional para su gráfico clínico principal.
+
+Completado en este checkpoint:
+
+- gráfico de presión arterial;
+- frecuencia cardíaca;
+- múltiples series en un único gráfico;
+- leyenda por serie;
+- unidades visibles;
+- eje temporal;
+- etiquetas de fecha;
+- valores del eje Y;
+- colores diferenciados;
+- integración con los registros de mediciones existentes.
+
+El siguiente trabajo deberá partir de este checkpoint sin reintroducir gráficos separados para las variables principales salvo que exista una decisión explícita de producto.
+
