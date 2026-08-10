@@ -11,34 +11,24 @@ const CLASSIFICATIONS: Record<
     color: string
   }
 > = {
-  optimal: {
-    label: 'Óptima',
+  normal: {
+    label: 'Presión arterial normal',
     color: '#16A34A',
   },
 
-  normal: {
-    label: 'Normal',
-    color: '#65A30D',
-  },
-
-  'high-normal': {
-    label: 'Normal alta',
+  borderline: {
+    label: 'Presión arterial limítrofe',
     color: '#CA8A04',
   },
 
   'grade-1': {
-    label: 'Hipertensión grado 1',
+    label: 'Hipertensión arterial nivel 1',
     color: '#EA580C',
   },
 
   'grade-2': {
-    label: 'Hipertensión grado 2',
+    label: 'Hipertensión arterial nivel 2',
     color: '#DC2626',
-  },
-
-  'grade-3': {
-    label: 'Hipertensión grado 3',
-    color: '#991B1B',
   },
 
   'isolated-systolic': {
@@ -52,44 +42,53 @@ function classifyCategory(
   diastolic: number,
 ): BloodPressureCategory {
   /*
-   * Severity takes precedence over isolated systolic hypertension.
+   * Consenso Argentino de Hipertensión Arterial 2025.
    *
-   * Example:
-   * 180/80 -> grade 3, NOT isolated systolic.
+   * Clasificación de presión arterial en consultorio
+   * para individuos de 16 años o más.
+   *
+   * La categoría se determina por el valor más alto
+   * entre presión sistólica y diastólica.
+   *
+   * La hipertensión sistólica aislada se evalúa antes
+   * de HTA nivel 1 porque PAS >=140 con PAD <90
+   * constituye un fenotipo específico.
    */
-
-  if (systolic >= 180 || diastolic >= 110) {
-    return 'grade-3'
-  }
-
-  if (systolic >= 160 || diastolic >= 100) {
-    return 'grade-2'
-  }
-
-  if (systolic >= 140 || diastolic >= 90) {
-    return 'grade-1'
-  }
 
   if (systolic >= 140 && diastolic < 90) {
     return 'isolated-systolic'
   }
 
-  if (systolic >= 130 || diastolic >= 85) {
-    return 'high-normal'
+  if (
+    systolic >= 160 ||
+    diastolic >= 100
+  ) {
+    return 'grade-2'
   }
 
-  if (systolic >= 120 || diastolic >= 80) {
-    return 'normal'
+  if (
+    systolic >= 140 ||
+    diastolic >= 90
+  ) {
+    return 'grade-1'
   }
 
-  return 'optimal'
+  if (
+    systolic >= 130 ||
+    diastolic >= 80
+  ) {
+    return 'borderline'
+  }
+
+  return 'normal'
 }
 
 export class BloodPressureClassifier {
   static getClassification(
     category: BloodPressureCategory,
   ): BloodPressureClassification {
-    const classification = CLASSIFICATIONS[category]
+    const classification =
+      CLASSIFICATIONS[category]
 
     return {
       category,
@@ -102,19 +101,24 @@ export class BloodPressureClassifier {
     systolic: number,
     diastolic: number,
   ): BloodPressureClassificationResult {
-    const category = classifyCategory(
-      systolic,
-      diastolic,
-    )
+    const category =
+      classifyCategory(
+        systolic,
+        diastolic,
+      )
 
     const classification =
       this.getClassification(category)
 
-    const safetyWarnings: BloodPressureClassificationResult['safetyWarnings'] =
-      []
+    const safetyWarnings:
+      BloodPressureClassificationResult[
+        'safetyWarnings'
+      ] = []
 
     if (diastolic < 70) {
-      safetyWarnings.push('low-diastolic')
+      safetyWarnings.push(
+        'low-diastolic',
+      )
     }
 
     return {

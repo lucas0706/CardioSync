@@ -1,10 +1,8 @@
 export type BloodPressureCategory =
-  | 'optimal'
   | 'normal'
-  | 'high-normal'
+  | 'borderline'
   | 'grade-1'
   | 'grade-2'
-  | 'grade-3'
   | 'isolated-systolic'
 
 export type BloodPressureSafetyWarning =
