@@ -138,3 +138,37 @@ No se introduce todavía una abstracción temporal global.
 
 ---
 
+---
+
+# 2026-08-10 — Clinical Analysis V2: validación contextual
+
+### Tipo
+
+Implementación / Validación clínica
+
+### Cambios realizados
+
+Se validó el flujo de Clinical Analysis con 30 registros históricos simulados y cuatro contextos clínicos.
+
+Se validaron GENERAL, DIABETES, CKD y ELDERLY mediante ClinicalTargetSelector.
+
+Se verificó la clasificación clínica V2 con cinco categorías: normal, borderline, grade-1, grade-2 e isolated-systolic.
+
+Se verificó que TherapeuticTargetRule cambia su resultado según el ClinicalTarget seleccionado.
+
+### Dashboard
+
+Se centralizó el acceso a latestDateTime mediante useDashboard() y DashboardService.
+
+Se eliminó la lectura duplicada de useMeasurements() desde HomeScreen.
+
+### Validación técnica
+
+- TypeScript strict: limpio.
+- git diff --check: limpio.
+- Expo Doctor: 20/20 checks.
+- Runtime Clinical Test: validado.
+
+### Checkpoint
+
+8e18767 — fix: centralize dashboard measurement summary
