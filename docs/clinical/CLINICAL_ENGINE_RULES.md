@@ -1,4 +1,4 @@
-# Clinical Engine Rules V1
+# Clinical Engine Rules V2
 
 ## Reglas implementadas
 
@@ -72,3 +72,14 @@ Estructura inicial para futuras evoluciones.
 ## Guideline
 
 Consenso Argentino de Hipertensión Arterial 2025
+
+
+---
+
+## Validación V2
+
+ClinicalTargetSelector fue validado con los escenarios GENERAL, DIABETES, CKD y ELDERLY.
+
+TherapeuticTargetRule utiliza el ClinicalTarget seleccionado según ClinicalContext y guideline.
+
+La clasificación activa utiliza cinco categorías: normal, borderline, grade-1, grade-2 e isolated-systolic.
