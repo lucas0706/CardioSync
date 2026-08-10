@@ -9,7 +9,6 @@ import type {
 } from '@/domain/statistics/models'
 
 import { useMeasurements } from '@/features/measurements/hooks/useMeasurements'
-import { clinicalEngine } from '@/clinical/providers/ClinicalProvider'
 
 export function useStatistics() {
   const { measurements } = useMeasurements()
@@ -24,7 +23,6 @@ export function useStatistics() {
       StatisticsDomainService.getSummary(
         measurements,
         filter,
-        clinicalEngine,
       ),
     [measurements, filter],
   )

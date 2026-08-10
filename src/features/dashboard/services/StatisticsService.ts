@@ -1,6 +1,6 @@
 import { BloodPressureRecord } from '@/domain/measurements/BloodPressureRecord'
-import { ClassificationResult } from '@/features/measurements/constants/classification'
-import { classifyBloodPressure } from '@/features/measurements/utils/classifyBloodPressure'
+import type { BloodPressureCategory } from '@/domain/clinical/classification'
+import { BloodPressureClassifier } from '@/domain/clinical/classification'
 
 export class StatisticsService {
   constructor(
@@ -59,7 +59,7 @@ export class StatisticsService {
 
   get predominantClassification() {
     const map = new Map<
-      ClassificationResult['category'],
+      BloodPressureCategory,
       {
         count: number
         label: string
@@ -67,7 +67,7 @@ export class StatisticsService {
     >()
 
     this.records.forEach((record) => {
-      const result = classifyBloodPressure(
+      const result = BloodPressureClassifier.classify(
         record.systolic,
         record.diastolic,
       )
@@ -94,7 +94,7 @@ export class StatisticsService {
 
     const normal = this.records.filter(
       (record) =>
-        classifyBloodPressure(
+        BloodPressureClassifier.classify(
           record.systolic,
           record.diastolic,
         ).category === 'normal',

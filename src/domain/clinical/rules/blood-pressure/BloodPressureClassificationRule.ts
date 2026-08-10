@@ -1,5 +1,9 @@
 import * as Crypto from 'expo-crypto'
 
+import {
+  BloodPressureClassifier,
+} from '../../classification'
+
 import type { ClinicalFinding } from '../../models/ClinicalFinding'
 import type { ClinicalRule } from '../ClinicalRule'
 import type { ClinicalRuleContext } from '../ClinicalRuleContext'
@@ -10,107 +14,41 @@ export interface BloodPressureClassificationRuleInput {
 }
 
 export class BloodPressureClassificationRule
-implements ClinicalRule {
-
+  implements ClinicalRule
+{
   evaluate(
     input: BloodPressureClassificationRuleInput,
     context: ClinicalRuleContext,
   ): ClinicalFinding[] {
+    const classification =
+      BloodPressureClassifier.classify(
+        input.averageSystolic,
+        input.averageDiastolic,
+      )
 
-    const findings: ClinicalFinding[] = []
-
-    const systolic =
-      input.averageSystolic
-
-    const diastolic =
-      input.averageDiastolic
-
-
-    if (
-      systolic < 120 ||
-      diastolic < 70
-    ) {
-      findings.push({
+    return [
+      {
         id: Crypto.randomUUID(),
 
         type: 'blood-pressure-classification',
 
-        title:
-          'Presión arterial baja',
+        title: classification.label,
 
         description:
-          'Los valores de presión arterial se encuentran por debajo del rango habitual recomendado.',
+          `Clasificación de presión arterial: ${classification.label}.`,
 
         severity:
-          'moderate',
+          classification.category === 'optimal' ||
+          classification.category === 'normal'
+            ? 'low'
+            : 'moderate',
 
         guidelineId:
           context.guideline?.id,
 
         createdAt:
           new Date().toISOString(),
-      })
-
-      return findings
-    }
-
-
-    if (
-      systolic >= 140 ||
-      diastolic >= 90
-    ) {
-      findings.push({
-        id: Crypto.randomUUID(),
-
-        type: 'blood-pressure-classification',
-
-        title:
-          'Hipertensión arterial',
-
-        description:
-          'Los valores de presión arterial se encuentran por encima del rango recomendado.',
-
-        severity:
-          'moderate',
-
-        guidelineId:
-          context.guideline?.id,
-
-        createdAt:
-          new Date().toISOString(),
-      })
-
-      return findings
-    }
-
-
-    if (
-      systolic >= 120 ||
-      diastolic >= 70
-    ) {
-      findings.push({
-        id: Crypto.randomUUID(),
-
-        type: 'blood-pressure-classification',
-
-        title:
-          'Presión arterial elevada',
-
-        description:
-          'Los valores de presión arterial se encuentran por encima del rango óptimo.',
-
-        severity:
-          'low',
-
-        guidelineId:
-          context.guideline?.id,
-
-        createdAt:
-          new Date().toISOString(),
-      })
-    }
-
-
-    return findings
+      },
+    ]
   }
 }

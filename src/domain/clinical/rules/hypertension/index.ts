@@ -39,13 +39,7 @@ export type {
 } from './VariabilityRule'
 
 
-export {
-  ClinicalClassificationRule,
-} from './ClinicalClassificationRule'
 
-export type {
-  ClinicalClassificationRuleInput,
-} from './ClinicalClassificationRule'
 
 export {
   TherapeuticTargetRule,
