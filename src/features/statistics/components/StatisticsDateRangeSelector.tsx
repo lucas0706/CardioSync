@@ -6,7 +6,6 @@ import {
 import {
   Calendar,
   type DateData,
-  type MarkedDates,
 } from 'react-native-calendars'
 
 import { Text } from '@/components/ui'
@@ -69,7 +68,7 @@ function startOfDay(date: Date): Date {
 function buildMarkedDates(
   startDate?: Date,
   endDate?: Date,
-): MarkedDates {
+) {
   if (!startDate) {
     return {}
   }
@@ -98,7 +97,7 @@ function buildMarkedDates(
       ? end
       : start
 
-  const marked: MarkedDates = {}
+  const marked: Record<string, object> = {}
 
   const current = new Date(first)
 
