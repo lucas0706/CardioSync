@@ -1,99 +1,121 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { StyleSheet, View } from 'react-native'
 
 import {
+  ClinicalLegend,
+} from './ClinicalChart/ClinicalLegend'
+
+import {
   ClinicalChart,
-} from './ClinicalChart/index'
+} from './ClinicalChart'
 
-import { ClinicalSeriesSelector } from './ClinicalSeriesSelector'
-
-import { defaultClinicalSeries } from './constants/clinicalSeries'
-
-import type {
-  ClinicalSeries as LegacyClinicalSeries,
-} from './types/ClinicalSeries'
+import {
+  clinicalSeries,
+} from './ClinicalChart/constants/clinicalSeries'
 
 import type {
-  ClinicalSeries as V2ClinicalSeries,
+  ClinicalSeries,
+  ClinicalSeriesKey,
 } from './ClinicalChart/types/ClinicalSeries'
 
 import {
   getAvailableClinicalSeries,
-} from './utils/getAvailableClinicalSeries'
+} from './ClinicalChart/utils/getAvailableClinicalSeries'
 
 import type {
   BloodPressureRecord,
 } from '@/domain/measurements/BloodPressureRecord'
 
-
 type Props = {
   records: BloodPressureRecord[]
+  excludedSeriesKeys?: ClinicalSeriesKey[]
 }
-
 
 export function ClinicalChartContainer({
   records,
+  excludedSeriesKeys = [],
 }: Props) {
+  const excludedKeys = useMemo(
+    () => new Set(excludedSeriesKeys),
+    [excludedSeriesKeys],
+  )
 
-  const availableSeries =
-    getAvailableClinicalSeries(
+  const available = useMemo(
+    () =>
+      getAvailableClinicalSeries(
+        records,
+      ).filter(
+        (series) =>
+          !excludedKeys.has(series.key),
+      ),
+    [
       records,
-    )
+      excludedKeys,
+    ],
+  )
 
+  const fallbackSeries = useMemo(
+    () =>
+      clinicalSeries.filter(
+        (series) =>
+          !excludedKeys.has(series.key),
+      ),
+    [excludedKeys],
+  )
 
   const [
-    selectedSeries,
-    setSelectedSeries,
-  ] = useState<LegacyClinicalSeries[]>(
-    () =>
-      availableSeries.length > 0
-        ? availableSeries
-        : defaultClinicalSeries,
+    selected,
+    setSelected,
+  ] = useState<ClinicalSeries[]>(
+    available.length
+      ? available
+      : fallbackSeries,
   )
 
+  function toggle(
+    item: ClinicalSeries,
+  ) {
+    const exists =
+      selected.some(
+        (current) =>
+          current.key === item.key,
+      )
 
-  const v2Series: V2ClinicalSeries[] = selectedSeries.map(
-    series => ({
-      ...series,
-      symbol: 'circle',
-    }),
-  )
+    if (exists) {
+      setSelected(
+        selected.filter(
+          (current) =>
+            current.key !== item.key,
+        ),
+      )
 
+      return
+    }
+
+    setSelected([
+      ...selected,
+      item,
+    ])
+  }
 
   return (
     <View style={styles.container}>
-
-      <ClinicalSeriesSelector
-        availableSeries={
-          availableSeries
-        }
-        selectedSeries={
-          selectedSeries
-        }
-        onChange={
-          setSelectedSeries
-        }
+      <ClinicalLegend
+        available={available}
+        selected={selected}
+        onToggle={toggle}
       />
-
 
       <ClinicalChart
-        records={
-          records
-        }
-        series={
-          v2Series
-        }
+        records={records}
+        series={selected}
       />
-
     </View>
   )
 }
 
-
 const styles = StyleSheet.create({
-
-  container:{
-    gap:16,
+  container: {
+    gap: 16,
   },
-
 })
