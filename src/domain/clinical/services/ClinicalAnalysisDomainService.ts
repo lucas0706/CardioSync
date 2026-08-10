@@ -57,8 +57,6 @@ export class ClinicalAnalysisDomainService
       guideline:
         input.guideline ?? ConsensoArgentinaHTA2025,
 
-      clinicalResult:
-        input.clinicalResult,
 
       clinicalContext:
         input.context,

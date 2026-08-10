@@ -3,7 +3,7 @@ import { BloodPressureRecord } from '@/domain/measurements/BloodPressureRecord'
 
 export class BloodPressureRepository {
   getAll(): BloodPressureRecord[] {
-    return database.getAllSync<BloodPressureRecord>(
+    return database.getAllSync(
       `
       SELECT *
       FROM blood_pressure_records
@@ -26,6 +26,7 @@ export class BloodPressureRepository {
         -- Legacy compatibility
         weight,
         height,
+        bmi,
         glucose,
         spo2,
         temperature,
@@ -44,8 +45,10 @@ export class BloodPressureRepository {
         updatedAt
       )
       VALUES (
-        ?,?,?,?,?,?,?,?,?,?,
-        ?,?,?,?,?,?,?,?,?
+        ?,?,?,?,?,
+        ?,?,?,?,?,?,?,?,
+        ?,?,?,?,
+        ?,?
       )
       `,
       [
@@ -59,6 +62,7 @@ export class BloodPressureRepository {
         // Legacy compatibility
         record.weight ?? null,
         record.height ?? null,
+        record.bmi ?? null,
         record.glucose ?? null,
         record.spo2 ?? null,
         record.temperature ?? null,

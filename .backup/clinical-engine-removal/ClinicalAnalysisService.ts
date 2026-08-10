@@ -3,6 +3,7 @@ import type { StatisticsSummary } from '../../statistics/models/StatisticsSummar
 import type { ClinicalAnalysis } from '../models/ClinicalAnalysis'
 import type { ClinicalContext } from '../models/ClinicalContext'
 import type { ClinicalGuideline } from '../models/ClinicalGuideline'
+import type { ClinicalResult } from '@/clinical/engine'
 
 /**
  * Service responsible for clinical interpretation.
@@ -11,10 +12,13 @@ import type { ClinicalGuideline } from '../models/ClinicalGuideline'
  * It consumes existing measurements, statistical summaries,
  * clinical context and guidelines.
  */
+
 export interface ClinicalAnalysisInput {
   measurements: BloodPressureRecord[]
 
   statistics?: StatisticsSummary
+
+  clinicalResult?: ClinicalResult
 
   context: ClinicalContext
 

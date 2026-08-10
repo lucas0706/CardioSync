@@ -1,9 +1,9 @@
 import { BloodPressureRecord } from '@/domain/measurements/BloodPressureRecord'
+import type { ClinicalEngine } from '@/clinical/engine'
 
 import {
   AdherenceCalculator,
   AverageCalculator,
-  ClinicalClassificationCalculator,
   HypertensionLoadCalculator,
   MaxCalculator,
   MeanArterialPressureCalculator,
@@ -13,19 +13,18 @@ import {
   TimeInTargetCalculator,
   TrendCalculator,
   VariabilityCalculator,
+  ClinicalClassificationCalculator,
 } from '../calculators'
 
 import { PeriodFilter } from '../filters'
 import { StatisticsAggregator } from '../services'
-import type {
-  StatisticsFilter,
-  StatisticsSummary,
-} from '../models'
+import type { StatisticsFilter, StatisticsSummary } from '../models'
 
 export class StatisticsEngine {
   static summarize(
     records: BloodPressureRecord[],
     filter?: StatisticsFilter,
+    clinicalEngine?: ClinicalEngine,
   ): StatisticsSummary {
     const filteredRecords = filter
       ? PeriodFilter.apply(records, filter)
@@ -46,6 +45,7 @@ export class StatisticsEngine {
     const clinicalClassification =
       ClinicalClassificationCalculator.calculate(
         filteredRecords,
+        clinicalEngine,
       )
 
     if (filteredRecords.length === 0) {
@@ -85,35 +85,27 @@ export class StatisticsEngine {
       }
     }
 
-    const systolic = metrics.systolic
+        const systolic = metrics.systolic
     const diastolic = metrics.diastolic
+
     const heartRate = metrics.heartRate
+
     const pulsePressure = metrics.pulsePressure
+
     const mapValues = metrics.meanArterialPressure
 
     return {
       totalMeasurements: filteredRecords.length,
 
-      averageSystolic:
-        AverageCalculator.calculate(systolic),
+      averageSystolic: AverageCalculator.calculate(systolic),
+      averageDiastolic: AverageCalculator.calculate(diastolic),
+      averageHeartRate: AverageCalculator.calculate(heartRate),
 
-      averageDiastolic:
-        AverageCalculator.calculate(diastolic),
+      maximumSystolic: MaxCalculator.calculate(systolic),
+      maximumDiastolic: MaxCalculator.calculate(diastolic),
 
-      averageHeartRate:
-        AverageCalculator.calculate(heartRate),
-
-      maximumSystolic:
-        MaxCalculator.calculate(systolic),
-
-      maximumDiastolic:
-        MaxCalculator.calculate(diastolic),
-
-      minimumSystolic:
-        MinCalculator.calculate(systolic),
-
-      minimumDiastolic:
-        MinCalculator.calculate(diastolic),
+      minimumSystolic: MinCalculator.calculate(systolic),
+      minimumDiastolic: MinCalculator.calculate(diastolic),
 
       pulsePressureAverage:
         AverageCalculator.calculate(pulsePressure),
@@ -150,12 +142,11 @@ export class StatisticsEngine {
           filteredRecords,
         ),
 
-      trend:
-        TrendCalculator.calculate(
-          chronologicalRecords.map(
-            record => record.systolic,
-          ),
+      trend: TrendCalculator.calculate(
+        chronologicalRecords.map(
+          record => record.systolic,
         ),
+      ),
 
       predominantClassification:
         clinicalClassification.predominantClassification,

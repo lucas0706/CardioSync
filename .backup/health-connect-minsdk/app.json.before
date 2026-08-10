@@ -43,14 +43,7 @@
         }
       ],
       "expo-sharing",
-      [
-        "expo-build-properties",
-        {
-          "android": {
-            "minSdkVersion": 26
-          }
-        }
-      ]
+      "expo-health-connect"
     ],
     "experiments": {
       "typedRoutes": true

@@ -1,4 +1,5 @@
-import type { BloodPressureRecord } from '@/domain/measurements/BloodPressureRecord'
+import { BloodPressureRecord } from '@/domain/measurements/BloodPressureRecord'
+import type { ClinicalEngine } from '@/clinical/engine'
 
 import { StatisticsEngine } from '../engines'
 import { PeriodFilter } from '../filters'
@@ -8,6 +9,7 @@ import type {
 } from '../models'
 
 export class StatisticsDomainService {
+
   static getFilteredRecords(
     records: BloodPressureRecord[],
     filter?: StatisticsFilter,
@@ -25,6 +27,7 @@ export class StatisticsDomainService {
   static getSummary(
     records: BloodPressureRecord[],
     filter?: StatisticsFilter,
+    clinicalEngine?: ClinicalEngine,
   ): StatisticsSummary {
     return StatisticsEngine.summarize(
       records,

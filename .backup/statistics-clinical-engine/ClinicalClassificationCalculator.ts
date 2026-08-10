@@ -1,5 +1,5 @@
 import type { BloodPressureRecord } from '@/domain/measurements/BloodPressureRecord'
-import { BloodPressureClassifier } from '@/domain/clinical/classification'
+import type { ClinicalEngine } from '@/clinical/engine'
 
 export interface ClinicalClassificationSummary {
   predominantClassification?: string
@@ -9,8 +9,9 @@ export interface ClinicalClassificationSummary {
 export class ClinicalClassificationCalculator {
   static calculate(
     records: BloodPressureRecord[],
+    engine?: ClinicalEngine,
   ): ClinicalClassificationSummary {
-    if (records.length === 0) {
+    if (!engine || records.length === 0) {
       return {
         classificationDistribution: {},
       }
@@ -19,13 +20,10 @@ export class ClinicalClassificationCalculator {
     const distribution: Record<string, number> = {}
 
     records.forEach((record) => {
-      const result = BloodPressureClassifier.classify(
-        record.systolic,
-        record.diastolic,
-      )
+      const result = engine.classify(record)
 
-      distribution[result.category] =
-        (distribution[result.category] ?? 0) + 1
+      distribution[result.classification] =
+        (distribution[result.classification] ?? 0) + 1
     })
 
     const predominantClassification =
