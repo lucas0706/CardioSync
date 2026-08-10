@@ -5,7 +5,7 @@ import {
   Scatter,
 } from 'victory-native'
 
-import {
+import type {
   ClinicalSeries,
 } from './types/ClinicalSeries'
 
@@ -22,10 +22,15 @@ export function ClinicalChartSeries({
   points,
   series,
 }: Props) {
-
   return (
     <>
       {series.map(item => {
+        const seriesPoints =
+          points[item.key]
+
+        if (!seriesPoints) {
+          return null
+        }
 
         const marker =
           getClinicalMarkerStyle(
@@ -36,10 +41,9 @@ export function ClinicalChartSeries({
           <React.Fragment
             key={item.key}
           >
-
             <Line
               points={
-                points[item.key]
+                seriesPoints
               }
               color={
                 item.color
@@ -49,7 +53,7 @@ export function ClinicalChartSeries({
 
             <Scatter
               points={
-                points[item.key]
+                seriesPoints
               }
               color={
                 item.color
@@ -58,7 +62,6 @@ export function ClinicalChartSeries({
                 marker.size
               }
             />
-
           </React.Fragment>
         )
       })}

@@ -4,7 +4,7 @@ export const clinicalSeries: ClinicalSeries[] = [
   {
     key: 'systolic',
     label: 'Sistólica',
-    color: '#D32F2F',
+    color: '#388E3C',
     unit: 'mmHg',
     symbol: 'square',
   },
@@ -18,7 +18,7 @@ export const clinicalSeries: ClinicalSeries[] = [
   {
     key: 'heartRate',
     label: 'Frecuencia cardíaca',
-    color: '#7B1FA2',
+    color: '#D32F2F',
     unit: 'lpm',
     symbol: 'triangle',
   },

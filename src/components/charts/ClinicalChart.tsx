@@ -4,28 +4,41 @@ import {
   CartesianChart,
   Line,
   Scatter,
-  useChartPressState,
   useChartTransformState,
 } from 'victory-native'
 
-import { StyleSheet, View } from 'react-native'
+import {
+  StyleSheet,
+  View,
+} from 'react-native'
 
-import { Card } from '@/components/ui'
+import { Card, Text } from '@/components/ui'
 
 import { ClinicalEmptyState } from './ClinicalEmptyState'
 import { ClinicalTargetLine } from './ClinicalTargetLine'
-import { ClinicalTooltip } from './ClinicalTooltip'
-import { useClinicalTooltip } from './hooks/useClinicalTooltip'
-import { defaultClinicalSeries } from './constants/clinicalSeries'
-import { ClinicalChartDataPoint } from './types/ClinicalChartData'
-import { ClinicalChartProps } from './types/ClinicalChartProps'
-import { ClinicalSeries } from './types/ClinicalSeries'
-import { buildChartData } from './utils/buildChartData'
-import { downsampleClinicalData } from './utils/downsampleClinicalData'
+
+import { clinicalSeries } from './ClinicalChart/constants/clinicalSeries'
+
+import type {
+  ClinicalChartProps,
+} from './ClinicalChart/types/ClinicalChartProps'
+
+import type {
+  ClinicalSeries,
+} from './ClinicalChart/types/ClinicalSeries'
+
+import type {
+  ClinicalChartDataPoint,
+} from './ClinicalChart/types/ClinicalChartData'
+
 import {
   ClinicalNumericKey,
   getClinicalYKeys,
-} from './utils/getClinicalYKeys'
+} from './ClinicalChart/utils/getClinicalYKeys'
+
+import { buildChartData } from './ClinicalChart/utils/buildChartData'
+import { downsampleClinicalData } from './ClinicalChart/utils/downsampleClinicalData'
+import { useClinicalChartFont } from './ClinicalChart/hooks/useClinicalChartFont'
 
 export function ClinicalChart({
   records,
@@ -37,50 +50,23 @@ export function ClinicalChart({
   )
 
   const activeSeries: ClinicalSeries[] =
-    series ?? defaultClinicalSeries
+    series ?? clinicalSeries
 
   const yKeys = getClinicalYKeys(
     activeSeries,
   )
 
-  const chartPressState =
-    useChartPressState<{
-      x: string
-      y: {
-        systolic: number
-        diastolic: number
-        heartRate: number
-        weight: number
-        glucose: number
-        spo2: number
-        temperature: number
-        respiratoryRate: number
-      }
-    }>({
-      x: '',
-      y: {
-        systolic: 0,
-        diastolic: 0,
-        heartRate: 0,
-        weight: 0,
-        glucose: 0,
-        spo2: 0,
-        temperature: 0,
-        respiratoryRate: 0,
-      },
-    })
+  const transform = useChartTransformState({
+    scaleX: 1.5,
+    scaleY: 1,
+  })
 
-  const chartTransformState =
-    useChartTransformState({
-      scaleX: 1.5,
-      scaleY: 1,
-    })
+  const font = useClinicalChartFont()
 
-  const tooltip = useClinicalTooltip(
-    chartPressState.state,
-  )
-
-  if (data.length === 0) {
+  if (
+    data.length === 0 ||
+    yKeys.length === 0
+  ) {
     return (
       <Card>
         <ClinicalEmptyState />
@@ -90,102 +76,233 @@ export function ClinicalChart({
 
   return (
     <Card>
-      <ClinicalTooltip
-        visible={tooltip.visible}
-        date={tooltip.date}
-        systolic={tooltip.systolic}
-        diastolic={tooltip.diastolic}
-      />
+      <View style={styles.chartWrapper}>
+        <View style={styles.chartContainer}>
+          <CartesianChart<
+            ClinicalChartDataPoint,
+            'date',
+            ClinicalNumericKey
+          >
+            data={data}
+            xKey="date"
+            yKeys={yKeys}
+            transformState={transform.state}
+            transformConfig={{
+              pan: {
+                dimensions: 'x',
+              },
+              pinch: {
+                dimensions: 'x',
+              },
+            }}
+            xAxis={{
+              axisSide: 'bottom',
+              tickCount: 6,
+              font,
+              labelPosition: 'outset',
+              labelOffset: 8,
+              formatXLabel: value =>
+                new Date(
+                  String(value),
+                ).toLocaleDateString([], {
+                  day: '2-digit',
+                  month: '2-digit',
+                }),
+              labelColor: '#64748B',
+              lineColor: '#CBD5E1',
+            }}
+            yAxis={[
+              {
+                axisSide: 'left',
+                tickCount: 7,
+                font,
+                labelPosition: 'outset',
+                labelOffset: 8,
+                formatYLabel: value =>
+                  `${Math.round(
+                    Number(value),
+                  )}`,
+                labelColor: '#64748B',
+                lineColor: '#CBD5E1',
+              },
+            ]}
+          >
+            {({
+              points,
+              yScale,
+              chartBounds,
+            }) => (
+              <>
+                <ClinicalTargetLine
+                  value={
+                    target?.systolic ??
+                    (activeSeries.some(
+                      item =>
+                        item.key ===
+                        'systolic',
+                    )
+                      ? 120
+                      : undefined)
+                  }
+                  yScale={yScale}
+                  chartBounds={chartBounds}
+                  color="#E65100"
+                />
 
-      <View style={styles.chartContainer}>
-        <CartesianChart<
-          ClinicalChartDataPoint,
-          'date',
-          ClinicalNumericKey
-        >
-          data={data}
-          xKey="date"
-          yKeys={yKeys}
-          chartPressState={
-            chartPressState.state
-          }
-          transformState={
-            chartTransformState.state
-          }
-          transformConfig={{
-            pan: {
-              dimensions: 'x',
-            },
-            pinch: {
-              dimensions: 'x',
-            },
-          }}
-          xAxis={{
-            axisSide: 'bottom',
-            tickCount: 5,
-            formatXLabel: (value) =>
-              new Date(
-                value,
-              ).toLocaleDateString(),
-          }}
-          yAxis={[
-            {
-              axisSide: 'left',
-              tickCount: 5,
-              formatYLabel: (value) =>
-                `${value} mmHg`,
-            },
-          ]}
-        >
-          {({
-            points,
-            yScale,
-            chartBounds,
-          }) => (
-            <>
-              <ClinicalTargetLine
-                value={target?.systolic}
-                yScale={yScale}
-                chartBounds={chartBounds}
-                color="#D32F2F"
-              />
+                <ClinicalTargetLine
+                  value={
+                    target?.diastolic ??
+                    (activeSeries.some(
+                      item =>
+                        item.key ===
+                        'diastolic',
+                    )
+                      ? 80
+                      : undefined)
+                  }
+                  yScale={yScale}
+                  chartBounds={chartBounds}
+                  color="#1976D2"
+                />
 
-              <ClinicalTargetLine
-                value={target?.diastolic}
-                yScale={yScale}
-                chartBounds={chartBounds}
-                color="#1976D2"
-              />
+                {activeSeries.map(item => {
+                  const itemPoints =
+                    points[item.key]
 
-              {activeSeries.map(
-                (item) => (
-                  <React.Fragment
-                    key={item.key}
-                  >
-                    <Line
-                      points={points[item.key]}
-                      color={item.color}
-                      strokeWidth={3}
-                    />
+                  if (!itemPoints) {
+                    return null
+                  }
 
-                    <Scatter
-                      points={points[item.key]}
-                      color={item.color}
-                      radius={5}
-                    />
-                  </React.Fragment>
-                ),
-              )}
-            </>
-          )}
-        </CartesianChart>
+                  return (
+                    <React.Fragment
+                      key={item.key}
+                    >
+                      <Line
+                        points={itemPoints}
+                        color={item.color}
+                        strokeWidth={3}
+                      />
+
+                      <Scatter
+                        points={itemPoints}
+                        color={item.color}
+                        radius={5}
+                      />
+                    </React.Fragment>
+                  )
+                })}
+              </>
+            )}
+          </CartesianChart>
+        </View>
+
+        <View style={styles.axisTitles}>
+          <Text style={styles.yAxisTitle}>
+            Valores clínicos
+          </Text>
+
+          <Text style={styles.xAxisTitle}>
+            Fecha
+          </Text>
+        </View>
+      </View>
+
+      <View style={styles.legend}>
+        {activeSeries.map(item => (
+          <View
+            key={item.key}
+            style={styles.legendItem}
+          >
+            <View
+              style={[
+                styles.legendMarker,
+                {
+                  backgroundColor:
+                    item.color,
+                },
+              ]}
+            />
+
+            <Text
+              style={styles.legendLabel}
+            >
+              {item.label}
+            </Text>
+
+            <Text
+              style={styles.legendUnit}
+            >
+              {item.unit}
+            </Text>
+          </View>
+        ))}
       </View>
     </Card>
   )
 }
 
 const styles = StyleSheet.create({
+  chartWrapper: {
+    width: '100%',
+    paddingLeft: 8,
+    paddingRight: 8,
+    paddingBottom: 16,
+  },
+
   chartContainer: {
-    height: 320,
+    height: 400,
+    width: '100%',
+  },
+
+  axisTitles: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingLeft: 36,
+    paddingRight: 12,
+    paddingTop: 4,
+  },
+
+  yAxisTitle: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: '#64748B',
+  },
+
+  xAxisTitle: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: '#64748B',
+  },
+
+  legend: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    alignItems: 'center',
+    gap: 12,
+    paddingTop: 14,
+    paddingHorizontal: 4,
+  },
+
+  legendItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+  },
+
+  legendMarker: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+  },
+
+  legendLabel: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#334155',
+  },
+
+  legendUnit: {
+    fontSize: 11,
+    color: '#64748B',
   },
 })

@@ -1,9 +1,8 @@
-import { useMemo, useState } from 'react'
-import { StyleSheet, View } from 'react-native'
-
+import { useMemo } from 'react'
 import {
-  ClinicalLegend,
-} from './ClinicalChart/ClinicalLegend'
+  StyleSheet,
+  View,
+} from 'react-native'
 
 import {
   ClinicalChart,
@@ -14,7 +13,6 @@ import {
 } from './ClinicalChart/constants/clinicalSeries'
 
 import type {
-  ClinicalSeries,
   ClinicalSeriesKey,
 } from './ClinicalChart/types/ClinicalSeries'
 
@@ -31,6 +29,12 @@ type Props = {
   excludedSeriesKeys?: ClinicalSeriesKey[]
 }
 
+const PRIMARY_SERIES: ClinicalSeriesKey[] = [
+  'systolic',
+  'diastolic',
+  'heartRate',
+]
+
 export function ClinicalChartContainer({
   records,
   excludedSeriesKeys = [],
@@ -42,80 +46,71 @@ export function ClinicalChartContainer({
 
   const available = useMemo(
     () =>
-      getAvailableClinicalSeries(
-        records,
-      ).filter(
-        (series) =>
+      getAvailableClinicalSeries(records)
+        .filter(series =>
           !excludedKeys.has(series.key),
-      ),
+        ),
     [
       records,
       excludedKeys,
     ],
   )
 
-  const fallbackSeries = useMemo(
-    () =>
-      clinicalSeries.filter(
-        (series) =>
-          !excludedKeys.has(series.key),
-      ),
-    [excludedKeys],
+  const selected = useMemo(
+    () => {
+      const primary =
+        clinicalSeries.filter(
+          series =>
+            PRIMARY_SERIES.includes(
+              series.key,
+            ) &&
+            !excludedKeys.has(
+              series.key,
+            ) &&
+            available.some(
+              item =>
+                item.key === series.key,
+            ),
+        )
+
+      if (primary.length > 0) {
+        return primary
+      }
+
+      return available
+    },
+    [
+      available,
+      excludedKeys,
+    ],
   )
 
-  const [
-    selected,
-    setSelected,
-  ] = useState<ClinicalSeries[]>(
-    available.length
-      ? available
-      : fallbackSeries,
-  )
-
-  function toggle(
-    item: ClinicalSeries,
+  if (
+    records.length === 0 ||
+    selected.length === 0
   ) {
-    const exists =
-      selected.some(
-        (current) =>
-          current.key === item.key,
-      )
-
-    if (exists) {
-      setSelected(
-        selected.filter(
-          (current) =>
-            current.key !== item.key,
-        ),
-      )
-
-      return
-    }
-
-    setSelected([
-      ...selected,
-      item,
-    ])
+    return null
   }
 
   return (
     <View style={styles.container}>
-      <ClinicalLegend
-        available={available}
-        selected={selected}
-        onToggle={toggle}
-      />
-
-      <ClinicalChart
-        records={records}
-        series={selected}
-      />
+      <View style={styles.chartSection}>
+        <ClinicalChart
+          records={records}
+          series={selected}
+        />
+      </View>
     </View>
   )
 }
 
-const styles = StyleSheet.create({
-  container: {
-    gap: 16,
-  },
-})
+const styles =
+  StyleSheet.create({
+    container: {
+      width: '100%',
+    },
+
+    chartSection: {
+      width: '100%',
+    },
+  })

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { View, StyleSheet } from 'react-native'
+import { StyleSheet, View } from 'react-native'
 
 import {
   ClinicalLegend,
@@ -13,7 +13,7 @@ import {
   clinicalSeries,
 } from './constants/clinicalSeries'
 
-import {
+import type {
   ClinicalSeries,
 } from './types/ClinicalSeries'
 
@@ -21,7 +21,7 @@ import {
   getAvailableClinicalSeries,
 } from './utils/getAvailableClinicalSeries'
 
-import {
+import type {
   BloodPressureRecord,
 } from '@/domain/measurements/BloodPressureRecord'
 
@@ -29,10 +29,36 @@ type Props = {
   records: BloodPressureRecord[]
 }
 
+const PRESSURE_KEYS: ClinicalSeries['key'][] = [
+  'systolic',
+  'diastolic',
+]
+
+const HEART_RATE_KEYS: ClinicalSeries['key'][] = [
+  'heartRate',
+]
+
+function includesKey(
+  series: ClinicalSeries[],
+  key: ClinicalSeries['key'],
+): boolean {
+  return series.some(
+    item => item.key === key,
+  )
+}
+
+function filterSeries(
+  series: ClinicalSeries[],
+  keys: ClinicalSeries['key'][],
+): ClinicalSeries[] {
+  return series.filter(
+    item => keys.includes(item.key),
+  )
+}
+
 export function ClinicalChartContainer({
   records,
 }: Props) {
-
   const available =
     getAvailableClinicalSeries(
       records,
@@ -50,7 +76,6 @@ export function ClinicalChartContainer({
   function toggle(
     item: ClinicalSeries,
   ) {
-
     const exists =
       selected.some(
         current =>
@@ -74,26 +99,79 @@ export function ClinicalChartContainer({
     ])
   }
 
+  const pressureSeries =
+    filterSeries(
+      selected,
+      PRESSURE_KEYS,
+    )
+
+  const heartRateSeries =
+    filterSeries(
+      selected,
+      HEART_RATE_KEYS,
+    )
+
+  const hasPressure =
+    pressureSeries.length > 0
+
+  const hasHeartRate =
+    heartRateSeries.length > 0
+
+  const otherSeries =
+    selected.filter(
+      item =>
+        !PRESSURE_KEYS.includes(
+          item.key,
+        ) &&
+        !HEART_RATE_KEYS.includes(
+          item.key,
+        ),
+    )
+
   return (
     <View style={styles.container}>
-
       <ClinicalLegend
         available={available}
         selected={selected}
         onToggle={toggle}
       />
 
-      <ClinicalChart
-        records={records}
-        series={selected}
-      />
+      {hasPressure ? (
+        <View style={styles.chartSection}>
+          <ClinicalChart
+            records={records}
+            series={pressureSeries}
+          />
+        </View>
+      ) : null}
 
+      {hasHeartRate ? (
+        <View style={styles.chartSection}>
+          <ClinicalChart
+            records={records}
+            series={heartRateSeries}
+          />
+        </View>
+      ) : null}
+
+      {otherSeries.length > 0 ? (
+        <View style={styles.chartSection}>
+          <ClinicalChart
+            records={records}
+            series={otherSeries}
+          />
+        </View>
+      ) : null}
     </View>
   )
 }
 
 const styles = StyleSheet.create({
-  container:{
-    gap:16,
+  container: {
+    gap: 16,
+  },
+
+  chartSection: {
+    width: '100%',
   },
 })

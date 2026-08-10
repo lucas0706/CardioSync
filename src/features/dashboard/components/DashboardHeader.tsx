@@ -3,6 +3,9 @@ import { StyleSheet, View } from 'react-native'
 import { Text } from '@/components/ui'
 import { theme } from '@/theme'
 
+import { LOCAL_PROFILE_ID } from '@/features/profile/constants'
+import { clinicalProfileService } from '@/features/profile/services'
+
 export function DashboardHeader() {
   const hour = new Date().getHours()
 
@@ -10,22 +13,36 @@ export function DashboardHeader() {
     hour < 12
       ? 'Buenos días'
       : hour < 19
-      ? 'Buenas tardes'
-      : 'Buenas noches'
+        ? 'Buenas tardes'
+        : 'Buenas noches'
 
   const subtitle =
     hour < 12
       ? 'Así está tu presión hoy'
       : 'Resumen de tus últimas mediciones'
 
+  const profile =
+    clinicalProfileService.get(
+      LOCAL_PROFILE_ID,
+    )
+
+  const name = profile?.name?.trim()
+
   return (
     <View style={styles.container}>
       <View style={styles.badge}>
-        <Text style={styles.badgeText}>Monitoreo diario</Text>
+        <Text style={styles.badgeText}>
+          Monitoreo diario
+        </Text>
       </View>
 
-      <Text variant="h1" style={styles.title}>
-        {greeting}
+      <Text
+        variant="h1"
+        style={styles.title}
+      >
+        {name
+          ? `${greeting}, ${name}`
+          : greeting}
       </Text>
 
       <Text style={styles.subtitle}>

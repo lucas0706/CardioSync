@@ -38,6 +38,7 @@ export function initializeDatabase() {
 
     CREATE TABLE IF NOT EXISTS clinical_profile (
       patientId TEXT PRIMARY KEY NOT NULL,
+      name TEXT,
 
       age INTEGER,
       sex TEXT,
@@ -69,4 +70,12 @@ export function initializeDatabase() {
       notes TEXT
     );
   `)
+
+  try {
+    database.execSync(
+      `ALTER TABLE clinical_profile ADD COLUMN name TEXT`,
+    )
+  } catch {
+    // La columna ya existe.
+  }
 }
