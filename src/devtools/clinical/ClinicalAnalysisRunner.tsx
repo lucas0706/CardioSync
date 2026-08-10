@@ -7,52 +7,64 @@ import {
 
 import { runClinicalHistoricalScenario } from './ClinicalHistoricalScenario'
 
-
-const historicalResult = runClinicalHistoricalScenario()
-
-const statistics = historicalResult.statistics
-
 type TestScenario =
   | 'CKD'
   | 'GENERAL'
   | 'ELDERLY'
   | 'DIABETES'
 
-
 function getTestScenario(): TestScenario {
   return 'DIABETES'
 }
 
-
-const TEST_SCENARIO =
-  getTestScenario()
-
-
-const clinicalContext =
-  TEST_SCENARIO === 'ELDERLY'
-    ? {
+function getClinicalContext(
+  scenario: TestScenario,
+) {
+  switch (scenario) {
+    case 'ELDERLY':
+      return {
         patientId: 'test-user',
         age: 85,
       }
-    : TEST_SCENARIO === 'GENERAL'
-      ? {
-          patientId: 'test-user',
-          age: 60,
-        }
-      : TEST_SCENARIO === 'DIABETES'
-        ? {
-            patientId: 'test-user',
-            age: 60,
-            diabetes: true,
-          }
-        : {
-            patientId: 'test-user',
-            age: 60,
-            chronicKidneyDisease: true,
-          }
 
+    case 'GENERAL':
+      return {
+        patientId: 'test-user',
+        age: 60,
+      }
+
+    case 'DIABETES':
+      return {
+        patientId: 'test-user',
+        age: 60,
+        diabetes: true,
+      }
+
+    case 'CKD':
+      return {
+        patientId: 'test-user',
+        age: 60,
+        chronicKidneyDisease: true,
+      }
+  }
+}
 
 export default function ClinicalTestScreen() {
+  const testScenario =
+    getTestScenario()
+
+  const clinicalContext =
+    getClinicalContext(
+      testScenario,
+    )
+
+  const historicalResult =
+    runClinicalHistoricalScenario(
+      clinicalContext,
+    )
+
+  const statistics =
+    historicalResult.statistics
 
   const selectedTarget =
     ClinicalTargetSelector.select(
@@ -60,37 +72,37 @@ export default function ClinicalTestScreen() {
       'consenso-hta-argentina-2025',
     )
 
-
   const allTargets =
     ClinicalTargetRepository.getTargets(
       'consenso-hta-argentina-2025',
     )
 
-
-  const result =
-    historicalResult
-
-
-
-
-
-    console.log(
-      'DEBUG FINDINGS',
-      JSON.stringify(
-        result.findings,
-        null,
-        2,
-      ),
-    )
+  console.log(
+    'DEBUG FINDINGS',
+    JSON.stringify(
+      historicalResult.findings,
+      null,
+      2,
+    ),
+  )
 
   return (
-
-    <View style={{ padding: 40 }}>
-
+    <View
+      style={{
+        padding: 40,
+      }}
+    >
       <Text>
         Clinical Target Debug V2 TEST
       </Text>
 
+      <Text>
+        SCENARIO
+      </Text>
+
+      <Text>
+        {testScenario}
+      </Text>
 
       <Text>
         CONTEXT
@@ -101,51 +113,58 @@ export default function ClinicalTestScreen() {
       </Text>
 
       <Text>
-        Chronic Kidney Disease: {String(
+        Diabetes:{' '}
+        {String(
+          clinicalContext.diabetes,
+        )}
+      </Text>
+
+      <Text>
+        Chronic Kidney Disease:{' '}
+        {String(
           clinicalContext.chronicKidneyDisease,
         )}
       </Text>
 
-
       <Text>
         {' '}
       </Text>
-
 
       <Text>
         STATISTICS
       </Text>
 
       <Text>
-        Average systolic: {statistics?.averageSystolic ?? '-'}
+        Average systolic:{' '}
+        {statistics?.averageSystolic ?? '-'}
       </Text>
 
       <Text>
-        Average diastolic: {statistics?.averageDiastolic ?? '-'}
+        Average diastolic:{' '}
+        {statistics?.averageDiastolic ?? '-'}
       </Text>
-
 
       <Text>
         {' '}
       </Text>
 
-
       <Text>
         ALL TARGETS
       </Text>
 
-      {
-        allTargets.map(
-          (target: import('@/domain/clinical/targets').ClinicalTarget) => (
-            <Text key={target.id}>
-              {target.id}
-              {' | '}
-              {target.conditions?.join(',')}
-            </Text>
-          ),
-        )
-      }
+      {allTargets.map(
+        target => (
+          <Text key={target.id}>
+            {target.id}
+            {' | '}
+            {target.conditions?.join(', ')}
+          </Text>
+        ),
+      )}
 
+      <Text>
+        {' '}
+      </Text>
 
       <Text>
         SELECTED TARGET
@@ -155,58 +174,42 @@ export default function ClinicalTestScreen() {
         {selectedTarget?.id ?? 'none'}
       </Text>
 
-
       <Text>
         {selectedTarget?.description ?? ''}
       </Text>
 
-
       <Text>
-        Systolic target:
-        {' '}
+        Systolic target:{' '}
         {selectedTarget?.systolic?.min ?? '-'}
-        {' '}
-        -
-        {' '}
+        {' - '}
         {selectedTarget?.systolic?.max ?? '-'}
       </Text>
 
-
       <Text>
-        Diastolic target:
-        {' '}
+        Diastolic target:{' '}
         {selectedTarget?.diastolic?.min ?? '-'}
-        {' '}
-        -
-        {' '}
+        {' - '}
         {selectedTarget?.diastolic?.max ?? '-'}
       </Text>
 
-
       <Text>
         {' '}
       </Text>
 
-
       <Text>
-        FINDINGS: {result.findings.length}
+        FINDINGS:{' '}
+        {historicalResult.findings.length}
       </Text>
 
-
-      {
-        result.findings.map(
-          (finding) => (
-
-            <Text key={finding.id}>
-              {finding.title}
-            </Text>
-
-          ),
-        )
-      }
-
-
+      {historicalResult.findings.map(
+        finding => (
+          <Text key={finding.id}>
+            {finding.type}
+            {' — '}
+            {finding.title}
+          </Text>
+        ),
+      )}
     </View>
-
   )
 }
