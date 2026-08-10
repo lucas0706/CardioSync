@@ -1,6 +1,12 @@
 import { StyleSheet, View } from 'react-native'
 
 import { Card, Text } from '@/components/ui'
+import {
+  BloodPressureClassifier,
+} from '@/domain/clinical/classification'
+import type {
+  BloodPressureCategory,
+} from '@/domain/clinical/classification'
 
 interface Props {
   distribution?: Record<string, number>
@@ -27,20 +33,27 @@ export function StatisticsClassificationCard({
 
       {entries
         .sort((a, b) => b[1] - a[1])
-        .map(([label, count]) => (
-          <View
-            key={label}
-            style={styles.row}
-          >
-            <Text>
-              {label}
-            </Text>
+        .map(([category, count]) => {
+          const classification =
+            BloodPressureClassifier.getClassification(
+              category as BloodPressureCategory,
+            )
 
-            <Text variant="title">
-              {count}
-            </Text>
-          </View>
-        ))}
+          return (
+            <View
+              key={category}
+              style={styles.row}
+            >
+              <Text>
+                {classification.label}
+              </Text>
+
+              <Text variant="title">
+                {count}
+              </Text>
+            </View>
+          )
+        })}
     </Card>
   )
 }

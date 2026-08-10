@@ -1,6 +1,7 @@
 import type {
   BloodPressureClassificationResult,
   BloodPressureCategory,
+  BloodPressureClassification,
 } from './BloodPressureClassification'
 
 const CLASSIFICATIONS: Record<
@@ -85,6 +86,18 @@ function classifyCategory(
 }
 
 export class BloodPressureClassifier {
+  static getClassification(
+    category: BloodPressureCategory,
+  ): BloodPressureClassification {
+    const classification = CLASSIFICATIONS[category]
+
+    return {
+      category,
+      label: classification.label,
+      color: classification.color,
+    }
+  }
+
   static classify(
     systolic: number,
     diastolic: number,
@@ -95,7 +108,7 @@ export class BloodPressureClassifier {
     )
 
     const classification =
-      CLASSIFICATIONS[category]
+      this.getClassification(category)
 
     const safetyWarnings: BloodPressureClassificationResult['safetyWarnings'] =
       []
@@ -105,9 +118,7 @@ export class BloodPressureClassifier {
     }
 
     return {
-      category,
-      label: classification.label,
-      color: classification.color,
+      ...classification,
       systolic,
       diastolic,
       safetyWarnings,
