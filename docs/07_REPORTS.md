@@ -4,9 +4,9 @@
 |-------|--------|
 | Documento | 07_REPORTS.md |
 | Tipo | Diseño Conceptual de Reportes |
-| Estado | Planificado |
+| Estado | En implementación |
 | Versión | Sincronizada con la versión del proyecto |
-| Última actualización | 2026-08-03 |
+| Última actualización | 2026-08-10 |
 
 ---
 
@@ -51,7 +51,7 @@ Cada uno tendrá objetivos y niveles de detalle diferentes.
 
 # Reporte del Paciente
 
-Estado: 📋 PLANIFICADO
+Estado: 🔄 EN IMPLEMENTACIÓN
 
 ## Objetivo
 
@@ -103,6 +103,42 @@ Cuando exista evaluación clínica disponible:
 - Recomendaciones basadas en reglas clínicas.
 
 Siempre con lenguaje comprensible.
+
+
+---
+
+## Gráfico clínico de evolución
+
+La implementación actual del reporte PDF incorpora un gráfico clínico de evolución temporal.
+
+El gráfico representa conjuntamente:
+
+- Presión sistólica.
+- Presión diastólica.
+- Frecuencia cardíaca.
+
+Las series utilizadas son:
+
+| Serie | Etiqueta | Unidad |
+| ----- | -------- | ----- |
+| `systolic` | Sistólica | mmHg |
+| `diastolic` | Diastólica | mmHg |
+| `heartRate` | Frecuencia cardíaca | lpm |
+
+La definición de las series se mantiene centralizada en:
+
+`src/components/charts/ClinicalChart/constants/clinicalSeries.ts`
+
+El reporte PDF utiliza un renderer SVG/HTML específico porque el componente React Native `ClinicalChart` no puede insertarse directamente dentro del HTML procesado por `expo-print`.
+
+La implementación específica se encuentra en:
+
+`src/features/reports/services/ReportClinicalChartService.ts`
+
+El renderer utiliza las mismas claves clínicas y la misma semántica visual de `ClinicalChart`.
+
+La leyenda identifica las tres series y sus unidades.
+
 
 ---
 
@@ -163,6 +199,10 @@ Cuando existan:
 La ausencia de estos datos no debe impedir la generación del reporte.
 
 ---
+
+## Implementación del gráfico PDF
+
+El reporte utiliza un renderer SVG específico para representar Sistólica, Diastólica y Frecuencia cardíaca dentro del PDF, manteniendo las definiciones de series de ClinicalChart.
 
 # Diferencias principales
 
