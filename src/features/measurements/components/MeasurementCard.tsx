@@ -1,32 +1,41 @@
 import { useRouter } from 'expo-router'
-import { Pressable, StyleSheet, View } from 'react-native'
+import { memo } from 'react'
+import {
+  Pressable,
+  StyleSheet,
+  View,
+} from 'react-native'
 
 import { Card, Text } from '@/components/ui'
-import { BloodPressureRecord } from '@/domain/measurements/BloodPressureRecord'
-import { ClassificationBadge } from '@/features/measurements/components/ClassificationBadge'
 import { BloodPressureSafetyWarning } from '@/features/measurements/components/BloodPressureSafetyWarning'
+import { ClassificationBadge } from '@/features/measurements/components/ClassificationBadge'
 import { BloodPressureClassifier } from '@/domain/clinical/classification'
+import type { BloodPressureRecord } from '@/domain/measurements/BloodPressureRecord'
 import { formatDateTime } from '@/utils/date'
 
 type Props = {
   record: BloodPressureRecord
 }
 
-export function MeasurementCard({
+function MeasurementCardComponent({
   record,
 }: Props) {
   const router = useRouter()
-  const classification = BloodPressureClassifier.classify(
-    record.systolic,
-    record.diastolic,
-  )
+
+  const classification =
+    BloodPressureClassifier.classify(
+      record.systolic,
+      record.diastolic,
+    )
 
   return (
     <Pressable
       onPress={() =>
         router.push({
           pathname: '/measurement/[id]',
-          params: { id: record.id },
+          params: {
+            id: record.id,
+          },
         })
       }
     >
@@ -39,8 +48,12 @@ export function MeasurementCard({
 
             <Text style={styles.secondaryLine}>
               {[
-                record.heartRate != null ? `❤️ ${record.heartRate} bpm` : null,
-                formatDateTime(record.dateTime),
+                record.heartRate != null
+                  ? `❤️ ${record.heartRate} bpm`
+                  : null,
+                formatDateTime(
+                  record.dateTime,
+                ),
                 record.arm === 'left'
                   ? 'Brazo izquierdo'
                   : record.arm === 'right'
@@ -48,9 +61,11 @@ export function MeasurementCard({
                     : null,
                 record.position === 'sitting'
                   ? 'Sentado'
-                  : record.position === 'standing'
+                  : record.position ===
+                      'standing'
                     ? 'De pie'
-                    : record.position === 'lying'
+                    : record.position ===
+                        'lying'
                       ? 'Acostado'
                       : null,
               ]
@@ -60,9 +75,14 @@ export function MeasurementCard({
           </View>
 
           <View style={styles.rightColumn}>
-            <ClassificationBadge classification={classification} />
+            <ClassificationBadge
+              classification={classification}
+            />
+
             <BloodPressureSafetyWarning
-              warnings={classification.safetyWarnings}
+              warnings={
+                classification.safetyWarnings
+              }
             />
           </View>
         </View>
@@ -70,6 +90,9 @@ export function MeasurementCard({
     </Pressable>
   )
 }
+
+export const MeasurementCard =
+  memo(MeasurementCardComponent)
 
 const styles = StyleSheet.create({
   content: {

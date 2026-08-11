@@ -10,6 +10,27 @@ export class MeasurementService {
     bloodPressureRepository.create(record)
   }
 
+  existsByMeasurement(
+    record: Pick<
+      BloodPressureRecord,
+      | 'dateTime'
+      | 'systolic'
+      | 'diastolic'
+      | 'heartRate'
+      | 'arm'
+      | 'position'
+      | 'notes'
+    >,
+  ): boolean {
+    return bloodPressureRepository.existsByMeasurement(
+      record,
+    )
+  }
+
+  createMany(records: BloodPressureRecord[]): void {
+    bloodPressureRepository.createMany(records)
+  }
+
   update(record: BloodPressureRecord): void {
     bloodPressureRepository.update(record)
   }
