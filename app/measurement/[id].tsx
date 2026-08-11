@@ -87,7 +87,7 @@ export default function MeasurementDetailScreen() {
               dateTime: record.dateTime,
               systolic: record.systolic,
               diastolic: record.diastolic,
-              heartRate: record.heartRate,
+              heartRate: record.heartRate ?? undefined,
               notes: record.notes ?? '',
               arm: record.arm,
               position: record.position,
