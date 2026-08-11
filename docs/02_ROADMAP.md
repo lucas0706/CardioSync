@@ -353,3 +353,245 @@ Completado en este checkpoint:
 
 El siguiente trabajo deberá partir de este checkpoint sin reintroducir gráficos separados para las variables principales salvo que exista una decisión explícita de producto.
 
+---
+
+# Roadmap operativo actual — 2026-08-11
+
+Este bloque define el orden operativo vigente del proyecto. El contenido histórico anterior de este documento se conserva sin modificaciones.
+
+## FASE 1 — Verificar edición
+
+**Estado:** ✅ COMPLETADO
+
+### Objetivo
+
+Validar la edición de una medición existente sin crear un nuevo registro y comprobar la propagación de los cambios.
+
+### Validaciones realizadas
+
+- Precarga correcta del `MeasurementForm`.
+- Edición de presión sistólica.
+- Edición de presión diastólica.
+- Frecuencia cardíaca opcional.
+- Edición de registros sin frecuencia cardíaca.
+- Persistencia de la modificación.
+- Conservación de la fecha/hora de la medición.
+- History actualizado.
+- Dashboard actualizado.
+- Statistics funcionando según su diseño agregado.
+- Reports actualizado.
+- TypeScript strict sin errores.
+- `git diff --check` sin errores.
+
+### Incidencia corregida
+
+Las mediciones sin frecuencia cardíaca almacenan `NULL` en SQLite.
+
+Al cargar una medición de este tipo para edición, `NULL` llegaba al formulario y Zod rechazaba el valor porque el esquema acepta `number | undefined`, pero no `null`.
+
+La entrada al formulario fue normalizada mediante:
+
+`record.heartRate ?? undefined`
+
+SQLite continúa almacenando `NULL` cuando la frecuencia cardíaca está ausente.
+
+No se modifica la regla de validación ni se inventa un valor de frecuencia cardíaca.
+
+---
+
+## FASE 2 — Importación de datos históricos
+
+**Estado:** 📋 PRÓXIMA
+
+### Objetivo
+
+Importar correctamente los datos históricos exportados por la aplicación que actualmente utiliza el usuario.
+
+### Regla principal
+
+No implementar primero un importador genérico.
+
+Primero se debe analizar el archivo real exportado por la aplicación de origen.
+
+No asumir que el formato será CSV, XLSX o JSON.
+
+### Flujo
+
+Aplicación actual
+↓
+Exportar archivo
+↓
+CardioSync
+↓
+Detectar formato
+↓
+Analizar estructura
+↓
+Mapear campos
+↓
+Validar
+↓
+Normalizar
+↓
+Vista previa
+↓
+Confirmación del usuario
+↓
+SQLite
+↓
+Dashboard / History / Statistics / Reports
+
+### Datos a analizar
+
+- Formato.
+- Columnas.
+- Fechas.
+- Hora.
+- Sistólica.
+- Diastólica.
+- Frecuencia cardíaca.
+- Notas.
+- Otros campos disponibles.
+- Unidades.
+- Registros incompletos.
+- Duplicados.
+- Formato de fecha/hora.
+
+No se inventará el esquema antes de estudiar el archivo real.
+
+---
+
+## FASE 3 — Soporte para gran volumen de datos
+
+**Estado:** 📋 PLANIFICADO
+
+Evaluar CardioSync con:
+
+- 100 registros.
+- 1.000 registros.
+- 10.000 registros.
+- 50.000+ registros cuando corresponda.
+
+Revisar:
+
+- SQLite.
+- Índices.
+- Transacciones.
+- Inserción por lotes.
+- Repository.
+- Consultas.
+- Memoria.
+- History.
+- Statistics.
+- Dashboard.
+- Reports.
+
+Evitar cargar innecesariamente toda la base en memoria.
+
+Evaluar paginación o consultas limitadas en History cuando sea necesario.
+
+---
+
+## FASE 4 — Validar flujo completo
+
+**Estado:** 📋 PLANIFICADO
+
+Validar:
+
+Registrar
+↓
+Importar
+↓
+Editar
+↓
+Eliminar
+↓
+Dashboard
+↓
+History
+↓
+Statistics
+↓
+Reports
+
+Las modificaciones y eliminaciones deberán propagarse correctamente a las áreas correspondientes.
+
+---
+
+## FASE 5 — UI / UX
+
+**Estado:** 📋 PLANIFICADO
+
+Después de estabilizar la funcionalidad:
+
+- DM Sans.
+- Consistencia visual.
+- Botones.
+- Colores.
+- Estados de guardado.
+- Feedback de importación.
+- Validaciones.
+- Errores.
+- Empty states.
+- Espaciado.
+- Consistencia entre pantallas.
+
+La estética no tendrá prioridad sobre la estabilidad funcional.
+
+---
+
+## FASE 6 — Checkpoint
+
+**Estado:** 📋 PLANIFICADO
+
+Antes de iniciar nuevas funcionalidades:
+
+- `npx tsc --noEmit`.
+- Pruebas funcionales.
+- `git status`.
+- `git diff --check`.
+- `git diff`.
+- Documentación sincronizada.
+- ZIP completo del proyecto.
+
+El ZIP deberá incluir:
+
+- Código fuente.
+- `docs/`.
+- Configuración.
+- Scripts.
+- `package.json`.
+- Lockfile.
+
+No deberá incluir:
+
+- `node_modules/`.
+- `.git/`.
+- Builds generados.
+- Bases SQLite locales.
+- Archivos temporales.
+
+---
+
+## FASE 7 — Health Connect
+
+**Estado:** 📋 PLANIFICADO
+
+Health Connect es una tarea independiente.
+
+No iniciar hasta que la importación histórica, el soporte para grandes volúmenes y el flujo completo estén estabilizados.
+
+---
+
+## Fuera del alcance inmediato
+
+No forman parte de las próximas fases:
+
+- Sistema diagnóstico.
+- Sistema de prescripción.
+- Motor clínico complejo.
+- Clinical Rule Engine como próximo desarrollo.
+- Clinical Analysis Engine como próximo desarrollo.
+- ClinicalContext como próximo desarrollo.
+- Nueva arquitectura de Reports.
+

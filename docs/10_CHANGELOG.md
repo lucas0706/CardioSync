@@ -204,3 +204,61 @@ Se eliminó la lectura duplicada de useMeasurements() desde HomeScreen.
 - TypeScript strict sin errores.
 - `git diff --check` sin errores.
 
+---
+
+# 2026-08-11 — Fase 1: validación de edición
+
+### Tipo
+
+Corrección / Validación funcional
+
+### Problema detectado
+
+Las mediciones que no tenían frecuencia cardíaca almacenaban `NULL` en SQLite.
+
+Al abrir una de estas mediciones para editarla, el valor `NULL` llegaba al formulario y la validación Zod rechazaba el registro porque el esquema acepta `number | undefined`, pero no `null`.
+
+### Corrección
+
+Se normalizó el valor al construir los valores iniciales del formulario:
+
+`record.heartRate ?? undefined`
+
+La base SQLite continúa utilizando `NULL` cuando la frecuencia cardíaca está ausente.
+
+No se modificó la regla de validación ni se introdujeron valores artificiales.
+
+### Validación funcional
+
+Se verificó una medición existente:
+
+- Antes: `110/77`.
+- Frecuencia cardíaca: ausente.
+- Fecha/hora: `10/08/2026 19:37`.
+- Después de editar: `111/78`.
+- Frecuencia cardíaca: continúa ausente.
+- Fecha/hora: conservada.
+
+También se verificó la propagación del cambio:
+
+- History: actualizado.
+- Dashboard: actualizado.
+- Statistics: comportamiento esperado según su diseño agregado.
+- Reports: actualizado.
+
+### Validación técnica
+
+- Expo SDK 57: mantenido.
+- TypeScript strict: limpio.
+- `git diff --check`: limpio.
+- No se agregaron dependencias.
+- No se modificó la arquitectura.
+
+### Archivos afectados
+
+`app/measurement/[id].tsx`
+
+### Estado
+
+Fase 1 — Verificar edición: ✅ COMPLETADA
+
