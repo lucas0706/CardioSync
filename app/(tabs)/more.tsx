@@ -75,6 +75,19 @@ export default function MoreScreen() {
           style={styles.item}
           onPress={() =>
             router.push(
+              '/import',
+            )
+          }
+        >
+          <Text>
+            Importar mediciones
+          </Text>
+        </Pressable>
+
+        <Pressable
+          style={styles.item}
+          onPress={() =>
+            router.push(
               '/(tabs)/settings',
             )
           }

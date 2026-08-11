@@ -3,13 +3,16 @@ import { BloodPressureRecord } from '@/domain/measurements/BloodPressureRecord'
 
 export class BloodPressureRepository {
   getAll(): BloodPressureRecord[] {
-    return database.getAllSync(
-      `
-      SELECT *
-      FROM blood_pressure_records
-      ORDER BY datetime(dateTime) DESC
-      `,
-    )
+    const records =
+      database.getAllSync<BloodPressureRecord>(
+        `
+        SELECT *
+        FROM blood_pressure_records
+        ORDER BY dateTime DESC
+        `,
+      )
+
+    return records
   }
 
   create(record: BloodPressureRecord): void {
@@ -81,6 +84,105 @@ export class BloodPressureRepository {
         record.updatedAt,
       ],
     )
+  }
+
+  existsByMeasurement(
+    record: Pick<
+      BloodPressureRecord,
+      | 'dateTime'
+      | 'systolic'
+      | 'diastolic'
+      | 'heartRate'
+      | 'arm'
+      | 'position'
+      | 'notes'
+    >,
+  ): boolean {
+    const row =
+      database.getFirstSync<{ total: number }>(
+        `
+        SELECT COUNT(*) AS total
+        FROM blood_pressure_records
+        WHERE dateTime = ?
+          AND systolic = ?
+          AND diastolic = ?
+          AND COALESCE(heartRate, -1) =
+              COALESCE(?, -1)
+          AND COALESCE(arm, '') =
+              COALESCE(?, '')
+          AND COALESCE(position, '') =
+              COALESCE(?, '')
+          AND COALESCE(notes, '') =
+              COALESCE(?, '')
+        `,
+        [
+          record.dateTime,
+          record.systolic,
+          record.diastolic,
+          record.heartRate ?? null,
+          record.arm ?? null,
+          record.position ?? null,
+          record.notes ?? null,
+        ],
+      )
+
+    return (row?.total ?? 0) > 0
+  }
+
+  createMany(records: BloodPressureRecord[]): void {
+    database.withTransactionSync(() => {
+      for (const record of records) {
+        database.runSync(
+          `
+          INSERT INTO blood_pressure_records (
+            id,
+            dateTime,
+            systolic,
+            diastolic,
+            heartRate,
+            weight,
+            height,
+            bmi,
+            glucose,
+            spo2,
+            temperature,
+            respiratoryRate,
+            pain,
+            notes,
+            arm,
+            position,
+            guideline,
+            createdAt,
+            updatedAt
+          )
+          VALUES (
+            ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?
+          )
+          `,
+          [
+            record.id,
+            record.dateTime,
+            record.systolic,
+            record.diastolic,
+            record.heartRate ?? null,
+            record.weight ?? null,
+            record.height ?? null,
+            record.bmi ?? null,
+            record.glucose ?? null,
+            record.spo2 ?? null,
+            record.temperature ?? null,
+            record.respiratoryRate ?? null,
+            record.pain ?? null,
+            record.notes ?? null,
+            record.arm ?? null,
+            record.position ?? null,
+            record.guideline ?? null,
+            record.createdAt,
+            record.updatedAt,
+          ],
+        )
+      }
+    })
   }
 
   update(record: BloodPressureRecord): void {

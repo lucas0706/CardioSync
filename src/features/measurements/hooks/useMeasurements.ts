@@ -1,36 +1,30 @@
-import { useFocusEffect } from 'expo-router'
-import { useCallback, useEffect, useState } from 'react'
+import { useSyncExternalStore } from 'react'
 
-import { BloodPressureRecord } from '@/domain/measurements/BloodPressureRecord'
-import { measurementService } from '@/features/measurements/services/MeasurementService'
+import type { BloodPressureRecord } from '@/domain/measurements/BloodPressureRecord'
+import { measurementStore } from '@/features/measurements/services/MeasurementStore'
+
+measurementStore.initialize()
 
 export function useMeasurements() {
-  const [measurements, setMeasurements] = useState<BloodPressureRecord[]>([])
-  const [loading, setLoading] = useState(true)
-
-  const refresh = useCallback(() => {
-    setLoading(true)
-
-    try {
-      setMeasurements(measurementService.getAll())
-    } finally {
-      setLoading(false)
-    }
-  }, [])
-
-  useEffect(() => {
-    refresh()
-  }, [refresh])
-
-  useFocusEffect(
-    useCallback(() => {
-      refresh()
-    }, [refresh]),
-  )
+  const measurements =
+    useSyncExternalStore(
+      measurementStore.subscribe.bind(
+        measurementStore,
+      ),
+      measurementStore.getSnapshot.bind(
+        measurementStore,
+      ),
+      measurementStore.getSnapshot.bind(
+        measurementStore,
+      ),
+    )
 
   return {
-    loading,
-    measurements,
-    refresh,
+    loading: false,
+    measurements:
+      measurements as BloodPressureRecord[],
+    refresh: measurementStore.refresh.bind(
+      measurementStore,
+    ),
   }
 }

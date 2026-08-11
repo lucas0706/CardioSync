@@ -1,5 +1,15 @@
-import { useEffect, useMemo, useState } from 'react'
-import { Pressable, StyleSheet, TextInput, View } from 'react-native'
+import {
+  useMemo,
+  useState,
+} from 'react'
+
+import {
+  FlatList,
+  Pressable,
+  StyleSheet,
+  TextInput,
+  View,
+} from 'react-native'
 
 import { Text } from '@/components/ui'
 import { MeasurementCard } from '@/features/measurements/components/MeasurementCard'
@@ -9,190 +19,410 @@ import {
 } from '@/features/measurements/constants/dateFilters'
 import { useMeasurements } from '@/features/measurements/hooks/useMeasurements'
 
-type Props = {
-  refreshKey?: number
-}
-
-export function MeasurementHistory({ refreshKey }: Props) {
+export function MeasurementHistory() {
   const {
     loading,
     measurements,
-    refresh,
   } = useMeasurements()
+
   const [activeFilter, setActiveFilter] =
     useState<MeasurementDateFilter>('all')
-  const [customStart, setCustomStart] = useState('')
-  const [customEnd, setCustomEnd] = useState('')
-  const [customError, setCustomError] = useState('')
 
-  useEffect(() => {
-    refresh()
-  }, [refresh, refreshKey])
+  const [customStart, setCustomStart] =
+    useState('')
 
-  const filteredMeasurements = useMemo(() => {
-    const now = new Date()
-    const startDate = new Date(now)
+  const [customEnd, setCustomEnd] =
+    useState('')
 
-    if (activeFilter === 'week') {
-      startDate.setDate(now.getDate() - 7)
-    } else if (activeFilter === 'month') {
-      startDate.setMonth(now.getMonth() - 1)
-    } else if (activeFilter === 'sixMonths') {
-      startDate.setMonth(now.getMonth() - 6)
-    } else if (activeFilter === 'year') {
-      startDate.setFullYear(now.getFullYear() - 1)
-    } else if (activeFilter === 'custom') {
-      if (!customStart || !customEnd) {
-        return []
+  const [customError, setCustomError] =
+    useState('')
+
+  const filteredMeasurements =
+    useMemo(() => {
+      const now = new Date()
+      const startDate = new Date(now)
+
+      if (activeFilter === 'week') {
+        startDate.setDate(
+          now.getDate() - 7,
+        )
+      } else if (
+        activeFilter === 'month'
+      ) {
+        startDate.setMonth(
+          now.getMonth() - 1,
+        )
+      } else if (
+        activeFilter === 'sixMonths'
+      ) {
+        startDate.setMonth(
+          now.getMonth() - 6,
+        )
+      } else if (
+        activeFilter === 'year'
+      ) {
+        startDate.setFullYear(
+          now.getFullYear() - 1,
+        )
+      } else if (
+        activeFilter === 'custom'
+      ) {
+        if (
+          !customStart ||
+          !customEnd
+        ) {
+          return []
+        }
+
+        const from =
+          new Date(customStart)
+
+        const to =
+          new Date(customEnd)
+
+        if (
+          Number.isNaN(
+            from.getTime(),
+          ) ||
+          Number.isNaN(
+            to.getTime(),
+          )
+        ) {
+          return []
+        }
+
+        if (from > to) {
+          return []
+        }
+
+        return measurements.filter(
+          record => {
+            const recordDate =
+              new Date(
+                record.dateTime,
+              )
+
+            return (
+              !Number.isNaN(
+                recordDate.getTime(),
+              ) &&
+              recordDate >= from &&
+              recordDate <= to
+            )
+          },
+        )
+      } else {
+        return measurements
       }
 
-      const from = new Date(customStart)
-      const to = new Date(customEnd)
+      return measurements.filter(
+        record => {
+          const recordDate =
+            new Date(
+              record.dateTime,
+            )
 
-      if (Number.isNaN(from.getTime()) || Number.isNaN(to.getTime())) {
-        return []
+          return (
+            !Number.isNaN(
+              recordDate.getTime(),
+            ) &&
+            recordDate >= startDate
+          )
+        },
+      )
+    }, [
+      activeFilter,
+      customEnd,
+      customStart,
+      measurements,
+    ])
+
+  const handleApplyCustomRange =
+    () => {
+      if (
+        !customStart ||
+        !customEnd
+      ) {
+        setCustomError(
+          'Ambas fechas son requeridas.',
+        )
+
+        return
+      }
+
+      const from =
+        new Date(customStart)
+
+      const to =
+        new Date(customEnd)
+
+      if (
+        Number.isNaN(
+          from.getTime(),
+        ) ||
+        Number.isNaN(
+          to.getTime(),
+        )
+      ) {
+        setCustomError(
+          'Usa un rango válido en formato DD/MM/AAAA.',
+        )
+
+        return
       }
 
       if (from > to) {
-        return []
+        setCustomError(
+          'La fecha desde no puede ser posterior a la fecha hasta.',
+        )
+
+        return
       }
 
-      return measurements.filter((record) => {
-        const recordDate = new Date(record.dateTime)
-        return (
-          !Number.isNaN(recordDate.getTime()) &&
-          recordDate >= from &&
-          recordDate <= to
-        )
-      })
-    } else {
-      return measurements
+      setCustomError('')
+      setActiveFilter('custom')
     }
 
-    return measurements.filter((record) => {
-      const recordDate = new Date(record.dateTime)
-      return !Number.isNaN(recordDate.getTime()) && recordDate >= startDate
-    })
-  }, [activeFilter, customEnd, customStart, measurements])
-
-  if (loading) {
-    return <Text>Cargando...</Text>
-  }
-
-  if (measurements.length === 0) {
-    return <Text>No hay mediciones registradas.</Text>
-  }
-
-  const handleApplyCustomRange = () => {
-    if (!customStart || !customEnd) {
-      setCustomError('Ambas fechas son requeridas.')
-      return
+  const handleResetFilter =
+    () => {
+      setActiveFilter('all')
+      setCustomStart('')
+      setCustomEnd('')
+      setCustomError('')
     }
 
-    const from = new Date(customStart)
-    const to = new Date(customEnd)
-
-    if (Number.isNaN(from.getTime()) || Number.isNaN(to.getTime())) {
-      setCustomError('Usa un rango válido en formato DD/MM/AAAA.')
-      return
-    }
-
-    if (from > to) {
-      setCustomError('La fecha desde no puede ser posterior a la fecha hasta.')
-      return
-    }
-
-    setCustomError('')
-    setActiveFilter('custom')
-  }
-
-  const handleResetFilter = () => {
-    setActiveFilter('all')
-    setCustomStart('')
-    setCustomEnd('')
-    setCustomError('')
-  }
-
-  return (
-    <View style={styles.container}>
+  const renderHeader = () => (
+    <View style={styles.header}>
       <View style={styles.filtersRow}>
-        {MEASUREMENT_DATE_FILTERS.map((filter) => {
-          const isActive = activeFilter === filter.key
+        {MEASUREMENT_DATE_FILTERS.map(
+          filter => {
+            const isActive =
+              activeFilter ===
+              filter.key
 
-          return (
-            <Pressable
-              key={filter.key}
-              onPress={() => setActiveFilter(filter.key)}
-              style={[styles.filterChip, isActive && styles.filterChipActive]}
-            >
-              <Text style={isActive ? styles.filterTextActive : styles.filterText}>
-                {filter.label}
-              </Text>
-            </Pressable>
-          )
-        })}
+            return (
+              <Pressable
+                key={filter.key}
+                onPress={() =>
+                  setActiveFilter(
+                    filter.key,
+                  )
+                }
+                style={[
+                  styles.filterChip,
+                  isActive &&
+                    styles.filterChipActive,
+                ]}
+              >
+                <Text
+                  style={
+                    isActive
+                      ? styles.filterTextActive
+                      : styles.filterText
+                  }
+                >
+                  {filter.label}
+                </Text>
+              </Pressable>
+            )
+          },
+        )}
       </View>
 
-      {activeFilter === 'custom' ? (
-        <View style={styles.customRangeCard}>
-          <Text style={styles.customTitle}>Rango personalizado</Text>
+      {activeFilter ===
+      'custom' ? (
+        <View
+          style={
+            styles.customRangeCard
+          }
+        >
+          <Text
+            style={styles.customTitle}
+          >
+            Rango personalizado
+          </Text>
 
-          <View style={styles.inputRow}>
-            <View style={styles.inputGroup}>
-              <Text style={styles.inputLabel}>Desde</Text>
+          <View
+            style={styles.inputRow}
+          >
+            <View
+              style={
+                styles.inputGroup
+              }
+            >
+              <Text
+                style={
+                  styles.inputLabel
+                }
+              >
+                Desde
+              </Text>
+
               <TextInput
                 style={styles.input}
                 value={customStart}
-                onChangeText={setCustomStart}
+                onChangeText={
+                  setCustomStart
+                }
                 placeholder="DD/MM/AAAA"
                 keyboardType="numbers-and-punctuation"
               />
             </View>
 
-            <View style={styles.inputGroup}>
-              <Text style={styles.inputLabel}>Hasta</Text>
+            <View
+              style={
+                styles.inputGroup
+              }
+            >
+              <Text
+                style={
+                  styles.inputLabel
+                }
+              >
+                Hasta
+              </Text>
+
               <TextInput
                 style={styles.input}
                 value={customEnd}
-                onChangeText={setCustomEnd}
+                onChangeText={
+                  setCustomEnd
+                }
                 placeholder="DD/MM/AAAA"
                 keyboardType="numbers-and-punctuation"
               />
             </View>
           </View>
 
-          {customError ? <Text style={styles.errorText}>{customError}</Text> : null}
+          {customError ? (
+            <Text
+              style={
+                styles.errorText
+              }
+            >
+              {customError}
+            </Text>
+          ) : null}
 
-          <View style={styles.customActions}>
-            <Pressable onPress={handleApplyCustomRange} style={styles.applyButton}>
-              <Text style={styles.applyButtonText}>Aplicar</Text>
+          <View
+            style={
+              styles.customActions
+            }
+          >
+            <Pressable
+              onPress={
+                handleApplyCustomRange
+              }
+              style={
+                styles.applyButton
+              }
+            >
+              <Text
+                style={
+                  styles.applyButtonText
+                }
+              >
+                Aplicar
+              </Text>
             </Pressable>
 
-            <Pressable onPress={handleResetFilter} style={styles.resetButton}>
-              <Text style={styles.resetButtonText}>Todo</Text>
+            <Pressable
+              onPress={
+                handleResetFilter
+              }
+              style={
+                styles.resetButton
+              }
+            >
+              <Text
+                style={
+                  styles.resetButtonText
+                }
+              >
+                Todo
+              </Text>
             </Pressable>
           </View>
         </View>
       ) : null}
 
-      {filteredMeasurements.length === 0 ? (
-        <Text style={styles.emptyState}>No hay mediciones en este rango.</Text>
-      ) : (
-        filteredMeasurements.map((record) => (
+      <Text
+        style={styles.resultCount}
+      >
+        {filteredMeasurements.length}{' '}
+        mediciones
+      </Text>
+    </View>
+  )
+
+  if (loading) {
+    return (
+      <Text>
+        Cargando...
+      </Text>
+    )
+  }
+
+  if (measurements.length === 0) {
+    return (
+      <Text>
+        No hay mediciones registradas.
+      </Text>
+    )
+  }
+
+  return (
+    <View style={styles.container}>
+      <FlatList
+        data={filteredMeasurements}
+        keyExtractor={item =>
+          item.id
+        }
+        renderItem={({ item }) => (
           <MeasurementCard
-            key={record.id}
-            record={record}
+            record={item}
           />
-        ))
-      )}
+        )}
+        ListHeaderComponent={
+          renderHeader
+        }
+        ListEmptyComponent={
+          <Text
+            style={
+              styles.emptyState
+            }
+          >
+            No hay mediciones en este
+            rango.
+          </Text>
+        }
+        contentContainerStyle={
+          styles.listContent
+        }
+        initialNumToRender={12}
+        maxToRenderPerBatch={8}
+        windowSize={7}
+        removeClippedSubviews
+        showsVerticalScrollIndicator
+      />
     </View>
   )
 }
 
 const styles = StyleSheet.create({
   container: {
-    gap: 12,
+    flex: 1,
     marginTop: 20,
+  },
+
+  header: {
+    gap: 12,
+    paddingBottom: 12,
+  },
+
+  listContent: {
+    gap: 12,
+    paddingBottom: 100,
   },
 
   filtersRow: {
@@ -299,8 +529,14 @@ const styles = StyleSheet.create({
     fontSize: 12,
   },
 
+  resultCount: {
+    color: '#64748B',
+    fontSize: 12,
+    fontWeight: '600',
+  },
+
   emptyState: {
     color: '#64748B',
-    marginTop: 8,
+    paddingVertical: 20,
   },
 })
