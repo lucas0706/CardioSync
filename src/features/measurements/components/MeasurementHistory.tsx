@@ -2,6 +2,7 @@ import {
   useCallback,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from 'react'
 
@@ -25,6 +26,35 @@ import {
   MeasurementDateFilter,
 } from '@/features/measurements/constants/dateFilters'
 import { measurementService } from '@/features/measurements/services/MeasurementService'
+
+function formatCustomDateInput(
+  value: string,
+): string {
+  const digits = value
+    .replace(/\D/g, '')
+    .slice(0, 8)
+
+  if (digits.length === 0) {
+    return ''
+  }
+
+  if (digits.length <= 2) {
+    return digits.length === 2
+      ? `${digits}/`
+      : digits
+  }
+
+  if (digits.length <= 4) {
+    const day = digits.slice(0, 2)
+    const month = digits.slice(2)
+
+    return month.length === 2
+      ? `${day}/${month}/`
+      : `${day}/${month}`
+  }
+
+  return `${digits.slice(0, 2)}/${digits.slice(2, 4)}/${digits.slice(4)}`
+}
 
 function parseCustomDate(
   value: string,
@@ -157,6 +187,9 @@ export function MeasurementHistory() {
 
   const [customEnd, setCustomEnd] =
     useState('')
+
+  const customEndInputRef =
+    useRef<TextInput>(null)
 
   const [customError, setCustomError] =
     useState('')
@@ -403,11 +436,25 @@ export function MeasurementHistory() {
               <TextInput
                 style={styles.input}
                 value={customStart}
-                onChangeText={
-                  setCustomStart
-                }
+                onChangeText={value => {
+                  const formatted =
+                    formatCustomDateInput(
+                      value,
+                    )
+
+                  setCustomStart(formatted)
+
+                  if (
+                    formatted.length === 10
+                  ) {
+                    requestAnimationFrame(() => {
+                      customEndInputRef.current?.focus()
+                    })
+                  }
+                }}
                 placeholder="DD/MM/AAAA"
-                keyboardType="numbers-and-punctuation"
+                keyboardType="number-pad"
+                maxLength={10}
               />
             </View>
 
@@ -421,13 +468,19 @@ export function MeasurementHistory() {
               </Text>
 
               <TextInput
+                ref={customEndInputRef}
                 style={styles.input}
                 value={customEnd}
-                onChangeText={
-                  setCustomEnd
-                }
+                onChangeText={value => {
+                  setCustomEnd(
+                    formatCustomDateInput(
+                      value,
+                    ),
+                  )
+                }}
                 placeholder="DD/MM/AAAA"
-                keyboardType="numbers-and-punctuation"
+                keyboardType="number-pad"
+                maxLength={10}
               />
             </View>
           </View>
