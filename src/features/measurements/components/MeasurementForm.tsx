@@ -15,7 +15,7 @@ import {
 import {
   MeasurementFormData,
 } from '@/features/measurements/schema/measurement.schema'
-import { measurementService } from '@/features/measurements/services/MeasurementService'
+import { measurementStore } from '@/features/measurements/services/MeasurementStore'
 import { formatDateTime } from '@/utils/date'
 
 type Props = {
@@ -43,8 +43,11 @@ export function MeasurementForm({
     },
   } = useMeasurementForm(initialValues)
 
-  const [displayDate, setDisplayDate] = useState('')
-  const watchedDateTime = watch('dateTime')
+  const [displayDate, setDisplayDate] =
+    useState('')
+
+  const watchedDateTime =
+    watch('dateTime')
 
   useEffect(() => {
     if (!watchedDateTime) {
@@ -52,19 +55,34 @@ export function MeasurementForm({
       return
     }
 
-    const nextDisplayDate = formatDateTime(watchedDateTime)
-    if (nextDisplayDate !== displayDate) {
-      setDisplayDate(nextDisplayDate)
+    const nextDisplayDate =
+      formatDateTime(watchedDateTime)
+
+    if (
+      nextDisplayDate !== displayDate
+    ) {
+      setDisplayDate(
+        nextDisplayDate,
+      )
     }
-  }, [watchedDateTime, displayDate])
+  }, [
+    watchedDateTime,
+    displayDate,
+  ])
 
   const parsedDateTime = useMemo(() => {
     if (!watchedDateTime) {
       return ''
     }
 
-    const parsed = new Date(watchedDateTime)
-    if (Number.isNaN(parsed.getTime())) {
+    const parsed =
+      new Date(watchedDateTime)
+
+    if (
+      Number.isNaN(
+        parsed.getTime(),
+      )
+    ) {
       return ''
     }
 
@@ -72,23 +90,39 @@ export function MeasurementForm({
   }, [watchedDateTime])
 
   const submit = handleSubmit(
-    async (values) => {
+    async values => {
       const normalizedValues = {
         ...values,
-        dateTime: values.dateTime ?? parsedDateTime,
+        dateTime:
+          values.dateTime ??
+          parsedDateTime,
       }
 
-      let measurement: BloodPressureRecord
+      let measurement:
+        BloodPressureRecord
 
-      if (mode === 'edit' && existingRecord) {
-        measurement = updateMeasurement(
-          normalizedValues,
-          existingRecord,
+      if (
+        mode === 'edit' &&
+        existingRecord
+      ) {
+        measurement =
+          updateMeasurement(
+            normalizedValues,
+            existingRecord,
+          )
+
+        measurementStore.update(
+          measurement,
         )
-        measurementService.update(measurement)
       } else {
-        measurement = createMeasurement(normalizedValues)
-        measurementService.create(measurement)
+        measurement =
+          createMeasurement(
+            normalizedValues,
+          )
+
+        measurementStore.create(
+          measurement,
+        )
       }
 
       reset()
@@ -121,15 +155,25 @@ export function MeasurementForm({
         label="Fecha y hora"
         placeholder="DD/MM/AAAA - HH:mm"
         value={displayDate}
-        onChangeText={(text) => {
+        onChangeText={text => {
           setDisplayDate(text)
 
-          const parsed = new Date(text)
-          if (!Number.isNaN(parsed.getTime())) {
-            setValue('dateTime', parsed.toISOString(), {
-              shouldDirty: true,
-              shouldValidate: true,
-            })
+          const parsed =
+            new Date(text)
+
+          if (
+            !Number.isNaN(
+              parsed.getTime(),
+            )
+          ) {
+            setValue(
+              'dateTime',
+              parsed.toISOString(),
+              {
+                shouldDirty: true,
+                shouldValidate: true,
+              },
+            )
           }
         }}
         error={errors.dateTime?.message}
@@ -191,7 +235,11 @@ export function MeasurementForm({
       />
 
       <AppButton
-        title={mode === 'edit' ? 'Guardar cambios' : 'Guardar medición'}
+        title={
+          mode === 'edit'
+            ? 'Guardar cambios'
+            : 'Guardar medición'
+        }
         onPress={submit}
         loading={isSubmitting}
       />

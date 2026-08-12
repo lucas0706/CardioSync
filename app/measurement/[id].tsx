@@ -7,6 +7,7 @@ import { BloodPressureRecord } from '@/domain/measurements/BloodPressureRecord'
 import { MeasurementDetail } from '@/features/measurements/components/MeasurementDetail'
 import { MeasurementForm } from '@/features/measurements/components/MeasurementForm'
 import { measurementService } from '@/features/measurements/services/MeasurementService'
+import { measurementStore } from '@/features/measurements/services/MeasurementStore'
 
 export default function MeasurementDetailScreen() {
   const router = useRouter()
@@ -51,7 +52,7 @@ export default function MeasurementDetailScreen() {
           style: 'destructive',
           onPress: () => {
             if (record?.id) {
-              measurementService.delete(record.id)
+              measurementStore.delete(record.id)
               router.back()
             }
           },
