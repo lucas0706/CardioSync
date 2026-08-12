@@ -1,42 +1,21 @@
 import { useMemo } from 'react'
 
-import { useMeasurements } from '@/features/measurements/hooks/useMeasurements'
-
-import {
-  mapMeasurementsToClinicalChart,
-} from '../mappers/mapMeasurementsToClinicalChart'
+import { measurementService } from '@/features/measurements/services/MeasurementService'
 
 import {
   dashboardService,
 } from '../services/DashboardService'
 
 export function useDashboard() {
-  const {
-    measurements,
-  } = useMeasurements()
-
-  const summary = useMemo(
+  const metrics = useMemo(
     () =>
-      dashboardService.build(
-        measurements,
-      ),
-    [
-      measurements,
-    ],
+      measurementService.getDashboardMetrics(),
+    [],
   )
 
-  const chartData = useMemo(
+  return useMemo(
     () =>
-      mapMeasurementsToClinicalChart(
-        measurements,
-      ),
-    [
-      measurements,
-    ],
+      dashboardService.build(metrics),
+    [metrics],
   )
-
-  return {
-    ...summary,
-    chartData,
-  }
 }

@@ -86,6 +86,8 @@ class MeasurementStore {
     )
 
     this.initialized = true
+
+    this.notify()
   }
 
   getSnapshot(): BloodPressureRecord[] {

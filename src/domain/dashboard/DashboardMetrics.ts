@@ -1,4 +1,4 @@
-export interface DashboardSummary {
+export interface DashboardMetrics {
   averageSystolic: number | null
   averageDiastolic: number | null
   averageHeartRate: number | null
