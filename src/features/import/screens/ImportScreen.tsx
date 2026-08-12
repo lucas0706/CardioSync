@@ -17,6 +17,10 @@ import {
 } from '../services/CsvImportService'
 
 import {
+  selectAndParseDb,
+} from '../services/DbImportService'
+
+import {
   ImportPersistenceService,
 } from '../services/ImportPersistenceService'
 
@@ -49,7 +53,17 @@ export default function ImportScreen() {
   const [status, setStatus] =
     useState('Esperando archivo.')
 
-  async function handleSelectFile() {
+  async function handleSelectCsv() {
+    await handleSelectFile('csv')
+  }
+
+  async function handleSelectDb() {
+    await handleSelectFile('db')
+  }
+
+  async function handleSelectFile(
+    type: 'csv' | 'db',
+  ) {
     setLoading(true)
     setError(null)
     setSuccess(null)
@@ -60,7 +74,9 @@ export default function ImportScreen() {
 
     try {
       const result =
-        await selectAndParseCsv(setStatus)
+        type === 'csv'
+          ? await selectAndParseCsv(setStatus)
+          : await selectAndParseDb(setStatus)
 
       if (!result) {
         return
@@ -74,6 +90,7 @@ export default function ImportScreen() {
       setPreview(result.preview)
       setRecords(result.result.records)
       setExistingCount(existing)
+
       setStatus(
         'Archivo validado. Revisá la vista previa antes de importar.',
       )
@@ -105,7 +122,9 @@ export default function ImportScreen() {
     try {
       const importedCount =
         ImportPersistenceService.import(
-          records,
+          ImportPersistenceService.filterNewRecords(
+            records,
+          ),
         )
 
       setSuccess(
@@ -130,6 +149,12 @@ export default function ImportScreen() {
     }
   }
 
+  const newRecordCount =
+    Math.max(
+      records.length - existingCount,
+      0,
+    )
+
   return (
     <Screen>
       <View style={styles.container}>
@@ -138,32 +163,51 @@ export default function ImportScreen() {
         </Text>
 
         <Text>
-          Importá un archivo CSV exportado desde
-          tu aplicación anterior.
+          Importá mediciones desde archivos
+          exportados por otras aplicaciones.
         </Text>
 
         <Text>
-          Solo se importarán fecha, presión
-          arterial, frecuencia cardíaca, brazo,
-          posición y notas.
+          Se importarán fecha, presión arterial,
+          frecuencia cardíaca, brazo, posición
+          y notas.
         </Text>
 
-        <Pressable
-          style={styles.button}
-          onPress={handleSelectFile}
-          disabled={
-            loading ||
-            importing
-          }
-        >
-          {loading ? (
-            <ActivityIndicator />
-          ) : (
-            <Text>
-              Seleccionar archivo CSV
-            </Text>
-          )}
-        </Pressable>
+        <View style={styles.buttonGroup}>
+          <Pressable
+            style={styles.button}
+            onPress={handleSelectCsv}
+            disabled={
+              loading ||
+              importing
+            }
+          >
+            {loading ? (
+              <ActivityIndicator />
+            ) : (
+              <Text>
+                Seleccionar archivo CSV
+              </Text>
+            )}
+          </Pressable>
+
+          <Pressable
+            style={styles.button}
+            onPress={handleSelectDb}
+            disabled={
+              loading ||
+              importing
+            }
+          >
+            {loading ? (
+              <ActivityIndicator />
+            ) : (
+              <Text>
+                Seleccionar base de datos DB
+              </Text>
+            )}
+          </Pressable>
+        </View>
 
         <View style={styles.statusCard}>
           <Text variant="h2">
@@ -241,10 +285,7 @@ export default function ImportScreen() {
 
             <Text>
               Nuevos para importar:{' '}
-              {Math.max(
-                records.length - existingCount,
-                0,
-              )}
+              {newRecordCount}
             </Text>
 
             <Text style={styles.warning}>
@@ -255,7 +296,7 @@ export default function ImportScreen() {
 
         {preview &&
         records.length > 0 &&
-        records.length > existingCount &&
+        newRecordCount > 0 &&
         !success ? (
           <Pressable
             style={styles.importButton}
@@ -266,7 +307,7 @@ export default function ImportScreen() {
               <ActivityIndicator />
             ) : (
               <Text>
-                Importar {records.length - existingCount} registros
+                Importar {newRecordCount} registros
               </Text>
             )}
           </Pressable>
@@ -279,6 +320,10 @@ export default function ImportScreen() {
 const styles = StyleSheet.create({
   container: {
     gap: 16,
+  },
+
+  buttonGroup: {
+    gap: 12,
   },
 
   button: {

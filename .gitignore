@@ -40,3 +40,8 @@ yarn-error.*
 /ios
 /android
 project/audit/
+
+# Datos personales utilizados para pruebas de importación
+*.db
+*.xls
+*.csv
