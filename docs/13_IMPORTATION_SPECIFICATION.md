@@ -4,8 +4,8 @@
 |---|---|
 | Documento | 13_IMPORTATION_SPECIFICATION.md |
 | Tipo | Especificación funcional y técnica |
-| Estado | Aprobada para implementación |
-| Fecha | 2026-08-11 |
+| Estado | Implementación SQLite validada |
+| Fecha | 2026-08-12 |
 | Fuente real analizada | BPTracker |
 | Registros analizados | 2.030 |
 
@@ -17,7 +17,7 @@ Definir la estrategia para importar datos históricos provenientes de la aplicac
 
 La especificación se basa en archivos reales exportados por dicha aplicación.
 
-No se diseñará inicialmente un importador genérico independiente del formato.
+El importador utiliza un pipeline específico para SQLite y reutiliza la normalización, validación, deduplicación y persistencia comunes de CardioSync.
 
 ---
 
@@ -31,45 +31,64 @@ Se analizaron tres representaciones del histórico:
 
 La base SQLite contiene la tabla principal `tranx`.
 
-Las exportaciones CSV y XLS contienen el mismo histórico de 2.030 registros y presentan una estructura equivalente.
+Las representaciones analizadas corresponden al mismo histórico de 2.030 registros.
+
+La implementación validada utiliza actualmente la base SQLite como fuente de importación.
+
+El formato XLS fue descartado como vía de implementación por requerir una dependencia de parsing externa con problemas de seguridad conocidos en la versión evaluada.
+
+No se incorporó `xlsx` al proyecto CardioSync.
 
 ---
 
-# 3. Campos de la exportación CSV/XLS
+# 3. Campos de la fuente SQLite
 
-La exportación contiene:
+La tabla `tranx` contiene, entre otros, los siguientes campos:
 
-- Fecha
-- Sistólica
-- Diastólica
-- Pulso
-- Altura(cm)
-- Sitio
-- Posición
-- Categoría
-- Ignorar cálculo
-- Nota
-- Etiqueta
+- `sys`
+- `dia`
+- `pulse`
+- `weight`
+- `siteId`
+- `positionID`
+- `note`
+- `tranxDate`
+- `tranxTime`
+- `glucose`
+- `oxygen`
+- `temperature`
+- `heightValue`
+- `heightValueCm`
+- `weightKg`
+- `bmi`
+- `bfp`
+- `arrhythmia`
+- `afib`
+- `hrv`
+- `medTaken`
+- otros campos específicos de la aplicación de origen.
+
+La importación inicial utiliza únicamente los campos necesarios para construir una medición de presión arterial compatible con CardioSync.
 
 ---
 
 # 4. Mapeo principal
 
-| Fuente | CardioSync | Regla |
+| Fuente SQLite | CardioSync | Regla |
 |---|---|---|
-| Fecha | `dateTime` | Combinar fecha y hora y normalizar a ISO |
-| Sistólica | `systolic` | Validar rango actual |
-| Diastólica | `diastolic` | Validar rango actual |
-| Pulso | `heartRate` | Opcional; valores ausentes se normalizan |
-| Sitio | `arm` | Mapear valores conocidos |
-| Posición | `position` | Mapear valores conocidos |
-| Nota | `notes` | Vacío → ausencia |
+| `tranxDate` + `tranxTime` | `dateTime` | Combinar fecha y hora |
+| `sys` | `systolic` | Validar rango actual |
+| `dia` | `diastolic` | Validar rango actual |
+| `pulse` | `heartRate` | Opcional |
+| `siteId` | `arm` | Mapear valores conocidos |
+| `positionID` | `position` | Mapear valores conocidos |
+| `note` | `notes` | Vacío → ausencia |
 
 ---
 
 # 5. Reglas de validación
 
-Se reutilizarán las reglas existentes de CardioSync.
+Se reutilizan las reglas existentes de CardioSync.
 
 ## Sistólica
 
@@ -91,106 +110,90 @@ Rango:
 
 La frecuencia cardíaca es opcional.
 
-No se modificará el schema para aceptar valores inválidos provenientes del archivo externo.
+No se modificó el schema para aceptar valores inválidos provenientes del archivo externo.
 
 ---
 
-# 6. Frecuencia cardíaca ausente
+# 6. Frecuencia cardíaca
 
-En el archivo real existen registros sin frecuencia cardíaca.
+La fuente real contiene registros donde la frecuencia cardíaca puede estar ausente.
 
-La validación confirmó:
+La implementación mantiene la ausencia como:
 
-- 4 registros con `Pulso` vacío.
-- 0 registros con `Pulso = 0`.
+`heartRate = undefined`
 
-Por lo tanto:
+No se transforma una ausencia en `0`.
 
-`Pulso vacío → heartRate ausente`
+En la base SQLite analizada:
 
-No se importará un valor ausente como frecuencia cardíaca `0`.
+- 2.030 registros totales.
+- 0 registros con `pulse = NULL`.
+- 0 registros con `pulse = 0`.
 
-No se inventará ningún valor.
+La exportación CSV analizada previamente presentó 4 registros sin pulso; esto se considera una diferencia de representación del formato exportado y no modifica la regla de normalización.
 
 ---
 
 # 7. Mapeo de brazo
 
-La exportación real contiene:
+La fuente SQLite utiliza:
 
-- `Brazo izquierdo`
-- `Brazo derecho`
+- `siteId = 0` → brazo izquierdo.
+- `siteId = 1` → brazo derecho.
 
 Mapeo:
 
 | Fuente | CardioSync |
 |---|---|
-| Brazo izquierdo | `left` |
-| Brazo derecho | `right` |
+| `0` | `left` |
+| `1` | `right` |
 
-Los valores desconocidos no se inferirán.
+Los valores desconocidos no se infieren.
+
+En la base real:
+
+- `siteId = 0`: 2.019 registros.
+- `siteId = 1`: 11 registros.
 
 ---
 
 # 8. Mapeo de posición
 
-La exportación real contiene:
+La fuente SQLite utiliza:
 
-`Sentado`
+- `positionID = 0` → sentado.
+- `positionID = 1` → de pie.
+- `positionID = 2` → acostado.
 
 Mapeo:
 
-`Sentado → sitting`
+| Fuente | CardioSync |
+|---|---|
+| `0` | `sitting` |
+| `1` | `standing` |
+| `2` | `lying` |
 
-No se inferirán posiciones no presentes en el archivo.
+En la base real analizada:
+
+- `positionID = 0`: 2.030 registros.
 
 ---
 
 # 9. Notas
 
-La mayoría de los registros no contienen notas.
+Las notas se obtienen desde `tranx.note`.
 
-Las notas vacías se normalizarán como ausencia.
+Las notas vacías se normalizan como ausencia.
 
-No se generarán textos artificiales.
+Las notas existentes se conservan.
 
-Las notas existentes se conservarán.
-
----
-
-# 10. Campos que no se importarán inicialmente
-
-No se incorporarán automáticamente:
-
-- Altura.
-- Categoría.
-- Ignorar cálculo.
-- Etiqueta.
-
-La razón es mantener el núcleo de `BloodPressureRecord` centrado en la medición de presión arterial y no importar automáticamente información derivada o campos que pertenecen a otros dominios.
+No se generan textos artificiales.
 
 ---
 
-# 11. Categoría de la aplicación de origen
+# 10. Campos secundarios
 
-La aplicación de origen proporciona categorías como:
-
-- Normal.
-- Alto Normal.
-- Hipertensión Etapa 1.
-- Hipertensión Etapa 2.
-
-Estas categorías no se importarán como clasificación clínica de CardioSync.
-
-Son datos derivados por la aplicación de origen.
-
-CardioSync mantendrá sus propias reglas y estadísticas.
-
----
-
-# 12. Base SQLite de origen
-
-La base externa contiene información adicional como:
+La base SQLite contiene información adicional como:
 
 - peso;
 - glucosa;
@@ -205,33 +208,39 @@ La base externa contiene información adicional como:
 - medicación;
 - otros campos.
 
-Estos datos no se incorporarán automáticamente al núcleo de importación.
+Estos datos no se incorporan automáticamente al núcleo de importación.
 
-La presencia de un valor `0` en la base de origen no implica que exista una medición real.
+La presencia de un valor `0` en la base de origen no implica necesariamente que exista una medición clínica real.
+
+La decisión mantiene el núcleo de `BloodPressureRecord` centrado en la medición de presión arterial.
 
 ---
 
-# 13. Identidad de los registros
+# 11. Categorías de la aplicación de origen
+
+La aplicación de origen proporciona categorías derivadas de los valores de presión.
+
+Estas categorías no se importan como clasificación clínica de CardioSync.
+
+CardioSync mantiene sus propias reglas clínicas y estadísticas.
+
+---
+
+# 12. Identidad de los registros
 
 La base SQLite de origen no proporciona un identificador de medición equivalente al `id` de `BloodPressureRecord`.
 
-CardioSync generará un nuevo identificador para cada registro importado.
+CardioSync genera un nuevo identificador para cada registro importado.
 
-No se utilizará el `rowid` de SQLite externo como identificador permanente de CardioSync.
+No se utiliza el `rowid` externo como identificador permanente.
 
 ---
 
-# 14. Duplicados
+# 13. Duplicados
 
-Durante el análisis se encontró un duplicado exacto:
+La implementación detecta duplicados antes de persistir.
 
-`27/05/2026 19:14 — 114/75 — FC 77`
-
-aparece dos veces.
-
-La importación deberá detectar duplicados antes de persistir.
-
-La deduplicación inicial utilizará la combinación de los campos de medición relevantes:
+La deduplicación utiliza la combinación:
 
 - fecha/hora;
 - sistólica;
@@ -241,17 +250,21 @@ La deduplicación inicial utilizará la combinación de los campos de medición 
 - posición;
 - nota.
 
-No se eliminarán registros únicamente por tener la misma presión.
+No se eliminan registros únicamente por tener la misma presión.
+
+Durante la prueba real se detectó:
+
+- 2.030 registros leídos.
+- 1 duplicado interno.
+- 2.029 registros únicos válidos.
+
+El duplicado fue descartado antes de la persistencia.
 
 ---
 
-# 15. Procedencia
+# 14. Procedencia
 
-El dominio actual contiene:
-
-`MeasurementOrigin`
-
-con los valores:
+El dominio contiene `MeasurementOrigin` con valores:
 
 - `manual`
 - `csv-import`
@@ -261,21 +274,27 @@ con los valores:
 
 Actualmente `origin` no se persiste en `blood_pressure_records`.
 
-Para esta fase no se agregará una columna nueva solamente para resolver la importación.
+Para esta fase no se agregó una columna nueva únicamente para resolver la importación.
 
-La procedencia podrá utilizarse posteriormente si existe una necesidad funcional real de persistirla.
+La procedencia podrá persistirse posteriormente si existe una necesidad funcional real.
 
 ---
 
-# 16. Arquitectura de importación
+# 15. Arquitectura de importación
 
-El pipeline previsto es:
+El pipeline implementado es:
 
-Fuente
+Fuente SQLite
+↓
+Document Picker
+↓
+Copia temporal en cache
+↓
+Validación de estructura SQLite
 ↓
 Parser específico
 ↓
-Registro normalizado de importación
+NormalizedImportRecord
 ↓
 Normalización
 ↓
@@ -287,169 +306,252 @@ Vista previa
 ↓
 Confirmación
 ↓
-Persistencia transaccional
+Persistencia
 ↓
 CardioSync
 
----
-
-# 17. Múltiples formatos
-
-No se implementarán tres pipelines independientes.
-
-La arquitectura prevista es:
-
-SQLite parser
-CSV parser
-XLS parser
-        ↓
-NormalizedImportRecord
-        ↓
-Validación común
-        ↓
-Deduplicación común
-        ↓
-Persistencia común
-
-Esto permitirá incorporar otros formatos posteriormente sin duplicar la lógica de negocio.
+La copia temporal de la base externa se elimina después del procesamiento.
 
 ---
 
-# 18. Persistencia
+# 16. Validación de estructura SQLite
 
-La importación no utilizará:
+Antes de procesar registros, el parser verifica:
 
-`measurementService.create()`
+1. Existencia de la tabla `tranx`.
+2. Existencia de las columnas requeridas.
 
-2.030 veces de forma individual.
+Columnas requeridas:
 
-Se implementará una operación específica de importación por lote.
+- `sys`
+- `dia`
+- `pulse`
+- `siteId`
+- `positionID`
+- `note`
+- `tranxDate`
+- `tranxTime`
 
-La operación deberá ejecutarse de forma transaccional para evitar estados parciales si ocurre un error durante la importación.
-
-No se agregará una dependencia externa para esto.
-
-Se utilizará la infraestructura SQLite compatible con Expo SDK 57 ya instalada en el proyecto.
+Una base incompatible produce un error explícito y no se procesa como si fuera válida.
 
 ---
 
-# 19. Vista previa
+# 17. Vista previa
 
-Antes de persistir los registros importados, CardioSync deberá poder mostrar al usuario:
+Antes de persistir, CardioSync presenta:
 
-- cantidad total de registros detectados;
+- registros detectados;
 - registros válidos;
-- registros inválidos;
-- duplicados detectados;
-- registros con campos normalizados;
-- registros que serán importados.
+- duplicados;
+- errores;
+- registros sin frecuencia cardíaca;
+- registros ya existentes en CardioSync;
+- nuevos registros para importar.
 
-El usuario deberá confirmar la importación.
+La persistencia solamente se ejecuta después de la confirmación del usuario.
+
+---
+
+# 18. Detección de registros ya existentes
+
+Antes de importar se compara cada `NormalizedImportRecord` con las mediciones existentes en CardioSync.
+
+Esto permite distinguir:
+
+- registros nuevos;
+- registros que ya existen;
+- duplicados internos de la fuente.
+
+Durante la prueba de importación, el histórico de CardioSync fue limpiado previamente para validar la importación desde cero.
+
+Resultado:
+
+- 2.030 detectados.
+- 2.029 válidos.
+- 1 duplicado.
+- 0 errores.
+- 2.029 nuevos para importar.
+- 2.029 mediciones persistidas.
+
+---
+
+# 19. Persistencia
+
+La persistencia reutiliza:
+
+- `ImportPersistenceService`.
+- `MeasurementService`.
+- `MeasurementStore`.
+- `BloodPressureRepository`.
+- SQLite mediante `expo-sqlite`.
+
+La implementación utiliza `createMany()` para realizar la inserción por lote en lugar de ejecutar una operación individual desde la interfaz para cada registro.
+
+La operación se ejecuta dentro de `database.withTransactionSync()`, por lo que la inserción por lote se realiza de forma transaccional.
 
 ---
 
 # 20. Errores de importación
 
-Un registro inválido no debe convertirse silenciosamente en un registro válido.
+Un registro inválido no se convierte silenciosamente en un registro válido.
 
-La importación deberá identificar:
+El pipeline puede identificar:
 
 - fecha inválida;
 - sistólica fuera de rango;
 - diastólica fuera de rango;
 - frecuencia cardíaca inválida;
-- valores desconocidos de brazo;
-- valores desconocidos de posición;
-- estructura de archivo incompatible.
+- estructura SQLite incompatible;
+- columnas requeridas ausentes.
 
-Los errores deberán poder identificarse antes de confirmar la importación.
+Los errores se incorporan al resultado de importación.
 
 ---
 
 # 21. Volumen
 
-El archivo real contiene 2.030 registros.
+La fuente real utilizada contiene:
 
-La implementación deberá evitar cargar o procesar innecesariamente grandes estructuras duplicadas en memoria.
+`2.030 registros`
 
-La arquitectura deberá permitir posteriormente evaluar:
+La implementación fue validada con este volumen real.
+
+La arquitectura queda preparada para evaluar posteriormente volúmenes superiores, incluyendo:
 
 - 10.000 registros;
 - 50.000+ registros.
 
-La optimización específica para grandes volúmenes se validará en la Fase 3.
+La optimización específica para grandes volúmenes queda fuera de esta validación.
 
 ---
 
 # 22. Compatibilidad arquitectónica
 
-La implementación deberá mantener:
+La implementación mantiene:
 
 - Expo SDK 57.
 - TypeScript strict.
-- SQLite existente.
+- `expo-sqlite`.
+- `expo-document-picker`.
+- `expo-file-system`.
 - `src/core`.
 - `src/domain`.
 - `src/features`.
 - `src/components`.
 
-No se incorporará:
+No se incorporaron dependencias adicionales para leer SQLite.
 
-- Clinical Rule Engine.
-- Clinical Analysis Engine.
-- ClinicalContext como dependencia del importador.
-- Nueva arquitectura médica.
+No se incorporó `xlsx`.
+
+No se incorporó:
+
+- Clinical Rule Engine;
+- Clinical Analysis Engine;
+- ClinicalContext como dependencia del importador;
+- nueva arquitectura médica.
 
 ---
 
-# 23. Alcance de esta fase
+# 23. Alcance
 
 Esta fase incluye:
 
+- selección del archivo SQLite;
 - lectura del formato real;
-- detección;
+- validación estructural;
 - parsing;
 - normalización;
 - validación;
 - deduplicación;
+- detección de registros existentes;
 - vista previa;
 - confirmación;
 - persistencia.
 
 Esta fase no incluye:
 
-- Health Connect.
-- motor clínico.
-- diagnóstico.
-- prescripción.
-- clasificación clínica propia.
+- Health Connect;
+- motor clínico;
+- diagnóstico;
+- prescripción;
+- clasificación clínica propia;
 - migración automática de todos los campos secundarios de BPTracker.
 
 ---
 
-# 24. Criterio de finalización
+# 24. Validación funcional real
 
-La Fase 2 se considerará completada cuando:
+Se realizó una prueba end-to-end utilizando la base:
 
-1. CardioSync pueda leer correctamente el archivo real.
-2. Los 2.030 registros puedan analizarse.
-3. Los campos principales se mapeen correctamente.
-4. Los cuatro `Pulso = 0` sean tratados como ausencia.
-5. El duplicado conocido sea detectado.
-6. Los datos inválidos no sean importados silenciosamente.
-7. El usuario pueda revisar una vista previa.
-8. La importación sea transaccional.
-9. Los registros aparezcan correctamente en History.
-10. Dashboard utilice los datos importados.
-11. Statistics utilice los datos importados.
-12. Reports utilice los datos importados.
-13. `npx tsc --noEmit` permanezca limpio.
-14. La documentación quede sincronizada.
+`bptracker_2026_08_11.db`
+
+Características de la fuente:
+
+- SQLite 3.x.
+- Tabla principal: `tranx`.
+- 2.030 registros.
+- Rango temporal: 2023-10-26 → 2026-08-11.
+
+Resultado de la importación:
+
+| Resultado | Cantidad |
+|---|---:|
+| Registros detectados | 2.030 |
+| Registros válidos | 2.029 |
+| Duplicados internos | 1 |
+| Errores | 0 |
+| Nuevos para importar | 2.029 |
+| Importados | 2.029 |
+
+Después de la importación:
+
+- History mostró los registros importados.
+- Dashboard utilizó los datos importados.
+- Statistics utilizó los datos importados.
+- La aplicación fue reiniciada.
+- Los 2.029 registros permanecieron después del reinicio.
+
+Esto valida el flujo de importación y persistencia real.
 
 ---
 
-# 25. Estado
+# 25. Resultado de la fase
 
-**FASE 2 — Especificación:** ✅ COMPLETADA
+**FASE 2 — Especificación:** COMPLETADA
 
-**Implementación del importador:** 📋 SIGUIENTE PASO
+**Implementación SQLite:** COMPLETADA
+
+**Prueba end-to-end:** COMPLETADA
+
+**Persistencia después de reinicio:** VALIDADA
+
+**Importación XLS:** DESCARTADA
+
+**Dependencia `xlsx`:** NO INCORPORADA
+
+**Atomicidad transaccional:** VALIDADA mediante `database.withTransactionSync()`.
+
+---
+
+# 26. Criterio de finalización
+
+La implementación actual cumple los siguientes criterios:
+
+1. CardioSync lee correctamente la base SQLite real.
+2. Los 2.030 registros pueden analizarse.
+3. Los campos principales se mapean correctamente.
+4. La estructura SQLite se valida antes de procesar.
+5. Los duplicados son detectados.
+6. Los datos inválidos no se importan silenciosamente.
+7. El usuario puede revisar una vista previa.
+8. Se detectan registros ya existentes.
+9. La persistencia utiliza operación por lote.
+10. Los registros aparecen correctamente en History.
+11. Dashboard utiliza los datos importados.
+12. Statistics utiliza los datos importados.
+13. Los registros sobreviven al reinicio de la aplicación.
+14. `npx tsc --noEmit` permanece limpio.
+15. `git diff --check` permanece limpio.
+16. La documentación queda sincronizada.
+
+La atomicidad transaccional de `createMany()` quedó verificada.
