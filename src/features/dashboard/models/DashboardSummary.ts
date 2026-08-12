@@ -1,7 +1,6 @@
 export interface DashboardSummary {
-  totalMeasurements: number
-  averageSystolic: number
-  averageDiastolic: number
+  averageSystolic: number | null
+  averageDiastolic: number | null
   averageHeartRate: number | null
   latestSystolic: number | null
   latestDiastolic: number | null

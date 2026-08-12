@@ -1,17 +1,23 @@
-
 import { useRouter } from 'expo-router'
-import { ScrollView, StyleSheet, View } from 'react-native'
+import {
+  ScrollView,
+  StyleSheet,
+  View,
+} from 'react-native'
 
-import { Button, Card, FloatingActionButton, Screen, Text } from '@/components/ui'
-import { ClinicalSeriesSelector } from '@/components/charts/ClinicalSeriesSelector'
-
-import { getAvailableClinicalSeries } from '@/components/charts/utils/getAvailableClinicalSeries'
-import { ClinicalSeries } from '@/components/charts/types/ClinicalSeries'
+import {
+  Button,
+  Card,
+  FloatingActionButton,
+  Screen,
+  Text,
+} from '@/components/ui'
 
 import { DashboardHeader } from '@/features/dashboard/components/DashboardHeader'
 import { LatestMeasurementCard } from '@/features/dashboard/components/LatestMeasurementCard'
 import { SummaryCard } from '@/features/dashboard/components/SummaryCard'
 import { useDashboard } from '@/features/dashboard/hooks/useDashboard'
+
 import { theme } from '@/theme'
 import { formatDateTime } from '@/utils/date'
 
@@ -19,9 +25,25 @@ export default function HomeScreen() {
   const summary = useDashboard()
   const router = useRouter()
 
-  const hasMeasurements = summary.totalMeasurements > 0
+  const hasMeasurements =
+    summary.latestSystolic != null &&
+    summary.latestDiastolic != null
 
-  const lastUpdated = formatDateTime(summary.latestDateTime)
+  const lastUpdated =
+    summary.latestDateTime
+      ? formatDateTime(summary.latestDateTime)
+      : '--'
+
+  const averagePressure =
+    summary.averageSystolic != null &&
+    summary.averageDiastolic != null
+      ? `${summary.averageSystolic}/${summary.averageDiastolic}`
+      : '--/--'
+
+  const averageHeartRate =
+    summary.averageHeartRate != null
+      ? `${summary.averageHeartRate} bpm`
+      : '--'
 
   return (
     <Screen>
@@ -40,9 +62,13 @@ export default function HomeScreen() {
         </View>
 
         <View style={styles.sectionHeader}>
-          <Text variant="title" style={styles.sectionTitle}>
+          <Text
+            variant="title"
+            style={styles.sectionTitle}
+          >
             Resumen clínico
           </Text>
+
           <Text style={styles.sectionSubtitle}>
             Información clave de tu seguimiento
           </Text>
@@ -52,20 +78,16 @@ export default function HomeScreen() {
           <View style={styles.summaryItem}>
             <SummaryCard
               title="Promedio semanal"
-              value={
-                summary.totalMeasurements === 0
-                  ? '--/--'
-                  : `${summary.averageSystolic}/${summary.averageDiastolic}`
-              }
-              subtitle="Media de tus registros"
+              value={averagePressure}
+              subtitle="Últimos 7 días"
             />
           </View>
 
           <View style={styles.summaryItem}>
             <SummaryCard
-              title="Cantidad de registros"
-              value={summary.totalMeasurements.toString()}
-              subtitle="Mediciones guardadas"
+              title="FC promedio"
+              value={averageHeartRate}
+              subtitle="Últimos 7 días"
             />
           </View>
 
@@ -81,22 +103,36 @@ export default function HomeScreen() {
         {!hasMeasurements ? (
           <Card>
             <View style={styles.emptyState}>
-              <Text variant="title" style={styles.emptyTitle}>
+              <Text
+                variant="title"
+                style={styles.emptyTitle}
+              >
                 Aún no registraste mediciones
               </Text>
+
               <Text style={styles.emptyText}>
-                Registra tu primera toma para empezar a ver tu resumen clínico y seguir tu presión de forma sencilla.
+                Registra tu primera toma para
+                empezar a ver tu resumen clínico
+                y seguir tu presión de forma
+                sencilla.
               </Text>
+
               <Button
                 title="Registrar primera medición"
-                onPress={() => router.push('/measurement/new')}
+                onPress={() =>
+                  router.push('/measurement/new')
+                }
               />
             </View>
           </Card>
         ) : null}
       </ScrollView>
 
-      <FloatingActionButton onPress={() => router.push('/measurement/new')} />
+      <FloatingActionButton
+        onPress={() =>
+          router.push('/measurement/new')
+        }
+      />
     </Screen>
   )
 }
