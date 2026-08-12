@@ -1,9 +1,25 @@
+import type { DashboardMetrics } from '@/domain/dashboard/DashboardMetrics'
+import type { BloodPressureRecord } from '@/domain/measurements/BloodPressureRecord'
+
 import { bloodPressureRepository } from '@/core/database/BloodPressureRepository'
-import { BloodPressureRecord } from '@/domain/measurements/BloodPressureRecord'
 
 export class MeasurementService {
   getAll(): BloodPressureRecord[] {
     return bloodPressureRepository.getAll()
+  }
+
+  getDashboardMetrics(): DashboardMetrics {
+    return bloodPressureRepository.getDashboardMetrics()
+  }
+
+  getByDateRange(
+    startDate: string,
+    endDate?: string,
+  ): BloodPressureRecord[] {
+    return bloodPressureRepository.getByDateRange(
+      startDate,
+      endDate,
+    )
   }
 
   create(record: BloodPressureRecord): void {
@@ -27,8 +43,12 @@ export class MeasurementService {
     )
   }
 
-  createMany(records: BloodPressureRecord[]): void {
-    bloodPressureRepository.createMany(records)
+  createMany(
+    records: BloodPressureRecord[],
+  ): void {
+    bloodPressureRepository.createMany(
+      records,
+    )
   }
 
   update(record: BloodPressureRecord): void {

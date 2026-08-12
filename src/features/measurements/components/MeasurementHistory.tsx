@@ -1,7 +1,12 @@
 import {
-  useMemo,
+  useCallback,
+  useEffect,
   useState,
 } from 'react'
+
+import {
+  useFocusEffect,
+} from 'expo-router'
 
 import {
   FlatList,
@@ -12,21 +17,139 @@ import {
 } from 'react-native'
 
 import { Text } from '@/components/ui'
+import type { BloodPressureRecord } from '@/domain/measurements/BloodPressureRecord'
 import { MeasurementCard } from '@/features/measurements/components/MeasurementCard'
 import {
   MEASUREMENT_DATE_FILTERS,
   MeasurementDateFilter,
 } from '@/features/measurements/constants/dateFilters'
-import { useMeasurements } from '@/features/measurements/hooks/useMeasurements'
+import { measurementService } from '@/features/measurements/services/MeasurementService'
+
+function parseCustomDate(
+  value: string,
+  endOfDay = false,
+): Date | null {
+  const match =
+    /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(
+      value.trim(),
+    )
+
+  if (!match) {
+    return null
+  }
+
+  const day = Number(match[1])
+  const month = Number(match[2])
+  const year = Number(match[3])
+
+  const date = new Date(
+    year,
+    month - 1,
+    day,
+  )
+
+  if (
+    date.getFullYear() !== year ||
+    date.getMonth() !== month - 1 ||
+    date.getDate() !== day
+  ) {
+    return null
+  }
+
+  if (endOfDay) {
+    date.setHours(
+      23,
+      59,
+      59,
+      999,
+    )
+  } else {
+    date.setHours(0, 0, 0, 0)
+  }
+
+  return date
+}
+
+function getStartDate(
+  filter: Exclude<
+    MeasurementDateFilter,
+    'all' | 'custom'
+  >,
+): Date {
+  const now = new Date()
+
+  switch (filter) {
+    case 'week':
+      now.setDate(
+        now.getDate() - 7,
+      )
+      break
+
+    case 'month':
+      now.setDate(
+        now.getDate() - 30,
+      )
+      break
+
+    case 'sixMonths':
+      now.setMonth(
+        now.getMonth() - 6,
+      )
+      break
+
+    case 'year':
+      now.setFullYear(
+        now.getFullYear() - 1,
+      )
+      break
+  }
+
+  return now
+}
+
+function getRecordsForFilter(
+  filter: MeasurementDateFilter,
+  customStart: string,
+  customEnd: string,
+): BloodPressureRecord[] {
+  if (filter === 'all') {
+    return measurementService.getAll()
+  }
+
+  if (filter === 'custom') {
+    const from = parseCustomDate(
+      customStart,
+    )
+
+    const to = parseCustomDate(
+      customEnd,
+      true,
+    )
+
+    if (!from || !to || from > to) {
+      return []
+    }
+
+    return measurementService.getByDateRange(
+      from.toISOString(),
+      to.toISOString(),
+    )
+  }
+
+  const startDate = getStartDate(
+    filter,
+  )
+
+  return measurementService.getByDateRange(
+    startDate.toISOString(),
+  )
+}
 
 export function MeasurementHistory() {
-  const {
-    loading,
-    measurements,
-  } = useMeasurements()
-
   const [activeFilter, setActiveFilter] =
-    useState<MeasurementDateFilter>('all')
+    useState<MeasurementDateFilter>(
+      'month',
+    )
 
   const [customStart, setCustomStart] =
     useState('')
@@ -37,105 +160,109 @@ export function MeasurementHistory() {
   const [customError, setCustomError] =
     useState('')
 
-  const filteredMeasurements =
-    useMemo(() => {
-      const now = new Date()
-      const startDate = new Date(now)
+  const [measurements, setMeasurements] =
+    useState<BloodPressureRecord[]>([])
 
-      if (activeFilter === 'week') {
-        startDate.setDate(
-          now.getDate() - 7,
-        )
-      } else if (
-        activeFilter === 'month'
-      ) {
-        startDate.setMonth(
-          now.getMonth() - 1,
-        )
-      } else if (
-        activeFilter === 'sixMonths'
-      ) {
-        startDate.setMonth(
-          now.getMonth() - 6,
-        )
-      } else if (
-        activeFilter === 'year'
-      ) {
-        startDate.setFullYear(
-          now.getFullYear() - 1,
-        )
-      } else if (
-        activeFilter === 'custom'
-      ) {
-        if (
-          !customStart ||
-          !customEnd
-        ) {
-          return []
-        }
+  const [loading, setLoading] =
+    useState(true)
 
-        const from =
-          new Date(customStart)
+  const [listVersion, setListVersion] =
+    useState(0)
 
-        const to =
-          new Date(customEnd)
+  const loadMeasurements =
+    useCallback(() => {
+      setLoading(true)
 
-        if (
-          Number.isNaN(
-            from.getTime(),
-          ) ||
-          Number.isNaN(
-            to.getTime(),
+      try {
+        const records =
+          getRecordsForFilter(
+            activeFilter,
+            customStart,
+            customEnd,
           )
-        ) {
-          return []
-        }
 
-        if (from > to) {
-          return []
-        }
-
-        return measurements.filter(
-          record => {
-            const recordDate =
-              new Date(
-                record.dateTime,
-              )
-
-            return (
-              !Number.isNaN(
-                recordDate.getTime(),
-              ) &&
-              recordDate >= from &&
-              recordDate <= to
-            )
-          },
-        )
-      } else {
-        return measurements
+        setMeasurements(records)
+      } finally {
+        setLoading(false)
       }
-
-      return measurements.filter(
-        record => {
-          const recordDate =
-            new Date(
-              record.dateTime,
-            )
-
-          return (
-            !Number.isNaN(
-              recordDate.getTime(),
-            ) &&
-            recordDate >= startDate
-          )
-        },
-      )
     }, [
       activeFilter,
       customEnd,
       customStart,
-      measurements,
     ])
+
+  useFocusEffect(
+    useCallback(() => {
+      setActiveFilter('month')
+      setCustomStart('')
+      setCustomEnd('')
+      setCustomError('')
+      setListVersion(
+        current => current + 1,
+      )
+
+      setLoading(true)
+
+      try {
+        const records =
+          getRecordsForFilter(
+            'month',
+            '',
+            '',
+          )
+
+        setMeasurements(records)
+      } finally {
+        setLoading(false)
+      }
+    }, []),
+  )
+
+
+  useEffect(() => {
+    if (activeFilter === 'month') {
+      return
+    }
+
+    if (
+      activeFilter === 'custom' &&
+      (!customStart || !customEnd)
+    ) {
+      return
+    }
+
+    setLoading(true)
+
+    try {
+      const records =
+        getRecordsForFilter(
+          activeFilter,
+          customStart,
+          customEnd,
+        )
+
+      setMeasurements(records)
+    } finally {
+      setLoading(false)
+    }
+  }, [
+    activeFilter,
+    customEnd,
+    customStart,
+  ])
+
+  const handleSelectFilter = (
+    filter: MeasurementDateFilter,
+  ) => {
+    setCustomError('')
+
+    if (filter === 'custom') {
+      setActiveFilter('custom')
+      return
+    }
+
+    setActiveFilter(filter)
+  }
 
   const handleApplyCustomRange =
     () => {
@@ -150,20 +277,16 @@ export function MeasurementHistory() {
         return
       }
 
-      const from =
-        new Date(customStart)
+      const from = parseCustomDate(
+        customStart,
+      )
 
-      const to =
-        new Date(customEnd)
+      const to = parseCustomDate(
+        customEnd,
+        true,
+      )
 
-      if (
-        Number.isNaN(
-          from.getTime(),
-        ) ||
-        Number.isNaN(
-          to.getTime(),
-        )
-      ) {
+      if (!from || !to) {
         setCustomError(
           'Usa un rango válido en formato DD/MM/AAAA.',
         )
@@ -204,7 +327,7 @@ export function MeasurementHistory() {
               <Pressable
                 key={filter.key}
                 onPress={() =>
-                  setActiveFilter(
+                  handleSelectFilter(
                     filter.key,
                   )
                 }
@@ -229,12 +352,9 @@ export function MeasurementHistory() {
         )}
       </View>
 
-      {activeFilter ===
-      'custom' ? (
+      {activeFilter === 'custom' ? (
         <View
-          style={
-            styles.customRangeCard
-          }
+          style={styles.customRangeCard}
         >
           <Text
             style={styles.customTitle}
@@ -246,14 +366,10 @@ export function MeasurementHistory() {
             style={styles.inputRow}
           >
             <View
-              style={
-                styles.inputGroup
-              }
+              style={styles.inputGroup}
             >
               <Text
-                style={
-                  styles.inputLabel
-                }
+                style={styles.inputLabel}
               >
                 Desde
               </Text>
@@ -270,14 +386,10 @@ export function MeasurementHistory() {
             </View>
 
             <View
-              style={
-                styles.inputGroup
-              }
+              style={styles.inputGroup}
             >
               <Text
-                style={
-                  styles.inputLabel
-                }
+                style={styles.inputLabel}
               >
                 Hasta
               </Text>
@@ -296,18 +408,14 @@ export function MeasurementHistory() {
 
           {customError ? (
             <Text
-              style={
-                styles.errorText
-              }
+              style={styles.errorText}
             >
               {customError}
             </Text>
           ) : null}
 
           <View
-            style={
-              styles.customActions
-            }
+            style={styles.customActions}
           >
             <Pressable
               onPress={
@@ -349,7 +457,7 @@ export function MeasurementHistory() {
       <Text
         style={styles.resultCount}
       >
-        {filteredMeasurements.length}{' '}
+        {measurements.length}{' '}
         mediciones
       </Text>
     </View>
@@ -363,18 +471,11 @@ export function MeasurementHistory() {
     )
   }
 
-  if (measurements.length === 0) {
-    return (
-      <Text>
-        No hay mediciones registradas.
-      </Text>
-    )
-  }
-
   return (
     <View style={styles.container}>
       <FlatList
-        data={filteredMeasurements}
+        key={`measurement-history-${listVersion}`}
+        data={measurements}
         keyExtractor={item =>
           item.id
         }
@@ -392,8 +493,9 @@ export function MeasurementHistory() {
               styles.emptyState
             }
           >
-            No hay mediciones en este
-            rango.
+            {activeFilter === 'month'
+              ? 'No hay mediciones en los últimos 30 días.'
+              : 'No hay mediciones en este rango.'}
           </Text>
         }
         contentContainerStyle={

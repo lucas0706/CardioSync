@@ -1,5 +1,7 @@
+import type { DashboardMetrics } from '@/domain/dashboard/DashboardMetrics'
+import type { BloodPressureRecord } from '@/domain/measurements/BloodPressureRecord'
+
 import { database } from './database'
-import { BloodPressureRecord } from '@/domain/measurements/BloodPressureRecord'
 
 export class BloodPressureRepository {
   getAll(): BloodPressureRecord[] {
@@ -15,18 +17,113 @@ export class BloodPressureRepository {
     return records
   }
 
+  getByDateRange(
+    startDate: string,
+    endDate?: string,
+  ): BloodPressureRecord[] {
+    if (endDate) {
+      return database.getAllSync<BloodPressureRecord>(
+        `
+        SELECT *
+        FROM blood_pressure_records
+        WHERE datetime(dateTime) >= datetime(?)
+          AND datetime(dateTime) <= datetime(?)
+        ORDER BY datetime(dateTime) DESC
+        `,
+        [startDate, endDate],
+      )
+    }
+
+    return database.getAllSync<BloodPressureRecord>(
+      `
+      SELECT *
+      FROM blood_pressure_records
+      WHERE datetime(dateTime) >= datetime(?)
+      ORDER BY datetime(dateTime) DESC
+      `,
+      [startDate],
+    )
+  }
+
+  getDashboardMetrics(): DashboardMetrics {
+    const row =
+      database.getFirstSync<{
+        averageSystolic: number | null
+        averageDiastolic: number | null
+        averageHeartRate: number | null
+        latestSystolic: number | null
+        latestDiastolic: number | null
+        latestDateTime: string | null
+      }>(
+        `
+        SELECT
+          (
+            SELECT ROUND(AVG(systolic))
+            FROM blood_pressure_records
+            WHERE datetime(dateTime) >= datetime('now', '-7 days')
+          ) AS averageSystolic,
+
+          (
+            SELECT ROUND(AVG(diastolic))
+            FROM blood_pressure_records
+            WHERE datetime(dateTime) >= datetime('now', '-7 days')
+          ) AS averageDiastolic,
+
+          (
+            SELECT ROUND(AVG(heartRate))
+            FROM blood_pressure_records
+            WHERE datetime(dateTime) >= datetime('now', '-7 days')
+              AND heartRate IS NOT NULL
+          ) AS averageHeartRate,
+
+          (
+            SELECT systolic
+            FROM blood_pressure_records
+            ORDER BY datetime(dateTime) DESC
+            LIMIT 1
+          ) AS latestSystolic,
+
+          (
+            SELECT diastolic
+            FROM blood_pressure_records
+            ORDER BY datetime(dateTime) DESC
+            LIMIT 1
+          ) AS latestDiastolic,
+
+          (
+            SELECT dateTime
+            FROM blood_pressure_records
+            ORDER BY datetime(dateTime) DESC
+            LIMIT 1
+          ) AS latestDateTime
+        `,
+      )
+
+    return {
+      averageSystolic:
+        row?.averageSystolic ?? null,
+      averageDiastolic:
+        row?.averageDiastolic ?? null,
+      averageHeartRate:
+        row?.averageHeartRate ?? null,
+      latestSystolic:
+        row?.latestSystolic ?? null,
+      latestDiastolic:
+        row?.latestDiastolic ?? null,
+      latestDateTime:
+        row?.latestDateTime ?? null,
+    }
+  }
+
   create(record: BloodPressureRecord): void {
     database.runSync(
       `
       INSERT INTO blood_pressure_records (
-        -- Core measurement
         id,
         dateTime,
         systolic,
         diastolic,
         heartRate,
-
-        -- Legacy compatibility
         weight,
         height,
         bmi,
@@ -35,34 +132,23 @@ export class BloodPressureRepository {
         temperature,
         respiratoryRate,
         pain,
-
-        -- Measurement metadata
         notes,
         arm,
         position,
-
-        -- Future analysis
         guideline,
-
         createdAt,
         updatedAt
       )
       VALUES (
-        ?,?,?,?,?,
-        ?,?,?,?,?,?,?,?,
-        ?,?,?,?,
-        ?,?
+        ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?
       )
       `,
       [
-        // Core measurement
         record.id,
         record.dateTime,
         record.systolic,
         record.diastolic,
         record.heartRate ?? null,
-
-        // Legacy compatibility
         record.weight ?? null,
         record.height ?? null,
         record.bmi ?? null,
@@ -71,15 +157,10 @@ export class BloodPressureRepository {
         record.temperature ?? null,
         record.respiratoryRate ?? null,
         record.pain ?? null,
-
-        // Measurement metadata
         record.notes ?? null,
         record.arm ?? null,
         record.position ?? null,
-
-        // Future analysis
         record.guideline ?? null,
-
         record.createdAt,
         record.updatedAt,
       ],
@@ -129,7 +210,9 @@ export class BloodPressureRepository {
     return (row?.total ?? 0) > 0
   }
 
-  createMany(records: BloodPressureRecord[]): void {
+  createMany(
+    records: BloodPressureRecord[],
+  ): void {
     database.withTransactionSync(() => {
       for (const record of records) {
         database.runSync(
@@ -225,12 +308,13 @@ export class BloodPressureRepository {
   }
 
   count(): number {
-    const row = database.getFirstSync<{ total: number }>(
-      `
-      SELECT COUNT(*) AS total
-      FROM blood_pressure_records
-      `,
-    )
+    const row =
+      database.getFirstSync<{ total: number }>(
+        `
+        SELECT COUNT(*) AS total
+        FROM blood_pressure_records
+        `,
+      )
 
     return row?.total ?? 0
   }
