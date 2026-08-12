@@ -1,4 +1,8 @@
-import React, { forwardRef } from 'react'
+import React, {
+  forwardRef,
+  useEffect,
+  useState,
+} from 'react'
 import {
   StyleSheet,
   TextInput,
@@ -43,7 +47,37 @@ function Component<T extends FieldValues>(
           props.keyboardType === 'decimal-pad' ||
           props.keyboardType === 'numeric'
 
-        const handleChangeText = (text: string) => {
+        const externalValue =
+          field.value == null
+            ? ''
+            : String(field.value)
+
+        const [
+          inputText,
+          setInputText,
+        ] = useState(externalValue)
+
+        const [
+          isFocused,
+          setIsFocused,
+        ] = useState(false)
+
+        useEffect(() => {
+          if (!isFocused) {
+            setInputText(
+              externalValue,
+            )
+          }
+        }, [
+          externalValue,
+          isFocused,
+        ])
+
+        const handleChangeText = (
+          text: string,
+        ) => {
+          setInputText(text)
+
           if (!isNumericInput) {
             field.onChange(text)
             return
@@ -55,7 +89,8 @@ function Component<T extends FieldValues>(
           }
 
           const parsedValue =
-            props.keyboardType === 'decimal-pad'
+            props.keyboardType ===
+            'decimal-pad'
               ? Number.parseFloat(text)
               : Number.parseInt(text, 10)
 
@@ -67,31 +102,47 @@ function Component<T extends FieldValues>(
         }
 
         return (
-          <View style={styles.container}>
-            <Text style={styles.label}>{label}</Text>
+          <View
+            style={styles.container}
+          >
+            <Text
+              style={styles.label}
+            >
+              {label}
+            </Text>
 
             <TextInput
               ref={ref}
               style={[
                 styles.input,
-                error && styles.inputError,
+                error &&
+                  styles.inputError,
                 style,
               ]}
               value={
-                field.value == null
-                  ? ''
-                  : String(field.value)
+                isNumericInput
+                  ? inputText
+                  : externalValue
               }
-              onChangeText={handleChangeText}
-              onBlur={field.onBlur}
+              onChangeText={
+                handleChangeText
+              }
+              onFocus={() =>
+                setIsFocused(true)
+              }
+              onBlur={() => {
+                setIsFocused(false)
+                field.onBlur()
+              }}
               placeholderTextColor="#94A3B8"
               selectionColor="#2563EB"
-              selectTextOnFocus
               {...props}
             />
 
             {error ? (
-              <Text style={styles.error}>
+              <Text
+                style={styles.error}
+              >
                 {error}
               </Text>
             ) : null}
