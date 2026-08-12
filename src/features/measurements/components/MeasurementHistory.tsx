@@ -1,6 +1,7 @@
 import {
   useCallback,
   useEffect,
+  useMemo,
   useState,
 } from 'react'
 
@@ -220,13 +221,9 @@ export function MeasurementHistory() {
 
 
   useEffect(() => {
-    if (activeFilter === 'month') {
-      return
-    }
-
     if (
-      activeFilter === 'custom' &&
-      (!customStart || !customEnd)
+      activeFilter === 'month' ||
+      activeFilter === 'custom'
     ) {
       return
     }
@@ -247,8 +244,6 @@ export function MeasurementHistory() {
     }
   }, [
     activeFilter,
-    customEnd,
-    customStart,
   ])
 
   const handleSelectFilter = (
@@ -304,17 +299,48 @@ export function MeasurementHistory() {
 
       setCustomError('')
       setActiveFilter('custom')
+
+      setLoading(true)
+
+      try {
+        const records =
+          getRecordsForFilter(
+            'custom',
+            customStart,
+            customEnd,
+          )
+
+        setMeasurements(records)
+      } finally {
+        setLoading(false)
+      }
     }
 
   const handleResetFilter =
     () => {
-      setActiveFilter('all')
+      setActiveFilter('month')
       setCustomStart('')
       setCustomEnd('')
       setCustomError('')
+
+      setLoading(true)
+
+      try {
+        const records =
+          getRecordsForFilter(
+            'month',
+            '',
+            '',
+          )
+
+        setMeasurements(records)
+      } finally {
+        setLoading(false)
+      }
     }
 
-  const renderHeader = () => (
+  const renderHeader = useMemo(
+    () => (
     <View style={styles.header}>
       <View style={styles.filtersRow}>
         {MEASUREMENT_DATE_FILTERS.map(
@@ -447,7 +473,7 @@ export function MeasurementHistory() {
                   styles.resetButtonText
                 }
               >
-                Todo
+                Limpiar
               </Text>
             </Pressable>
           </View>
@@ -461,6 +487,14 @@ export function MeasurementHistory() {
         mediciones
       </Text>
     </View>
+    ),
+    [
+      activeFilter,
+      customEnd,
+      customError,
+      customStart,
+      measurements.length,
+    ],
   )
 
   if (loading) {
@@ -506,6 +540,7 @@ export function MeasurementHistory() {
         windowSize={7}
         removeClippedSubviews
         showsVerticalScrollIndicator
+        keyboardShouldPersistTaps="handled"
       />
     </View>
   )
