@@ -20,6 +20,7 @@ import { formatDateTime } from '@/utils/date'
 
 type Props = {
   onSaved?: (record?: BloodPressureRecord) => void
+  onNotesFocus?: () => void
   mode?: 'create' | 'edit'
   initialValues?: Partial<MeasurementFormData>
   existingRecord?: BloodPressureRecord
@@ -27,6 +28,7 @@ type Props = {
 
 export function MeasurementForm({
   onSaved,
+  onNotesFocus,
   mode = 'create',
   initialValues,
   existingRecord,
@@ -231,6 +233,7 @@ export function MeasurementForm({
         label="Notas"
         multiline
         numberOfLines={4}
+        onFocus={onNotesFocus}
         error={errors.notes?.message}
       />
 

@@ -1,5 +1,12 @@
+import { useRef } from 'react'
 import { useRouter } from 'expo-router'
-import { ScrollView, StyleSheet, View } from 'react-native'
+import {
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  View,
+} from 'react-native'
 
 import { Screen } from '@/components/ui'
 import { MeasurementForm } from '@/features/measurements/components/MeasurementForm'
@@ -7,19 +14,50 @@ import { MeasurementForm } from '@/features/measurements/components/MeasurementF
 export default function NewMeasurementScreen() {
   const router = useRouter()
 
+  const scrollRef =
+    useRef<ScrollView>(null)
+
+  const handleNotesFocus = () => {
+    setTimeout(() => {
+      scrollRef.current?.scrollToEnd({
+        animated: true,
+      })
+    }, 250)
+  }
+
   return (
     <Screen>
-      <View style={styles.container}>
+      <KeyboardAvoidingView
+        style={styles.container}
+        behavior={
+          Platform.OS === 'ios'
+            ? 'padding'
+            : 'height'
+        }
+      >
         <ScrollView
-          contentContainerStyle={styles.scrollContent}
+          ref={scrollRef}
+          contentContainerStyle={
+            styles.scrollContent
+          }
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="interactive"
         >
-          <View style={styles.formWrapper}>
-            <MeasurementForm onSaved={() => router.back()} />
+          <View
+            style={styles.formWrapper}
+          >
+            <MeasurementForm
+              onNotesFocus={
+                handleNotesFocus
+              }
+              onSaved={() =>
+                router.back()
+              }
+            />
           </View>
         </ScrollView>
-      </View>
+      </KeyboardAvoidingView>
     </Screen>
   )
 }
@@ -31,7 +69,6 @@ const styles = StyleSheet.create({
 
   scrollContent: {
     flexGrow: 1,
-    justifyContent: 'center',
     paddingVertical: 16,
   },
 

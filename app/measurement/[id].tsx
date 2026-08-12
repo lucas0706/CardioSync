@@ -1,6 +1,16 @@
-import { useLocalSearchParams, useRouter } from 'expo-router'
-import { useEffect, useState } from 'react'
-import { Alert, StyleSheet, View } from 'react-native'
+import {
+  useLocalSearchParams,
+  useRouter,
+} from 'expo-router'
+import { useEffect, useRef, useState } from 'react'
+import {
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  View,
+} from 'react-native'
 
 import { Screen, Text } from '@/components/ui'
 import { BloodPressureRecord } from '@/domain/measurements/BloodPressureRecord'
@@ -11,28 +21,65 @@ import { measurementStore } from '@/features/measurements/services/MeasurementSt
 
 export default function MeasurementDetailScreen() {
   const router = useRouter()
-  const { id } = useLocalSearchParams<{ id: string }>()
-  const [record, setRecord] = useState<BloodPressureRecord | null>(null)
-  const [isEditing, setIsEditing] = useState(false)
+
+  const { id } =
+    useLocalSearchParams<{
+      id: string
+    }>()
+
+  const [
+    record,
+    setRecord,
+  ] = useState<BloodPressureRecord | null>(
+    null,
+  )
+
+  const [
+    isEditing,
+    setIsEditing,
+  ] = useState(false)
+
+  const scrollRef =
+    useRef<ScrollView>(null)
 
   useEffect(() => {
-    const existing = measurementService
-      .getAll()
-      .find((item) => item.id === id)
+    const existing =
+      measurementService
+        .getAll()
+        .find(
+          item => item.id === id,
+        )
 
-    setRecord(existing ?? null)
+    setRecord(
+      existing ?? null,
+    )
     setIsEditing(false)
   }, [id])
 
-  const handleSaved = (updatedRecord?: BloodPressureRecord) => {
+  const handleNotesFocus = () => {
+    setTimeout(() => {
+      scrollRef.current?.scrollToEnd({
+        animated: true,
+      })
+    }, 250)
+  }
+
+  const handleSaved = (
+    updatedRecord?: BloodPressureRecord,
+  ) => {
     if (updatedRecord) {
       setRecord(updatedRecord)
     } else {
-      const existing = measurementService
-        .getAll()
-        .find((item) => item.id === id)
+      const existing =
+        measurementService
+          .getAll()
+          .find(
+            item => item.id === id,
+          )
 
-      setRecord(existing ?? null)
+      setRecord(
+        existing ?? null,
+      )
     }
 
     setIsEditing(false)
@@ -52,7 +99,10 @@ export default function MeasurementDetailScreen() {
           style: 'destructive',
           onPress: () => {
             if (record?.id) {
-              measurementStore.delete(record.id)
+              measurementStore.delete(
+                record.id,
+              )
+
               router.back()
             }
           },
@@ -64,8 +114,12 @@ export default function MeasurementDetailScreen() {
   if (!record) {
     return (
       <Screen>
-        <View style={styles.emptyState}>
-          <Text>No se encontró la medición.</Text>
+        <View
+          style={styles.emptyState}
+        >
+          <Text>
+            No se encontró la medición.
+          </Text>
         </View>
       </Screen>
     )
@@ -73,36 +127,93 @@ export default function MeasurementDetailScreen() {
 
   return (
     <Screen>
-      <View style={styles.container}>
-        <View style={styles.header}>
-          <Text style={styles.backText} onPress={() => router.back()}>
-            ← Volver
-          </Text>
-        </View>
-
+      <KeyboardAvoidingView
+        style={styles.container}
+        behavior={
+          Platform.OS === 'ios'
+            ? 'padding'
+            : 'height'
+        }
+      >
         {isEditing ? (
-          <MeasurementForm
-            mode="edit"
-            existingRecord={record}
-            initialValues={{
-              dateTime: record.dateTime,
-              systolic: record.systolic,
-              diastolic: record.diastolic,
-              heartRate: record.heartRate ?? undefined,
-              notes: record.notes ?? '',
-              arm: record.arm,
-              position: record.position,
-            }}
-            onSaved={handleSaved}
-          />
+          <ScrollView
+            ref={scrollRef}
+            contentContainerStyle={
+              styles.scrollContent
+            }
+            showsVerticalScrollIndicator={
+              false
+            }
+            keyboardShouldPersistTaps="handled"
+            keyboardDismissMode="interactive"
+          >
+            <View
+              style={styles.header}
+            >
+              <Text
+                style={styles.backText}
+                onPress={() =>
+                  router.back()
+                }
+              >
+                ← Volver
+              </Text>
+            </View>
+
+            <MeasurementForm
+              mode="edit"
+              existingRecord={record}
+              initialValues={{
+                dateTime:
+                  record.dateTime,
+                systolic:
+                  record.systolic,
+                diastolic:
+                  record.diastolic,
+                heartRate:
+                  record.heartRate ??
+                  undefined,
+                notes:
+                  record.notes ?? '',
+                arm: record.arm,
+                position:
+                  record.position,
+              }}
+              onNotesFocus={
+                handleNotesFocus
+              }
+              onSaved={
+                handleSaved
+              }
+            />
+          </ScrollView>
         ) : (
-          <MeasurementDetail
-            record={record}
-            onEdit={() => setIsEditing(true)}
-            onDelete={handleDelete}
-          />
+          <>
+            <View
+              style={styles.header}
+            >
+              <Text
+                style={styles.backText}
+                onPress={() =>
+                  router.back()
+                }
+              >
+                ← Volver
+              </Text>
+            </View>
+
+            <MeasurementDetail
+              record={record}
+              onEdit={() =>
+                setIsEditing(true)
+              }
+              onDelete={
+                handleDelete
+              }
+            />
+          </>
         )}
-      </View>
+      </KeyboardAvoidingView>
     </Screen>
   )
 }
@@ -120,6 +231,10 @@ const styles = StyleSheet.create({
     color: '#2563EB',
     fontSize: 16,
     fontWeight: '600',
+  },
+
+  scrollContent: {
+    paddingBottom: 48,
   },
 
   emptyState: {
