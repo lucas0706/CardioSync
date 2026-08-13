@@ -25,7 +25,7 @@ import {
   MEASUREMENT_DATE_FILTERS,
   MeasurementDateFilter,
 } from '@/features/measurements/constants/dateFilters'
-import { measurementService } from '@/features/measurements/services/MeasurementService'
+import { measurementHistoryFilterService } from '@/features/measurements/services/MeasurementHistoryFilterService'
 
 function formatCustomDateInput(
   value: string,
@@ -101,80 +101,6 @@ function parseCustomDate(
   return date
 }
 
-function getStartDate(
-  filter: Exclude<
-    MeasurementDateFilter,
-    'all' | 'custom'
-  >,
-): Date {
-  const now = new Date()
-
-  switch (filter) {
-    case 'week':
-      now.setDate(
-        now.getDate() - 7,
-      )
-      break
-
-    case 'month':
-      now.setDate(
-        now.getDate() - 30,
-      )
-      break
-
-    case 'sixMonths':
-      now.setMonth(
-        now.getMonth() - 6,
-      )
-      break
-
-    case 'year':
-      now.setFullYear(
-        now.getFullYear() - 1,
-      )
-      break
-  }
-
-  return now
-}
-
-function getRecordsForFilter(
-  filter: MeasurementDateFilter,
-  customStart: string,
-  customEnd: string,
-): BloodPressureRecord[] {
-  if (filter === 'all') {
-    return measurementService.getAll()
-  }
-
-  if (filter === 'custom') {
-    const from = parseCustomDate(
-      customStart,
-    )
-
-    const to = parseCustomDate(
-      customEnd,
-      true,
-    )
-
-    if (!from || !to || from > to) {
-      return []
-    }
-
-    return measurementService.getByDateRange(
-      from.toISOString(),
-      to.toISOString(),
-    )
-  }
-
-  const startDate = getStartDate(
-    filter,
-  )
-
-  return measurementService.getByDateRange(
-    startDate.toISOString(),
-  )
-}
 
 export function MeasurementHistory() {
   const [activeFilter, setActiveFilter] =
@@ -209,7 +135,7 @@ export function MeasurementHistory() {
 
       try {
         const records =
-          getRecordsForFilter(
+          measurementHistoryFilterService.getRecords(
             activeFilter,
             customStart,
             customEnd,
@@ -239,7 +165,7 @@ export function MeasurementHistory() {
 
       try {
         const records =
-          getRecordsForFilter(
+          measurementHistoryFilterService.getRecords(
             'month',
             '',
             '',
@@ -265,7 +191,7 @@ export function MeasurementHistory() {
 
     try {
       const records =
-        getRecordsForFilter(
+        measurementHistoryFilterService.getRecords(
           activeFilter,
           customStart,
           customEnd,
@@ -337,7 +263,7 @@ export function MeasurementHistory() {
 
       try {
         const records =
-          getRecordsForFilter(
+          measurementHistoryFilterService.getRecords(
             'custom',
             customStart,
             customEnd,
@@ -360,7 +286,7 @@ export function MeasurementHistory() {
 
       try {
         const records =
-          getRecordsForFilter(
+          measurementHistoryFilterService.getRecords(
             'month',
             '',
             '',

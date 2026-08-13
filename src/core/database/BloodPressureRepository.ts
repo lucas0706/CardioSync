@@ -45,6 +45,19 @@ export class BloodPressureRepository {
     )
   }
 
+  getLatest(): BloodPressureRecord | null {
+    return (
+      database.getFirstSync<BloodPressureRecord>(
+        `
+        SELECT *
+        FROM blood_pressure_records
+        ORDER BY datetime(dateTime) DESC
+        LIMIT 1
+        `,
+      ) ?? null
+    )
+  }
+
   getDashboardMetrics(): DashboardMetrics {
     const row =
       database.getFirstSync<{

@@ -5,6 +5,8 @@ import {
   View,
 } from 'react-native'
 
+import { useRouter } from 'expo-router'
+
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import {
@@ -26,7 +28,7 @@ import { BloodPressureClassifier } from '@/domain/clinical/classification'
 import { BloodPressureSafetyWarning } from '@/features/measurements/components/BloodPressureSafetyWarning'
 
 import { useDashboard } from '@/features/dashboard/hooks/useDashboard'
-import { useMeasurements } from '@/features/measurements/hooks/useMeasurements'
+import { measurementService } from '@/features/measurements/services/MeasurementService'
 
 import { LOCAL_PROFILE_ID } from '@/features/profile/constants'
 import { clinicalProfileService } from '@/features/profile/services'
@@ -34,15 +36,13 @@ import { clinicalProfileService } from '@/features/profile/services'
 import { theme } from '@/theme'
 
 export function HomeV2Screen() {
+  const router = useRouter()
   const insets = useSafeAreaInsets()
 
   const dashboard = useDashboard()
 
-  const { measurements } =
-    useMeasurements()
-
   const latestMeasurement =
-    measurements[0] ?? null
+    measurementService.getLatest()
 
   const classification =
     latestMeasurement?.systolic != null &&
@@ -286,6 +286,18 @@ export function HomeV2Screen() {
           />
         </View>
 
+        <Pressable
+          accessibilityRole="button"
+          onPress={() =>
+            router.push('/visual-v2/measurements')
+          }
+          style={styles.testNavigation}
+        >
+          <Text style={styles.testNavigationText}>
+            Ver Registros V2
+          </Text>
+        </Pressable>
+
         <View style={styles.bottomSpace} />
       </ScrollView>
 
@@ -435,6 +447,22 @@ const styles = StyleSheet.create({
     fontSize: 32,
     lineHeight: 34,
     color: theme.colors.white,
+  },
+
+  testNavigation: {
+    minHeight: 44,
+    borderRadius: theme.radius.md,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+    backgroundColor: theme.colors.surface,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  testNavigationText: {
+    fontFamily: theme.typography.semiBold,
+    fontSize: theme.typography.caption,
+    color: theme.colors.primary,
   },
 
   bottomSpace: {
