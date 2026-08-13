@@ -8,6 +8,10 @@ export class MeasurementService {
     return bloodPressureRepository.getAll()
   }
 
+  getLatest(): BloodPressureRecord | null {
+    return bloodPressureRepository.getLatest()
+  }
+
   getDashboardMetrics(): DashboardMetrics {
     return bloodPressureRepository.getDashboardMetrics()
   }
