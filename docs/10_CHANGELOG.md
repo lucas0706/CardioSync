@@ -262,3 +262,168 @@ También se verificó la propagación del cambio:
 
 Fase 1 — Verificar edición: ✅ COMPLETADA
 
+---
+
+# 2026-08-12 — Importación histórica SQLite
+
+### Tipo
+
+Implementación / Validación funcional
+
+### Objetivo
+
+Implementar la importación de datos históricos reales desde la base SQLite de BPTracker.
+
+### Implementación
+
+Se incorporaron:
+
+- `src/features/import/parsers/DbImportParser.ts`
+- `src/features/import/services/DbImportService.ts`
+
+Se actualizó:
+
+- `src/features/import/screens/ImportScreen.tsx`
+- `docs/13_IMPORTATION_SPECIFICATION.md`
+
+El parser:
+
+- valida la existencia de la tabla `tranx`;
+- valida las columnas requeridas;
+- lee los registros mediante SQLite;
+- combina fecha y hora;
+- mapea presión sistólica;
+- mapea presión diastólica;
+- mapea frecuencia cardíaca;
+- mapea brazo;
+- mapea posición;
+- conserva notas;
+- reutiliza `ImportNormalizer`;
+- detecta duplicados.
+
+### Validación real
+
+Se utilizó una base SQLite real de BPTracker con:
+
+- 2.030 registros totales.
+- 2.030 registros con sistólica válida.
+- 2.030 registros con diastólica válida.
+- 2.030 registros con pulso informado.
+- 0 errores de normalización.
+- 1 duplicado interno.
+- 2.029 registros nuevos para CardioSync.
+
+Resultado:
+
+**2.029 mediciones importadas correctamente.**
+
+### Persistencia
+
+La importación utiliza:
+
+`ImportPersistenceService`
+→ `MeasurementStore`
+→ `MeasurementService`
+→ `BloodPressureRepository`
+→ `SQLite`
+
+La inserción masiva utiliza una transacción SQLite mediante `withTransactionSync()`.
+
+### Validación posterior
+
+Se eliminaron previamente las mediciones existentes de prueba.
+
+Se importaron los 2.029 registros.
+
+Después de recargar la aplicación:
+
+- History mantuvo los registros.
+- Dashboard mantuvo los datos.
+- Statistics mantuvo los datos.
+- La persistencia SQLite quedó confirmada.
+
+### Seguridad y dependencias
+
+Se evaluó la posibilidad de utilizar XLS/XLSX.
+
+No se incorporó `xlsx`.
+
+El formato XLS/XLSX queda fuera del alcance de la implementación de importación.
+
+SQLite `.db` queda como formato histórico soportado.
+
+### Archivos personales
+
+Los archivos de prueba utilizados durante la validación fueron eliminados del proyecto.
+
+`.gitignore` fue actualizado para evitar incorporar accidentalmente:
+
+- `*.db`
+- `*.xls`
+- `*.csv`
+
+### Validación técnica
+
+- Expo SDK 57 mantenido.
+- TypeScript strict: limpio.
+- `git diff --check`: limpio.
+- Sin dependencia `xlsx`.
+- Sin modificaciones innecesarias de la arquitectura.
+
+### Commit
+
+`d9d379b feat(import): add SQLite historical import`
+
+---
+
+# 2026-08-13 — Cierre de checkpoint de importación y preparación del rediseño UI/UX
+
+### Tipo
+
+Documentación / Planificación
+
+### Cambios
+
+Se sincronizó el roadmap operativo con el estado real del proyecto.
+
+La importación SQLite pasa oficialmente a:
+
+**FASE 2 — COMPLETADA**
+
+La validación de volumen real pasa a:
+
+**FASE 3 — VALIDACIÓN INICIAL COMPLETADA**
+
+El flujo completo de importación y persistencia pasa a:
+
+**FASE 4 — COMPLETADA PARA EL FLUJO ACTUAL**
+
+Se establece como próxima fase activa:
+
+**FASE 5 — REDISEÑO UI / UX**
+
+### Próximo objetivo
+
+Realizar primero una auditoría visual del proyecto existente y posteriormente implementar un sistema visual coherente para:
+
+- Dashboard.
+- Measurement.
+- History.
+- Statistics.
+- ClinicalChart.
+- Import.
+
+No se iniciará Health Connect hasta finalizar y validar el rediseño visual.
+
+### Restricción
+
+No se agregarán nuevos formatos de importación.
+
+SQLite `.db` permanece como el formato histórico soportado.
+
+### Documentos relacionados
+
+- `docs/02_ROADMAP.md`
+- `docs/10_CHANGELOG.md`
+- `docs/13_IMPORTATION_SPECIFICATION.md`
+

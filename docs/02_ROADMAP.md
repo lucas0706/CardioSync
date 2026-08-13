@@ -595,3 +595,260 @@ No forman parte de las próximas fases:
 - ClinicalContext como próximo desarrollo.
 - Nueva arquitectura de Reports.
 
+---
+
+# Roadmap operativo actual — 2026-08-13
+
+Este bloque actualiza el orden operativo del proyecto después de completar y validar la importación histórica mediante SQLite.
+
+El contenido histórico anterior de este documento se conserva sin modificaciones.
+
+## FASE 1 — Verificar edición
+
+**Estado:** ✅ COMPLETADO
+
+La edición de mediciones existentes fue validada y estabilizada.
+
+Se verificó:
+
+- Precarga del formulario.
+- Edición de presión sistólica y diastólica.
+- Frecuencia cardíaca opcional.
+- Persistencia.
+- History.
+- Dashboard.
+- Statistics.
+- Reports.
+- Compatibilidad con registros que contienen `NULL` en frecuencia cardíaca.
+
+---
+
+## FASE 2 — Importación de datos históricos
+
+**Estado:** ✅ COMPLETADO
+
+### Fuente validada
+
+La fuente real analizada fue una base SQLite de BPTracker.
+
+Archivo utilizado durante la validación:
+
+`bptracker_2026_08_11.db`
+
+### Resultado real
+
+- 2.030 registros detectados.
+- 2.029 registros válidos.
+- 1 duplicado interno.
+- 0 errores.
+- 2.029 registros nuevos.
+- 2.029 mediciones importadas correctamente.
+
+### Implementación
+
+Se incorporó:
+
+- `DbImportParser`
+- `DbImportService`
+- integración con `ImportScreen`
+- reutilización de `ImportNormalizer`
+- deduplicación
+- validación de estructura SQLite
+- persistencia mediante `MeasurementStore`
+- inserción transaccional mediante `createMany()`
+
+### Decisión de formato
+
+SQLite `.db` queda como la vía de importación histórica soportada.
+
+No se incorporará XLS/XLSX.
+
+No se incorporarán nuevos formatos de importación salvo decisión explícita.
+
+La especificación completa se encuentra en:
+
+`docs/13_IMPORTATION_SPECIFICATION.md`
+
+---
+
+## FASE 3 — Soporte para gran volumen de datos
+
+**Estado:** ✅ VALIDACIÓN INICIAL COMPLETADA
+
+Se validó CardioSync con una importación real de 2.030 registros.
+
+La importación utilizó:
+
+- SQLite.
+- transacción.
+- inserción por lote.
+- `MeasurementStore.createMany()`.
+- `BloodPressureRepository.createMany()`.
+
+El proyecto debe continuar evitando dependencias innecesarias de memoria para futuras escalas mayores.
+
+No se considera todavía una validación de 50.000+ registros.
+
+---
+
+## FASE 4 — Validar flujo completo
+
+**Estado:** ✅ COMPLETADO PARA EL FLUJO ACTUAL
+
+Se validó el flujo:
+
+Registrar
+↓
+Importar
+↓
+Persistir
+↓
+Recargar aplicación
+↓
+History
+↓
+Dashboard
+↓
+Statistics
+
+La importación histórica permaneció disponible después de reiniciar la aplicación.
+
+La persistencia SQLite quedó validada.
+
+---
+
+## FASE 5 — Rediseño UI / UX
+
+**Estado:** 🚧 PRÓXIMA
+
+Esta es la siguiente fase activa.
+
+### Objetivo
+
+Establecer el lenguaje visual definitivo de CardioSync sobre la arquitectura funcional existente.
+
+### Alcance inicial
+
+- Sistema de diseño visual.
+- Tipografía.
+- Paleta.
+- Espaciado.
+- Radios.
+- Tarjetas.
+- Botones.
+- Inputs.
+- Estados.
+- Feedback.
+- Empty states.
+- Jerarquía visual.
+- Navegación.
+- Consistencia entre pantallas.
+
+### Orden previsto
+
+1. Auditoría visual del proyecto actual.
+2. Definición del sistema visual.
+3. Componentes visuales reutilizables.
+4. Dashboard.
+5. Measurement.
+6. History.
+7. Statistics.
+8. ClinicalChart.
+9. Import.
+10. Estados globales y detalles de UX.
+11. Validación en dispositivo.
+12. Checkpoint.
+
+### Restricciones
+
+El rediseño no deberá:
+
+- modificar innecesariamente el dominio;
+- cambiar la persistencia;
+- alterar los cálculos estadísticos;
+- romper ClinicalChart;
+- modificar la lógica de importación;
+- introducir dependencias sin evaluación.
+
+---
+
+## FASE 6 — Checkpoint post-rediseño
+
+**Estado:** 📋 PLANIFICADO
+
+Al finalizar el rediseño:
+
+- `npx tsc --noEmit`
+- `git diff --check`
+- pruebas funcionales.
+- validación en dispositivo.
+- revisión de navegación.
+- revisión de Dashboard.
+- revisión de Measurement.
+- revisión de History.
+- revisión de Statistics.
+- revisión de ClinicalChart.
+- revisión de Import.
+- documentación sincronizada.
+- commit.
+- ZIP completo.
+
+El ZIP no deberá incluir:
+
+- `node_modules/`
+- `.git/`
+- bases SQLite locales
+- archivos personales de prueba
+- builds generados
+- archivos temporales
+
+---
+
+## FASE 7 — Health Connect
+
+**Estado:** 📋 PLANIFICADO
+
+Health Connect se implementará después del rediseño UI/UX.
+
+La integración deberá utilizar la arquitectura existente y tratar Health Connect como fuente externa de datos.
+
+No se modificará `BloodPressureRecord` para convertirlo en un contenedor general de datos de Health Connect.
+
+---
+
+## FASE 8 — Evolución clínica
+
+**Estado:** 📋 PLANIFICADO
+
+Después de estabilizar UI/UX y Health Connect se continuará, cuando corresponda, con:
+
+- ClinicalContext de producción.
+- integración progresiva con Clinical Analysis.
+- Rule Engine.
+- Analysis Engine.
+- Reports.
+
+Estas funcionalidades no forman parte del próximo bloque de implementación.
+
+---
+
+# Prioridad actual
+
+La prioridad inmediata del proyecto es:
+
+ESTABILIDAD FUNCIONAL
+↓
+DOCUMENTACIÓN
+↓
+CHECKPOINT
+↓
+REDISEÑO UI / UX
+↓
+VALIDACIÓN
+↓
+CHECKPOINT
+↓
+HEALTH CONNECT
+↓
+EVOLUCIÓN CLÍNICA
+
