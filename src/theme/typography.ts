@@ -6,4 +6,16 @@ export const typography = {
   body: 16,
   caption: 14,
   small: 12,
+
+  // V2 clinical hierarchy
+  metric: 36,
+  metricLarge: 42,
+  label: 13,
+  overline: 11,
+
+  // DM Sans weights
+  regular: 'DMSans_400Regular',
+  medium: 'DMSans_500Medium',
+  semiBold: 'DMSans_600SemiBold',
+  bold: 'DMSans_700Bold',
 } as const

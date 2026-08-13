@@ -1,5 +1,5 @@
-import { Redirect } from 'expo-router'
+import { HomeV2Screen } from '@/features/dashboard/screens/v2/HomeV2Screen'
 
 export default function Index() {
-  return <Redirect href="/(tabs)" />
+  return <HomeV2Screen />
 }
