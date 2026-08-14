@@ -6,7 +6,7 @@
 | Tipo | Documento Maestro del Proyecto |
 | Estado | Activo |
 | Versión | Sincronizada con la versión del proyecto |
-| Última actualización | 2026-08-03 |
+| Última actualización | 2026-08-14 |
 
 ---
 
@@ -146,6 +146,7 @@ Toda modificación deberá quedar documentada.
 | Persistencia | SQLite (expo-sqlite) |
 | Formularios | React Hook Form |
 | Validación | Zod |
+| UI nativa complementaria | @expo/ui |
 
 ## Principios tecnológicos
 
@@ -424,6 +425,57 @@ La lectura recomendada para comprender CardioSync es:
 3. 02_ROADMAP.md
 4. 03_DECISIONS.md
 5. Documentación específica del módulo correspondiente.
+
+---
+
+# 17.1 Estado UI/UX — Measurement V2
+
+## Estado
+
+🚧 EN DESARROLLO
+
+El rediseño UI/UX se encuentra en ejecución.
+
+El bloque de Measurements V2 fue completado y validado para los tres flujos principales:
+
+- Nueva medición.
+- Edición.
+- Detalle.
+
+### Elementos visuales consolidados
+
+- Cards SIS / DIA.
+- Card FC centrada y del mismo tamaño visual.
+- Selector de fecha.
+- Selector de hora.
+- Selector visual de brazo.
+- Selector visual de posición.
+- Campo de notas.
+- Clasificación clínica en detalle.
+- Alertas clínicas condicionales.
+- Confirmación antes de eliminar.
+
+### Componentes V2 incorporados
+
+- `MeasurementDateTimeField`
+- `MeasurementMetricInputCard`
+- `MeasurementOptionSelector`
+
+### Regla de reutilización
+
+Nueva medición, edición y detalle deberán mantener una jerarquía visual coherente.
+
+La pantalla de detalle utiliza la misma representación visual de las métricas en modo lectura.
+
+La edición reutiliza el mismo formulario visual de Nueva medición.
+
+### Fecha y hora
+
+La selección utiliza `@expo/ui`, manteniendo compatibilidad con Expo SDK 57.
+
+### Checkpoint
+
+`171ef4c feat: complete measurement create edit and detail UI`
 
 ---
 

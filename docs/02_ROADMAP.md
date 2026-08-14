@@ -852,3 +852,173 @@ HEALTH CONNECT
 ↓
 EVOLUCIÓN CLÍNICA
 
+---
+
+# Roadmap operativo actual — 2026-08-14
+
+Este bloque actualiza el estado operativo del proyecto después de completar y validar el rediseño V2 del flujo de mediciones.
+
+El contenido histórico anterior de este documento se conserva sin modificaciones.
+
+## FASE 1 — Verificar edición
+
+**Estado:** ✅ COMPLETADO
+
+La edición de mediciones existentes permanece validada.
+
+---
+
+## FASE 2 — Importación de datos históricos
+
+**Estado:** ✅ COMPLETADO
+
+La importación histórica mediante SQLite permanece validada.
+
+---
+
+## FASE 3 — Soporte para gran volumen de datos
+
+**Estado:** ✅ VALIDACIÓN INICIAL COMPLETADA
+
+La validación real con 2.030 registros permanece confirmada.
+
+La validación de escalas de 50.000+ registros continúa fuera del alcance inmediato.
+
+---
+
+## FASE 4 — Validar flujo completo
+
+**Estado:** ✅ COMPLETADO PARA EL FLUJO ACTUAL
+
+Registrar, importar, persistir, recargar y consultar los datos permanecen validados.
+
+---
+
+## FASE 5 — Rediseño UI / UX
+
+**Estado:** 🚧 EN DESARROLLO
+
+### Objetivo
+
+Construir una experiencia visual coherente entre los módulos principales sin modificar innecesariamente la arquitectura funcional existente.
+
+### Bloque completado — Measurements V2
+
+**Estado:** ✅ COMPLETADO
+
+Se completó y validó el rediseño de:
+
+- Nueva medición.
+- Edición.
+- Detalle de medición.
+
+### Nueva medición
+
+Implementado:
+
+- Card SIS.
+- Card DIA.
+- Card FC centrada y del mismo tamaño visual.
+- Fecha mediante selector.
+- Hora mediante selector.
+- Selector visual de brazo.
+- Selector visual de posición.
+- Campo de notas.
+- Guardado de medición.
+
+### Edición
+
+Implementado:
+
+- Misma estructura visual de Nueva medición.
+- Precarga de datos existentes.
+- Edición independiente de fecha y hora.
+- Edición de brazo.
+- Edición de posición.
+- Edición de notas.
+- Guardar cambios.
+- Eliminación.
+
+### Detalle
+
+Implementado:
+
+- Mismas cards SIS / DIA / FC en modo lectura.
+- Clasificación clínica.
+- Alertas clínicas solamente cuando existen.
+- Fecha.
+- Hora.
+- Brazo.
+- Posición.
+- Notas.
+- Editar.
+- Eliminar con confirmación.
+
+### Componentes V2
+
+Se incorporaron:
+
+- `MeasurementDateTimeField`
+- `MeasurementMetricInputCard`
+- `MeasurementOptionSelector`
+
+### Fecha y hora
+
+Se incorporó `@expo/ui` versión compatible con Expo SDK 57 para la selección nativa de fecha y hora.
+
+### Eliminación
+
+La eliminación desde Detalle requiere confirmación explícita antes de ejecutar `measurementStore.delete()`.
+
+### Pendiente de FASE 5
+
+El rediseño todavía deberá extenderse y validarse progresivamente en:
+
+- Dashboard.
+- History.
+- Statistics.
+- ClinicalChart.
+- Import.
+
+No se considera finalizada la FASE 5 hasta completar y validar estos módulos.
+
+---
+
+## FASE 6 — Checkpoint
+
+**Estado:** 📋 PLANIFICADO
+
+Antes de iniciar una nueva fase funcional se deberá realizar:
+
+- `npx tsc --noEmit`.
+- `git diff --check`.
+- pruebas funcionales.
+- validación en dispositivo.
+- revisión de navegación.
+- revisión de Dashboard.
+- revisión de Measurement.
+- revisión de History.
+- revisión de Statistics.
+- revisión de ClinicalChart.
+- revisión de Import.
+- documentación sincronizada.
+- commit.
+- ZIP completo.
+
+El checkpoint actual de código funcional es:
+
+`171ef4c feat: complete measurement create edit and detail UI`
+
+---
+
+## FASE 7 — Health Connect
+
+**Estado:** 📋 PLANIFICADO
+
+Health Connect se implementará después de finalizar y validar el rediseño UI/UX.
+
+La integración deberá utilizar la arquitectura existente y tratar Health Connect como fuente externa de datos.
+
+No se modificará `BloodPressureRecord` para convertirlo en un contenedor general de datos de Health Connect.
+
+---

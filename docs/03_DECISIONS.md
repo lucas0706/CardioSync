@@ -6,7 +6,7 @@
 | Tipo | Architecture Decision Records |
 | Estado | Activo |
 | Versión | Sincronizada con la versión del proyecto |
-| Última actualización | 2026-08-03 |
+| Última actualización | 2026-08-14 |
 
 ---
 
@@ -492,4 +492,137 @@ Esta dependencia pertenece al árbol histórico `src/clinical/` y no debe confun
 Su migración o eliminación se tratará en una fase independiente para evitar modificar simultáneamente Statistics y Clinical Analysis.
 
 ---
+
+---
+
+# ADR-004
+
+## Título
+
+Reutilización de la representación visual de mediciones entre Nueva medición, Edición y Detalle
+
+---
+
+## Fecha
+
+2026-08-14
+
+---
+
+## Estado
+
+Activa
+
+---
+
+## Contexto
+
+El rediseño de Measurements V2 requiere mantener una experiencia visual coherente entre los distintos estados de una misma medición.
+
+Nueva medición, edición y detalle representan el mismo concepto funcional desde diferentes modos de interacción.
+
+---
+
+## Problema
+
+Implementar una tarjeta visual diferente para cada pantalla produciría:
+
+- inconsistencias visuales;
+- duplicación de componentes;
+- mayor costo de mantenimiento;
+- diferencias innecesarias entre creación, edición y consulta.
+
+---
+
+## Decisión
+
+Se utilizará una representación visual común para las métricas principales:
+
+- SIS.
+- DIA.
+- FC.
+
+La misma jerarquía visual se conservará entre:
+
+- Nueva medición.
+- Edición.
+- Detalle.
+
+El modo de interacción será el que cambie:
+
+- Nueva medición: entrada.
+- Edición: entrada con valores precargados.
+- Detalle: lectura.
+
+---
+
+## Fecha y hora
+
+Fecha y hora se representan como controles independientes para permitir modificar cada valor sin afectar innecesariamente al otro.
+
+La selección utiliza `@expo/ui`, manteniendo compatibilidad con Expo SDK 57.
+
+---
+
+## Contexto de medición
+
+Brazo y posición utilizan un selector visual específico para evitar reutilizar controles de texto cuando el conjunto de valores es cerrado.
+
+---
+
+## Eliminación
+
+La eliminación desde Detalle requiere confirmación explícita antes de ejecutar la operación persistente.
+
+---
+
+## Justificación
+
+Esta decisión:
+
+- mejora la consistencia visual;
+- reduce duplicación;
+- facilita mantenimiento;
+- permite reutilizar la jerarquía de información;
+- mantiene separación entre presentación y lógica de dominio.
+
+---
+
+## Consecuencias
+
+### Positivas
+
+- Experiencia coherente.
+- Menor duplicación.
+- Evolución visual más controlada.
+- Base reutilizable para futuras mejoras.
+
+### Negativas
+
+- Los cambios futuros en la representación común deberán evaluarse sobre los tres estados.
+
+---
+
+## Qué puede romper esta decisión
+
+Crear nuevamente tarjetas independientes para Nueva medición, Edición y Detalle sin una justificación funcional.
+
+---
+
+## Archivos principales relacionados
+
+- `src/features/measurements/components/MeasurementForm.tsx`
+- `src/features/measurements/components/MeasurementDetail.tsx`
+- `src/features/measurements/components/v2/MeasurementMetricInputCard.tsx`
+- `src/features/measurements/components/v2/MeasurementDateTimeField.tsx`
+- `src/features/measurements/components/v2/MeasurementOptionSelector.tsx`
+
+---
+
+## Documentos relacionados
+
+- `00_PROJECT_MASTER_CONTEXT.md`
+- `01_ARCHITECTURE.md`
+- `02_ROADMAP.md`
+- `10_CHANGELOG.md`
 
