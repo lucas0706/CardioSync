@@ -2,7 +2,13 @@ import {
   useLocalSearchParams,
   useRouter,
 } from 'expo-router'
-import { useEffect, useRef, useState } from 'react'
+
+import {
+  useEffect,
+  useRef,
+  useState,
+} from 'react'
+
 import {
   Alert,
   KeyboardAvoidingView,
@@ -12,12 +18,30 @@ import {
   View,
 } from 'react-native'
 
-import { Screen, Text } from '@/components/ui'
-import { BloodPressureRecord } from '@/domain/measurements/BloodPressureRecord'
-import { MeasurementDetail } from '@/features/measurements/components/MeasurementDetail'
-import { MeasurementForm } from '@/features/measurements/components/MeasurementForm'
-import { measurementService } from '@/features/measurements/services/MeasurementService'
-import { measurementStore } from '@/features/measurements/services/MeasurementStore'
+import {
+  Screen,
+  Text,
+} from '@/components/ui'
+
+import type {
+  BloodPressureRecord,
+} from '@/domain/measurements/BloodPressureRecord'
+
+import {
+  MeasurementDetail,
+} from '@/features/measurements/components/MeasurementDetail'
+
+import {
+  MeasurementForm,
+} from '@/features/measurements/components/MeasurementForm'
+
+import {
+  measurementService,
+} from '@/features/measurements/services/MeasurementService'
+
+import {
+  measurementStore,
+} from '@/features/measurements/services/MeasurementStore'
 
 export default function MeasurementDetailScreen() {
   const router = useRouter()
@@ -85,32 +109,6 @@ export default function MeasurementDetailScreen() {
     setIsEditing(false)
   }
 
-  const handleDelete = () => {
-    Alert.alert(
-      '¿Eliminar esta medición?',
-      '',
-      [
-        {
-          text: 'Cancelar',
-          style: 'cancel',
-        },
-        {
-          text: 'Eliminar',
-          style: 'destructive',
-          onPress: () => {
-            if (record?.id) {
-              measurementStore.delete(
-                record.id,
-              )
-
-              router.back()
-            }
-          },
-        },
-      ],
-    )
-  }
-
   if (!record) {
     return (
       <Screen>
@@ -139,7 +137,7 @@ export default function MeasurementDetailScreen() {
           <ScrollView
             ref={scrollRef}
             contentContainerStyle={
-              styles.scrollContent
+              styles.editScrollContent
             }
             showsVerticalScrollIndicator={
               false
@@ -147,13 +145,11 @@ export default function MeasurementDetailScreen() {
             keyboardShouldPersistTaps="handled"
             keyboardDismissMode="interactive"
           >
-            <View
-              style={styles.header}
-            >
+            <View style={styles.header}>
               <Text
                 style={styles.backText}
                 onPress={() =>
-                  router.back()
+                  setIsEditing(false)
                 }
               >
                 ← Volver
@@ -207,9 +203,33 @@ export default function MeasurementDetailScreen() {
               onEdit={() =>
                 setIsEditing(true)
               }
-              onDelete={
-                handleDelete
-              }
+              onDelete={() => {
+                if (!record) {
+                  return
+                }
+
+                Alert.alert(
+                  '¿Eliminar esta medición?',
+                  'Esta acción no se puede deshacer.',
+                  [
+                    {
+                      text: 'Cancelar',
+                      style: 'cancel',
+                    },
+                    {
+                      text: 'Eliminar',
+                      style: 'destructive',
+                      onPress: () => {
+                        measurementStore.delete(
+                          record.id,
+                        )
+
+                        router.back()
+                      },
+                    },
+                  ],
+                )
+              }}
             />
           </>
         )}
@@ -224,7 +244,7 @@ const styles = StyleSheet.create({
   },
 
   header: {
-    marginBottom: 16,
+    marginBottom: 12,
   },
 
   backText: {
@@ -233,8 +253,8 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
 
-  scrollContent: {
-    paddingBottom: 48,
+  editScrollContent: {
+    paddingBottom: 24,
   },
 
   emptyState: {

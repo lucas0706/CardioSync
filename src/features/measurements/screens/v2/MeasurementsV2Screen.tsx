@@ -23,10 +23,6 @@ import {
   Text,
 } from '@/components/ui'
 
-import {
-  BottomTabBar,
-} from '@/components/ui/v2'
-
 import { theme } from '@/theme'
 
 import {
@@ -475,11 +471,6 @@ export function MeasurementsV2Screen() {
             <View style={styles.separator} />
           )}
           showsVerticalScrollIndicator={false}
-        />
-
-        <BottomTabBar
-          activeTab="measurements"
-          onTabPress={() => {}}
         />
       </View>
     </Screen>

@@ -2,16 +2,21 @@ import { Pressable, StyleSheet, Text } from 'react-native'
 
 type Props = {
   onPress: () => void
+  bottomOffset?: number
 }
 
 export function FloatingActionButton({
   onPress,
+  bottomOffset = 8,
 }: Props) {
   return (
     <Pressable
       onPress={onPress}
       style={({ pressed }) => [
         styles.button,
+        {
+          bottom: bottomOffset,
+        },
         pressed && styles.pressed,
       ]}
     >

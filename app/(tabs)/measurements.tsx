@@ -2,22 +2,25 @@ import { useRouter } from 'expo-router'
 
 import {
   FloatingActionButton,
-  Screen,
 } from '@/components/ui'
-import { MeasurementHistory } from '@/features/measurements/components/MeasurementHistory'
+
+import {
+  MeasurementsV2Screen,
+} from '@/features/measurements/screens/v2/MeasurementsV2Screen'
 
 export default function MeasurementsScreen() {
   const router = useRouter()
 
   return (
-    <Screen>
-      <MeasurementHistory />
+    <>
+      <MeasurementsV2Screen />
 
       <FloatingActionButton
+        bottomOffset={8}
         onPress={() =>
           router.push('/measurement/new')
         }
       />
-    </Screen>
+    </>
   )
 }
