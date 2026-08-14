@@ -1,4 +1,12 @@
-import { useMemo, useState } from 'react'
+import {
+  useCallback,
+  useMemo,
+  useState,
+} from 'react'
+
+import {
+  useFocusEffect,
+} from 'expo-router'
 
 import {
   StatisticsDomainService,
@@ -8,15 +16,31 @@ import type {
   StatisticsFilter,
 } from '@/domain/statistics/models'
 
-import { useMeasurements } from '@/features/measurements/hooks/useMeasurements'
+import {
+  useMeasurements,
+} from '@/features/measurements/hooks/useMeasurements'
+
+const DEFAULT_STATISTICS_PERIOD:
+  StatisticsFilter['period'] = '30d'
 
 export function useStatistics() {
-  const { measurements } = useMeasurements()
+  const { measurements } =
+    useMeasurements()
 
   const [filter, setFilter] =
     useState<StatisticsFilter>({
-      period: '30d',
+      period:
+        DEFAULT_STATISTICS_PERIOD,
     })
+
+  useFocusEffect(
+    useCallback(() => {
+      setFilter({
+        period:
+          DEFAULT_STATISTICS_PERIOD,
+      })
+    }, []),
+  )
 
   const summary = useMemo(
     () =>

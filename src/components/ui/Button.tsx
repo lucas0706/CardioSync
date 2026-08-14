@@ -1,4 +1,7 @@
-import { Pressable, StyleSheet } from 'react-native'
+import {
+  Pressable,
+  StyleSheet,
+} from 'react-native'
 
 import { theme } from '@/theme'
 
@@ -9,23 +12,36 @@ type Props = {
   onPress?: () => void
 }
 
-export function Button({ title, onPress }: Props) {
+export function Button({
+  title,
+  onPress,
+}: Props) {
   return (
-    <Pressable onPress={onPress} style={styles.button}>
-      <Text style={styles.text}>{title}</Text>
+    <Pressable
+      onPress={onPress}
+      style={styles.button}
+    >
+      <Text style={styles.text}>
+        {title}
+      </Text>
     </Pressable>
   )
 }
 
 const styles = StyleSheet.create({
   button: {
-    backgroundColor: theme.colors.primary,
-    paddingVertical: theme.spacing.md,
-    borderRadius: theme.radius.md,
+    backgroundColor:
+      theme.colors.primary,
+    paddingVertical:
+      theme.spacing.md,
+    borderRadius:
+      theme.radius.md,
     alignItems: 'center',
   },
+
   text: {
+    fontFamily:
+      theme.typography.semiBold,
     color: theme.colors.white,
-    fontWeight: '600',
   },
 })

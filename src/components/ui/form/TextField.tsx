@@ -1,6 +1,11 @@
-import { StyleSheet, TextInput, View } from 'react-native'
+import {
+  StyleSheet,
+  TextInput,
+  View,
+} from 'react-native'
 
 import { Text } from '@/components/ui'
+import { theme } from '@/theme'
 
 type Props = {
   label: string
@@ -13,7 +18,7 @@ type Props = {
 export function TextField({
   label,
   placeholder,
- multiline = false,
+  multiline = false,
   value,
   onChange,
 }: Props) {
@@ -29,6 +34,9 @@ export function TextField({
           multiline && styles.multiline,
         ]}
         placeholder={placeholder}
+        placeholderTextColor={
+          theme.colors.textSecondary
+        }
         multiline={multiline}
         textAlignVertical="top"
         value={value}
@@ -40,20 +48,34 @@ export function TextField({
 
 const styles = StyleSheet.create({
   container: {
-    gap: 6,
+    gap: theme.spacing.xs,
   },
 
   label: {
-    fontWeight: '600',
+    fontFamily:
+      theme.typography.semiBold,
+    fontSize:
+      theme.typography.caption,
+    color: theme.colors.text,
   },
 
   input: {
     borderWidth: 1,
-    borderColor: '#D4D4D8',
-    borderRadius: 12,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-    fontSize: 16,
+    borderColor:
+      theme.colors.border,
+    borderRadius:
+      theme.radius.md,
+    paddingHorizontal:
+      theme.spacing.md,
+    paddingVertical:
+      theme.spacing.sm,
+    fontFamily:
+      theme.typography.regular,
+    fontSize:
+      theme.typography.body,
+    color: theme.colors.text,
+    backgroundColor:
+      theme.colors.surface,
   },
 
   multiline: {

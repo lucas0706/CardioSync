@@ -2,9 +2,10 @@ import { StyleSheet, View } from 'react-native'
 
 import { Text } from '@/components/ui'
 import { theme } from '@/theme'
+import {
+  useClinicalProfile,
+} from '@/features/profile/hooks'
 
-import { LOCAL_PROFILE_ID } from '@/features/profile/constants'
-import { clinicalProfileService } from '@/features/profile/services'
 
 export function DashboardHeader() {
   const hour = new Date().getHours()
@@ -21,10 +22,9 @@ export function DashboardHeader() {
       ? 'Así está tu presión hoy'
       : 'Resumen de tus últimas mediciones'
 
-  const profile =
-    clinicalProfileService.get(
-      LOCAL_PROFILE_ID,
-    )
+  const {
+    profile,
+  } = useClinicalProfile()
 
   const name = profile?.name?.trim()
 

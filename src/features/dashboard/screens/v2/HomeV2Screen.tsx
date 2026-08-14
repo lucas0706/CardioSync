@@ -30,10 +30,11 @@ import { BloodPressureSafetyWarning } from '@/features/measurements/components/B
 import { useDashboard } from '@/features/dashboard/hooks/useDashboard'
 import { measurementService } from '@/features/measurements/services/MeasurementService'
 
-import { LOCAL_PROFILE_ID } from '@/features/profile/constants'
-import { clinicalProfileService } from '@/features/profile/services'
 
 import { theme } from '@/theme'
+import {
+  useClinicalProfile,
+} from '@/features/profile/hooks'
 
 export function HomeV2Screen() {
   const router = useRouter()
@@ -89,10 +90,9 @@ export function HomeV2Screen() {
       },
     )
 
-  const profile =
-    clinicalProfileService.get(
-      LOCAL_PROFILE_ID,
-    )
+  const {
+    profile,
+  } = useClinicalProfile()
 
   const profileName =
     profile?.name?.trim()
