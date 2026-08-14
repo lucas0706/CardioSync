@@ -6,7 +6,7 @@
 | Tipo | Historial de cambios del proyecto |
 | Estado | Activo |
 | Versión | Sincronizada con la versión del proyecto |
-| Última actualización | 2026-08-03 |
+| Última actualización | 2026-08-14 |
 
 ---
 
@@ -426,4 +426,117 @@ SQLite `.db` permanece como el formato histórico soportado.
 - `docs/02_ROADMAP.md`
 - `docs/10_CHANGELOG.md`
 - `docs/13_IMPORTATION_SPECIFICATION.md`
+
+---
+
+# 2026-08-14 — Measurements V2: Nueva medición, Edición y Detalle
+
+### Tipo
+
+Implementación / UI / UX / Validación funcional
+
+### Objetivo
+
+Completar el rediseño visual del flujo principal de mediciones manteniendo la arquitectura funcional existente.
+
+### Nueva medición
+
+Se implementó y validó:
+
+- Card SIS.
+- Card DIA.
+- Card FC centrada y del mismo tamaño visual.
+- Fecha mediante selector.
+- Hora mediante selector.
+- Selector visual de brazo.
+- Selector visual de posición.
+- Campo de notas.
+- Guardado de medición.
+
+### Edición
+
+Se reutilizó la misma estructura visual de Nueva medición.
+
+Se validó:
+
+- Precarga de datos.
+- Edición de SIS.
+- Edición de DIA.
+- Edición de FC.
+- Edición independiente de fecha y hora.
+- Edición de brazo.
+- Edición de posición.
+- Edición de notas.
+- Guardar cambios.
+- Eliminación.
+
+### Detalle
+
+Se implementó una representación de lectura coherente con las cards de Nueva medición.
+
+Incluye:
+
+- SIS.
+- DIA.
+- FC.
+- Clasificación.
+- Alertas condicionales.
+- Fecha.
+- Hora.
+- Brazo.
+- Posición.
+- Notas.
+- Editar.
+- Eliminar.
+
+Las alertas no se muestran cuando no existen.
+
+### Eliminación
+
+Se incorporó confirmación explícita antes de eliminar una medición.
+
+### Componentes nuevos
+
+- `MeasurementDateTimeField.tsx`
+- `MeasurementMetricInputCard.tsx`
+- `MeasurementOptionSelector.tsx`
+
+### Dependencias
+
+Se incorporó:
+
+`@expo/ui ~57.0.10`
+
+La dependencia se instaló mediante:
+
+`npx expo install @expo/ui`
+
+manteniendo compatibilidad con Expo SDK 57.
+
+### Validación
+
+- TypeScript strict: limpio.
+- Nueva medición: validada en dispositivo.
+- Edición: validada en dispositivo.
+- Detalle: validado en dispositivo.
+- Eliminación con confirmación: validada.
+- Estado del repositorio: limpio antes del checkpoint.
+
+### Checkpoint
+
+`171ef4c feat: complete measurement create edit and detail UI`
+
+### Estado
+
+Measurements V2: ✅ COMPLETADO
+
+FASE 5 UI / UX: 🚧 EN DESARROLLO
+
+Pendiente dentro de UI/UX:
+
+- Dashboard.
+- History.
+- Statistics.
+- ClinicalChart.
+- Import.
 
