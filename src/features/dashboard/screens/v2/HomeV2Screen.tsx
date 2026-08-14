@@ -11,12 +11,12 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import {
   Card,
+  FloatingActionButton,
   Screen,
   Text,
 } from '@/components/ui'
 
 import {
-  BottomTabBar,
   MeasurementMeta,
   MetricCard,
   SectionHeader,
@@ -289,38 +289,23 @@ export function HomeV2Screen() {
         <Pressable
           accessibilityRole="button"
           onPress={() =>
-            router.push('/visual-v2/measurements')
+            router.push('/(tabs)/measurements')
           }
           style={styles.testNavigation}
         >
           <Text style={styles.testNavigationText}>
-            Ver Registros V2
+            Ver registros
           </Text>
         </Pressable>
 
         <View style={styles.bottomSpace} />
       </ScrollView>
 
-      <Pressable
-        accessibilityRole="button"
-        accessibilityLabel="Nueva medición"
-        style={({ pressed }) => [
-          styles.fab,
-          {
-            bottom:
-              88 + insets.bottom,
-          },
-          pressed && styles.fabPressed,
-        ]}
-      >
-        <Text style={styles.fabText}>
-          +
-        </Text>
-      </Pressable>
-
-      <BottomTabBar
-        activeTab="home"
-        onTabPress={() => {}}
+      <FloatingActionButton
+        bottomOffset={8}
+        onPress={() =>
+          router.push('/measurement/new')
+        }
       />
     </Screen>
   )
@@ -423,30 +408,6 @@ const styles = StyleSheet.create({
   summaryCard: {
     minHeight: 104,
     paddingHorizontal: theme.spacing.sm,
-  },
-
-  fab: {
-    position: 'absolute',
-    right: theme.spacing.lg,
-    bottom: theme.spacing.lg,
-    width: 58,
-    height: 58,
-    borderRadius: theme.radius.round,
-    backgroundColor: theme.colors.primary,
-    justifyContent: 'center',
-    alignItems: 'center',
-    ...theme.shadows.md,
-  },
-
-  fabPressed: {
-    transform: [{ scale: 0.96 }],
-  },
-
-  fabText: {
-    fontFamily: theme.typography.regular,
-    fontSize: 32,
-    lineHeight: 34,
-    color: theme.colors.white,
   },
 
   testNavigation: {
