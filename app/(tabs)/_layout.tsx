@@ -86,15 +86,15 @@ export default function TabsLayout() {
       />
 
       <Tabs.Screen
-        name="settings"
+        name="profile"
         options={{
-          title: 'Configuración',
+          title: 'Perfil',
           tabBarIcon: ({ color, focused }) => (
             <Ionicons
               name={
                 focused
-                  ? 'settings'
-                  : 'settings-outline'
+                  ? 'person'
+                  : 'person-outline'
               }
               size={22}
               color={color}
@@ -104,12 +104,23 @@ export default function TabsLayout() {
       />
 
       <Tabs.Screen
+        name="settings"
+        options={{
+          href: null,
+        }}
+      />
+
+      <Tabs.Screen
         name="more"
         options={{
           title: 'Más',
-          tabBarIcon: ({ color }) => (
+          tabBarIcon: ({ color, focused }) => (
             <Ionicons
-              name="ellipsis-horizontal"
+              name={
+                focused
+                  ? 'ellipsis-horizontal'
+                  : 'ellipsis-horizontal-outline'
+              }
               size={22}
               color={color}
             />

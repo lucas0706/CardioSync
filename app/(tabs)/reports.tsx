@@ -2,13 +2,15 @@ import {
   ScrollView,
   StyleSheet,
   View,
+  type ViewStyle,
+  type TextStyle,
 } from 'react-native'
+
 import { useMemo, useState } from 'react'
 
 import {
   Card,
   Screen,
-  SectionTitle,
   Text,
   Button,
 } from '@/components/ui'
@@ -25,12 +27,18 @@ import type {
 import { useMeasurements } from '@/features/measurements/hooks/useMeasurements'
 
 import {
+  useClinicalProfile,
+} from '@/features/profile/hooks'
+
+import {
   reportService,
 } from '@/features/reports/services/ReportService'
 
 import {
   ReportPdfService,
 } from '@/features/reports/services/ReportPdfService'
+
+import { theme } from '@/theme'
 
 export default function ReportsScreen() {
   const {
@@ -48,6 +56,10 @@ export default function ReportsScreen() {
   const [error, setError] =
     useState<string | null>(null)
 
+  const {
+    profile,
+  } = useClinicalProfile()
+
   const report = useMemo(
     () =>
       reportService.build(
@@ -57,6 +69,7 @@ export default function ReportsScreen() {
     [
       measurements,
       filter,
+      profile,
     ],
   )
 
@@ -129,12 +142,13 @@ export default function ReportsScreen() {
   return (
     <Screen>
       <ScrollView
+        showsVerticalScrollIndicator={false}
         contentContainerStyle={
           styles.content
         }
       >
         <View style={styles.header}>
-          <Text variant="h1">
+          <Text style={styles.title}>
             Reportes
           </Text>
 
@@ -145,108 +159,130 @@ export default function ReportsScreen() {
           </Text>
         </View>
 
-        <Card>
-          <SectionTitle
-            title="Período del reporte"
-          />
-
-          <StatisticsPeriodSelector
-            value={filter.period}
-            onChange={updatePeriod}
-          />
-
-          {filter.period === 'custom' ? (
-            <StatisticsDateRangeSelector
-              startDate={filter.startDate}
-              endDate={filter.endDate}
-              onChange={
-                updateCustomRange
-              }
-            />
-          ) : null}
-        </Card>
-
-        <Card>
-          <SectionTitle
-            title="Datos incluidos"
-          />
-
-          <View style={styles.infoRow}>
-            <Text style={styles.label}>
-              Nombre
-            </Text>
-
-            <Text>
-              {report.patientName ??
-                'No informado'}
-            </Text>
-          </View>
-
-          <View style={styles.infoRow}>
-            <Text style={styles.label}>
-              Edad
-            </Text>
-
-            <Text>
-              {report.patientAge !==
-              undefined
-                ? `${report.patientAge} años`
-                : 'No informada'}
-            </Text>
-          </View>
-
-          <View style={styles.infoRow}>
-            <Text style={styles.label}>
-              Registros
-            </Text>
-
-            <Text>
-              {report.records.length}
-            </Text>
-          </View>
-
-          <Text
-            variant="caption"
-            style={styles.description}
-          >
-            El PDF incluirá el resumen
-            estadístico y todos los registros
-            del período seleccionado.
+        <View style={styles.section}>
+          <Text style={styles.overline}>
+            PERÍODO
           </Text>
-        </Card>
 
-        {measurements.length === 0 ? (
-          <Card>
-            <Text variant="title">
-              Sin registros
-            </Text>
+          <Card style={styles.card}>
+            <StatisticsPeriodSelector
+              value={filter.period}
+              onChange={updatePeriod}
+            />
 
-            <Text>
-              Registrá una medición antes de
-              generar un reporte.
+            {filter.period === 'custom' ? (
+              <View style={styles.customRange}>
+                <StatisticsDateRangeSelector
+                  startDate={filter.startDate}
+                  endDate={filter.endDate}
+                  onChange={
+                    updateCustomRange
+                  }
+                />
+              </View>
+            ) : null}
+          </Card>
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.overline}>
+            DATOS INCLUIDOS
+          </Text>
+
+          <Card style={styles.card}>
+            <View style={styles.infoRow}>
+              <View style={styles.infoContent}>
+                <Text style={styles.infoLabel}>
+                  Nombre
+                </Text>
+
+                <Text style={styles.infoValue}>
+                  {report.patientName ??
+                    'No informado'}
+                </Text>
+              </View>
+            </View>
+
+            <View style={styles.divider} />
+
+            <View style={styles.infoRow}>
+              <View style={styles.infoContent}>
+                <Text style={styles.infoLabel}>
+                  Edad
+                </Text>
+
+                <Text style={styles.infoValue}>
+                  {report.patientAge !==
+                  undefined
+                    ? `${report.patientAge} años`
+                    : 'No informada'}
+                </Text>
+              </View>
+            </View>
+
+            <View style={styles.divider} />
+
+            <View style={styles.infoRow}>
+              <View style={styles.infoContent}>
+                <Text style={styles.infoLabel}>
+                  Registros
+                </Text>
+
+                <Text style={styles.infoValue}>
+                  {report.records.length}
+                </Text>
+              </View>
+            </View>
+
+            <Text style={styles.description}>
+              El PDF incluirá el resumen
+              estadístico y todos los registros
+              del período seleccionado.
             </Text>
           </Card>
+        </View>
+
+        {measurements.length === 0 ? (
+          <View style={styles.section}>
+            <Text style={styles.overline}>
+              ESTADO
+            </Text>
+
+            <Card style={styles.emptyCard}>
+              <Text style={styles.stateTitle}>
+                Sin registros
+              </Text>
+
+              <Text style={styles.stateDescription}>
+                Registrá una medición antes de
+                generar un reporte.
+              </Text>
+            </Card>
+          </View>
         ) : null}
 
         {measurements.length > 0 &&
         report.records.length === 0 ? (
-          <Card>
-            <Text variant="title">
-              Sin registros en este período
+          <View style={styles.section}>
+            <Text style={styles.overline}>
+              ESTADO
             </Text>
 
-            <Text>
-              Seleccioná otro período para
-              generar el reporte.
-            </Text>
-          </Card>
+            <Card style={styles.emptyCard}>
+              <Text style={styles.stateTitle}>
+                Sin registros en este período
+              </Text>
+
+              <Text style={styles.stateDescription}>
+                Seleccioná otro período para
+                generar el reporte.
+              </Text>
+            </Card>
+          </View>
         ) : null}
 
         {customRangeIncomplete ? (
-          <Text
-            variant="caption"
-            style={styles.warning}
-          >
+          <Text style={styles.warning}>
             Seleccioná una fecha de inicio y
             una fecha de finalización para
             generar el reporte.
@@ -254,64 +290,202 @@ export default function ReportsScreen() {
         ) : null}
 
         {error ? (
-          <Card outlined>
+          <Card
+            outlined
+            style={styles.errorCard}
+          >
             <Text style={styles.error}>
               {error}
             </Text>
           </Card>
         ) : null}
 
-        <Button
-          title={
-            isGenerating
-              ? 'Generando reporte...'
-              : 'Generar y compartir PDF'
-          }
-          onPress={generateReport}
-        />
+        <View style={styles.actionSection}>
+          <Button
+            title={
+              isGenerating
+                ? 'Generando reporte...'
+                : 'Generar y compartir PDF'
+            }
+            onPress={generateReport}
+          />
+        </View>
       </ScrollView>
     </Screen>
   )
 }
 
-const styles = StyleSheet.create({
+const styles: {
+  content: ViewStyle
+  header: ViewStyle
+  title: TextStyle
+  subtitle: TextStyle
+  section: ViewStyle
+  overline: TextStyle
+  card: ViewStyle
+  customRange: ViewStyle
+  infoRow: ViewStyle
+  infoContent: ViewStyle
+  infoLabel: TextStyle
+  infoValue: TextStyle
+  divider: ViewStyle
+  description: TextStyle
+  emptyCard: ViewStyle
+  stateTitle: TextStyle
+  stateDescription: TextStyle
+  warning: TextStyle
+  errorCard: ViewStyle
+  error: TextStyle
+  actionSection: ViewStyle
+} = {
   content: {
-    gap: 16,
-    paddingBottom: 32,
+    gap: theme.spacing.lg,
+    paddingTop: theme.spacing.md,
+    paddingBottom: theme.spacing.xl,
   },
 
   header: {
-    gap: 6,
+    gap: theme.spacing.xs,
+  },
+
+  title: {
+    fontFamily:
+      theme.typography.bold as string,
+    fontSize: 28,
+    lineHeight: 34,
+    color: theme.colors.text,
   },
 
   subtitle: {
-    color: '#64748B',
-    lineHeight: 20,
+    fontFamily:
+      theme.typography.regular as string,
+    fontSize:
+      theme.typography.body,
+    lineHeight: 22,
+    color:
+      theme.colors.textSecondary,
+  },
+
+  section: {
+    gap: theme.spacing.sm,
+  },
+
+  overline: {
+    fontFamily:
+      theme.typography.semiBold as string,
+    fontSize:
+      theme.typography.overline,
+    lineHeight: 16,
+    letterSpacing: 0.8,
+    color:
+      theme.colors.textSecondary,
+  },
+
+  card: {
+    padding: theme.spacing.md,
+    gap: theme.spacing.sm,
+  },
+
+  customRange: {
+    paddingTop: theme.spacing.xs,
   },
 
   infoRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    gap: 16,
-    paddingVertical: 6,
+    minHeight: 42,
+    justifyContent: 'center',
   },
 
-  label: {
-    fontWeight: '600',
+  infoContent: {
+    gap: 2,
+  },
+
+  infoLabel: {
+    fontFamily:
+      theme.typography.regular as string,
+    fontSize:
+      theme.typography.small,
+    color:
+      theme.colors.textSecondary,
+  },
+
+  infoValue: {
+    fontFamily:
+      theme.typography.semiBold as string,
+    fontSize:
+      theme.typography.body,
+    color:
+      theme.colors.text,
+  },
+
+  divider: {
+    height:
+      StyleSheet.hairlineWidth,
+    backgroundColor:
+      theme.colors.border,
   },
 
   description: {
-    marginTop: 8,
+    marginTop: theme.spacing.xs,
+    fontFamily:
+      theme.typography.regular as string,
+    fontSize:
+      theme.typography.small,
     lineHeight: 18,
+    color:
+      theme.colors.textSecondary,
+  },
+
+  emptyCard: {
+    padding: theme.spacing.md,
+    gap: theme.spacing.xs,
+  },
+
+  stateTitle: {
+    fontFamily:
+      theme.typography.semiBold as string,
+    fontSize:
+      theme.typography.title,
+    lineHeight: 24,
+    color:
+      theme.colors.text,
+  },
+
+  stateDescription: {
+    fontFamily:
+      theme.typography.regular as string,
+    fontSize:
+      theme.typography.body,
+    lineHeight: 22,
+    color:
+      theme.colors.textSecondary,
   },
 
   warning: {
-    color: '#92400E',
-    lineHeight: 18,
+    fontFamily:
+      theme.typography.regular as string,
+    fontSize:
+      theme.typography.caption,
+    lineHeight: 19,
+    color:
+      theme.colors.textSecondary,
+  },
+
+  errorCard: {
+    padding: theme.spacing.md,
   },
 
   error: {
-    color: '#B91C1C',
-    lineHeight: 20,
+    fontFamily:
+      theme.typography.regular as string,
+    fontSize:
+      theme.typography.caption,
+    lineHeight: 19,
+    color:
+      theme.colors.text,
   },
-})
+
+  actionSection: {
+    paddingTop: theme.spacing.xs,
+  },
+}
+

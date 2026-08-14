@@ -1,8 +1,17 @@
-import { ScrollView, StyleSheet } from 'react-native'
+import {
+  ScrollView,
+  StyleSheet,
+  View,
+} from 'react-native'
+
+import { useCallback, useRef } from 'react'
+
+import {
+  useFocusEffect,
+} from 'expo-router'
 
 import {
   Screen,
-  SectionTitle,
   Text,
   Card,
 } from '@/components/ui'
@@ -15,7 +24,11 @@ import {
   StatisticsClassificationCard,
 } from '@/features/statistics/components'
 
-import { useStatistics } from '@/features/statistics/hooks'
+import {
+  useStatistics,
+} from '@/features/statistics/hooks'
+
+import { theme } from '@/theme'
 
 export default function StatisticsScreen() {
   const {
@@ -26,21 +39,41 @@ export default function StatisticsScreen() {
     updateFilter,
   } = useStatistics()
 
+  const scrollViewRef =
+    useRef<ScrollView>(null)
+
+  useFocusEffect(
+    useCallback(() => {
+      requestAnimationFrame(() => {
+        scrollViewRef.current?.scrollTo({
+          y: 0,
+          animated: false,
+        })
+      })
+    }, []),
+  )
+
   if (measurements.length === 0) {
     return (
       <Screen>
-        <SectionTitle
-          title="Estadísticas"
-          subtitle="Resumen clínico"
-        />
-
-        <Card>
-          <Text variant="title">
-            Sin registros
+        <View style={styles.header}>
+          <Text style={styles.title}>
+            Estadísticas
           </Text>
 
-          <Text>
-            Registrá una medición para comenzar.
+          <Text style={styles.subtitle}>
+            Análisis de tus mediciones
+          </Text>
+        </View>
+
+        <Card style={styles.emptyCard}>
+          <Text style={styles.emptyTitle}>
+            Todavía no hay registros
+          </Text>
+
+          <Text style={styles.emptyText}>
+            Registrá una medición para comenzar
+            a ver tu evolución y estadísticas.
           </Text>
         </Card>
       </Screen>
@@ -50,16 +83,25 @@ export default function StatisticsScreen() {
   return (
     <Screen>
       <ScrollView
+        ref={scrollViewRef}
         showsVerticalScrollIndicator={false}
+        contentContainerStyle={
+          styles.content
+        }
       >
-        <SectionTitle
-          title="Estadísticas"
-          subtitle="Análisis clínico"
-        />
+        <View style={styles.header}>
+          <Text style={styles.title}>
+            Estadísticas
+          </Text>
+
+          <Text style={styles.subtitle}>
+            Análisis de tus mediciones
+          </Text>
+        </View>
 
         <StatisticsPeriodSelector
           value={filter.period}
-          onChange={(period) =>
+          onChange={period =>
             updateFilter({
               period,
             })
@@ -70,7 +112,10 @@ export default function StatisticsScreen() {
           <StatisticsDateRangeSelector
             startDate={filter.startDate}
             endDate={filter.endDate}
-            onChange={(startDate, endDate) =>
+            onChange={(
+              startDate,
+              endDate,
+            ) =>
               updateFilter({
                 startDate,
                 endDate,
@@ -79,13 +124,33 @@ export default function StatisticsScreen() {
           />
         ) : null}
 
-        <StatisticsChartCard
-          records={filteredMeasurements}
-        />
+        <View style={styles.section}>
+          <Text style={styles.overline}>
+            EVOLUCIÓN
+          </Text>
 
-        <StatisticsSummaryGrid
-          summary={summary}
-        />
+          <Text style={styles.sectionTitle}>
+            Presión arterial
+          </Text>
+
+          <StatisticsChartCard
+            records={filteredMeasurements}
+          />
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.overline}>
+            RESUMEN
+          </Text>
+
+          <Text style={styles.sectionTitle}>
+            Valores principales
+          </Text>
+
+          <StatisticsSummaryGrid
+            summary={summary}
+          />
+        </View>
 
         <StatisticsClassificationCard
           distribution={
@@ -97,4 +162,84 @@ export default function StatisticsScreen() {
   )
 }
 
-const styles = StyleSheet.create({})
+const styles = StyleSheet.create({
+  content: {
+    paddingBottom:
+      theme.spacing.xl * 2,
+  },
+
+  header: {
+    gap: theme.spacing.xs,
+    paddingTop: theme.spacing.xs,
+    paddingBottom:
+      theme.spacing.lg,
+  },
+
+  title: {
+    fontFamily:
+      theme.typography.bold,
+    fontSize: 28,
+    lineHeight: 34,
+    color: theme.colors.text,
+  },
+
+  subtitle: {
+    fontFamily:
+      theme.typography.regular,
+    fontSize:
+      theme.typography.body,
+    lineHeight: 22,
+    color:
+      theme.colors.textSecondary,
+  },
+
+  section: {
+    marginTop: theme.spacing.md,
+  },
+
+  overline: {
+    fontFamily:
+      theme.typography.semiBold,
+    fontSize:
+      theme.typography.overline,
+    letterSpacing: 0.6,
+    color:
+      theme.colors.textSecondary,
+    marginBottom:
+      theme.spacing.xs,
+  },
+
+  sectionTitle: {
+    fontFamily:
+      theme.typography.semiBold,
+    fontSize:
+      theme.typography.title,
+    lineHeight: 25,
+    color:
+      theme.colors.text,
+    marginBottom:
+      theme.spacing.sm,
+  },
+
+  emptyCard: {
+    marginTop: theme.spacing.sm,
+    gap: theme.spacing.sm,
+  },
+
+  emptyTitle: {
+    fontFamily:
+      theme.typography.semiBold,
+    fontSize:
+      theme.typography.title,
+  },
+
+  emptyText: {
+    fontFamily:
+      theme.typography.regular,
+    fontSize:
+      theme.typography.body,
+    lineHeight: 22,
+    color:
+      theme.colors.textSecondary,
+  },
+})

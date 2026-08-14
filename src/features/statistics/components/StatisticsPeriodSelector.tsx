@@ -1,6 +1,11 @@
-import { Pressable, StyleSheet, View } from 'react-native'
+import {
+  Pressable,
+  StyleSheet,
+  View,
+} from 'react-native'
 
 import { Text } from '@/components/ui'
+import { theme } from '@/theme'
 
 import type { StatisticsFilter } from '@/domain/statistics/models'
 
@@ -16,7 +21,9 @@ const OPTIONS: Array<{
 
 interface Props {
   value: StatisticsFilter['period']
-  onChange: (period: StatisticsFilter['period']) => void
+  onChange: (
+    period: StatisticsFilter['period'],
+  ) => void
 }
 
 export function StatisticsPeriodSelector({
@@ -25,18 +32,37 @@ export function StatisticsPeriodSelector({
 }: Props) {
   return (
     <View style={styles.container}>
-      {OPTIONS.map(option => (
-        <Pressable
-          key={option.value}
-          style={[
-            styles.chip,
-            value === option.value && styles.selected,
-          ]}
-          onPress={() => onChange(option.value)}
-        >
-          <Text>{option.label}</Text>
-        </Pressable>
-      ))}
+      {OPTIONS.map(option => {
+        const selected =
+          value === option.value
+
+        return (
+          <Pressable
+            key={option.value}
+            accessibilityRole="button"
+            accessibilityState={{
+              selected,
+            }}
+            onPress={() =>
+              onChange(option.value)
+            }
+            style={[
+              styles.option,
+              selected && styles.selected,
+            ]}
+          >
+            <Text
+              style={[
+                styles.label,
+                selected &&
+                  styles.selectedLabel,
+              ]}
+            >
+              {option.label}
+            </Text>
+          </Pressable>
+        )
+      })}
     </View>
   )
 }
@@ -44,16 +70,42 @@ export function StatisticsPeriodSelector({
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-    marginBottom: 16,
+    backgroundColor:
+      theme.colors.surface,
+    borderRadius: theme.radius.md,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+    padding: theme.spacing.xs,
+    marginBottom: theme.spacing.lg,
   },
-  chip: {
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 20,
+
+  option: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: 40,
+    paddingHorizontal:
+      theme.spacing.sm,
+    borderRadius: theme.radius.sm,
   },
+
   selected: {
-    backgroundColor: '#2563EB',
+    backgroundColor:
+      theme.colors.success,
+  },
+
+  label: {
+    fontFamily:
+      theme.typography.medium,
+    fontSize:
+      theme.typography.small,
+    color:
+      theme.colors.textSecondary,
+  },
+
+  selectedLabel: {
+    color: theme.colors.white,
+    fontFamily:
+      theme.typography.semiBold,
   },
 })
