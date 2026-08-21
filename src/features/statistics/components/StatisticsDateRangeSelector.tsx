@@ -4,11 +4,11 @@ import {
 } from 'react-native'
 
 import {
-  Calendar,
-  type DateData,
-} from 'react-native-calendars'
+  MeasurementDateTimeField,
+} from '@/features/measurements/components/v2/MeasurementDateTimeField'
 
 import { Text } from '@/components/ui'
+import { theme } from '@/theme'
 
 interface Props {
   startDate?: Date
@@ -19,165 +19,51 @@ interface Props {
   ) => void
 }
 
-function formatDate(date?: Date): string {
-  if (!date) {
-    return '--'
-  }
-
-  return date.toLocaleDateString(
-    'es-AR',
-    {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric',
-    },
-  )
-}
-
-function toDate(dateString: string): Date {
-  return new Date(
-    `${dateString}T00:00:00`,
-  )
-}
-
-function toDateString(date: Date): string {
-  const year = date.getFullYear()
-  const month = String(
-    date.getMonth() + 1,
-  ).padStart(2, '0')
-  const day = String(
-    date.getDate(),
-  ).padStart(2, '0')
-
-  return `${year}-${month}-${day}`
-}
-
-function startOfDay(date: Date): Date {
-  const result = new Date(date)
-
-  result.setHours(
-    0,
-    0,
-    0,
-    0,
-  )
-
-  return result
-}
-
-function buildMarkedDates(
-  startDate?: Date,
-  endDate?: Date,
-) {
-  if (!startDate) {
-    return {}
-  }
-
-  const start = startOfDay(startDate)
-
-  if (!endDate) {
-    return {
-      [toDateString(start)]: {
-        startingDay: true,
-        endingDay: true,
-        selected: true,
-      },
-    }
-  }
-
-  const end = startOfDay(endDate)
-
-  const first =
-    start.getTime() <= end.getTime()
-      ? start
-      : end
-
-  const last =
-    start.getTime() <= end.getTime()
-      ? end
-      : start
-
-  const marked: Record<string, object> = {}
-
-  const current = new Date(first)
-
-  while (
-    current.getTime() <=
-    last.getTime()
-  ) {
-    const key = toDateString(current)
-
-    const isFirst =
-      current.getTime() ===
-      first.getTime()
-
-    const isLast =
-      current.getTime() ===
-      last.getTime()
-
-    marked[key] = {
-      startingDay: isFirst,
-      endingDay: isLast,
-      selected: true,
-    }
-
-    current.setDate(
-      current.getDate() + 1,
-    )
-  }
-
-  return marked
-}
-
 export function StatisticsDateRangeSelector({
   startDate,
   endDate,
   onChange,
 }: Props) {
-  function handleDayPress(
-    day: DateData,
+  function handleStartChange(
+    date: Date,
   ) {
-    const selectedDate =
-      toDate(day.dateString)
-
     if (
-      !startDate ||
-      (startDate && endDate)
+      endDate &&
+      date.getTime() > endDate.getTime()
     ) {
-      onChange(selectedDate)
-
+      onChange(endDate, date)
       return
     }
 
-    const currentStart =
-      startOfDay(startDate)
-
-    const currentSelected =
-      startOfDay(selectedDate)
-
-    if (
-      currentSelected.getTime() <
-      currentStart.getTime()
-    ) {
-      onChange(
-        selectedDate,
-        startDate,
-      )
-
-      return
-    }
-
-    onChange(
-      startDate,
-      selectedDate,
-    )
+    onChange(date, endDate)
   }
 
-  const markedDates =
-    buildMarkedDates(
-      startDate,
-      endDate,
-    )
+  function handleEndChange(
+    date: Date,
+  ) {
+    if (!startDate) {
+      onChange(date)
+      return
+    }
+
+    if (
+      date.getTime() < startDate.getTime()
+    ) {
+      onChange(date, startDate)
+      return
+    }
+
+    onChange(startDate, date)
+  }
+
+  const defaultStart =
+    startDate ??
+    new Date()
+
+  const defaultEnd =
+    endDate ??
+    startDate ??
+    new Date()
 
   return (
     <View style={styles.container}>
@@ -185,58 +71,29 @@ export function StatisticsDateRangeSelector({
         variant="caption"
         style={styles.instruction}
       >
-        Seleccioná primero la fecha de inicio
-        y después la fecha de finalización.
+        Seleccioná el período que querés analizar.
       </Text>
 
-      <View style={styles.range}>
-        <View style={styles.dateBlock}>
-          <Text variant="caption">
-            Desde
-          </Text>
+      <View style={styles.fields}>
+        <MeasurementDateTimeField
+          label="Desde"
+          value={defaultStart}
+          mode="date"
+          onChange={handleStartChange}
+        />
 
-          <Text style={styles.date}>
-            {formatDate(startDate)}
-          </Text>
-        </View>
-
-        <View style={styles.separator}>
-          <Text variant="caption">
-            →
-          </Text>
-        </View>
-
-        <View style={styles.dateBlock}>
-          <Text variant="caption">
-            Hasta
-          </Text>
-
-          <Text style={styles.date}>
-            {formatDate(endDate)}
-          </Text>
-        </View>
+        <MeasurementDateTimeField
+          label="Hasta"
+          value={defaultEnd}
+          mode="date"
+          onChange={handleEndChange}
+        />
       </View>
-
-      <Calendar
-        markingType="period"
-        markedDates={markedDates}
-        onDayPress={handleDayPress}
-      />
-
-      {startDate && !endDate ? (
-        <Text
-          variant="caption"
-          style={styles.pending}
-        >
-          Ahora seleccioná la fecha de
-          finalización.
-        </Text>
-      ) : null}
 
       {startDate && endDate ? (
         <Text
           variant="caption"
-          style={styles.pending}
+          style={styles.status}
         >
           Rango seleccionado.
         </Text>
@@ -247,34 +104,23 @@ export function StatisticsDateRangeSelector({
 
 const styles = StyleSheet.create({
   container: {
-    marginBottom: 16,
+    marginBottom:
+      theme.spacing.md,
+    gap: theme.spacing.sm,
   },
 
   instruction: {
-    marginBottom: 12,
+    color:
+      theme.colors.textSecondary,
   },
 
-  range: {
+  fields: {
     flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 12,
+    gap: theme.spacing.sm,
   },
 
-  dateBlock: {
-    flex: 1,
-    gap: 4,
-  },
-
-  separator: {
-    paddingHorizontal: 12,
-  },
-
-  date: {
-    fontSize: 16,
-    fontWeight: '600',
-  },
-
-  pending: {
-    marginTop: 8,
+  status: {
+    color:
+      theme.colors.textSecondary,
   },
 })
