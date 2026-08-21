@@ -45,6 +45,12 @@ type YAxisScale = {
   sections: number
 }
 
+type SeriesVisibility = {
+  systolic: boolean
+  diastolic: boolean
+  heartRate: boolean
+}
+
 const COLORS = {
   systolic: '#16A34A',
   diastolic: '#2563EB',
@@ -156,18 +162,36 @@ function createChartData(
 
 function calculateYAxisScale(
   series: ChartSeries,
+  visibility: SeriesVisibility,
 ): YAxisScale {
   const values = [
-    ...series.systolic.map(
-      point => point.value,
-    ),
-    ...series.diastolic.map(
-      point => point.value,
-    ),
-    ...series.heartRate.map(
-      point => point.value,
-    ),
+    ...(visibility.systolic
+      ? series.systolic.map(
+          point => point.value,
+        )
+      : []),
+
+    ...(visibility.diastolic
+      ? series.diastolic.map(
+          point => point.value,
+        )
+      : []),
+
+    ...(visibility.heartRate
+      ? series.heartRate.map(
+          point => point.value,
+        )
+      : []),
   ]
+
+  if (values.length === 0) {
+    return {
+      offset: 0,
+      maxValue: 100,
+      stepValue: 20,
+      sections: 5,
+    }
+  }
 
   const minimum = Math.min(
     ...values,
@@ -339,30 +363,94 @@ function PeriodSelector({
   )
 }
 
-function LegendItem({
-  color,
-  label,
+function SeriesSelector({
+  visibility,
+  onToggle,
 }: {
-  color: string
-  label: string
+  visibility: SeriesVisibility
+  onToggle: (
+    series: keyof SeriesVisibility,
+  ) => void
 }) {
-  return (
-    <View style={styles.legendItem}>
-      <View
-        style={[
-          styles.legendDot,
-          {
-            backgroundColor:
-              color,
-          },
-        ]}
-      />
+  const items: {
+    key: keyof SeriesVisibility
+    label: string
+    color: string
+  }[] = [
+    {
+      key: 'systolic',
+      label: 'PAS',
+      color: COLORS.systolic,
+    },
+    {
+      key: 'diastolic',
+      label: 'PAD',
+      color: COLORS.diastolic,
+    },
+    {
+      key: 'heartRate',
+      label: 'FC',
+      color: COLORS.heartRate,
+    },
+  ]
 
-      <Text
-        style={styles.legendText}
-      >
-        {label}
-      </Text>
+  return (
+    <View style={styles.seriesSelector}>
+      {items.map(item => {
+        const active =
+          visibility[item.key]
+
+        return (
+          <Pressable
+            key={item.key}
+            accessibilityRole="switch"
+            accessibilityState={{
+              checked: active,
+            }}
+            onPress={() =>
+              onToggle(item.key)
+            }
+            style={[
+              styles.seriesButton,
+              active
+                ? styles.seriesButtonActive
+                : styles.seriesButtonInactive,
+            ]}
+          >
+            <View
+              style={[
+                styles.seriesIndicator,
+                {
+                  backgroundColor:
+                    active
+                      ? item.color
+                      : '#CBD5E1',
+                },
+              ]}
+            />
+
+            <Text
+              style={
+                active
+                  ? styles.seriesTextActive
+                  : styles.seriesTextInactive
+              }
+            >
+              {item.label}
+            </Text>
+
+            <Text
+              style={
+                active
+                  ? styles.seriesStateActive
+                  : styles.seriesStateInactive
+              }
+            >
+              {active ? 'ON' : 'OFF'}
+            </Text>
+          </Pressable>
+        )
+      })}
     </View>
   )
 }
@@ -374,9 +462,25 @@ export default function ClinicalChartV3TestScreen() {
   const [scrollX, setScrollX] =
     useState(0)
 
+  const [visibility, setVisibility] =
+    useState<SeriesVisibility>({
+      systolic: true,
+      diastolic: true,
+      heartRate: true,
+    })
+
   useEffect(() => {
     setScrollX(0)
   }, [period])
+
+  const toggleSeries = (
+    series: keyof SeriesVisibility,
+  ) => {
+    setVisibility(current => ({
+      ...current,
+      [series]: !current[series],
+    }))
+  }
 
   const series = useMemo(
     () =>
@@ -388,8 +492,9 @@ export default function ClinicalChartV3TestScreen() {
     () =>
       calculateYAxisScale(
         series,
+        visibility,
       ),
-    [series],
+    [series, visibility],
   )
 
   const xAxisLabels = useMemo(
@@ -403,45 +508,68 @@ export default function ClinicalChartV3TestScreen() {
 
   const systolic = useMemo(
     () =>
-      series.systolic.map(
-        (point, index, array) => ({
-          value: point.value,
-          ...(period !== '7d' &&
-          index === array.length - 1
-            ? { spacing: 0 }
-            : {}),
-        }),
-      ),
-    [series, period],
+      visibility.systolic
+        ? series.systolic.map(
+            (point, index, array) => ({
+              value: point.value,
+              ...(period !== '7d' &&
+              index === array.length - 1
+                ? { spacing: 0 }
+                : {}),
+            }),
+          )
+        : [],
+    [
+      series,
+      period,
+      visibility.systolic,
+    ],
   )
 
   const diastolic = useMemo(
     () =>
-      series.diastolic.map(
-        (point, index, array) => ({
-          value: point.value,
-          ...(period !== '7d' &&
-          index === array.length - 1
-            ? { spacing: 0 }
-            : {}),
-        }),
-      ),
-    [series, period],
+      visibility.diastolic
+        ? series.diastolic.map(
+            (point, index, array) => ({
+              value: point.value,
+              ...(period !== '7d' &&
+              index === array.length - 1
+                ? { spacing: 0 }
+                : {}),
+            }),
+          )
+        : [],
+    [
+      series,
+      period,
+      visibility.diastolic,
+    ],
   )
 
   const heartRate = useMemo(
     () =>
-      series.heartRate.map(
-        (point, index, array) => ({
-          value: point.value,
-          ...(period !== '7d' &&
-          index === array.length - 1
-            ? { spacing: 0 }
-            : {}),
-        }),
-      ),
-    [series, period],
+      visibility.heartRate
+        ? series.heartRate.map(
+            (point, index, array) => ({
+              value: point.value,
+              ...(period !== '7d' &&
+              index === array.length - 1
+                ? { spacing: 0 }
+                : {}),
+            }),
+          )
+        : [],
+    [
+      series,
+      period,
+      visibility.heartRate,
+    ],
   )
+
+  const hasVisibleSeries =
+    visibility.systolic ||
+    visibility.diastolic ||
+    visibility.heartRate
 
   return (
     <Screen>
@@ -503,140 +631,160 @@ export default function ClinicalChartV3TestScreen() {
             }
           />
 
+          <SeriesSelector
+            visibility={
+              visibility
+            }
+            onToggle={
+              toggleSeries
+            }
+          />
+
           <View
             style={styles.chartContainer}
           >
-            <LineChart
-              data={systolic}
-              data2={diastolic}
-              data3={heartRate}
-              height={320}
-              spacing={
-                period === '7d'
-                  ? undefined
-                  : period === '30d'
-                    ? 18
-                    : 6
-              }
-              initialSpacing={12}
-              endSpacing={
-                period === '7d'
-                  ? 0
-                  : 0
-              }
-              adjustToWidth={
-                period === '7d'
-              }
-              thickness={2.5}
-              thickness2={2.5}
-              thickness3={2}
-              color={
-                COLORS.systolic
-              }
-              color2={
-                COLORS.diastolic
-              }
-              color3={
-                COLORS.heartRate
-              }
-              curved
-              curvature={0.18}
-              areaChart
-              areaChart2
-              areaChart3
-              startFillColor={
-                COLORS.systolic
-              }
-              endFillColor={
-                COLORS.systolic
-              }
-              startOpacity={0.14}
-              endOpacity={0.015}
-              startFillColor2={
-                COLORS.diastolic
-              }
-              endFillColor2={
-                COLORS.diastolic
-              }
-              startOpacity2={0.10}
-              endOpacity2={0.01}
-              startFillColor3={
-                COLORS.heartRate
-              }
-              endFillColor3={
-                COLORS.heartRate
-              }
-              startOpacity3={0.07}
-              endOpacity3={0.005}
-              hideDataPoints
-              hideDataPoints2
-              hideDataPoints3
-              dataPointsRadius={0}
-              dataPointsRadius2={0}
-              dataPointsRadius3={0}
-              hideRules={false}
-              rulesColor={
-                COLORS.rules
-              }
-              rulesType="dashed"
-              rulesThickness={1}
-              yAxisColor={
-                COLORS.axisLine
-              }
-              xAxisColor={
-                COLORS.axisLine
-              }
-              yAxisTextStyle={
-                styles.axisText
-              }
-              xAxisLabelTextStyle={
-                period === '7d'
-                  ? styles.axisText
-                  : styles.axisTextRotated
-              }
-              xAxisTextNumberOfLines={
-                1
-              }
-              xAxisLabelsHeight={
-                24
-              }
-              xAxisLabelTexts={
-                xAxisLabels.map(
-                  () => '',
-                )
-              }
-              yAxisLabelWidth={38}
-              yAxisOffset={
-                yAxis.offset
-              }
-              maxValue={
-                yAxis.maxValue
-              }
-              stepValue={
-                yAxis.stepValue
-              }
-              noOfSections={
-                yAxis.sections
-              }
-              showVerticalLines={
-                false
-              }
-              isAnimated={false}
-              focusEnabled={false}
-              showTextOnFocus={false}
-              disableScroll={
-                period === '7d'
-              }
-              onScroll={
-                (
-                  event: NativeSyntheticEvent<NativeScrollEvent>,
-                ) =>
-                  setScrollX(
-                    event.nativeEvent
-                      .contentOffset.x,
+            {hasVisibleSeries ? (
+              <LineChart
+                data={systolic}
+                data2={diastolic}
+                data3={heartRate}
+                height={320}
+                spacing={
+                  period === '7d'
+                    ? undefined
+                    : period === '30d'
+                      ? 18
+                      : 6
+                }
+                initialSpacing={12}
+                endSpacing={0}
+                adjustToWidth={
+                  period === '7d'
+                }
+                thickness={2.5}
+                thickness2={2.5}
+                thickness3={2}
+                color={
+                  COLORS.systolic
+                }
+                color2={
+                  COLORS.diastolic
+                }
+                color3={
+                  COLORS.heartRate
+                }
+                curved
+                curvature={0.18}
+                areaChart
+                areaChart2
+                areaChart3
+                startFillColor={
+                  COLORS.systolic
+                }
+                endFillColor={
+                  COLORS.systolic
+                }
+                startOpacity={0.14}
+                endOpacity={0.015}
+                startFillColor2={
+                  COLORS.diastolic
+                }
+                endFillColor2={
+                  COLORS.diastolic
+                }
+                startOpacity2={0.10}
+                endOpacity2={0.01}
+                startFillColor3={
+                  COLORS.heartRate
+                }
+                endFillColor3={
+                  COLORS.heartRate
+                }
+                startOpacity3={0.07}
+                endOpacity3={0.005}
+                hideDataPoints
+                hideDataPoints2
+                hideDataPoints3
+                dataPointsRadius={0}
+                dataPointsRadius2={0}
+                dataPointsRadius3={0}
+                hideRules={false}
+                rulesColor={
+                  COLORS.rules
+                }
+                rulesType="dashed"
+                rulesThickness={1}
+                yAxisColor={
+                  COLORS.axisLine
+                }
+                xAxisColor={
+                  COLORS.axisLine
+                }
+                yAxisTextStyle={
+                  styles.axisText
+                }
+                xAxisLabelTextStyle={
+                  period === '7d'
+                    ? styles.axisText
+                    : styles.axisTextRotated
+                }
+                xAxisTextNumberOfLines={
+                  1
+                }
+                xAxisLabelsHeight={
+                  24
+                }
+                xAxisLabelTexts={
+                  xAxisLabels.map(
+                    () => '',
                   )
-              }
-            />
+                }
+                yAxisLabelWidth={38}
+                yAxisOffset={
+                  yAxis.offset
+                }
+                maxValue={
+                  yAxis.maxValue
+                }
+                stepValue={
+                  yAxis.stepValue
+                }
+                noOfSections={
+                  yAxis.sections
+                }
+                showVerticalLines={
+                  false
+                }
+                isAnimated={false}
+                focusEnabled={false}
+                showTextOnFocus={false}
+                disableScroll={
+                  period === '7d'
+                }
+                onScroll={
+                  (
+                    event: NativeSyntheticEvent<NativeScrollEvent>,
+                  ) =>
+                    setScrollX(
+                      event.nativeEvent
+                        .contentOffset.x,
+                    )
+                }
+              />
+            ) : (
+              <View
+                style={styles.emptyChart}
+              >
+                <Text
+                  style={
+                    styles.emptyChartText
+                  }
+                >
+                  Activá al menos una serie
+                  para visualizar el gráfico.
+                </Text>
+              </View>
+            )}
           </View>
 
           <ClinicalChartXAxisV3
@@ -644,31 +792,6 @@ export default function ClinicalChartV3TestScreen() {
             period={period}
             scrollX={scrollX}
           />
-
-          <View
-            style={styles.legend}
-          >
-            <LegendItem
-              color={
-                COLORS.systolic
-              }
-              label="Sistólica"
-            />
-
-            <LegendItem
-              color={
-                COLORS.diastolic
-              }
-              label="Diastólica"
-            />
-
-            <LegendItem
-              color={
-                COLORS.heartRate
-              }
-              label="Pulso"
-            />
-          </View>
         </Card>
 
         <Card>
@@ -764,6 +887,63 @@ const styles =
       fontWeight: '600',
     },
 
+    seriesSelector: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: 8,
+      marginTop: 12,
+    },
+
+    seriesButton: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 7,
+      paddingHorizontal: 11,
+      paddingVertical: 8,
+      borderRadius: 10,
+      borderWidth: 1,
+    },
+
+    seriesButtonActive: {
+      backgroundColor: '#F8FAFC',
+      borderColor: '#CBD5E1',
+    },
+
+    seriesButtonInactive: {
+      backgroundColor: '#F8FAFC',
+      borderColor: '#E2E8F0',
+    },
+
+    seriesIndicator: {
+      width: 8,
+      height: 8,
+      borderRadius: 4,
+    },
+
+    seriesTextActive: {
+      color: '#0F172A',
+      fontSize: 13,
+      fontWeight: '600',
+    },
+
+    seriesTextInactive: {
+      color: '#94A3B8',
+      fontSize: 13,
+      fontWeight: '600',
+    },
+
+    seriesStateActive: {
+      color: '#64748B',
+      fontSize: 10,
+      fontWeight: '700',
+    },
+
+    seriesStateInactive: {
+      color: '#94A3B8',
+      fontSize: 10,
+      fontWeight: '700',
+    },
+
     chartContainer: {
       marginTop: 18,
       marginHorizontal: -8,
@@ -784,28 +964,17 @@ const styles =
       ],
     },
 
-    legend: {
-      flexDirection: 'row',
-      flexWrap: 'wrap',
-      gap: 18,
-      marginTop: 6,
-    },
-
-    legendItem: {
-      flexDirection: 'row',
+    emptyChart: {
+      height: 320,
       alignItems: 'center',
-      gap: 7,
+      justifyContent: 'center',
+      paddingHorizontal: 32,
     },
 
-    legendDot: {
-      width: 8,
-      height: 8,
-      borderRadius: 4,
-    },
-
-    legendText: {
-      fontSize: 13,
-      color: '#475569',
+    emptyChartText: {
+      color: '#64748B',
+      textAlign: 'center',
+      lineHeight: 20,
     },
 
     infoText: {
