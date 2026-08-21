@@ -133,9 +133,29 @@ export default function StatisticsScreen() {
             Presión arterial
           </Text>
 
-          <StatisticsChartCard
-            records={filteredMeasurements}
-          />
+          {filter.period === 'custom' &&
+          (!filter.startDate ||
+            !filter.endDate) ? (
+            <Card style={styles.customPendingCard}>
+              <Text style={styles.customPendingTitle}>
+                Seleccioná un período
+              </Text>
+
+              <Text style={styles.customPendingText}>
+                Elegí la fecha de inicio y la fecha
+                de finalización para mostrar el gráfico.
+              </Text>
+            </Card>
+          ) : (
+            <StatisticsChartCard
+              records={filteredMeasurements}
+              period={
+                filter.period === 'custom'
+                  ? '30d'
+                  : filter.period
+              }
+            />
+          )}
         </View>
 
         <View style={styles.section}>
@@ -219,6 +239,27 @@ const styles = StyleSheet.create({
       theme.colors.text,
     marginBottom:
       theme.spacing.sm,
+  },
+
+  customPendingCard: {
+    marginBottom: 20,
+    gap: theme.spacing.xs,
+  },
+
+  customPendingTitle: {
+    fontFamily:
+      theme.typography.semiBold,
+    fontSize: theme.typography.body,
+    color: theme.colors.text,
+  },
+
+  customPendingText: {
+    fontFamily:
+      theme.typography.regular,
+    fontSize: theme.typography.body,
+    lineHeight: 22,
+    color:
+      theme.colors.textSecondary,
   },
 
   emptyCard: {
