@@ -1,40 +1,39 @@
 import { StyleSheet } from 'react-native'
 
-import { ClinicalChartContainer } from '@/components/charts/ClinicalChartContainer'
-import type { ClinicalSeriesKey } from '@/components/charts/ClinicalChart/types/ClinicalSeries'
-import { Card, Text } from '@/components/ui'
-import type { BloodPressureRecord } from '@/domain/measurements/BloodPressureRecord'
+import {
+  ClinicalChartV3,
+} from '@/components/charts/ClinicalChartV3/ClinicalChartV3'
+
+import {
+  Card,
+} from '@/components/ui'
+
+import type {
+  BloodPressureRecord,
+} from '@/domain/measurements/BloodPressureRecord'
 
 interface Props {
   records: BloodPressureRecord[]
+  period: '7d' | '30d' | '90d'
 }
-
-const EXCLUDED_STATISTICS_SERIES: ClinicalSeriesKey[] = [
-  'glucose',
-  'temperature',
-]
 
 export function StatisticsChartCard({
   records,
+  period,
 }: Props) {
   return (
     <Card style={styles.card}>
-      <Text>
-        Evolución de la presión
-      </Text>
-
-      <ClinicalChartContainer
+      <ClinicalChartV3
         records={records}
-        excludedSeriesKeys={
-          EXCLUDED_STATISTICS_SERIES
-        }
+        period={period}
       />
     </Card>
   )
 }
 
-const styles = StyleSheet.create({
-  card: {
-    marginBottom: 20,
-  },
-})
+const styles =
+  StyleSheet.create({
+    card: {
+      marginBottom: 20,
+    },
+  })
