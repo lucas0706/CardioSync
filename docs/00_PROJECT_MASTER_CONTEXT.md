@@ -6,7 +6,7 @@
 | Tipo | Documento Maestro del Proyecto |
 | Estado | Activo |
 | Versión | Sincronizada con la versión del proyecto |
-| Última actualización | 2026-08-14 |
+| Última actualización | 2026-08-22 |
 
 ---
 
@@ -30,11 +30,21 @@ Los tres elementos deberán evolucionar de forma sincronizada.
 
 # 2. Visión
 
-CardioSync es una plataforma especializada para el registro, seguimiento y análisis de la presión arterial.
+CardioSync es una aplicación especializada para el registro, seguimiento y análisis de la presión arterial.
 
-El proyecto evoluciona hacia un sistema de soporte clínico basado exclusivamente en guías clínicas y evidencia científica.
+El proyecto cuenta con una base clínica estructurada mediante:
 
-Su arquitectura está diseñada para permitir el crecimiento progresivo mediante módulos independientes sin comprometer la estabilidad del sistema.
+- clasificación de presión arterial;
+- contexto clínico;
+- targets clínicos;
+- reglas clínicas;
+- análisis clínico;
+- warnings;
+- resultados clínicos.
+
+La arquitectura está diseñada para permitir el crecimiento progresivo mediante módulos independientes sin comprometer la estabilidad del sistema.
+
+La interfaz utiliza actualmente el sistema Visual Redesign V2 como referencia visual oficial.
 
 ---
 
@@ -42,7 +52,7 @@ Su arquitectura está diseñada para permitir el crecimiento progresivo mediante
 
 ## Objetivo principal
 
-Construir una plataforma robusta para el seguimiento de pacientes con hipertensión arterial mediante una arquitectura moderna, mantenible y escalable.
+Construir una plataforma robusta para el seguimiento de la presión arterial mediante una arquitectura moderna, mantenible y escalable, con capacidad de incorporar progresivamente funcionalidades clínicas e integraciones externas.
 
 ## Objetivos técnicos
 
@@ -51,6 +61,9 @@ Construir una plataforma robusta para el seguimiento de pacientes con hipertensi
 - Centralizar la persistencia.
 - Mantener el dominio independiente de la interfaz.
 - Favorecer la reutilización.
+- Mantener TypeScript strict.
+- Mantener compatibilidad con Expo SDK 57.
+- Evaluar dependencias antes de incorporarlas.
 - Mantener documentación sincronizada con el código.
 
 ## Objetivos funcionales
@@ -58,28 +71,38 @@ Construir una plataforma robusta para el seguimiento de pacientes con hipertensi
 ### ✅ Implementado
 
 - Registro de mediciones.
-- Historial.
-- Dashboard.
-- Motor de estadísticas.
+- Validación.
 - Persistencia local.
-
-### 🚧 En desarrollo
-
-- Refactorización del dominio.
-- Consolidación del dominio clínico.
-
-### 📐 Diseño aprobado
-
-- Clinical Context.
+- Historial.
+- Edición y eliminación.
+- Detalle de medición.
+- Dashboard.
+- Resumen semanal.
+- Motor de estadísticas.
+- ClinicalChart V2.
+- Clasificación clínica.
+- Clinical Domain.
 - Clinical Rule Engine.
 - Clinical Analysis Engine.
-- Reportes clínicos.
+- Targets clínicos.
+- Warnings clínicos.
+- Reportes PDF.
+- Compartir reportes.
+- Visual Redesign V2.
+- Navegación V2.
+- Sistema visual V2.
 
 ### 📋 Planificado
 
+- Configuración consolidada.
 - Integración Health Connect.
+- Sistema de backup.
+- Backup local.
+- Backup en nube.
+- Google Drive.
 - Dashboard dinámico.
-- Reportes PDF.
+- Evolución futura de reportes.
+- Nuevas funcionalidades V2.
 
 ---
 
@@ -88,12 +111,23 @@ Construir una plataforma robusta para el seguimiento de pacientes con hipertensi
 Actualmente CardioSync implementa:
 
 - Registro de presión arterial.
-- Persistencia local.
-- Procesamiento estadístico.
+- Persistencia local mediante SQLite.
+- Historial de mediciones.
 - Dashboard.
-- Infraestructura inicial del dominio clínico.
+- Estadísticas.
+- Visualización clínica mediante ClinicalChart.
+- Clasificación de presión arterial.
+- Infraestructura del dominio clínico.
+- Clinical Rule Engine.
+- Clinical Analysis Engine.
+- Targets clínicos.
+- Warnings clínicos.
+- Generación y compartición de reportes PDF.
+- Sistema visual V2.
 
 Toda funcionalidad futura deberá respetar la arquitectura establecida en este documento.
+
+Las funcionalidades clínicas deberán permanecer separadas de la presentación y utilizar las estructuras del dominio existentes.
 
 ---
 
@@ -115,15 +149,55 @@ Toda funcionalidad futura deberá respetar la arquitectura establecida en este d
 
 ✅ Implementado
 
-## Clinical
+## History
 
-🚧 En desarrollo
+✅ Implementado
+
+## Clinical Domain
+
+✅ Implementado
+
+## Clinical Classification
+
+✅ Implementado
+
+## Clinical Rule Engine
+
+✅ Implementado
+
+## Clinical Analysis Engine
+
+✅ Implementado
+
+## ClinicalChart V2
+
+✅ Implementado
+
+## Reports
+
+✅ Implementado
+
+## Visual Redesign V2
+
+✅ Implementado
+
+## Configuración
+
+📋 Planificado / en consolidación
+
+## Health Connect
+
+📋 Planificado
+
+## Backup
+
+📋 Planificado
 
 ## Documentación
 
-🚧 En construcción
+🚧 En consolidación
 
-
+La documentación existente está siendo sincronizada con el estado real de implementación del proyecto.
 
 ---
 
@@ -256,9 +330,18 @@ No implementa lógica de negocio.
 
 ## Clinical
 
-Estado: 🚧 EN DESARROLLO
+Estado: ✅ IMPLEMENTADO
 
-Responsable de la interpretación clínica basada en guías clínicas.
+Responsable de la interpretación clínica basada en guías clínicas mediante:
+
+- clasificación clínica;
+- targets clínicos;
+- reglas clínicas;
+- análisis clínico;
+- warnings;
+- resultados clínicos.
+
+La evolución posterior del dominio clínico continúa en desarrollo.
 
 
 
@@ -361,25 +444,33 @@ Las siguientes reglas forman parte de la arquitectura oficial del proyecto.
 - Dashboard.
 - Statistics.
 - Clinical Foundation.
+- Clinical Domain.
+- Clinical Rule Engine.
+- Clinical Analysis Engine.
+- Reports.
+- Importación.
+- Visual Redesign V2.
 
 ## Fase actual
 
-### Refactorización del dominio
+### Refactorización final del dominio
 
 Estado: 🚧 EN DESARROLLO
 
 Objetivo:
 
-Simplificar el modelo de medición y preparar la evolución del dominio clínico.
+Simplificar el modelo de medición y continuar la separación entre datos propios de la medición, contexto clínico, datos externos y resultados derivados.
 
 ## Próximas fases
 
-- Clinical Domain
-- Clinical Rule Engine
-- Clinical Analysis Engine
-- Reportes
-- Integración Health Connect
-- Dashboard dinámico
+- Configuración consolidada.
+- Integración Health Connect.
+- Sistema de backup.
+- Backup local.
+- Backup en nube / Google Drive.
+- Dashboard dinámico.
+- Evolución futura de reportes.
+- Nuevas funcionalidades clínicas basadas en el dominio establecido.
 
 ---
 
@@ -428,13 +519,15 @@ La lectura recomendada para comprender CardioSync es:
 
 ---
 
-# 17.1 Estado UI/UX — Measurement V2
+# 17.1 Estado UI/UX — Visual Redesign V2
 
 ## Estado
 
-🚧 EN DESARROLLO
+✅ IMPLEMENTADO
 
-El rediseño UI/UX se encuentra en ejecución.
+El Rediseño Visual V2 fue implementado y validado el 2026-08-22.
+
+La implementación abarcó la evolución visual y estructural de las principales áreas de la aplicación, manteniendo la lógica funcional y la arquitectura existente.
 
 El bloque de Measurements V2 fue completado y validado para los tres flujos principales:
 

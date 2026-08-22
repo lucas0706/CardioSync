@@ -3,9 +3,9 @@ import {
   StyleSheet,
   View,
 } from 'react-native'
-import {
-  useState,
-} from 'react'
+
+import { useState } from 'react'
+import { useRouter } from 'expo-router'
 
 import {
   Button,
@@ -20,38 +20,127 @@ import {
   seedReportTestData,
 } from '@/devtools/reports/ReportTestData'
 
+import {
+  getStatisticsAuditData,
+  removeStatisticsAuditData,
+  seedStatisticsAuditData,
+} from '@/devtools/statistics/StatisticsAuditData'
+
+import { reportService } from '@/features/reports/services/ReportService'
+
+import type { StatisticsFilter } from '@/domain/statistics/models'
+import { measurementService } from '@/features/measurements/services/MeasurementService'
+
 export default function ReportTestScreen() {
+  const router = useRouter()
+
   const [
-    count,
-    setCount,
+    reportCount,
+    setReportCount,
   ] = useState(
     countReportTestData(),
   )
 
-  const seed = () => {
+  const [
+    statisticsAuditCount,
+    setStatisticsAuditCount,
+  ] = useState(
+    getStatisticsAuditData().length,
+  )
+
+  const seedReportData = () => {
     const inserted =
       seedReportTestData()
 
-    setCount(
+    setReportCount(
       countReportTestData(),
     )
 
+    const records =
+      measurementService.getAll()
+
+    const now = new Date()
+
+    const startDate = new Date(now)
+    startDate.setDate(
+      startDate.getDate() - 30,
+    )
+
+    const filter: StatisticsFilter = {
+      period: '30d',
+      startDate,
+      endDate: now,
+    }
+
+    const report =
+      reportService.build(
+        records,
+        filter,
+      )
+
     Alert.alert(
       'Datos creados',
-      `Se agregaron ${inserted} registros de prueba.`,
+      `Se agregaron ${inserted} registros de prueba para Reportes.`,
     )
   }
 
-  const remove = () => {
+  const openRedesignReport = () => {
+    const records =
+      measurementService.getAll()
+
+    const now = new Date()
+
+    const startDate = new Date(now)
+    startDate.setDate(
+      startDate.getDate() - 30,
+    )
+
+    const filter: StatisticsFilter = {
+      period: '30d',
+      startDate,
+      endDate: now,
+    }
+
+    router.push('/report-redesign-dev')
+  }
+
+  const removeReportData = () => {
     removeReportTestData()
 
-    setCount(
+    setReportCount(
       countReportTestData(),
     )
 
     Alert.alert(
       'Datos eliminados',
-      'Se eliminaron únicamente los registros de prueba.',
+      'Se eliminaron únicamente los registros de prueba de Reportes.',
+    )
+  }
+
+  const seedStatisticsAudit = () => {
+    const inserted =
+      seedStatisticsAuditData()
+
+    setStatisticsAuditCount(
+      getStatisticsAuditData().length,
+    )
+
+    Alert.alert(
+      'Auditoría creada',
+      `Se agregaron ${inserted} registros controlados para auditar Estadísticas.`,
+    )
+  }
+
+  const removeStatisticsAudit = () => {
+    removeStatisticsAuditData()
+
+    setStatisticsAuditCount(
+      getStatisticsAuditData().length,
+    )
+
+    Alert.alert(
+      'Auditoría eliminada',
+      'Se eliminaron únicamente los registros de auditoría de Estadísticas.',
     )
   }
 
@@ -68,25 +157,61 @@ export default function ReportTestScreen() {
           </Text>
 
           <Text>
-            Registros de prueba actuales:
+            Registros actuales:
             {' '}
-            {count}
+            {reportCount}
           </Text>
 
           <Text>
-            Se crearán 60 registros:
+            Dataset de 60 registros:
             2 por día durante 30 días.
           </Text>
         </Card>
 
         <Button
           title="Crear 60 registros"
-          onPress={seed}
+          onPress={seedReportData}
         />
 
         <Button
           title="Eliminar registros de prueba"
-          onPress={remove}
+          onPress={removeReportData}
+        />
+
+        <Button
+          title="Abrir Reporte Redesign V1"
+          onPress={openRedesignReport}
+        />
+
+        <Card>
+          <Text variant="title">
+            Auditoría de Estadísticas
+          </Text>
+
+          <Text>
+            Registros actuales:
+            {' '}
+            {statisticsAuditCount}
+          </Text>
+
+          <Text>
+            Dataset controlado de 9 registros.
+          </Text>
+
+          <Text>
+            Incluye días sin mediciones y registros
+            sin frecuencia cardíaca.
+          </Text>
+        </Card>
+
+        <Button
+          title="Crear dataset de auditoría"
+          onPress={seedStatisticsAudit}
+        />
+
+        <Button
+          title="Eliminar dataset de auditoría"
+          onPress={removeStatisticsAudit}
         />
       </View>
     </Screen>

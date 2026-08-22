@@ -6,7 +6,7 @@
 | Tipo | Roadmap Oficial del Proyecto |
 | Estado | Activo |
 | Versión | Sincronizada con la versión del proyecto |
-| Última actualización | 2026-08-03 |
+| Última actualización | 2026-08-22 |
 
 ---
 
@@ -52,7 +52,7 @@ Definir la arquitectura inicial del proyecto.
 
 ### Objetivo
 
-Implementar el registro de mediciones.
+Implementar el registro y gestión de mediciones.
 
 ### Funcionalidades implementadas
 
@@ -60,6 +60,10 @@ Implementar el registro de mediciones.
 - Validación.
 - Persistencia.
 - Historial.
+- Edición.
+- Eliminación.
+- Detalle de medición.
+- Formulario V2.
 
 ---
 
@@ -69,13 +73,20 @@ Implementar el registro de mediciones.
 
 ### Objetivo
 
-Visualizar la información del usuario.
+Visualizar de forma clara el estado actual de las mediciones.
 
 ### Funcionalidades implementadas
 
 - Dashboard principal.
-- Indicadores.
-- Gráficos.
+- Última medición.
+- PAS.
+- PAD.
+- FC.
+- Clasificación.
+- Resumen semanal.
+- Indicadores visuales.
+- FAB para nueva medición.
+- Rediseño visual V2.
 
 ---
 
@@ -85,7 +96,7 @@ Visualizar la información del usuario.
 
 ### Objetivo
 
-Implementar el motor estadístico.
+Implementar el motor estadístico y su presentación.
 
 ### Funcionalidades implementadas
 
@@ -94,6 +105,13 @@ Implementar el motor estadístico.
 - Promedios.
 - Variabilidad.
 - Métricas.
+- Filtros temporales.
+- Estadísticas V2.
+- ClinicalChart.
+- PAS, PAD y FC en un mismo gráfico.
+- Zoom.
+- Desplazamiento.
+- Selección de series.
 
 ---
 
@@ -103,102 +121,492 @@ Implementar el motor estadístico.
 
 ### Objetivo
 
-Preparar la infraestructura inicial del dominio clínico.
+Preparar la infraestructura del dominio clínico.
 
 ### Funcionalidades implementadas
 
-- Organización inicial del módulo Clinical.
-- Base para la futura evolución clínica.
+- Organización del módulo Clinical.
+- Modelos clínicos.
+- Contextos clínicos.
+- Tipos clínicos.
+- Guías clínicas.
+- Targets clínicos.
+- Warnings clínicos.
+- Infraestructura para reglas clínicas.
+- Infraestructura para análisis clínico.
+
+---
+
+## Refactorización Final del Dominio
+
+**Estado:** ✅ COMPLETADO
+
+### Objetivo
+
+Simplificar el modelo de dominio y separar los datos propios de la medición de la información clínica contextual.
+
+### Resultado
+
+- BloodPressureRecord representa principalmente la medición de presión arterial.
+- Separación progresiva de contexto clínico.
+- Menor acoplamiento.
+- Base preparada para el Clinical Domain.
+
+---
+
+## Clinical Domain
+
+**Estado:** ✅ COMPLETADO
+
+### Objetivo
+
+Implementar la estructura del dominio clínico de CardioSync.
+
+### Funcionalidades implementadas
+
+- Clasificación de presión arterial.
+- Contextos clínicos.
+- Targets clínicos.
+- Fuentes de guías.
+- Clinical Findings.
+- Clinical Analysis.
+- Clinical Analysis Result.
+- Reglas clínicas.
+- Warnings clínicos.
+
+---
+
+## Clinical Rule Engine
+
+**Estado:** ✅ COMPLETADO
+
+### Objetivo
+
+Implementar un sistema de reglas clínicas desacoplado de la interfaz.
+
+### Funcionalidades implementadas
+
+- ClinicalRule.
+- ClinicalRuleContext.
+- Reglas de presión arterial.
+- Reglas de seguridad.
+- Reglas de hipertensión.
+- Reglas de riesgo cardiovascular.
+- Reglas de target terapéutico.
+- Reglas de tiempo en objetivo.
+- Reglas de carga hipertensiva.
+- Reglas de tendencia.
+- Reglas de variabilidad.
+- Integración con Clinical Analysis.
+
+### Resultado
+
+Las reglas clínicas pueden ejecutarse de forma independiente de la presentación.
+
+---
+
+## Clinical Analysis Engine
+
+**Estado:** ✅ COMPLETADO
+
+### Objetivo
+
+Construir una capa de análisis clínico basada en los resultados del Rule Engine y el contexto clínico seleccionado.
+
+### Funcionalidades implementadas
+
+- ClinicalAnalysisService.
+- ClinicalAnalysisDomainService.
+- ClinicalAnalysisResultBuilder.
+- Integración con ClinicalTargetSelector.
+- Integración con reglas clínicas.
+- Generación de Clinical Findings.
+- Clasificación clínica.
+- Evaluación contextual.
+- Targets terapéuticos.
+- Warnings.
+
+### Validación
+
+Se validaron contextos clínicos y escenarios históricos.
+
+Se verificó la ejecución de las reglas y la construcción de resultados clínicos.
+
+---
+
+## Clinical Classification
+
+**Estado:** ✅ COMPLETADO
+
+### Objetivo
+
+Centralizar la clasificación de presión arterial.
+
+### Categorías implementadas
+
+- normal;
+- borderline;
+- grade-1;
+- grade-2;
+- isolated-systolic.
+
+### Implementación
+
+La clasificación se centraliza en:
+
+`src/domain/clinical/classification/BloodPressureClassifier.ts`
+
+La interfaz utiliza el resultado del dominio y no duplica las reglas clínicas.
+
+---
+
+## ClinicalChart V2
+
+**Estado:** ✅ COMPLETADO
+
+### Objetivo
+
+Consolidar la visualización clínica de las principales mediciones.
+
+### Funcionalidades implementadas
+
+- PAS.
+- PAD.
+- FC.
+- Ejes clínicos.
+- Fechas.
+- Valores.
+- Leyenda.
+- Múltiples series.
+- Zoom.
+- Desplazamiento.
+- Selección de series.
+
+---
+
+## History V2
+
+**Estado:** ✅ COMPLETADO
+
+### Objetivo
+
+Optimizar la consulta rápida del historial.
+
+### Funcionalidades implementadas
+
+- Tarjetas compactas.
+- Clasificación semántica.
+- Información secundaria compacta.
+- Acceso al detalle.
+- Edición.
+- Eliminación.
+- FAB para nueva medición.
+
+---
+
+## Visual Redesign V2
+
+**Estado:** ✅ COMPLETADO
+
+### Objetivo
+
+Modernizar la interfaz de CardioSync sin alterar innecesariamente la lógica funcional.
+
+### Áreas implementadas
+
+- Sistema visual.
+- Theme.
+- Cards.
+- Botones.
+- FAB.
+- Dashboard.
+- History.
+- Measurement.
+- Statistics.
+- Profile.
+- Más.
+- Configuración.
+- Reportes.
+- Navegación.
+
+### Resultado
+
+Se estableció el sistema visual V2 como referencia actual de la aplicación.
+
+---
+
+## Reports
+
+**Estado:** ✅ COMPLETADO
+
+### Objetivo
+
+Generar y compartir reportes de presión arterial.
+
+### Funcionalidades implementadas
+
+- Selección de período.
+- Construcción del reporte.
+- HTML.
+- Generación de PDF.
+- Compartir.
+- Nombre de archivo estructurado.
+- Eliminación del archivo temporal después de compartir.
+
+Los archivos temporales generados por CardioSync no se conservan como una colección permanente dentro de la aplicación.
+
+---
+
+# Fases completadas recientemente
+
+## Refactorización Final del Dominio
+
+**Estado:** ✅ COMPLETADO
+
+### Objetivo
+
+Simplificar el modelo de dominio y separar progresivamente los datos propios de la medición de la información clínica contextual.
+
+### Resultado
+
+- `BloodPressureRecord` representa la medición de presión arterial.
+- Se redujo el acoplamiento entre mediciones y contexto clínico.
+- Se establecieron bases para la evolución del Clinical Domain.
+
+---
+
+## Clinical Rule Engine
+
+**Estado:** ✅ COMPLETADO
+
+### Objetivo
+
+Centralizar las reglas clínicas utilizadas por CardioSync.
+
+### Resultado
+
+- Reglas clínicas desacopladas de la interfaz.
+- Clasificación de presión arterial centralizada.
+- Consolidación de la fuente activa de clasificación.
+- Compatibilidad con distintos contextos clínicos.
+
+---
+
+## Clinical Analysis Engine
+
+**Estado:** ✅ COMPLETADO
+
+### Objetivo
+
+Procesar información clínica y generar resultados derivados a partir de las reglas y contexto disponibles.
+
+### Resultado
+
+- Clinical Analysis V2 implementado.
+- Selección de objetivos clínicos mediante `ClinicalTargetSelector`.
+- Soporte para contextos GENERAL, DIABETES, CKD y ELDERLY.
+- Integración con reglas terapéuticas.
+- Validación mediante registros históricos simulados.
+
+---
+
+## Statistics V2 / ClinicalChart
+
+**Estado:** ✅ COMPLETADO
+
+### Resultado
+
+- PAS, PAD y FC integrados en un único gráfico.
+- Zoom.
+- Desplazamiento.
+- Selección de series.
+- Ejes y fechas.
+- Leyenda.
+- Integración con el período seleccionado.
+- Rediseño visual del gráfico.
+
+---
+
+## Reports
+
+**Estado:** ✅ COMPLETADO
+
+### Resultado
+
+- Generación de reportes PDF.
+- Contenido estandarizado.
+- Selección de período.
+- Generación temporal del archivo.
+- Compartir mediante el sistema nativo.
+- Eliminación del archivo temporal después del proceso de compartir.
+
+---
+
+## Visual Redesign V2
+
+**Estado:** ✅ COMPLETADO
+
+### Objetivo
+
+Modernizar la interfaz de CardioSync manteniendo la funcionalidad y arquitectura existentes.
+
+### Resultado
+
+- Sistema visual V2.
+- Navegación `Inicio | Registros | Perfil | Más`.
+- Dashboard rediseñado.
+- Historial rediseñado.
+- Detalle de medición reorganizado.
+- Nueva medición reorganizada.
+- Perfil reorganizado.
+- Más / Configuración reorganizado.
+- Estadísticas reorganizadas.
+- Componentes visuales reutilizables.
+- Estados visuales y microinteracciones.
+- FAB para nueva medición.
+- Eliminación de navegación redundante en Inicio.
 
 ---
 
 # Fase actual
 
-## Refactorización Final del Dominio
+## Consolidación y Documentación
 
 **Estado:** 🚧 EN DESARROLLO
 
 ### Objetivo
 
-Simplificar completamente el modelo de dominio.
+Consolidar la implementación actual y mantener toda la documentación oficial sincronizada con el código.
 
-BloodPressureRecord deberá representar exclusivamente una medición de presión arterial.
+### Actividades
 
-Toda la información clínica será trasladada progresivamente a contextos especializados.
-
-### Resultado esperado
-
-- Dominio más simple.
-- Menor acoplamiento.
-- Base para el Clinical Domain.
+- Actualización del Project Master Context.
+- Actualización del Roadmap.
+- Actualización del Changelog.
+- Revisión de decisiones arquitectónicas.
+- Documentación final del Visual Redesign V2.
+- Verificación de TypeScript strict.
+- Preparación de próximos módulos.
 
 ---
 
 # Próximas fases
 
-## 1. Diseño del Clinical Domain
+## 1. Configuración e Integraciones
 
-**Estado:** 📋 PLANIFICADO
+**Estado:** 🚧 EN DESARROLLO
 
----
+### Implementado
 
-## 2. Diseño del Clinical Rule Engine
+- Importar registros.
+- Exportar registros.
+- Gestión de datos desde Configuración.
+- Estructura de Configuración dentro de la navegación V2.
 
-**Estado:** 📋 PLANIFICADO
+### Pendiente
 
----
-
-## 3. Diseño del Clinical Analysis Engine
-
-**Estado:** 📋 PLANIFICADO
-
----
-
-## 4. Pantalla de Configuración
-
-**Estado:** 📋 PLANIFICADO
+- Consolidación final de Configuración.
+- Health Connect.
+- Gestión de integraciones externas.
 
 ---
 
-## 5. Diseño de Reportes
+## 2. Backup y recuperación
 
 **Estado:** 📋 PLANIFICADO
+
+### Objetivo
+
+Implementar mecanismos seguros para preservar y recuperar los datos de CardioSync.
+
+### Alcance previsto
+
+- Backup local.
+- Backup en nube.
+- Google Drive.
+- Recuperación de datos.
+- Política de retención.
+- Control de copias para evitar acumulación innecesaria.
+
+La estrategia definitiva se establecerá después de evaluar las capacidades actuales de Expo, SQLite y las integraciones externas necesarias.
 
 ---
 
-## 6. Implementación del Clinical Rule Engine
+## 3. Health Connect
 
 **Estado:** 📋 PLANIFICADO
+
+### Objetivo
+
+Integrar CardioSync con Health Connect para permitir el intercambio de datos compatibles con el ecosistema de salud de Android.
+
+### Alcance previsto
+
+- Gestión de permisos.
+- Lectura de datos compatibles.
+- Escritura de mediciones cuando corresponda.
+- Sincronización.
+- Recuperación de información compatible ante determinados escenarios de pérdida local.
+
+La administración de Health Connect pertenece a:
+
+`Más → Configuración → Health Connect`
+
+No pertenece al Perfil.
 
 ---
 
-## 7. Implementación del Clinical Analysis Engine
+## 4. Dashboard Dinámico
 
 **Estado:** 📋 PLANIFICADO
+
+### Objetivo
+
+Evolucionar el Dashboard utilizando la infraestructura existente para permitir una presentación más dinámica de la información.
+
+La evolución deberá mantener:
+
+- jerarquía visual;
+- claridad clínica;
+- bajo acoplamiento;
+- separación entre presentación y dominio.
 
 ---
 
-## 8. Implementación de Reportes PDF
+## 5. Evolución de Clinical Context
 
 **Estado:** 📋 PLANIFICADO
+
+### Objetivo
+
+Continuar la especialización y extensión de los contextos clínicos existentes sin incrementar el acoplamiento del dominio.
+
+La evolución deberá respetar la separación entre:
+
+- mediciones;
+- contexto clínico;
+- datos externos;
+- resultados derivados.
+
+No se deberá modificar `BloodPressureRecord` para incorporar información perteneciente a otros dominios.
 
 ---
 
-## 9. Integración Health Connect
+## 6. Funcionalidades clínicas futuras
 
 **Estado:** 📋 PLANIFICADO
 
----
+Nuevas funcionalidades clínicas basadas en:
 
-## 10. Dashboard Dinámico
+- Clinical Domain;
+- Clinical Rule Engine;
+- Clinical Analysis Engine;
+- Clinical Targets;
+- Clinical Findings;
+- Warnings;
+- guías clínicas documentadas.
 
-**Estado:** 📋 PLANIFICADO
-
----
-
-## 11. Funcionalidades V2
-
-**Estado:** 📋 PLANIFICADO
+Toda nueva funcionalidad clínica deberá mantener trazabilidad hacia las reglas y fuentes clínicas correspondientes.
 
 ---
 
@@ -224,27 +632,47 @@ Clinical Foundation
 
 ↓
 
-🚧 Refactorización Final del Dominio
+Refactorización Final del Dominio
 
 ↓
 
-📋 Clinical Domain
+Clinical Domain
 
 ↓
 
-📋 Clinical Rule Engine
+Clinical Classification
 
 ↓
 
-📋 Clinical Analysis Engine
+Clinical Rule Engine
 
 ↓
 
-📋 Configuración
+Clinical Analysis Engine
 
 ↓
 
-📋 Reportes
+Statistics V2 / ClinicalChart
+
+↓
+
+History V2
+
+↓
+
+Reports
+
+↓
+
+Importación
+
+↓
+
+Visual Redesign V2
+
+↓
+
+🚧 Configuración e Integraciones
 
 ↓
 
@@ -252,773 +680,16 @@ Clinical Foundation
 
 ↓
 
+📋 Backup y recuperación
+
+↓
+
 📋 Dashboard Dinámico
 
 ↓
 
-📋 Funcionalidades V2
+📋 Evolución de Clinical Context
 
----
-
-# Política de actualización
-
-Este documento deberá actualizarse obligatoriamente al finalizar cada fase.
-
-Una fase no podrá considerarse finalizada hasta que este roadmap refleje exactamente el estado real del proyecto.
-
-
----
-
-## Decisión de períodos por módulo
-
-Los períodos son independientes por feature.
-
-### Historial
-
-Su función principal es visualizar registros. Puede mostrar todos los registros sin filtro temporal o utilizar posteriormente filtros propios de navegación.
-
-### Estadísticas
-
-Mantiene su infraestructura actual:
-
-- 7 días
-- 30 días
-- 90 días
-- personalizado
-
-Utiliza `StatisticsFilter` y `PeriodFilter`.
-
-### Clinical Analysis
-
-No tendrá un período global propio. Analizará los registros correspondientes al conjunto temporal que determine su consumidor.
-
-### Reports
-
-Tendrá posteriormente su propia selección temporal para generación de informes y exportaciones.
-
-Ejemplo:
-
-`Reports = últimos 30 días`
-
-Esto no modifica el período seleccionado en Statistics ni el estado de History.
-
-### Health Connect
-
-Será una fuente adicional de datos. No conocerá ni dependerá de `PeriodFilter`.
-
----
-
-
----
-
-## Clinical Context de producción
-
-### Pendiente antes de integrar Clinical Analysis con Statistics
-
-Crear una fuente de `ClinicalContext` de aplicación que permita proporcionar, cuando corresponda:
-
-- patientId;
-- edad;
-- condiciones clínicas relevantes;
-- factores de riesgo;
-- contexto necesario para selección de objetivos.
-
-No utilizar los escenarios de `devtools` como fuente de datos de producción.
-
-Una vez disponible:
-
-`Statistics filteredMeasurements + StatisticsSummary + ClinicalContext`
-
-podrán alimentar `ClinicalAnalysisDomainService`.
-
----
-
-
-## Checkpoint 2026-08-10 — Statistics V2
-
-Statistics V2 queda en estado funcional para su gráfico clínico principal.
-
-Completado en este checkpoint:
-
-- gráfico de presión arterial;
-- frecuencia cardíaca;
-- múltiples series en un único gráfico;
-- leyenda por serie;
-- unidades visibles;
-- eje temporal;
-- etiquetas de fecha;
-- valores del eje Y;
-- colores diferenciados;
-- integración con los registros de mediciones existentes.
-
-El siguiente trabajo deberá partir de este checkpoint sin reintroducir gráficos separados para las variables principales salvo que exista una decisión explícita de producto.
-
----
-
-# Roadmap operativo actual — 2026-08-11
-
-Este bloque define el orden operativo vigente del proyecto. El contenido histórico anterior de este documento se conserva sin modificaciones.
-
-## FASE 1 — Verificar edición
-
-**Estado:** ✅ COMPLETADO
-
-### Objetivo
-
-Validar la edición de una medición existente sin crear un nuevo registro y comprobar la propagación de los cambios.
-
-### Validaciones realizadas
-
-- Precarga correcta del `MeasurementForm`.
-- Edición de presión sistólica.
-- Edición de presión diastólica.
-- Frecuencia cardíaca opcional.
-- Edición de registros sin frecuencia cardíaca.
-- Persistencia de la modificación.
-- Conservación de la fecha/hora de la medición.
-- History actualizado.
-- Dashboard actualizado.
-- Statistics funcionando según su diseño agregado.
-- Reports actualizado.
-- TypeScript strict sin errores.
-- `git diff --check` sin errores.
-
-### Incidencia corregida
-
-Las mediciones sin frecuencia cardíaca almacenan `NULL` en SQLite.
-
-Al cargar una medición de este tipo para edición, `NULL` llegaba al formulario y Zod rechazaba el valor porque el esquema acepta `number | undefined`, pero no `null`.
-
-La entrada al formulario fue normalizada mediante:
-
-`record.heartRate ?? undefined`
-
-SQLite continúa almacenando `NULL` cuando la frecuencia cardíaca está ausente.
-
-No se modifica la regla de validación ni se inventa un valor de frecuencia cardíaca.
-
----
-
-## FASE 2 — Importación de datos históricos
-
-**Estado:** 📋 PRÓXIMA
-
-### Objetivo
-
-Importar correctamente los datos históricos exportados por la aplicación que actualmente utiliza el usuario.
-
-### Regla principal
-
-No implementar primero un importador genérico.
-
-Primero se debe analizar el archivo real exportado por la aplicación de origen.
-
-No asumir que el formato será CSV, XLSX o JSON.
-
-### Flujo
-
-Aplicación actual
 ↓
-Exportar archivo
-↓
-CardioSync
-↓
-Detectar formato
-↓
-Analizar estructura
-↓
-Mapear campos
-↓
-Validar
-↓
-Normalizar
-↓
-Vista previa
-↓
-Confirmación del usuario
-↓
-SQLite
-↓
-Dashboard / History / Statistics / Reports
 
-### Datos a analizar
-
-- Formato.
-- Columnas.
-- Fechas.
-- Hora.
-- Sistólica.
-- Diastólica.
-- Frecuencia cardíaca.
-- Notas.
-- Otros campos disponibles.
-- Unidades.
-- Registros incompletos.
-- Duplicados.
-- Formato de fecha/hora.
-
-No se inventará el esquema antes de estudiar el archivo real.
-
----
-
-## FASE 3 — Soporte para gran volumen de datos
-
-**Estado:** 📋 PLANIFICADO
-
-Evaluar CardioSync con:
-
-- 100 registros.
-- 1.000 registros.
-- 10.000 registros.
-- 50.000+ registros cuando corresponda.
-
-Revisar:
-
-- SQLite.
-- Índices.
-- Transacciones.
-- Inserción por lotes.
-- Repository.
-- Consultas.
-- Memoria.
-- History.
-- Statistics.
-- Dashboard.
-- Reports.
-
-Evitar cargar innecesariamente toda la base en memoria.
-
-Evaluar paginación o consultas limitadas en History cuando sea necesario.
-
----
-
-## FASE 4 — Validar flujo completo
-
-**Estado:** 📋 PLANIFICADO
-
-Validar:
-
-Registrar
-↓
-Importar
-↓
-Editar
-↓
-Eliminar
-↓
-Dashboard
-↓
-History
-↓
-Statistics
-↓
-Reports
-
-Las modificaciones y eliminaciones deberán propagarse correctamente a las áreas correspondientes.
-
----
-
-## FASE 5 — UI / UX
-
-**Estado:** 📋 PLANIFICADO
-
-Después de estabilizar la funcionalidad:
-
-- DM Sans.
-- Consistencia visual.
-- Botones.
-- Colores.
-- Estados de guardado.
-- Feedback de importación.
-- Validaciones.
-- Errores.
-- Empty states.
-- Espaciado.
-- Consistencia entre pantallas.
-
-La estética no tendrá prioridad sobre la estabilidad funcional.
-
----
-
-## FASE 6 — Checkpoint
-
-**Estado:** 📋 PLANIFICADO
-
-Antes de iniciar nuevas funcionalidades:
-
-- `npx tsc --noEmit`.
-- Pruebas funcionales.
-- `git status`.
-- `git diff --check`.
-- `git diff`.
-- Documentación sincronizada.
-- ZIP completo del proyecto.
-
-El ZIP deberá incluir:
-
-- Código fuente.
-- `docs/`.
-- Configuración.
-- Scripts.
-- `package.json`.
-- Lockfile.
-
-No deberá incluir:
-
-- `node_modules/`.
-- `.git/`.
-- Builds generados.
-- Bases SQLite locales.
-- Archivos temporales.
-
----
-
-## FASE 7 — Health Connect
-
-**Estado:** 📋 PLANIFICADO
-
-Health Connect es una tarea independiente.
-
-No iniciar hasta que la importación histórica, el soporte para grandes volúmenes y el flujo completo estén estabilizados.
-
----
-
-## Fuera del alcance inmediato
-
-No forman parte de las próximas fases:
-
-- Sistema diagnóstico.
-- Sistema de prescripción.
-- Motor clínico complejo.
-- Clinical Rule Engine como próximo desarrollo.
-- Clinical Analysis Engine como próximo desarrollo.
-- ClinicalContext como próximo desarrollo.
-- Nueva arquitectura de Reports.
-
----
-
-# Roadmap operativo actual — 2026-08-13
-
-Este bloque actualiza el orden operativo del proyecto después de completar y validar la importación histórica mediante SQLite.
-
-El contenido histórico anterior de este documento se conserva sin modificaciones.
-
-## FASE 1 — Verificar edición
-
-**Estado:** ✅ COMPLETADO
-
-La edición de mediciones existentes fue validada y estabilizada.
-
-Se verificó:
-
-- Precarga del formulario.
-- Edición de presión sistólica y diastólica.
-- Frecuencia cardíaca opcional.
-- Persistencia.
-- History.
-- Dashboard.
-- Statistics.
-- Reports.
-- Compatibilidad con registros que contienen `NULL` en frecuencia cardíaca.
-
----
-
-## FASE 2 — Importación de datos históricos
-
-**Estado:** ✅ COMPLETADO
-
-### Fuente validada
-
-La fuente real analizada fue una base SQLite de BPTracker.
-
-Archivo utilizado durante la validación:
-
-`bptracker_2026_08_11.db`
-
-### Resultado real
-
-- 2.030 registros detectados.
-- 2.029 registros válidos.
-- 1 duplicado interno.
-- 0 errores.
-- 2.029 registros nuevos.
-- 2.029 mediciones importadas correctamente.
-
-### Implementación
-
-Se incorporó:
-
-- `DbImportParser`
-- `DbImportService`
-- integración con `ImportScreen`
-- reutilización de `ImportNormalizer`
-- deduplicación
-- validación de estructura SQLite
-- persistencia mediante `MeasurementStore`
-- inserción transaccional mediante `createMany()`
-
-### Decisión de formato
-
-SQLite `.db` queda como la vía de importación histórica soportada.
-
-No se incorporará XLS/XLSX.
-
-No se incorporarán nuevos formatos de importación salvo decisión explícita.
-
-La especificación completa se encuentra en:
-
-`docs/13_IMPORTATION_SPECIFICATION.md`
-
----
-
-## FASE 3 — Soporte para gran volumen de datos
-
-**Estado:** ✅ VALIDACIÓN INICIAL COMPLETADA
-
-Se validó CardioSync con una importación real de 2.030 registros.
-
-La importación utilizó:
-
-- SQLite.
-- transacción.
-- inserción por lote.
-- `MeasurementStore.createMany()`.
-- `BloodPressureRepository.createMany()`.
-
-El proyecto debe continuar evitando dependencias innecesarias de memoria para futuras escalas mayores.
-
-No se considera todavía una validación de 50.000+ registros.
-
----
-
-## FASE 4 — Validar flujo completo
-
-**Estado:** ✅ COMPLETADO PARA EL FLUJO ACTUAL
-
-Se validó el flujo:
-
-Registrar
-↓
-Importar
-↓
-Persistir
-↓
-Recargar aplicación
-↓
-History
-↓
-Dashboard
-↓
-Statistics
-
-La importación histórica permaneció disponible después de reiniciar la aplicación.
-
-La persistencia SQLite quedó validada.
-
----
-
-## FASE 5 — Rediseño UI / UX
-
-**Estado:** 🚧 PRÓXIMA
-
-Esta es la siguiente fase activa.
-
-### Objetivo
-
-Establecer el lenguaje visual definitivo de CardioSync sobre la arquitectura funcional existente.
-
-### Alcance inicial
-
-- Sistema de diseño visual.
-- Tipografía.
-- Paleta.
-- Espaciado.
-- Radios.
-- Tarjetas.
-- Botones.
-- Inputs.
-- Estados.
-- Feedback.
-- Empty states.
-- Jerarquía visual.
-- Navegación.
-- Consistencia entre pantallas.
-
-### Orden previsto
-
-1. Auditoría visual del proyecto actual.
-2. Definición del sistema visual.
-3. Componentes visuales reutilizables.
-4. Dashboard.
-5. Measurement.
-6. History.
-7. Statistics.
-8. ClinicalChart.
-9. Import.
-10. Estados globales y detalles de UX.
-11. Validación en dispositivo.
-12. Checkpoint.
-
-### Restricciones
-
-El rediseño no deberá:
-
-- modificar innecesariamente el dominio;
-- cambiar la persistencia;
-- alterar los cálculos estadísticos;
-- romper ClinicalChart;
-- modificar la lógica de importación;
-- introducir dependencias sin evaluación.
-
----
-
-## FASE 6 — Checkpoint post-rediseño
-
-**Estado:** 📋 PLANIFICADO
-
-Al finalizar el rediseño:
-
-- `npx tsc --noEmit`
-- `git diff --check`
-- pruebas funcionales.
-- validación en dispositivo.
-- revisión de navegación.
-- revisión de Dashboard.
-- revisión de Measurement.
-- revisión de History.
-- revisión de Statistics.
-- revisión de ClinicalChart.
-- revisión de Import.
-- documentación sincronizada.
-- commit.
-- ZIP completo.
-
-El ZIP no deberá incluir:
-
-- `node_modules/`
-- `.git/`
-- bases SQLite locales
-- archivos personales de prueba
-- builds generados
-- archivos temporales
-
----
-
-## FASE 7 — Health Connect
-
-**Estado:** 📋 PLANIFICADO
-
-Health Connect se implementará después del rediseño UI/UX.
-
-La integración deberá utilizar la arquitectura existente y tratar Health Connect como fuente externa de datos.
-
-No se modificará `BloodPressureRecord` para convertirlo en un contenedor general de datos de Health Connect.
-
----
-
-## FASE 8 — Evolución clínica
-
-**Estado:** 📋 PLANIFICADO
-
-Después de estabilizar UI/UX y Health Connect se continuará, cuando corresponda, con:
-
-- ClinicalContext de producción.
-- integración progresiva con Clinical Analysis.
-- Rule Engine.
-- Analysis Engine.
-- Reports.
-
-Estas funcionalidades no forman parte del próximo bloque de implementación.
-
----
-
-# Prioridad actual
-
-La prioridad inmediata del proyecto es:
-
-ESTABILIDAD FUNCIONAL
-↓
-DOCUMENTACIÓN
-↓
-CHECKPOINT
-↓
-REDISEÑO UI / UX
-↓
-VALIDACIÓN
-↓
-CHECKPOINT
-↓
-HEALTH CONNECT
-↓
-EVOLUCIÓN CLÍNICA
-
----
-
-# Roadmap operativo actual — 2026-08-14
-
-Este bloque actualiza el estado operativo del proyecto después de completar y validar el rediseño V2 del flujo de mediciones.
-
-El contenido histórico anterior de este documento se conserva sin modificaciones.
-
-## FASE 1 — Verificar edición
-
-**Estado:** ✅ COMPLETADO
-
-La edición de mediciones existentes permanece validada.
-
----
-
-## FASE 2 — Importación de datos históricos
-
-**Estado:** ✅ COMPLETADO
-
-La importación histórica mediante SQLite permanece validada.
-
----
-
-## FASE 3 — Soporte para gran volumen de datos
-
-**Estado:** ✅ VALIDACIÓN INICIAL COMPLETADA
-
-La validación real con 2.030 registros permanece confirmada.
-
-La validación de escalas de 50.000+ registros continúa fuera del alcance inmediato.
-
----
-
-## FASE 4 — Validar flujo completo
-
-**Estado:** ✅ COMPLETADO PARA EL FLUJO ACTUAL
-
-Registrar, importar, persistir, recargar y consultar los datos permanecen validados.
-
----
-
-## FASE 5 — Rediseño UI / UX
-
-**Estado:** 🚧 EN DESARROLLO
-
-### Objetivo
-
-Construir una experiencia visual coherente entre los módulos principales sin modificar innecesariamente la arquitectura funcional existente.
-
-### Bloque completado — Measurements V2
-
-**Estado:** ✅ COMPLETADO
-
-Se completó y validó el rediseño de:
-
-- Nueva medición.
-- Edición.
-- Detalle de medición.
-
-### Nueva medición
-
-Implementado:
-
-- Card SIS.
-- Card DIA.
-- Card FC centrada y del mismo tamaño visual.
-- Fecha mediante selector.
-- Hora mediante selector.
-- Selector visual de brazo.
-- Selector visual de posición.
-- Campo de notas.
-- Guardado de medición.
-
-### Edición
-
-Implementado:
-
-- Misma estructura visual de Nueva medición.
-- Precarga de datos existentes.
-- Edición independiente de fecha y hora.
-- Edición de brazo.
-- Edición de posición.
-- Edición de notas.
-- Guardar cambios.
-- Eliminación.
-
-### Detalle
-
-Implementado:
-
-- Mismas cards SIS / DIA / FC en modo lectura.
-- Clasificación clínica.
-- Alertas clínicas solamente cuando existen.
-- Fecha.
-- Hora.
-- Brazo.
-- Posición.
-- Notas.
-- Editar.
-- Eliminar con confirmación.
-
-### Componentes V2
-
-Se incorporaron:
-
-- `MeasurementDateTimeField`
-- `MeasurementMetricInputCard`
-- `MeasurementOptionSelector`
-
-### Fecha y hora
-
-Se incorporó `@expo/ui` versión compatible con Expo SDK 57 para la selección nativa de fecha y hora.
-
-### Eliminación
-
-La eliminación desde Detalle requiere confirmación explícita antes de ejecutar `measurementStore.delete()`.
-
-### Pendiente de FASE 5
-
-El rediseño todavía deberá extenderse y validarse progresivamente en:
-
-- Dashboard.
-- History.
-- Statistics.
-- ClinicalChart.
-- Import.
-
-No se considera finalizada la FASE 5 hasta completar y validar estos módulos.
-
----
-
-## FASE 6 — Checkpoint
-
-**Estado:** 📋 PLANIFICADO
-
-Antes de iniciar una nueva fase funcional se deberá realizar:
-
-- `npx tsc --noEmit`.
-- `git diff --check`.
-- pruebas funcionales.
-- validación en dispositivo.
-- revisión de navegación.
-- revisión de Dashboard.
-- revisión de Measurement.
-- revisión de History.
-- revisión de Statistics.
-- revisión de ClinicalChart.
-- revisión de Import.
-- documentación sincronizada.
-- commit.
-- ZIP completo.
-
-El checkpoint actual de código funcional es:
-
-`171ef4c feat: complete measurement create edit and detail UI`
-
----
-
-## FASE 7 — Health Connect
-
-**Estado:** 📋 PLANIFICADO
-
-Health Connect se implementará después de finalizar y validar el rediseño UI/UX.
-
-La integración deberá utilizar la arquitectura existente y tratar Health Connect como fuente externa de datos.
-
-No se modificará `BloodPressureRecord` para convertirlo en un contenedor general de datos de Health Connect.
-
----
+📋 Funcionalidades clínicas futuras
