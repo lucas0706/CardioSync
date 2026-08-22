@@ -4,6 +4,10 @@ import {
 } from 'react-native'
 
 import {
+  Text,
+} from '@/components/ui'
+
+import {
   BloodPressureClassifier,
 } from '@/domain/clinical/classification'
 
@@ -43,7 +47,7 @@ export function StatisticsSummaryGrid({
     {
       title: 'Frecuencia cardíaca',
       value:
-        summary.averageHeartRate
+        summary.averageHeartRate !== undefined
           ? Math.round(
               summary.averageHeartRate,
             )
@@ -102,16 +106,16 @@ export function StatisticsSummaryGrid({
         'Valor de presión arterial más bajo registrado durante el período seleccionado.',
     },
     {
-      title: 'Variabilidad',
+      title: 'Desviación estándar sistólica',
       value:
         summary.systolicStandardDeviation.toFixed(
           1,
         ),
       description:
-        'Indica cuánto se alejan tus valores de presión sistólica de su promedio.',
+        'Indica cuánto se alejan, en promedio, tus valores de presión sistólica de su promedio.',
     },
     {
-      title: 'Tendencia',
+      title: 'Tendencia de las mediciones',
       value:
         summary.trend === 'up'
           ? 'En aumento'
@@ -119,25 +123,25 @@ export function StatisticsSummaryGrid({
             ? 'En descenso'
             : 'Estable',
       description:
-        'Indica si tu presión sistólica tiende a subir, bajar o mantenerse estable durante el período seleccionado.',
+        'Indica si los valores de presión sistólica registrados tienden a subir, bajar o mantenerse estables durante el período seleccionado.',
     },
     {
-      title: 'Adherencia',
+      title: 'Regularidad de registros',
       value: `${summary.adherence.toFixed(0)}%`,
       description:
-        'Indica qué tan regularmente realizaste mediciones durante el período seleccionado.',
+        'Porcentaje de intervalos entre mediciones consecutivas que cumplen el criterio interno de regularidad utilizado por CardioSync. Se calcula únicamente sobre los registros existentes y no representa cumplimiento de un protocolo de medición.',
     },
     {
-      title: 'Tiempo en rango',
+      title: 'En objetivo según mediciones',
       value: `${summary.timeInTarget.toFixed(0)}%`,
       description:
-        'Porcentaje de mediciones que se encuentran dentro del objetivo utilizado por el análisis.',
+        'Porcentaje de las mediciones registradas que se encuentran dentro del objetivo utilizado por el análisis. Representa proporción de mediciones, no porcentaje del tiempo real transcurrido.',
     },
     {
-      title: 'Carga de presión elevada',
+      title: 'Presión elevada según mediciones',
       value: `${summary.hypertensionLoad.toFixed(0)}%`,
       description:
-        'Porcentaje de mediciones que presentan valores elevados según el criterio utilizado por el análisis.',
+        'Porcentaje de las mediciones registradas que presentan valores elevados según el criterio utilizado por el análisis. Representa proporción de mediciones, no porcentaje del tiempo real transcurrido.',
     },
   ]
 
@@ -190,6 +194,19 @@ export function StatisticsSummaryGrid({
         value={classification}
         description="Indica la categoría de presión que aparece con mayor frecuencia entre tus mediciones."
       />
+
+      <Text
+        style={styles.disclaimer}
+      >
+        Las métricas se calculan exclusivamente a partir
+        de las mediciones registradas durante el período
+        seleccionado. En una aplicación de uso domiciliario,
+        estos valores describen los registros disponibles y
+        no implican que las mediciones hayan seguido un
+        protocolo clínico. No representan adherencia clínica
+        ni porcentaje del tiempo real transcurrido y no
+        sustituyen una evaluación profesional.
+      </Text>
     </View>
   )
 }
@@ -212,5 +229,16 @@ const styles = StyleSheet.create({
 
   secondaryItem: {
     width: '48%',
+  },
+
+  disclaimer: {
+    marginTop: theme.spacing.xs,
+    fontFamily:
+      theme.typography.regular,
+    fontSize:
+      theme.typography.small,
+    lineHeight: 18,
+    color:
+      theme.colors.textSecondary,
   },
 })

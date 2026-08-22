@@ -6,7 +6,7 @@
 | Tipo | Architecture Decision Records |
 | Estado | Activo |
 | Versión | Sincronizada con la versión del proyecto |
-| Última actualización | 2026-08-14 |
+| Última actualización | 2026-08-22 |
 
 ---
 
@@ -626,3 +626,465 @@ Crear nuevamente tarjetas independientes para Nueva medición, Edición y Detall
 - `02_ROADMAP.md`
 - `10_CHANGELOG.md`
 
+
+
+---
+
+# ADR-005
+
+## Título
+
+El rediseño visual no modifica la lógica de dominio
+
+---
+
+## Fecha
+
+2026-08-22
+
+---
+
+## Estado
+
+Activa
+
+---
+
+## Contexto
+
+CardioSync requirió una evolución visual importante de la interfaz sin alterar
+la funcionalidad clínica y estadística existente.
+
+El rediseño debía mejorar:
+
+- jerarquía visual;
+- legibilidad;
+- navegación;
+- consistencia;
+- densidad de información;
+- presentación de datos clínicos;
+- reutilización de componentes.
+
+---
+
+## Problema
+
+Modificar simultáneamente la presentación y la lógica funcional aumentaría el
+riesgo de introducir regresiones en:
+
+- mediciones;
+- persistencia;
+- estadísticas;
+- clasificación clínica;
+- Clinical Analysis;
+- reportes.
+
+---
+
+## Decisión
+
+El Visual Redesign V2 se implementará principalmente en las capas de:
+
+- presentación;
+- componentes;
+- navegación;
+- theme;
+- interacción visual.
+
+Las reglas clínicas, cálculos estadísticos, persistencia y contratos de dominio
+deben mantenerse independientes de la presentación.
+
+---
+
+## Justificación
+
+Esta separación permite evolucionar la interfaz sin duplicar lógica existente
+ni convertir componentes visuales en responsables de decisiones clínicas.
+
+También permite realizar futuras iteraciones visuales con menor riesgo.
+
+---
+
+## Consecuencias positivas
+
+- Menor riesgo de regresiones funcionales.
+- Mayor reutilización.
+- Separación clara entre UI y dominio.
+- Facilita futuras iteraciones visuales.
+- Mantiene estable la arquitectura.
+
+---
+
+## Consecuencias negativas
+
+- Algunas mejoras visuales requieren adaptar componentes existentes.
+- La interfaz debe consumir correctamente los contratos ya definidos.
+
+---
+
+## Qué puede romper esta decisión
+
+Introducir:
+
+- reglas clínicas dentro de componentes visuales;
+- cálculos estadísticos dentro de pantallas;
+- persistencia directamente desde componentes;
+- lógica de negocio duplicada en la UI.
+
+---
+
+## Diagnóstico
+
+Si un cambio visual requiere modificar reglas clínicas, cálculos o persistencia,
+debe revisarse primero la separación de responsabilidades.
+
+---
+
+## Documentos relacionados
+
+- 00_PROJECT_MASTER_CONTEXT.md
+- 01_ARCHITECTURE.md
+- 02_ROADMAP.md
+- 14_VISUAL_REDESIGN_V2.md
+
+
+---
+
+# ADR-006
+
+## Título
+
+La navegación principal prioriza cuatro áreas de uso
+
+---
+
+## Fecha
+
+2026-08-22
+
+---
+
+## Estado
+
+Activa
+
+---
+
+## Contexto
+
+La evolución de la interfaz requirió simplificar la navegación principal y
+reducir la cantidad de destinos visibles simultáneamente.
+
+---
+
+## Decisión
+
+La navegación inferior principal queda definida como:
+
+`Inicio | Registros | Perfil | Más`
+
+Las funcionalidades secundarias se agrupan dentro de `Más`.
+
+Esto incluye:
+
+- Estadísticas;
+- Reportes;
+- Configuración.
+
+Health Connect pertenece a Configuración y no al Perfil.
+
+---
+
+## Justificación
+
+La decisión separa las áreas de uso frecuente de las funciones secundarias y
+evita sobrecargar la navegación inferior.
+
+---
+
+## Consecuencias
+
+- Inicio concentra el resumen principal.
+- Registros concentra el historial.
+- Perfil concentra información del usuario.
+- Más concentra funciones secundarias y configuración.
+- La navegación queda preparada para futuras integraciones.
+
+---
+
+## Documentos relacionados
+
+- 02_ROADMAP.md
+- 14_VISUAL_REDESIGN_V2.md
+
+---
+
+# ADR-007
+
+## Título
+
+El rediseño visual V2 mantiene la arquitectura funcional existente
+
+---
+
+## Fecha
+
+2026-08-22
+
+---
+
+## Estado
+
+Activa
+
+---
+
+## Contexto
+
+CardioSync completó la implementación del Rediseño Visual V2 definido en `docs/14_VISUAL_REDESIGN_V2.md`.
+
+El rediseño modificó principalmente la presentación de la aplicación:
+
+- jerarquía visual;
+- composición de pantallas;
+- navegación;
+- componentes reutilizables;
+- estilos;
+- densidad de información;
+- interacción visual;
+- presentación de información clínica.
+
+Durante la implementación se mantuvieron las funcionalidades existentes y la separación entre presentación, dominio, servicios y persistencia.
+
+---
+
+## Problema
+
+Un rediseño visual de gran alcance puede generar modificaciones innecesarias sobre la lógica funcional y aumentar el acoplamiento entre UI y dominio.
+
+Era necesario establecer explícitamente que la evolución visual no implica una reimplementación de la lógica de negocio.
+
+---
+
+## Decisión
+
+El Rediseño Visual V2 se implementará como una evolución de la capa de presentación sobre la arquitectura existente.
+
+La UI deberá consumir los servicios, hooks, modelos y reglas existentes en lugar de duplicar su lógica.
+
+Las reglas clínicas, cálculos estadísticos, persistencia y servicios funcionales deberán permanecer independientes de los componentes visuales.
+
+Los cambios visuales deberán centralizarse preferentemente en:
+
+- `src/components`
+- `src/features`
+- `src/theme`
+
+sin trasladar lógica de negocio hacia dichos componentes.
+
+---
+
+## Justificación
+
+Esta decisión permite:
+
+- reducir el riesgo de regresiones;
+- mantener estable el dominio;
+- reutilizar la lógica existente;
+- facilitar futuros rediseños;
+- mantener separación de responsabilidades;
+- evitar duplicación de reglas clínicas y cálculos;
+- preservar la compatibilidad con la arquitectura definida.
+
+---
+
+## Consecuencias positivas
+
+- Menor acoplamiento entre UI y dominio.
+- Mayor reutilización de componentes.
+- Rediseños futuros más seguros.
+- Menor riesgo de alterar funcionalidades existentes.
+- Mejor mantenibilidad.
+- Mayor consistencia visual mediante componentes compartidos.
+
+---
+
+## Consecuencias negativas
+
+- Algunos cambios visuales requieren adaptar componentes existentes.
+- La UI debe respetar los contratos definidos por las capas inferiores.
+- No toda modificación visual puede resolverse exclusivamente desde un componente aislado.
+
+---
+
+## Qué puede romper esta decisión
+
+Se considera una violación de esta decisión:
+
+- implementar reglas clínicas directamente en componentes visuales;
+- duplicar cálculos estadísticos en la UI;
+- acceder directamente a SQLite desde componentes visuales;
+- duplicar lógica de persistencia;
+- crear modelos paralelos únicamente para representar información visual;
+- modificar el dominio únicamente para resolver necesidades estéticas.
+
+---
+
+## Síntomas cuando se rompe
+
+- Componentes con demasiada lógica de negocio.
+- Reglas clínicas duplicadas.
+- Diferencias de comportamiento entre pantallas.
+- Acceso directo a persistencia desde la UI.
+- Dificultad para modificar componentes sin afectar funcionalidades.
+- Errores que aparecen únicamente en determinadas pantallas.
+
+---
+
+## Diagnóstico
+
+Ante un cambio visual que aparentemente requiere modificar dominio, persistencia o reglas clínicas:
+
+1. Verificar si el dato ya está disponible mediante un servicio o hook.
+2. Verificar si existe un componente reutilizable.
+3. Verificar si la necesidad puede resolverse mediante `src/theme`.
+4. Verificar si existe lógica duplicada en la UI.
+5. Modificar capas inferiores únicamente si existe una necesidad funcional real.
+
+---
+
+## Documentos relacionados
+
+- `00_PROJECT_MASTER_CONTEXT.md`
+- `01_ARCHITECTURE.md`
+- `02_ROADMAP.md`
+- `14_VISUAL_REDESIGN_V2.md`
+
+---
+
+# ADR-008
+
+## Título
+
+La navegación principal de CardioSync utiliza cuatro destinos funcionales
+
+---
+
+## Fecha
+
+2026-08-22
+
+---
+
+## Estado
+
+Activa
+
+---
+
+## Contexto
+
+El Rediseño Visual V2 reorganizó la navegación principal para reducir la cantidad de destinos visibles y separar las funciones principales de las secundarias.
+
+---
+
+## Decisión
+
+La navegación inferior definitiva será:
+
+`Inicio | Registros | Perfil | Más`
+
+Las funciones secundarias, incluyendo Estadísticas, Reportes y Configuración, se accederán desde `Más`.
+
+La acción principal de creación de una medición se representa mediante un FAB reutilizado en Inicio y Registros.
+
+---
+
+## Justificación
+
+La navegación distingue entre:
+
+- funciones principales de uso frecuente;
+- funciones secundarias;
+- acciones contextuales.
+
+Esto reduce la saturación de la navegación inferior y mantiene una jerarquía clara.
+
+---
+
+## Consecuencias
+
+Las pantallas nuevas deberán respetar esta organización.
+
+No deberán agregarse destinos permanentes a la barra inferior sin revisar previamente esta decisión.
+
+---
+
+## Documentos relacionados
+
+- `14_VISUAL_REDESIGN_V2.md`
+- `02_ROADMAP.md`
+
+---
+
+# ADR-009
+
+## Título
+
+Health Connect pertenece a Configuración y no al Perfil
+
+---
+
+## Fecha
+
+2026-08-22
+
+---
+
+## Estado
+
+Activa
+
+---
+
+## Contexto
+
+Health Connect representa una integración externa de CardioSync.
+
+El Perfil representa información del usuario y su contexto clínico.
+
+---
+
+## Decisión
+
+La administración de Health Connect pertenece a:
+
+`Más → Configuración → Health Connect`
+
+El Perfil podrá mostrar información proveniente de integraciones externas cuando corresponda, pero no administra la conexión, permisos ni sincronización.
+
+---
+
+## Justificación
+
+La decisión mantiene separadas:
+
+- información del usuario;
+- configuración de la aplicación;
+- integraciones externas.
+
+Esto evita convertir el Perfil en un contenedor de configuraciones técnicas.
+
+---
+
+## Consecuencias
+
+Las futuras funcionalidades de Health Connect deberán mantener su configuración dentro de Configuración.
+
+---
+
+## Documentos relacionados
+
+- `14_VISUAL_REDESIGN_V2.md`
+- `04_CLINICAL_DOMAIN.md`
+- documentación de Health Connect

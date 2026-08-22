@@ -286,18 +286,6 @@ export function HomeV2Screen() {
           />
         </View>
 
-        <Pressable
-          accessibilityRole="button"
-          onPress={() =>
-            router.push('/(tabs)/measurements')
-          }
-          style={styles.testNavigation}
-        >
-          <Text style={styles.testNavigationText}>
-            Ver registros
-          </Text>
-        </Pressable>
-
         <View style={styles.bottomSpace} />
       </ScrollView>
 

@@ -1,10 +1,13 @@
 import {
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from 'react'
 
 import {
+  Animated,
+  Easing,
   Pressable,
   StyleSheet,
   TextInput,
@@ -390,9 +393,49 @@ export function MeasurementForm({
 
       reset()
 
-      onSaved?.(measurement)
+      if (mode === 'create') {
+        showSaveSuccessAnimation()
+
+        setTimeout(() => {
+          onSaved?.(measurement)
+        }, 650)
+      } else {
+        onSaved?.(measurement)
+      }
     },
   )
+
+  const saveSuccessPulse = useRef(
+    new Animated.Value(0),
+  ).current
+
+  const [showSaveSuccess, setShowSaveSuccess] =
+    useState(false)
+
+  const showSaveSuccessAnimation = () => {
+    setShowSaveSuccess(true)
+    saveSuccessPulse.setValue(0)
+
+    Animated.sequence([
+      Animated.timing(saveSuccessPulse, {
+        toValue: 1,
+        duration: 220,
+        easing: Easing.out(Easing.ease),
+        useNativeDriver: true,
+      }),
+      Animated.delay(420),
+      Animated.timing(saveSuccessPulse, {
+        toValue: 0,
+        duration: 180,
+        easing: Easing.in(Easing.ease),
+        useNativeDriver: true,
+      }),
+    ]).start(({ finished }) => {
+      if (finished) {
+        setShowSaveSuccess(false)
+      }
+    })
+  }
 
   const handleMetricChange = (
     field:
@@ -669,15 +712,47 @@ export function MeasurementForm({
         </View>
       </View>
 
-      <AppButton
-        title={
-          mode === 'edit'
-            ? 'Guardar cambios'
-            : 'Guardar medición'
-        }
-        onPress={submit}
-        loading={isSubmitting}
-      />
+      <View style={styles.saveButtonContainer}>
+        <AppButton
+          title={
+            mode === 'edit'
+              ? 'Guardar cambios'
+              : 'Guardar medición'
+          }
+          onPress={submit}
+          loading={isSubmitting}
+        />
+
+        {showSaveSuccess ? (
+          <Animated.View
+            style={[
+              styles.saveSuccess,
+              {
+                opacity: saveSuccessPulse.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [0, 1],
+                }),
+                transform: [
+                  {
+                    scale:
+                      saveSuccessPulse.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: [0.7, 1],
+                      }),
+                  },
+                ],
+              },
+            ]}
+          >
+            <View
+              style={styles.saveSuccessGlow}
+            />
+            <Text style={styles.saveSuccessCheck}>
+              ✓
+            </Text>
+          </Animated.View>
+        ) : null}
+      </View>
 
       {mode === 'edit' ? (
         <Pressable
@@ -709,6 +784,43 @@ const styles = StyleSheet.create({
     paddingHorizontal:
       theme.spacing.md,
     gap: theme.spacing.md,
+  },
+
+  saveButtonContainer: {
+    position: 'relative',
+  },
+
+  saveSuccess: {
+    position: 'absolute',
+    top: '50%',
+    right: theme.spacing.md,
+    width: 30,
+    height: 30,
+    marginTop: -15,
+    borderRadius: theme.radius.round,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  saveSuccessGlow: {
+    position: 'absolute',
+    width: 30,
+    height: 30,
+    borderRadius: theme.radius.round,
+    backgroundColor: theme.colors.success,
+    opacity: 0.18,
+  },
+
+  saveSuccessCheck: {
+    width: 22,
+    height: 22,
+    borderRadius: theme.radius.round,
+    textAlign: 'center',
+    lineHeight: 22,
+    backgroundColor: theme.colors.success,
+    color: '#ffffff',
+    fontSize: 14,
+    fontWeight: '800',
   },
 
   header: {

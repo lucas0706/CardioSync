@@ -1,5 +1,6 @@
 import {
   Pressable,
+  ScrollView,
   StyleSheet,
   View,
 } from 'react-native'
@@ -75,199 +76,258 @@ export default function MoreScreen() {
 
   return (
     <Screen>
-      <View style={styles.container}>
-        <View style={styles.header}>
-          <Text style={styles.title}>
-            Más
-          </Text>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={
+          styles.scrollContent
+        }
+      >
+        <View style={styles.container}>
+          <View style={styles.header}>
+            <Text style={styles.title}>
+              Más
+            </Text>
 
-          <Text style={styles.subtitle}>
-            Herramientas y funciones adicionales
-            de CardioSync.
-          </Text>
-        </View>
+            <Text style={styles.subtitle}>
+              Herramientas y funciones adicionales
+              de CardioSync.
+            </Text>
+          </View>
 
-        <View style={styles.section}>
-          <Text style={styles.sectionLabel}>
-            EXPLORAR
-          </Text>
+          <View style={styles.section}>
+            <Text style={styles.sectionLabel}>
+              GENERAL
+            </Text>
 
-          <View style={styles.card}>
-            <MenuItem
-              title="Estadísticas"
-              description="Analizá la evolución de tus mediciones."
-              icon="stats-chart-outline"
+            <View style={styles.card}>
+              <MenuItem
+                title="Reportes"
+                description="Generar y consultar reportes."
+                icon="document-text-outline"
+                onPress={() =>
+                  router.push('/reports')
+                }
+              />
+
+              <View style={styles.divider} />
+
+              <MenuItem
+                title="Estadísticas"
+                description="Analizar las mediciones registradas."
+                icon="stats-chart-outline"
+                onPress={() =>
+                  router.push('/statistics')
+                }
+              />
+
+              <View style={styles.divider} />
+
+              <MenuItem
+                title="Configuración"
+                description="Importación, exportación y conexiones."
+                icon="settings-outline"
+                onPress={() =>
+                  router.push('/settings')
+                }
+              />
+            </View>
+          </View>
+
+          <View style={styles.developmentSection}>
+            <Pressable
+              accessibilityRole="button"
               onPress={() =>
-                router.push(
-                  '/(tabs)/statistics',
+                setDevelopmentOpen(
+                  value => !value,
                 )
               }
-            />
-
-            <View style={styles.divider} />
-
-            <MenuItem
-              title="Reportes"
-              description="Consultá y generá información de tus registros."
-              icon="document-text-outline"
-              onPress={() =>
-                router.push(
-                  '/(tabs)/reports',
-                )
-              }
-            />
-          </View>
-        </View>
-
-        <View style={styles.section}>
-          <Text style={styles.sectionLabel}>
-            DATOS
-          </Text>
-
-          <View style={styles.card}>
-            <MenuItem
-              title="Importar mediciones"
-              description="Incorporá registros existentes a CardioSync."
-              icon="cloud-upload-outline"
-              onPress={() =>
-                router.push('/import')
-              }
-            />
-          </View>
-        </View>
-
-        <View style={styles.section}>
-          <Text style={styles.sectionLabel}>
-            CONFIGURACIÓN
-          </Text>
-
-          <View style={styles.card}>
-            <MenuItem
-              title="Configuración"
-              description="Preferencias y gestión de la aplicación."
-              icon="settings-outline"
-              onPress={() =>
-                router.push(
-                  '/(tabs)/settings',
-                )
-              }
-            />
-          </View>
-        </View>
-
-        <View style={styles.developmentSection}>
-          <Pressable
-            accessibilityRole="button"
-            accessibilityState={{
-              expanded:
-                developmentOpen,
-            }}
-            onPress={() =>
-              setDevelopmentOpen(
-                current => !current,
-              )
-            }
-            style={styles.developmentHeader}
-          >
-            <View
-              style={
-                styles.developmentHeaderContent
-              }
+              style={styles.developmentHeader}
             >
+              <View
+                style={
+                  styles.developmentHeaderContent
+                }
+              >
+                <Ionicons
+                  name="code-slash-outline"
+                  size={18}
+                  color={
+                    theme.colors.textSecondary
+                  }
+                />
+
+                <Text
+                  style={
+                    styles.developmentTitle
+                  }
+                >
+                  Herramientas de desarrollador
+                </Text>
+              </View>
+
               <Ionicons
-                name="construct-outline"
+                name={
+                  developmentOpen
+                    ? 'chevron-up'
+                    : 'chevron-down'
+                }
                 size={18}
                 color={
                   theme.colors.textSecondary
                 }
               />
+            </Pressable>
 
-              <Text
+            {developmentOpen ? (
+              <View
                 style={
-                  styles.developmentTitle
+                  styles.developmentContent
                 }
               >
-                Herramientas de desarrollo
-              </Text>
-            </View>
-
-            <Ionicons
-              name={
-                developmentOpen
-                  ? 'chevron-up'
-                  : 'chevron-down'
-              }
-              size={18}
-              color={
-                theme.colors.textSecondary
-              }
-            />
-          </Pressable>
-
-          {developmentOpen ? (
-            <View
-              style={
-                styles.developmentContent
-              }
-            >
-              <Pressable
-                accessibilityRole="button"
-                onPress={() =>
-                  router.push(
-                    '/clinical-test',
-                  )
-                }
-                style={styles.devItem}
-              >
-                <Text
-                  style={styles.devItemTitle}
-                >
-                  Clinical Test
-                </Text>
-
-                <Text
-                  style={
-                    styles.devItemDescription
+                <Pressable
+                  accessibilityRole="button"
+                  onPress={() =>
+                    router.push(
+                      '/clinical-test',
+                    )
                   }
+                  style={styles.devItem}
                 >
-                  Herramienta interna de
-                  validación clínica.
-                </Text>
-              </Pressable>
+                  <Text
+                    style={
+                      styles.devItemTitle
+                    }
+                  >
+                    Clinical Test
+                  </Text>
 
-              <Pressable
-                accessibilityRole="button"
-                onPress={() =>
-                  router.push(
-                    '/report-test',
-                  )
-                }
-                style={styles.devItem}
-              >
-                <Text
-                  style={styles.devItemTitle}
-                >
-                  Datos de prueba — Reportes
-                </Text>
+                  <Text
+                    style={
+                      styles.devItemDescription
+                    }
+                  >
+                    Herramienta interna de
+                    validación clínica.
+                  </Text>
+                </Pressable>
 
-                <Text
-                  style={
-                    styles.devItemDescription
+                <Pressable
+                  accessibilityRole="button"
+                  onPress={() =>
+                    router.push(
+                      '/chart-v3-test',
+                    )
                   }
+                  style={styles.devItem}
                 >
-                  Datos utilizados durante el
-                  desarrollo de Reportes.
-                </Text>
-              </Pressable>
-            </View>
-          ) : null}
+                  <Text
+                    style={
+                      styles.devItemTitle
+                    }
+                  >
+                    ClinicalChart V3 — Laboratorio
+                  </Text>
+
+                  <Text
+                    style={
+                      styles.devItemDescription
+                    }
+                  >
+                    Probar ejes, escalas y visualización
+                    del nuevo gráfico.
+                  </Text>
+                </Pressable>
+
+                <Pressable
+                  accessibilityRole="button"
+                  onPress={() =>
+                    router.push(
+                      '/statistics-db-audit',
+                    )
+                  }
+                  style={styles.devItem}
+                >
+                  <Text
+                    style={
+                      styles.devItemTitle
+                    }
+                  >
+                    Statistics DB Audit
+                  </Text>
+
+                  <Text
+                    style={
+                      styles.devItemDescription
+                    }
+                  >
+                    Validar las estadísticas calculadas
+                    sobre los registros reales de la base.
+                  </Text>
+                </Pressable>
+
+                <Pressable
+                  accessibilityRole="button"
+                  onPress={() =>
+                    router.push(
+                      '/report-test',
+                    )
+                  }
+                  style={styles.devItem}
+                >
+                  <Text
+                    style={styles.devItemTitle}
+                  >
+                    Datos de prueba — Reportes
+                  </Text>
+
+                  <Text
+                    style={
+                      styles.devItemDescription
+                    }
+                  >
+                    Datos utilizados durante el
+                    desarrollo de Reportes.
+                  </Text>
+                </Pressable>
+
+                <Pressable
+                  accessibilityRole="button"
+                  onPress={() =>
+                    router.push(
+                      '/report-redesign-dev',
+                    )
+                  }
+                  style={styles.devItem}
+                >
+                  <Text
+                    style={styles.devItemTitle}
+                  >
+                    Reporte Redesign V1
+                  </Text>
+
+                  <Text
+                    style={
+                      styles.devItemDescription
+                    }
+                  >
+                    Vista temporal del nuevo diseño
+                    del reporte.
+                  </Text>
+                </Pressable>
+              </View>
+            ) : null}
+          </View>
         </View>
-      </View>
+      </ScrollView>
     </Screen>
   )
 }
 
 const styles = StyleSheet.create({
+  scrollContent: {
+    paddingBottom: 80,
+  },
+
   container: {
     gap: theme.spacing.lg,
     paddingBottom: theme.spacing.xl,

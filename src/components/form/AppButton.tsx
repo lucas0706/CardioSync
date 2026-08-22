@@ -1,6 +1,11 @@
-import { ActivityIndicator, Pressable, StyleSheet } from 'react-native'
+import {
+  ActivityIndicator,
+  Pressable,
+  StyleSheet,
+} from 'react-native'
 
 import { Text } from '@/components/ui'
+import { theme } from '@/theme'
 
 type Props = {
   title: string
@@ -26,7 +31,10 @@ export function AppButton({
       ]}
     >
       {loading ? (
-        <ActivityIndicator color="#FFFFFF" />
+        <ActivityIndicator
+          color="#FFFFFF"
+          size="small"
+        />
       ) : (
         <Text style={styles.text}>
           {title}
@@ -40,7 +48,7 @@ const styles = StyleSheet.create({
   button: {
     height: 52,
     borderRadius: 14,
-    backgroundColor: '#2563EB',
+    backgroundColor: theme.colors.success,
     justifyContent: 'center',
     alignItems: 'center',
   },

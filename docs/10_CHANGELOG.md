@@ -6,7 +6,7 @@
 | Tipo | Historial de cambios del proyecto |
 | Estado | Activo |
 | Versión | Sincronizada con la versión del proyecto |
-| Última actualización | 2026-08-14 |
+| Última actualización | 2026-08-22 |
 
 ---
 
@@ -540,3 +540,228 @@ Pendiente dentro de UI/UX:
 - ClinicalChart.
 - Import.
 
+
+---
+
+---
+
+# 2026-08-22 — Consolidación funcional y Visual Redesign V2
+
+### Tipo
+
+Implementación / Consolidación / Documentación
+
+### Cambios realizados
+
+Se consolidó el estado funcional actual de CardioSync y se sincronizó la documentación oficial con la implementación.
+
+### Clinical Domain
+
+Se confirmó como implementado el dominio clínico actual, incluyendo:
+
+- Clasificación clínica.
+- Contextos clínicos.
+- Clinical Targets.
+- Clinical Findings.
+- Warnings.
+- Reglas clínicas.
+- Clinical Analysis.
+
+### Clinical Rule Engine
+
+Se confirmó como implementado:
+
+- `ClinicalRule`.
+- `ClinicalRuleContext`.
+- Reglas de presión arterial.
+- Reglas de seguridad.
+- Reglas de hipertensión.
+- Reglas de riesgo cardiovascular.
+- Reglas de target terapéutico.
+- Reglas de tiempo en objetivo.
+- Reglas de carga hipertensiva.
+- Reglas de tendencia.
+- Reglas de variabilidad.
+
+Las reglas permanecen desacopladas de la interfaz.
+
+### Clinical Analysis Engine
+
+Se confirmó como implementado:
+
+- `ClinicalAnalysisService`.
+- `ClinicalAnalysisDomainService`.
+- `ClinicalAnalysisResultBuilder`.
+- `ClinicalTargetSelector`.
+- Evaluación contextual.
+- Generación de Clinical Findings.
+- Warnings.
+- Integración con las reglas clínicas.
+
+Se validaron los contextos:
+
+- GENERAL.
+- DIABETES.
+- CKD.
+- ELDERLY.
+
+### Clinical Classification
+
+Se consolidó la clasificación clínica en una única fuente activa:
+
+`src/domain/clinical/classification/BloodPressureClassifier.ts`
+
+Se mantuvieron las categorías:
+
+- normal.
+- borderline.
+- grade-1.
+- grade-2.
+- isolated-systolic.
+
+### Statistics V2 / ClinicalChart
+
+Se confirmó la implementación de:
+
+- PAS.
+- PAD.
+- FC.
+- Múltiples series.
+- Ejes.
+- Fechas.
+- Valores.
+- Leyenda.
+- Zoom.
+- Desplazamiento.
+- Selección de series.
+- Integración con períodos.
+
+### Reports
+
+Se confirmó como implementado:
+
+- Selección de período.
+- Generación HTML.
+- Generación PDF.
+- Nombre de archivo estructurado.
+- Compartir mediante el sistema nativo.
+- Eliminación del archivo temporal después de compartir.
+
+### Importación y exportación
+
+Se confirmó la implementación de:
+
+- Importación de registros.
+- Exportación de registros.
+- Gestión desde Configuración.
+
+Los formatos externos continúan adaptándose mediante la arquitectura de importación definida en los ADR.
+
+### Visual Redesign V2
+
+Se completó e implementó el rediseño visual V2.
+
+Áreas afectadas:
+
+- Dashboard.
+- History.
+- Measurement.
+- Statistics.
+- Profile.
+- Más.
+- Configuración.
+- Reports.
+- Navegación.
+
+Se consolidó la navegación:
+
+`Inicio | Registros | Perfil | Más`
+
+También se incorporaron y/o consolidaron componentes visuales reutilizables y la nueva jerarquía visual de las pantallas.
+
+### Measurements V2
+
+Se validaron los tres flujos principales:
+
+- Nueva medición.
+- Edición.
+- Detalle.
+
+Se consolidaron:
+
+- Cards SIS / DIA.
+- Card FC.
+- Selector de fecha.
+- Selector de hora.
+- Selector de brazo.
+- Selector de posición.
+- Campo de notas.
+- Clasificación clínica.
+- Alertas clínicas condicionales.
+- Confirmación antes de eliminar.
+
+### Configuración
+
+Se estableció la arquitectura funcional de Configuración.
+
+La administración de integraciones externas, incluyendo Health Connect, deberá permanecer dentro de:
+
+`Más → Configuración`
+
+Health Connect no pertenece al Perfil.
+
+### Documentación
+
+Se actualizaron:
+
+- `00_PROJECT_MASTER_CONTEXT.md`
+- `02_ROADMAP.md`
+- `03_DECISIONS.md`
+- `14_VISUAL_REDESIGN_V2.md`
+
+Se normalizaron los identificadores ADR y se documentaron las decisiones arquitectónicas correspondientes al rediseño visual y a la ubicación de Health Connect.
+
+### Validación técnica
+
+- TypeScript strict: limpio.
+- `git diff --check`: limpio.
+- Expo SDK 57: mantenido.
+- No se incorporaron dependencias innecesarias.
+- La arquitectura funcional existente se mantuvo.
+
+### Estado resultante
+
+CardioSync cuenta actualmente con:
+
+- Measurements.
+- History.
+- Dashboard.
+- Statistics.
+- Clinical Domain.
+- Clinical Classification.
+- Clinical Rule Engine.
+- Clinical Analysis Engine.
+- ClinicalChart V2.
+- Reports PDF.
+- Importación.
+- Exportación.
+- Visual Redesign V2.
+
+Pendiente para próximas fases:
+
+- Configuración consolidada.
+- Health Connect.
+- Backup y recuperación.
+- Backup local.
+- Backup en nube / Google Drive.
+- Dashboard dinámico.
+- Evolución de Clinical Context.
+- Nuevas funcionalidades clínicas.
+
+### Documentos relacionados
+
+- `00_PROJECT_MASTER_CONTEXT.md`
+- `01_ARCHITECTURE.md`
+- `02_ROADMAP.md`
+- `03_DECISIONS.md`
+- `14_VISUAL_REDESIGN_V2.md`

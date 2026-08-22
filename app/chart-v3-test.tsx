@@ -207,10 +207,6 @@ function calculateYAxisScale(
       20,
     )
 
-  /*
-   * Margen pequeño alrededor de los
-   * valores reales.
-   */
   const margin =
     Math.max(
       3,
@@ -238,10 +234,6 @@ function calculateYAxisScale(
   const range =
     maximumScale - offset
 
-  /*
-   * Elegimos un número compacto de
-   * secciones según el rango real.
-   */
   let stepValue: number
 
   if (range <= 40) {
