@@ -269,31 +269,6 @@ export default function MoreScreen() {
                   accessibilityRole="button"
                   onPress={() =>
                     router.push(
-                      '/sqlite-real-backup-poc',
-                    )
-                  }
-                  style={styles.devItem}
-                >
-                  <Text
-                    style={styles.devItemTitle}
-                  >
-                    SQLite Real Backup PoC
-                  </Text>
-
-                  <Text
-                    style={
-                      styles.devItemDescription
-                    }
-                  >
-                    Probar backup de la base real
-                    sin modificar los registros.
-                  </Text>
-                </Pressable>
-
-                <Pressable
-                  accessibilityRole="button"
-                  onPress={() =>
-                    router.push(
                       '/report-test',
                     )
                   }
@@ -339,29 +314,6 @@ export default function MoreScreen() {
                     del reporte.
                   </Text>
                 </Pressable>
-                <Pressable
-                  accessibilityRole="button"
-                  onPress={() =>
-                    router.push(
-                      '/sqlite-real-backup-poc',
-                    )
-                  }
-                  style={styles.devItem}
-                >
-                  <Text
-                    style={styles.devItemTitle}
-                  >
-                    SQLite Backup PoC
-                  </Text>
-
-                  <Text
-                    style={styles.devItemDescription}
-                  >
-                    Validar backup y restauración
-                    de bases SQLite.
-                  </Text>
-                </Pressable>
-
               </View>
             ) : null}
           </View>
