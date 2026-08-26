@@ -1,4 +1,6 @@
 import {
+  ActivityIndicator,
+  Alert,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -7,6 +9,7 @@ import {
 
 import { useState } from 'react'
 
+import * as DocumentPicker from 'expo-document-picker'
 import Ionicons from '@expo/vector-icons/Ionicons'
 
 import {
@@ -19,19 +22,39 @@ import {
   type ManualBackupResult,
 } from '@/features/backup/services/ManualBackupService'
 
+import {
+  restoreCardioSyncBackup,
+  validateCardioSyncBackup,
+  type CardioSyncRestoreValidation,
+} from '@/features/backup/services/CardioSyncRestoreService'
+
 import { theme } from '@/theme'
 
 export default function BackupScreen() {
   const [running, setRunning] = useState(false)
 
+  const [restoring, setRestoring] =
+    useState(false)
+
   const [result, setResult] =
     useState<ManualBackupResult | null>(null)
+
+  const [restoreValidation, setRestoreValidation] =
+    useState<CardioSyncRestoreValidation | null>(
+      null,
+    )
+
+  const [restoreFileName, setRestoreFileName] =
+    useState<string | null>(null)
 
   const [error, setError] =
     useState<string | null>(null)
 
+  const [restoreError, setRestoreError] =
+    useState<string | null>(null)
+
   async function handleManualBackup() {
-    if (running) {
+    if (running || restoring) {
       return
     }
 
@@ -57,6 +80,125 @@ export default function BackupScreen() {
       setError(message)
     } finally {
       setRunning(false)
+    }
+  }
+
+  async function handleSelectRestoreBackup() {
+    if (running || restoring) {
+      return
+    }
+
+    setRestoreValidation(null)
+    setRestoreFileName(null)
+    setRestoreError(null)
+
+    try {
+      const selection =
+        await DocumentPicker.getDocumentAsync({
+          type: 'application/octet-stream',
+          copyToCacheDirectory: true,
+          multiple: false,
+        })
+
+      if (selection.canceled) {
+        return
+      }
+
+      const asset = selection.assets[0]
+
+      if (!asset) {
+        throw new Error(
+          'El selector no devolvió ningún archivo.',
+        )
+      }
+
+      setRestoreFileName(asset.name)
+
+      const validation =
+        await validateCardioSyncBackup(
+          asset.uri,
+        )
+
+      if (!validation.valid) {
+        setRestoreValidation(validation)
+        setRestoreError(
+          validation.error ??
+            'El archivo seleccionado no es una copia válida de CardioSync.',
+        )
+        return
+      }
+
+      setRestoreValidation(validation)
+
+      Alert.alert(
+        'Restaurar copia de seguridad',
+        `La copia contiene ${validation.measurementCount} ${
+          validation.measurementCount === 1
+            ? 'medición'
+            : 'mediciones'
+        }.\n\nLa restauración reemplazará la base de datos actual de CardioSync. Los datos actuales que no estén incluidos en esta copia se perderán.`,
+        [
+          {
+            text: 'Cancelar',
+            style: 'cancel',
+          },
+          {
+            text: 'Restaurar',
+            style: 'destructive',
+            onPress: () => {
+              void handleRestoreBackup(
+                asset.uri,
+              )
+            },
+          },
+        ],
+      )
+    } catch (restoreSelectionError) {
+      const message =
+        restoreSelectionError instanceof Error
+          ? restoreSelectionError.message
+          : 'No se pudo seleccionar o validar la copia de seguridad.'
+
+      setRestoreError(message)
+    }
+  }
+
+  async function handleRestoreBackup(
+    sourceUri: string,
+  ) {
+    if (restoring || running) {
+      return
+    }
+
+    setRestoring(true)
+    setRestoreError(null)
+
+    try {
+      const restored =
+        await restoreCardioSyncBackup(
+          sourceUri,
+        )
+
+      setRestoreValidation(
+        (current) =>
+          current
+            ? {
+                ...current,
+                valid: true,
+                measurementCount:
+                  restored.measurementCount,
+              }
+            : current,
+      )
+    } catch (restoreBackupError) {
+      const message =
+        restoreBackupError instanceof Error
+          ? restoreBackupError.message
+          : 'No se pudo restaurar la copia de seguridad.'
+
+      setRestoreError(message)
+    } finally {
+      setRestoring(false)
     }
   }
 
@@ -116,16 +258,20 @@ export default function BackupScreen() {
               <Pressable
                 accessibilityRole="button"
                 accessibilityState={{
-                  disabled: running,
+                  disabled:
+                    running || restoring,
                 }}
-                disabled={running}
+                disabled={
+                  running || restoring
+                }
                 onPress={handleManualBackup}
                 style={({ pressed }) => [
                   styles.primaryButton,
                   pressed &&
                     !running &&
+                    !restoring &&
                     styles.primaryButtonPressed,
-                  running &&
+                  (running || restoring) &&
                     styles.primaryButtonDisabled,
                 ]}
               >
@@ -213,6 +359,200 @@ export default function BackupScreen() {
                   {error}
                 </Text>
               </View>
+            </View>
+          ) : null}
+
+          <View style={styles.section}>
+            <Text style={styles.sectionLabel}>
+              RESTAURACIÓN
+            </Text>
+
+            <View style={styles.card}>
+              <View style={styles.cardContent}>
+                <View
+                  style={[
+                    styles.iconContainer,
+                    styles.restoreIconContainer,
+                  ]}
+                >
+                  <Ionicons
+                    name="refresh-outline"
+                    size={24}
+                    color={theme.colors.warning}
+                  />
+                </View>
+
+                <View style={styles.textContent}>
+                  <Text style={styles.cardTitle}>
+                    Restaurar una copia
+                  </Text>
+
+                  <Text
+                    style={
+                      styles.cardDescription
+                    }
+                  >
+                    Seleccioná una copia .db creada
+                    por CardioSync para reemplazar
+                    la base de datos actual.
+                  </Text>
+                </View>
+              </View>
+
+              <Pressable
+                accessibilityRole="button"
+                accessibilityState={{
+                  disabled:
+                    running || restoring,
+                }}
+                disabled={
+                  running || restoring
+                }
+                onPress={
+                  handleSelectRestoreBackup
+                }
+                style={({ pressed }) => [
+                  styles.secondaryButton,
+                  pressed &&
+                    !running &&
+                    !restoring &&
+                    styles.secondaryButtonPressed,
+                  (running || restoring) &&
+                    styles.secondaryButtonDisabled,
+                ]}
+              >
+                {restoring ? (
+                  <ActivityIndicator
+                    color={theme.colors.primary}
+                  />
+                ) : (
+                  <Ionicons
+                    name="folder-open-outline"
+                    size={19}
+                    color={theme.colors.primary}
+                  />
+                )}
+
+                <Text
+                  style={styles.secondaryButtonText}
+                >
+                  {restoring
+                    ? 'Restaurando...'
+                    : 'Seleccionar copia'}
+                </Text>
+              </Pressable>
+            </View>
+          </View>
+
+          {restoreFileName &&
+          restoreValidation ? (
+            <View
+              style={[
+                styles.statusCard,
+                restoreValidation.valid
+                  ? styles.successCard
+                  : styles.errorCard,
+              ]}
+            >
+              <View style={styles.statusIcon}>
+                <Ionicons
+                  name={
+                    restoreValidation.valid
+                      ? 'shield-checkmark-outline'
+                      : 'alert-circle-outline'
+                  }
+                  size={24}
+                  color={
+                    restoreValidation.valid
+                      ? theme.colors.success
+                      : theme.colors.danger
+                  }
+                />
+              </View>
+
+              <View style={styles.statusContent}>
+                <Text style={styles.statusTitle}>
+                  {restoreValidation.valid
+                    ? 'Copia válida de CardioSync'
+                    : 'Copia no válida'}
+                </Text>
+
+                <Text
+                  style={styles.statusDescription}
+                >
+                  {restoreFileName}
+                </Text>
+
+                {restoreValidation.valid ? (
+                  <>
+                    <Text
+                      style={styles.statusMeta}
+                    >
+                      {restoreValidation.measurementCount}{' '}
+                      {restoreValidation.measurementCount ===
+                      1
+                        ? 'medición'
+                        : 'mediciones'}{' '}
+                      encontradas.
+                    </Text>
+
+                    <Text
+                      style={styles.statusMeta}
+                    >
+                      Integridad SQLite:{' '}
+                      {restoreValidation.integrityCheck}
+                    </Text>
+                  </>
+                ) : null}
+              </View>
+            </View>
+          ) : null}
+
+          {restoreError ? (
+            <View
+              style={[
+                styles.statusCard,
+                styles.errorCard,
+              ]}
+            >
+              <View style={styles.statusIcon}>
+                <Ionicons
+                  name="alert-circle-outline"
+                  size={24}
+                  color={theme.colors.danger}
+                />
+              </View>
+
+              <View style={styles.statusContent}>
+                <Text style={styles.statusTitle}>
+                  No se pudo restaurar la copia
+                </Text>
+
+                <Text
+                  style={styles.statusDescription}
+                >
+                  {restoreError}
+                </Text>
+              </View>
+            </View>
+          ) : null}
+
+          {restoreValidation?.valid &&
+          !restoring ? (
+            <View style={styles.warningCard}>
+              <Ionicons
+                name="warning-outline"
+                size={20}
+                color={theme.colors.warning}
+              />
+
+              <Text style={styles.warningText}>
+                La restauración reemplaza la base
+                de datos actual. Después de
+                restaurar, cerrá y volvé a abrir
+                CardioSync para que la aplicación
+                utilice la base restaurada.
+              </Text>
             </View>
           ) : null}
 
@@ -373,6 +713,11 @@ const styles = StyleSheet.create({
       theme.colors.primary + '12',
   },
 
+  restoreIconContainer: {
+    backgroundColor:
+      theme.colors.warning + '14',
+  },
+
   textContent: {
     flex: 1,
     gap: theme.spacing.xs,
@@ -419,6 +764,35 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
   },
 
+  secondaryButton: {
+    minHeight: 48,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: theme.spacing.xs,
+    marginHorizontal: theme.spacing.md,
+    marginBottom: theme.spacing.md,
+    paddingHorizontal: theme.spacing.md,
+    borderWidth: 1,
+    borderColor: theme.colors.primary,
+    borderRadius: theme.radius.md,
+    backgroundColor: theme.colors.surface,
+  },
+
+  secondaryButtonPressed: {
+    opacity: 0.75,
+  },
+
+  secondaryButtonDisabled: {
+    opacity: 0.55,
+  },
+
+  secondaryButtonText: {
+    fontFamily: theme.typography.semiBold,
+    fontSize: theme.typography.body,
+    color: theme.colors.primary,
+  },
+
   statusCard: {
     flexDirection: 'row',
     alignItems: 'flex-start',
@@ -463,6 +837,25 @@ const styles = StyleSheet.create({
   statusMeta: {
     fontFamily: theme.typography.medium,
     fontSize: theme.typography.small,
+    color: theme.colors.textSecondary,
+  },
+
+  warningCard: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: theme.spacing.sm,
+    padding: theme.spacing.md,
+    borderWidth: 1,
+    borderColor: theme.colors.warning,
+    borderRadius: theme.radius.lg,
+    backgroundColor: theme.colors.surface,
+  },
+
+  warningText: {
+    flex: 1,
+    fontFamily: theme.typography.regular,
+    fontSize: theme.typography.small,
+    lineHeight: 18,
     color: theme.colors.textSecondary,
   },
 
