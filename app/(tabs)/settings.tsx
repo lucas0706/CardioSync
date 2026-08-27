@@ -20,7 +20,8 @@ type SettingsItemProps = {
   title: string
   description: string
   icon: keyof typeof Ionicons.glyphMap
-  onPress: () => void
+  onPress?: () => void
+  disabled?: boolean
 }
 
 function SettingsItem({
@@ -28,30 +29,48 @@ function SettingsItem({
   description,
   icon,
   onPress,
+  disabled = false,
 }: SettingsItemProps) {
   return (
     <Pressable
       accessibilityRole="button"
+      accessibilityState={{ disabled }}
+      disabled={disabled}
       onPress={onPress}
       style={({ pressed }) => [
         styles.item,
-        pressed && styles.itemPressed,
+        disabled && styles.itemDisabled,
+        pressed && !disabled && styles.itemPressed,
       ]}
     >
       <View style={styles.iconContainer}>
         <Ionicons
           name={icon}
           size={21}
-          color={theme.colors.primary}
+          color={
+            disabled
+              ? theme.colors.textSecondary
+              : theme.colors.primary
+          }
         />
       </View>
 
       <View style={styles.itemContent}>
-        <Text style={styles.itemTitle}>
+        <Text
+          style={[
+            styles.itemTitle,
+            disabled && styles.itemTitleDisabled,
+          ]}
+        >
           {title}
         </Text>
 
-        <Text style={styles.itemDescription}>
+        <Text
+          style={[
+            styles.itemDescription,
+            disabled && styles.itemDescriptionDisabled,
+          ]}
+        >
           {description}
         </Text>
       </View>
@@ -119,13 +138,9 @@ export default function SettingsScreen() {
 
               <SettingsItem
                 title="Copias programadas"
-                description="Configurar cuándo crear copias automáticamente."
+                description="Próximamente."
                 icon="time-outline"
-                onPress={() =>
-                  router.push(
-                    '/backup-settings',
-                  )
-                }
+                disabled
               />
             </View>
           </View>
@@ -220,6 +235,18 @@ const styles = StyleSheet.create({
       theme.spacing.md,
     paddingVertical:
       theme.spacing.sm,
+  },
+
+  itemDisabled: {
+    opacity: 0.55,
+  },
+
+  itemTitleDisabled: {
+    color: theme.colors.textSecondary,
+  },
+
+  itemDescriptionDisabled: {
+    color: theme.colors.textSecondary,
   },
 
   itemPressed: {
