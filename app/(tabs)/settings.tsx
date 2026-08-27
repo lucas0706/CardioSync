@@ -114,6 +114,19 @@ export default function SettingsScreen() {
                   )
                 }
               />
+
+              <View style={styles.divider} />
+
+              <SettingsItem
+                title="Copias programadas"
+                description="Configurar cuándo crear copias automáticamente."
+                icon="time-outline"
+                onPress={() =>
+                  router.push(
+                    '/backup-settings',
+                  )
+                }
+              />
             </View>
           </View>
 

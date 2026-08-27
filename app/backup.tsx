@@ -7,9 +7,10 @@ import {
   View,
 } from 'react-native'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import * as DocumentPicker from 'expo-document-picker'
+import { router } from 'expo-router'
 import Ionicons from '@expo/vector-icons/Ionicons'
 
 import {
@@ -28,6 +29,19 @@ import {
   type CardioSyncRestoreValidation,
 } from '@/features/backup/services/CardioSyncRestoreService'
 
+import {
+  createGoogleDriveBackup,
+  type GoogleDriveBackupResult,
+} from '@/features/backup/services/GoogleDriveService'
+
+import {
+  getGoogleCurrentUser,
+  isGoogleSignInCancelled,
+  signInWithGoogle,
+  signOutFromGoogle,
+  type GoogleAccount,
+} from '@/core/auth/googleAuthService'
+
 import { theme } from '@/theme'
 
 export default function BackupScreen() {
@@ -38,6 +52,24 @@ export default function BackupScreen() {
 
   const [result, setResult] =
     useState<ManualBackupResult | null>(null)
+
+  const [googleDriveRunning, setGoogleDriveRunning] =
+    useState(false)
+
+  const [googleDriveResult, setGoogleDriveResult] =
+    useState<GoogleDriveBackupResult | null>(null)
+
+  const [googleDriveError, setGoogleDriveError] =
+    useState<string | null>(null)
+
+  const [googleAccount, setGoogleAccount] =
+    useState<GoogleAccount | null>(null)
+
+  const [googleAuthLoading, setGoogleAuthLoading] =
+    useState(true)
+
+  const [googleAuthError, setGoogleAuthError] =
+    useState<string | null>(null)
 
   const [restoreValidation, setRestoreValidation] =
     useState<CardioSyncRestoreValidation | null>(
@@ -52,6 +84,106 @@ export default function BackupScreen() {
 
   const [restoreError, setRestoreError] =
     useState<string | null>(null)
+
+  useEffect(() => {
+    void loadGoogleAccount()
+  }, [])
+
+  async function loadGoogleAccount(): Promise<void> {
+    setGoogleAuthLoading(true)
+    setGoogleAuthError(null)
+
+    try {
+      const account =
+        await getGoogleCurrentUser()
+
+      setGoogleAccount(account)
+    } catch (authError) {
+      console.error(
+        'Google auth state error:',
+        authError,
+      )
+
+      setGoogleAccount(null)
+      setGoogleAuthError(
+        'No se pudo comprobar la conexión con Google.',
+      )
+    } finally {
+      setGoogleAuthLoading(false)
+    }
+  }
+
+  async function handleGoogleSignIn(): Promise<void> {
+    if (
+      googleAuthLoading ||
+      googleDriveRunning ||
+      running ||
+      restoring
+    ) {
+      return
+    }
+
+    setGoogleAuthLoading(true)
+    setGoogleAuthError(null)
+
+    try {
+      const result =
+        await signInWithGoogle()
+
+      if (result.type !== 'success') {
+        return
+      }
+
+      const account =
+        await getGoogleCurrentUser()
+
+      setGoogleAccount(account)
+    } catch (authError) {
+      if (
+        isGoogleSignInCancelled(authError)
+      ) {
+        return
+      }
+
+      console.error(
+        'Google Sign-In error:',
+        authError,
+      )
+
+      setGoogleAuthError(
+        'No se pudo conectar Google Drive.',
+      )
+    } finally {
+      setGoogleAuthLoading(false)
+    }
+  }
+
+  async function handleGoogleSignOut(): Promise<void> {
+    if (googleAuthLoading) {
+      return
+    }
+
+    setGoogleAuthLoading(true)
+    setGoogleAuthError(null)
+    setGoogleDriveResult(null)
+    setGoogleDriveError(null)
+
+    try {
+      await signOutFromGoogle()
+      setGoogleAccount(null)
+    } catch (authError) {
+      console.error(
+        'Google Sign-Out error:',
+        authError,
+      )
+
+      setGoogleAuthError(
+        'No se pudo desconectar Google Drive.',
+      )
+    } finally {
+      setGoogleAuthLoading(false)
+    }
+  }
 
   async function handleManualBackup() {
     if (running || restoring) {
@@ -80,6 +212,37 @@ export default function BackupScreen() {
       setError(message)
     } finally {
       setRunning(false)
+    }
+  }
+
+  async function handleGoogleDriveBackup() {
+    if (
+      running ||
+      restoring ||
+      googleDriveRunning ||
+      !googleAccount
+    ) {
+      return
+    }
+
+    setGoogleDriveRunning(true)
+    setGoogleDriveResult(null)
+    setGoogleDriveError(null)
+
+    try {
+      const backup =
+        await createGoogleDriveBackup()
+
+      setGoogleDriveResult(backup)
+    } catch (backupError) {
+      const message =
+        backupError instanceof Error
+          ? backupError.message
+          : 'No se pudo crear la copia de seguridad en Google Drive.'
+
+      setGoogleDriveError(message)
+    } finally {
+      setGoogleDriveRunning(false)
     }
   }
 
@@ -558,25 +721,279 @@ export default function BackupScreen() {
 
           <View style={styles.section}>
             <Text style={styles.sectionLabel}>
-              PRÓXIMAMENTE
+              GOOGLE DRIVE
             </Text>
 
             <View style={styles.card}>
-              <BackupOption
-                icon="logo-google"
-                title="Google Drive"
-                description="Guardar automáticamente una copia en Google Drive."
-                disabled
-              />
+              {googleAuthLoading ? (
+                <View style={styles.authStatusRow}>
+                  <ActivityIndicator
+                    size="small"
+                    color={theme.colors.primary}
+                  />
 
-              <View style={styles.divider} />
+                  <Text style={styles.authStatusText}>
+                    Comprobando conexión con Google...
+                  </Text>
+                </View>
+              ) : googleAccount ? (
+                <>
+                  <View style={styles.connectedCard}>
+                    <View style={styles.connectedIcon}>
+                      <Ionicons
+                        name="checkmark-circle"
+                        size={22}
+                        color={theme.colors.success}
+                      />
+                    </View>
 
-              <BackupOption
-                icon="time-outline"
-                title="Copias programadas"
-                description="Configurar cuándo crear las copias de seguridad."
-                disabled
-              />
+                    <View style={styles.optionContent}>
+                      <Text style={styles.optionTitle}>
+                        Google Drive conectado
+                      </Text>
+
+                      <Text style={styles.optionDescription}>
+                        {googleAccount.email ??
+                          googleAccount.name ??
+                          'Cuenta de Google conectada'}
+                      </Text>
+                    </View>
+                  </View>
+
+                  <View style={styles.driveFolderInfo}>
+                    <Ionicons
+                      name="folder-outline"
+                      size={19}
+                      color={theme.colors.textSecondary}
+                    />
+
+                    <View style={styles.optionContent}>
+                      <Text style={styles.folderTitle}>
+                        Carpeta de destino
+                      </Text>
+
+                      <Text style={styles.folderDescription}>
+                        Google Drive / CardioSync Backups
+                      </Text>
+                    </View>
+                  </View>
+
+                  <Pressable
+                    style={[
+                      styles.option,
+                      googleDriveRunning &&
+                        styles.optionDisabled,
+                    ]}
+                    onPress={handleGoogleDriveBackup}
+                    disabled={
+                      running ||
+                      restoring ||
+                      googleDriveRunning
+                    }
+                  >
+                    <View style={styles.optionIcon}>
+                      {googleDriveRunning ? (
+                        <ActivityIndicator
+                          size="small"
+                          color={theme.colors.primary}
+                        />
+                      ) : (
+                        <Ionicons
+                          name="cloud-upload-outline"
+                          size={20}
+                          color={theme.colors.primary}
+                        />
+                      )}
+                    </View>
+
+                    <View style={styles.optionContent}>
+                      <Text style={styles.optionTitle}>
+                        {googleDriveRunning
+                          ? 'Guardando copia...'
+                          : 'Guardar copia ahora'}
+                      </Text>
+
+                      <Text style={styles.optionDescription}>
+                        {googleDriveRunning
+                          ? 'Subiendo la base de datos a Google Drive.'
+                          : 'Crear y guardar una nueva copia de seguridad.'}
+                      </Text>
+                    </View>
+
+                    {!googleDriveRunning ? (
+                      <Ionicons
+                        name="chevron-forward"
+                        size={20}
+                        color={theme.colors.textSecondary}
+                      />
+                    ) : null}
+                  </Pressable>
+
+                  <Pressable
+                    style={styles.disconnectButton}
+                    onPress={() => {
+                      void handleGoogleSignOut()
+                    }}
+                    disabled={
+                      googleAuthLoading ||
+                      googleDriveRunning
+                    }
+                  >
+                    <Ionicons
+                      name="log-out-outline"
+                      size={18}
+                      color={theme.colors.danger}
+                    />
+
+                    <Text style={styles.disconnectText}>
+                      Desconectar Google Drive
+                    </Text>
+                  </Pressable>
+                </>
+              ) : (
+                <>
+                  <Pressable
+                    style={[
+                      styles.option,
+                      googleAuthLoading &&
+                        styles.optionDisabled,
+                    ]}
+                    onPress={() => {
+                      void handleGoogleSignIn()
+                    }}
+                    disabled={
+                      googleAuthLoading ||
+                      running ||
+                      restoring ||
+                      googleDriveRunning
+                    }
+                  >
+                    <View style={styles.optionIcon}>
+                      <Ionicons
+                        name="logo-google"
+                        size={20}
+                        color={theme.colors.primary}
+                      />
+                    </View>
+
+                    <View style={styles.optionContent}>
+                      <Text style={styles.optionTitle}>
+                        Conectar Google Drive
+                      </Text>
+
+                      <Text style={styles.optionDescription}>
+                        Conectá tu cuenta de Google para guardar copias de seguridad.
+                      </Text>
+                    </View>
+
+                    <Ionicons
+                      name="chevron-forward"
+                      size={20}
+                      color={theme.colors.textSecondary}
+                    />
+                  </Pressable>
+
+                  <View style={styles.driveFolderInfo}>
+                    <Ionicons
+                      name="folder-outline"
+                      size={19}
+                      color={theme.colors.textSecondary}
+                    />
+
+                    <View style={styles.optionContent}>
+                      <Text style={styles.folderTitle}>
+                        Carpeta de destino
+                      </Text>
+
+                      <Text style={styles.folderDescription}>
+                        Google Drive / CardioSync Backups
+                      </Text>
+                    </View>
+                  </View>
+                </>
+              )}
+
+              {googleAuthError ? (
+                <View
+                  style={[
+                    styles.statusCard,
+                    styles.errorCard,
+                  ]}
+                >
+                  <View style={styles.statusIcon}>
+                    <Ionicons
+                      name="alert-circle-outline"
+                      size={24}
+                      color={theme.colors.danger}
+                    />
+                  </View>
+
+                  <View style={styles.statusContent}>
+                    <Text style={styles.statusTitle}>
+                      Problema con Google Drive
+                    </Text>
+
+                    <Text style={styles.statusDescription}>
+                      {googleAuthError}
+                    </Text>
+                  </View>
+                </View>
+              ) : null}
+
+              {googleDriveResult ? (
+                <View style={styles.successCard}>
+                  <Ionicons
+                    name="checkmark-circle-outline"
+                    size={20}
+                    color={theme.colors.success}
+                  />
+
+                  <View style={styles.statusContent}>
+                    <Text style={styles.statusTitle}>
+                      Copia guardada en Google Drive
+                    </Text>
+
+                    <Text style={styles.statusDescription}>
+                      {googleDriveResult.fileName}
+                    </Text>
+
+                    <Text style={styles.statusMeta}>
+                      {googleDriveResult.measurementCount}{' '}
+                      {googleDriveResult.measurementCount === 1
+                        ? 'medición'
+                        : 'mediciones'}
+                    </Text>
+                  </View>
+                </View>
+              ) : null}
+
+              {googleDriveError ? (
+                <View
+                  style={[
+                    styles.statusCard,
+                    styles.errorCard,
+                  ]}
+                >
+                  <View style={styles.statusIcon}>
+                    <Ionicons
+                      name="alert-circle-outline"
+                      size={24}
+                      color={theme.colors.danger}
+                    />
+                  </View>
+
+                  <View style={styles.statusContent}>
+                    <Text style={styles.statusTitle}>
+                      No se pudo guardar en Google Drive
+                    </Text>
+
+                    <Text style={styles.statusDescription}>
+                      {googleDriveError}
+                    </Text>
+                  </View>
+                </View>
+              ) : null}
+
             </View>
           </View>
 
@@ -600,52 +1017,6 @@ export default function BackupScreen() {
   )
 }
 
-type BackupOptionProps = {
-  icon: keyof typeof Ionicons.glyphMap
-  title: string
-  description: string
-  disabled?: boolean
-}
-
-function BackupOption({
-  icon,
-  title,
-  description,
-  disabled = false,
-}: BackupOptionProps) {
-  return (
-    <View
-      style={[
-        styles.option,
-        disabled && styles.optionDisabled,
-      ]}
-    >
-      <View style={styles.optionIcon}>
-        <Ionicons
-          name={icon}
-          size={20}
-          color={theme.colors.textSecondary}
-        />
-      </View>
-
-      <View style={styles.optionContent}>
-        <Text style={styles.optionTitle}>
-          {title}
-        </Text>
-
-        <Text
-          style={styles.optionDescription}
-        >
-          {description}
-        </Text>
-      </View>
-
-      <Text style={styles.comingSoon}>
-        Próximamente
-      </Text>
-    </View>
-  )
-}
 
 const styles = StyleSheet.create({
   scrollContent: {
@@ -874,8 +1245,81 @@ const styles = StyleSheet.create({
     paddingVertical: theme.spacing.sm,
   },
 
+  authStatusRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.spacing.sm,
+    padding: theme.spacing.md,
+  },
+
+  authStatusText: {
+    flex: 1,
+    fontFamily: theme.typography.regular,
+    fontSize: theme.typography.body,
+    color: theme.colors.textSecondary,
+  },
+
+  connectedCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.spacing.sm,
+    padding: theme.spacing.md,
+  },
+
+  connectedIcon: {
+    width: 32,
+    height: 32,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  driveFolderInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.spacing.sm,
+    marginHorizontal: theme.spacing.md,
+    marginBottom: theme.spacing.sm,
+    padding: theme.spacing.sm,
+    borderRadius: theme.radius.md,
+    backgroundColor: theme.colors.background,
+  },
+
+  folderTitle: {
+    fontFamily: theme.typography.semiBold,
+    fontSize: theme.typography.caption,
+    lineHeight: 17,
+    color: theme.colors.text,
+  },
+
+  folderDescription: {
+    fontFamily: theme.typography.regular,
+    fontSize: theme.typography.caption,
+    lineHeight: 17,
+    color: theme.colors.textSecondary,
+  },
+
+  disconnectButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: theme.spacing.xs,
+    marginHorizontal: theme.spacing.md,
+    marginBottom: theme.spacing.md,
+    paddingVertical: theme.spacing.sm,
+  },
+
+  disconnectText: {
+    fontFamily: theme.typography.semiBold,
+    fontSize: theme.typography.caption,
+    color: theme.colors.danger,
+  },
+
   optionDisabled: {
     opacity: 0.55,
+  },
+
+  optionPressed: {
+    opacity: 0.7,
   },
 
   optionIcon: {
@@ -905,6 +1349,202 @@ const styles = StyleSheet.create({
 
   comingSoon: {
     fontFamily: theme.typography.medium,
+    fontSize: theme.typography.small,
+    color: theme.colors.textSecondary,
+  },
+
+  scheduledContainer: {
+    gap: theme.spacing.sm,
+    marginTop: theme.spacing.sm,
+    padding: theme.spacing.md,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+    borderRadius: theme.radius.lg,
+    backgroundColor: theme.colors.surface,
+  },
+
+  scheduledHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.spacing.sm,
+  },
+
+  scheduledError: {
+    fontFamily: theme.typography.regular,
+    fontSize: theme.typography.small,
+    lineHeight: 18,
+    color: theme.colors.danger,
+  },
+
+  scheduleToggle: {
+    width: 48,
+    height: 28,
+    justifyContent: 'center',
+    paddingHorizontal: 3,
+    borderRadius: 14,
+    backgroundColor: theme.colors.border,
+  },
+
+  scheduleToggleActive: {
+    backgroundColor: theme.colors.primary,
+  },
+
+  scheduleToggleThumb: {
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    backgroundColor: theme.colors.surface,
+  },
+
+  scheduleToggleThumbActive: {
+    alignSelf: 'flex-end',
+  },
+
+  scheduledDivider: {
+    height: StyleSheet.hairlineWidth,
+    backgroundColor: theme.colors.border,
+  },
+
+  scheduledRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: theme.spacing.sm,
+  },
+
+  scheduledRowIcon: {
+    width: 32,
+    height: 32,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  scheduledRowContent: {
+    flex: 1,
+    gap: theme.spacing.xs,
+  },
+
+  scheduledRowTitle: {
+    fontFamily: theme.typography.semiBold,
+    fontSize: theme.typography.body,
+    lineHeight: 21,
+    color: theme.colors.text,
+  },
+
+  frequencyOptions: {
+    flexDirection: 'row',
+    gap: theme.spacing.xs,
+  },
+
+  frequencyOption: {
+    minHeight: 36,
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: theme.spacing.sm,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+    borderRadius: theme.radius.md,
+    backgroundColor: theme.colors.surface,
+  },
+
+  frequencyOptionActive: {
+    borderColor: theme.colors.primary,
+    backgroundColor: theme.colors.primary + '12',
+  },
+
+  frequencyOptionText: {
+    fontFamily: theme.typography.medium,
+    fontSize: theme.typography.small,
+    color: theme.colors.textSecondary,
+  },
+
+  frequencyOptionTextActive: {
+    color: theme.colors.primary,
+  },
+
+  timeOptions: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: theme.spacing.xs,
+  },
+
+  timeOption: {
+    minWidth: 72,
+    minHeight: 36,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: theme.spacing.sm,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+    borderRadius: theme.radius.md,
+    backgroundColor: theme.colors.surface,
+  },
+
+  timeOptionActive: {
+    borderColor: theme.colors.primary,
+    backgroundColor: theme.colors.primary + '12',
+  },
+
+  timeOptionText: {
+    fontFamily: theme.typography.medium,
+    fontSize: theme.typography.small,
+    color: theme.colors.textSecondary,
+  },
+
+  timeOptionTextActive: {
+    color: theme.colors.primary,
+  },
+
+  lastExecutionCard: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: theme.spacing.sm,
+    padding: theme.spacing.sm,
+    borderRadius: theme.radius.md,
+    backgroundColor: theme.colors.background,
+  },
+
+  lastExecutionContent: {
+    flex: 1,
+    gap: 2,
+  },
+
+  lastExecutionTitle: {
+    fontFamily: theme.typography.semiBold,
+    fontSize: theme.typography.caption,
+    lineHeight: 17,
+    color: theme.colors.text,
+  },
+
+  lastExecutionText: {
+    fontFamily: theme.typography.regular,
+    fontSize: theme.typography.caption,
+    lineHeight: 17,
+    color: theme.colors.textSecondary,
+  },
+
+  lastExecutionError: {
+    fontFamily: theme.typography.regular,
+    fontSize: theme.typography.caption,
+    lineHeight: 17,
+    color: theme.colors.danger,
+  },
+
+  scheduledDisabledText: {
+    fontFamily: theme.typography.regular,
+    fontSize: theme.typography.small,
+    lineHeight: 18,
+    color: theme.colors.textSecondary,
+  },
+
+  savingRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.spacing.xs,
+  },
+
+  savingText: {
+    fontFamily: theme.typography.regular,
     fontSize: theme.typography.small,
     color: theme.colors.textSecondary,
   },
