@@ -11,6 +11,8 @@ import {
   useRef,
 } from 'react'
 
+import Ionicons from '@expo/vector-icons/Ionicons'
+
 import { Text } from '@/components/ui'
 import { theme } from '@/theme'
 
@@ -33,21 +35,46 @@ export function StatusBadge({
     const animation =
       Animated.loop(
         Animated.sequence([
+          // Primer latido
           Animated.timing(pulse, {
             toValue: 1,
-            duration: 900,
-            easing:
-              Easing.inOut(Easing.ease),
+            duration: 130,
+            easing: Easing.out(
+              Easing.ease,
+            ),
             useNativeDriver: true,
           }),
+
+          Animated.timing(pulse, {
+            toValue: 0.08,
+            duration: 110,
+            easing: Easing.inOut(
+              Easing.ease,
+            ),
+            useNativeDriver: true,
+          }),
+
+          // Segundo latido, ligeramente más suave
+          Animated.timing(pulse, {
+            toValue: 0.72,
+            duration: 115,
+            easing: Easing.out(
+              Easing.ease,
+            ),
+            useNativeDriver: true,
+          }),
+
           Animated.timing(pulse, {
             toValue: 0,
-            duration: 900,
-            easing:
-              Easing.inOut(Easing.ease),
+            duration: 150,
+            easing: Easing.inOut(
+              Easing.ease,
+            ),
             useNativeDriver: true,
           }),
-          Animated.delay(700),
+
+          // Pausa entre latidos
+          Animated.delay(850),
         ]),
       )
 
@@ -58,33 +85,33 @@ export function StatusBadge({
     }
   }, [pulse])
 
-  const dotScale =
+  const heartScale =
     pulse.interpolate({
-      inputRange: [0, 1],
-      outputRange: [1, 1.35],
+      inputRange: [0, 0.72, 1],
+      outputRange: [1, 1.12, 1.28],
     })
 
-  const dotOpacity =
+  const heartOpacity =
     pulse.interpolate({
       inputRange: [0, 1],
-      outputRange: [0.72, 1],
+      outputRange: [0.78, 1],
     })
 
   const glowOpacity =
     pulse.interpolate({
-      inputRange: [0, 1],
-      outputRange: [0.05, 0.32],
+      inputRange: [0, 0.72, 1],
+      outputRange: [0.05, 0.22, 0.34],
     })
 
   const glowScale =
     pulse.interpolate({
-      inputRange: [0, 1],
-      outputRange: [1, 1.8],
+      inputRange: [0, 0.72, 1],
+      outputRange: [1, 1.45, 1.85],
     })
 
   return (
     <View style={[styles.container, style]}>
-      <View style={styles.dotContainer}>
+      <View style={styles.heartContainer}>
         <Animated.View
           style={[
             styles.glow,
@@ -101,19 +128,21 @@ export function StatusBadge({
         />
 
         <Animated.View
-          style={[
-            styles.dot,
-            {
-              backgroundColor: color,
-              opacity: dotOpacity,
-              transform: [
-                {
-                  scale: dotScale,
-                },
-              ],
-            },
-          ]}
-        />
+          style={{
+            opacity: heartOpacity,
+            transform: [
+              {
+                scale: heartScale,
+              },
+            ],
+          }}
+        >
+          <Ionicons
+            name="heart"
+            size={13}
+            color={color}
+          />
+        </Animated.View>
       </View>
 
       <Text
@@ -142,9 +171,9 @@ const styles = StyleSheet.create({
     backgroundColor: theme.colors.background,
   },
 
-  dotContainer: {
-    width: 10,
-    height: 10,
+  heartContainer: {
+    width: 14,
+    height: 14,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -153,12 +182,6 @@ const styles = StyleSheet.create({
     position: 'absolute',
     width: 8,
     height: 8,
-    borderRadius: theme.radius.round,
-  },
-
-  dot: {
-    width: 7,
-    height: 7,
     borderRadius: theme.radius.round,
   },
 

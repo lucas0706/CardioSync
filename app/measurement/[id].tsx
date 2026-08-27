@@ -254,7 +254,7 @@ const styles = StyleSheet.create({
   },
 
   editScrollContent: {
-    paddingBottom: 24,
+    paddingBottom: 80,
   },
 
   emptyState: {
