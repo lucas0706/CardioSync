@@ -1,3 +1,11 @@
 import * as SQLite from 'expo-sqlite'
 
-export const database = SQLite.openDatabaseSync('cardiosync.db')
+const DATABASE_NAME = 'cardiosync.db'
+
+export let database =
+  SQLite.openDatabaseSync(DATABASE_NAME)
+
+export function reopenDatabase(): void {
+  database =
+    SQLite.openDatabaseSync(DATABASE_NAME)
+}

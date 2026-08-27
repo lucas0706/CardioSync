@@ -187,6 +187,33 @@ export default function MoreScreen() {
                 <Pressable
                   accessibilityRole="button"
                   onPress={() =>
+                    router.push('/dev-tools')
+                  }
+                  style={styles.devItem}
+                >
+                  <Text
+                    style={
+                      styles.devItemTitle
+                    }
+                  >
+                    Dev Tools
+                  </Text>
+
+                  <Text
+                    style={
+                      styles.devItemDescription
+                    }
+                  >
+                    Acceso rápido a todas las rutas
+                    y herramientas de prueba.
+                  </Text>
+                </Pressable>
+
+                <View style={styles.divider} />
+
+                <Pressable
+                  accessibilityRole="button"
+                  onPress={() =>
                     router.push(
                       '/clinical-test',
                     )

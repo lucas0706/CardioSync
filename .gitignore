@@ -45,3 +45,5 @@ project/audit/
 *.db
 *.xls
 *.csv
+# Google Services
+google-services.json
