@@ -783,7 +783,7 @@ const styles = StyleSheet.create({
   container: {
     paddingHorizontal:
       theme.spacing.md,
-    gap: theme.spacing.md,
+    gap: theme.spacing.sm,
   },
 
   saveButtonContainer: {
@@ -846,7 +846,7 @@ const styles = StyleSheet.create({
   },
 
   metricsSection: {
-    gap: theme.spacing.sm,
+    gap: theme.spacing.xs,
   },
 
   overline: {
@@ -871,7 +871,7 @@ const styles = StyleSheet.create({
   },
 
   section: {
-    gap: theme.spacing.sm,
+    gap: theme.spacing.xs,
   },
 
   dateTimeRow: {
@@ -920,7 +920,7 @@ const styles = StyleSheet.create({
   },
 
   notes: {
-    minHeight: 88,
+    minHeight: 64,
     paddingTop: theme.spacing.sm,
   },
 
