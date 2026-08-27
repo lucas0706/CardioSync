@@ -1,7 +1,7 @@
 const fs = require('fs');
 
 const appJson = JSON.parse(
-  fs.readFileSync('./app.json.backup', 'utf8'),
+  fs.readFileSync('./app.json', 'utf8'),
 );
 
 module.exports = {
