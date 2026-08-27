@@ -1,7 +1,10 @@
 import * as FileSystem from 'expo-file-system/legacy'
 import * as SQLite from 'expo-sqlite'
 
-import { database } from '@/core/database/database'
+import {
+  database,
+  reopenDatabase,
+} from '@/core/database/database'
 
 const CARDIOSYNC_DATABASE_NAME =
   'cardiosync.db'
@@ -252,6 +255,16 @@ export async function restoreCardioSyncBackup(
       from: getTemporaryRestoreUri(),
       to: destinationUri,
     })
+
+    /*
+     * La instancia global fue cerrada antes de
+     * reemplazar físicamente cardiosync.db.
+     *
+     * Reabrimos la conexión inmediatamente para que
+     * la aplicación pueda continuar utilizando la
+     * base restaurada sin requerir un reinicio.
+     */
+    reopenDatabase()
 
     return {
       measurementCount:

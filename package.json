@@ -17,6 +17,7 @@
     "@expo/ui": "~57.0.10",
     "@expo/vector-icons": "^15.1.1",
     "@hookform/resolvers": "^5.5.7",
+    "@react-native-google-signin/google-signin": "16.1.4",
     "@shopify/react-native-skia": "2.6.2",
     "@types/uuid": "^10.0.0",
     "expo": "~57.0.11",
