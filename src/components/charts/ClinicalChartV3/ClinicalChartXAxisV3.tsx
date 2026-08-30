@@ -25,7 +25,7 @@ function getFixedSpacing(
 
   return period === '30d'
     ? 18
-    : 6
+    : 18
 }
 
 export function ClinicalChartXAxisV3({
@@ -47,20 +47,47 @@ export function ClinicalChartXAxisV3({
   const fixedSpacing =
     getFixedSpacing(period)
 
+  const shouldAdjustToWidth =
+    labels.length <= 10
+
   const spacing =
-    fixedSpacing ??
-    (width - INITIAL_SPACING) /
-      Math.max(
-        labels.length - 1,
-        1,
-      )
+    shouldAdjustToWidth && width > INITIAL_SPACING
+      ? (width - INITIAL_SPACING) /
+        Math.max(
+          labels.length - 1,
+          1,
+        )
+      : fixedSpacing ??
+        (width - INITIAL_SPACING) /
+          Math.max(
+            labels.length - 1,
+            1,
+          )
+
+  const referenceCount =
+    period === '7d'
+      ? labels.length
+      : period === '30d'
+        ? Math.min(10, labels.length)
+        : Math.min(15, labels.length)
 
   const visibleIndexes =
-    period === '7d'
-      ? labels.map((_, index) => index)
-      : period === '30d'
-        ? [0, 5, 10, 15, 20, 25, 29]
-        : [0, 15, 30, 45, 60, 75, 89]
+    referenceCount <= 1
+      ? [0]
+      : Array.from(
+          { length: referenceCount },
+          (_, index) =>
+            Math.round(
+              (index *
+                (labels.length - 1)) /
+                (referenceCount - 1),
+            ),
+        ).filter(
+          (index, position, array) =>
+            index >= 0 &&
+            index < labels.length &&
+            array.indexOf(index) === position,
+        )
 
   return (
     <View
