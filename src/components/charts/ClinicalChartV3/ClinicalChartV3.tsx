@@ -5,6 +5,8 @@ import {
 } from 'react'
 
 import {
+  NativeScrollEvent,
+  NativeSyntheticEvent,
   Pressable,
   StyleSheet,
   View,
@@ -19,6 +21,14 @@ import {
 import type {
   BloodPressureRecord,
 } from '@/domain/measurements/BloodPressureRecord'
+
+import {
+  aggregateMeasurementsForChart,
+} from '@/features/statistics/utils/aggregateMeasurementsForChart'
+
+import type {
+  DailyChartRecord,
+} from '@/features/statistics/utils/aggregateMeasurementsForChart'
 
 import {
   ClinicalChartXAxisV3,
@@ -73,7 +83,7 @@ function formatDate(
 }
 
 function createChartData(
-  records: BloodPressureRecord[],
+  records: DailyChartRecord[],
 ): ChartSeries {
   const sortedRecords =
     [...records].sort(
@@ -293,10 +303,31 @@ export function ClinicalChartV3({
     setScrollX(0)
   }, [records])
 
+  const dailyRecords = useMemo(
+    () =>
+      aggregateMeasurementsForChart(
+        records,
+      ),
+    [records],
+  )
+
   const series = useMemo(
     () =>
-      createChartData(records),
-    [records],
+      createChartData(dailyRecords),
+    [dailyRecords],
+  )
+
+  console.log(
+    '[CardioSync][ClinicalChartV3] period:',
+    period,
+    'rawRecords:',
+    records.length,
+    'dailyRecords:',
+    dailyRecords.length,
+    'dates:',
+    series.systolic.map(
+      point => point.date,
+    ),
   )
 
   const yAxis = useMemo(
@@ -537,6 +568,14 @@ export function ClinicalChartV3({
             }
             hideAxesAndRules={false}
             showVerticalLines={false}
+            scrollEventThrottle={16}
+            onScroll={(
+              event: NativeSyntheticEvent<NativeScrollEvent>,
+            ) => {
+              setScrollX(
+                event.nativeEvent.contentOffset.x,
+              )
+            }}
           />
 
           <ClinicalChartXAxisV3

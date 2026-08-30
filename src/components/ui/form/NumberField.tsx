@@ -3,6 +3,7 @@ import {
   TextInput,
   View,
 } from 'react-native'
+import { useEffect, useState } from 'react'
 
 import { Text } from '@/components/ui'
 import { theme } from '@/theme'
@@ -24,6 +25,19 @@ export function NumberField({
   keyboardType = 'number-pad',
   onChange,
 }: Props) {
+  const [text, setText] = useState(
+    value?.toString() ?? '',
+  )
+
+  useEffect(() => {
+    const externalValue =
+      value?.toString() ?? ''
+
+    if (externalValue !== text) {
+      setText(externalValue)
+    }
+  }, [value])
+
   return (
     <View style={styles.container}>
       <Text style={styles.label}>
@@ -37,17 +51,35 @@ export function NumberField({
           theme.colors.textSecondary
         }
         keyboardType={keyboardType}
-        value={value?.toString() ?? ''}
-        onChangeText={text => {
-          if (!text) {
+        value={text}
+        onChangeText={nextText => {
+          if (!nextText) {
+            setText('')
             onChange(undefined)
             return
           }
 
-          const parsed = Number(text)
+          const normalized =
+            nextText.replace(',', '.')
 
-          if (!Number.isNaN(parsed)) {
-            onChange(parsed)
+          if (
+            !/^\d*\.?\d*$/.test(normalized)
+          ) {
+            return
+          }
+
+          setText(nextText)
+
+          if (
+            normalized !== '.' &&
+            normalized !== ''
+          ) {
+            const parsed =
+              Number(normalized)
+
+            if (!Number.isNaN(parsed)) {
+              onChange(parsed)
+            }
           }
         }}
       />
