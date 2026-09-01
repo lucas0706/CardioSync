@@ -23,6 +23,14 @@ import {
   healthConnectService,
 } from '@/features/healthConnect/services/HealthConnectService'
 
+import {
+  healthConnectSyncService,
+} from '@/features/healthConnect/services/HealthConnectSyncService'
+
+import {
+  measurementService,
+} from '@/features/measurements/services/MeasurementService'
+
 export default function HealthConnectScreen() {
   const [enabled, setEnabled] =
     useState(false)
@@ -82,6 +90,28 @@ export default function HealthConnectScreen() {
       )
     }
 
+  const handleSyncHistory =
+    async () => {
+      const records =
+        measurementService.getAll()
+
+      console.log(
+        '[HealthConnect] Records found',
+        records.length,
+      )
+
+      const exported =
+        await healthConnectSyncService
+          .exportAllBloodPressure(
+            records,
+          )
+
+      Alert.alert(
+        'Health Connect',
+        `${exported} mediciones exportadas.`,
+      )
+    }
+
   return (
     <Screen>
       <View style={styles.container}>
@@ -90,8 +120,7 @@ export default function HealthConnectScreen() {
         </Text>
 
         <Text style={styles.status}>
-          Estado:
-          {' '}
+          Estado:{' '}
           {enabled
             ? 'Conectado'
             : 'Desconectado'}
@@ -107,14 +136,25 @@ export default function HealthConnectScreen() {
             </Text>
           </Pressable>
         ) : (
-          <Pressable
-            style={styles.button}
-            onPress={handleDisconnect}
-          >
-            <Text style={styles.buttonText}>
-              Desconectar
-            </Text>
-          </Pressable>
+          <>
+            <Pressable
+              style={styles.button}
+              onPress={handleDisconnect}
+            >
+              <Text style={styles.buttonText}>
+                Desconectar
+              </Text>
+            </Pressable>
+
+            <Pressable
+              style={styles.button}
+              onPress={handleSyncHistory}
+            >
+              <Text style={styles.buttonText}>
+                Sincronizar historial
+              </Text>
+            </Pressable>
+          </>
         )}
       </View>
     </Screen>

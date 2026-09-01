@@ -13,6 +13,14 @@ export class HealthConnectSyncService {
   async exportBloodPressure(
     record: BloodPressureRecord,
   ): Promise<void> {
+    await this.exportAllBloodPressure([
+      record,
+    ])
+  }
+
+  async exportAllBloodPressure(
+    records: BloodPressureRecord[],
+  ): Promise<number> {
     try {
       const initialized =
         await initialize()
@@ -22,30 +30,37 @@ export class HealthConnectSyncService {
           '[HealthConnect] Not available',
         )
 
-        return
+        return 0
+      }
+
+      if (records.length === 0) {
+        return 0
       }
 
       console.log(
-        '[HealthConnect] Exporting',
-        record.id,
+        '[HealthConnect] Exporting batch',
+        records.length,
       )
 
-      await insertRecords([
-        {
-          recordType: 'BloodPressure',
+      await insertRecords(
+        records.map(record => ({
+          recordType:
+            'BloodPressure' as const,
 
-          time: record.dateTime,
+          time: new Date(
+            record.dateTime,
+          ).toISOString(),
 
           systolic: {
             value: record.systolic,
             unit:
-              'millimetersOfMercury',
+              'millimetersOfMercury' as const,
           },
 
           diastolic: {
             value: record.diastolic,
             unit:
-              'millimetersOfMercury',
+              'millimetersOfMercury' as const,
           },
 
           bodyPosition:
@@ -62,18 +77,22 @@ export class HealthConnectSyncService {
             clientRecordId:
               record.id,
           },
-        },
-      ])
+        })),
+      )
 
       console.log(
-        '[HealthConnect] Export OK',
-        record.id,
+        '[HealthConnect] Batch export OK',
+        records.length,
       )
+
+      return records.length
     } catch (error) {
       console.error(
-        '[HealthConnect] exportBloodPressure failed',
+        '[HealthConnect] exportAllBloodPressure failed',
         error,
       )
+
+      return 0
     }
   }
 
