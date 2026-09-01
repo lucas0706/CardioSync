@@ -1,9 +1,4 @@
 import type { BloodPressureRecord } from '@/domain/measurements/BloodPressureRecord'
-
-import {
-  healthConnectSyncService,
-} from '@/features/healthConnect/services/HealthConnectSyncService'
-
 import { measurementService } from './MeasurementService'
 
 type PerformanceWithMemory =
@@ -64,21 +59,6 @@ class MeasurementStore {
     ]
 
     this.notify()
-
-    void healthConnectSyncService
-      .exportBloodPressure(record)
-      .then((exported) => {
-        console.log(
-          '[HealthConnect] export result',
-          exported,
-        )
-      })
-      .catch((error) => {
-        console.error(
-          '[HealthConnect] export failed',
-          error,
-        )
-      })
   }
 
   createMany(
