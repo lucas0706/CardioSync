@@ -155,9 +155,11 @@ export default function SettingsScreen() {
                 title="Health Connect"
                 description="Conectar CardioSync con los datos de salud de Android."
                 icon="heart-outline"
-                onPress={() => {
-                  // Se implementará en una fase posterior.
-                }}
+                onPress={() =>
+                  router.push(
+                    '/health-connect',
+                  )
+                }
               />
             </View>
           </View>

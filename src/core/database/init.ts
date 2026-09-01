@@ -93,6 +93,16 @@ export function initializeDatabase() {
 
       notes TEXT
     );
+
+    CREATE TABLE IF NOT EXISTS health_connect_settings (
+      id INTEGER PRIMARY KEY NOT NULL,
+
+      enabled INTEGER NOT NULL DEFAULT 0,
+
+      connectedAt TEXT,
+
+      updatedAt TEXT NOT NULL
+    );
   `)
 
   try {
@@ -102,24 +112,6 @@ export function initializeDatabase() {
   } catch {
     // La columna ya existe.
   }
-
-  /*
-   * Migración de backup_settings:
-   *
-   * Versiones anteriores utilizaban:
-   *   time TEXT
-   *
-   * La nueva estructura utiliza:
-   *   weekday INTEGER
-   *   time1 TEXT
-   *   time2 TEXT
-   *   time3 TEXT
-   *
-   * SQLite no permite ALTER TABLE ADD COLUMN con toda la
-   * transformación necesaria en un único paso, por lo que
-   * comprobamos las columnas existentes y agregamos únicamente
-   * las que falten.
-   */
 
   const backupColumns =
     database.getAllSync<{
@@ -134,47 +126,33 @@ export function initializeDatabase() {
     )
 
   if (!hasColumn('weekday')) {
-    database.execSync(
-      `
-        ALTER TABLE backup_settings
-        ADD COLUMN weekday INTEGER NOT NULL DEFAULT 1
-      `,
-    )
+    database.execSync(`
+      ALTER TABLE backup_settings
+      ADD COLUMN weekday INTEGER NOT NULL DEFAULT 1
+    `)
   }
 
   if (!hasColumn('time1')) {
-    database.execSync(
-      `
-        ALTER TABLE backup_settings
-        ADD COLUMN time1 TEXT
-      `,
-    )
+    database.execSync(`
+      ALTER TABLE backup_settings
+      ADD COLUMN time1 TEXT
+    `)
   }
 
   if (!hasColumn('time2')) {
-    database.execSync(
-      `
-        ALTER TABLE backup_settings
-        ADD COLUMN time2 TEXT
-      `,
-    )
+    database.execSync(`
+      ALTER TABLE backup_settings
+      ADD COLUMN time2 TEXT
+    `)
   }
 
   if (!hasColumn('time3')) {
-    database.execSync(
-      `
-        ALTER TABLE backup_settings
-        ADD COLUMN time3 TEXT
-      `,
-    )
+    database.execSync(`
+      ALTER TABLE backup_settings
+      ADD COLUMN time3 TEXT
+    `)
   }
 
-  /*
-   * Migración del horario anterior:
-   *
-   * Si existe la columna legacy "time" y todavía no existe
-   * time1 configurado, conservamos ese horario.
-   */
   const legacyTimeColumn =
     hasColumn('time')
 
@@ -186,6 +164,40 @@ export function initializeDatabase() {
         (time1 IS NULL OR time1 = '')
         AND time IS NOT NULL
         AND time != ''
+    `)
+  }
+
+  const healthConnectColumns =
+    database.getAllSync<{
+      name: string
+    }>(
+      `PRAGMA table_info(health_connect_settings)`,
+    )
+
+  const hasHealthColumn = (
+    name: string,
+  ): boolean =>
+    healthConnectColumns.some(
+      (column) => column.name === name,
+    )
+
+  if (!hasHealthColumn('connectedAt')) {
+    database.execSync(`
+      ALTER TABLE health_connect_settings
+      ADD COLUMN connectedAt TEXT
+    `)
+  }
+
+  if (!hasHealthColumn('updatedAt')) {
+    database.execSync(`
+      ALTER TABLE health_connect_settings
+      ADD COLUMN updatedAt TEXT
+    `)
+
+    database.execSync(`
+      UPDATE health_connect_settings
+      SET updatedAt = CURRENT_TIMESTAMP
+      WHERE updatedAt IS NULL
     `)
   }
 }

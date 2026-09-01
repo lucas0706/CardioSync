@@ -1,4 +1,9 @@
 import type { BloodPressureRecord } from '@/domain/measurements/BloodPressureRecord'
+
+import {
+  healthConnectSyncService,
+} from '@/features/healthConnect/services/HealthConnectSyncService'
+
 import { measurementService } from './MeasurementService'
 
 type PerformanceWithMemory =
@@ -23,67 +28,8 @@ class MeasurementStore {
       return
     }
 
-    const startedAt = Date.now()
-
-    const performanceObject =
-      typeof globalThis.performance !== 'undefined'
-        ? (globalThis.performance as PerformanceWithMemory)
-        : undefined
-
-    const beforeMemory =
-      performanceObject?.memory
-
-    console.log(
-      '[MeasurementStore] initialize START',
-      beforeMemory
-        ? {
-            usedJSHeapSizeMB:
-              Math.round(
-                beforeMemory.usedJSHeapSize /
-                  1024 /
-                  1024,
-              ),
-            totalJSHeapSizeMB:
-              Math.round(
-                beforeMemory.totalJSHeapSize /
-                  1024 /
-                  1024,
-              ),
-          }
-        : 'memory API unavailable',
-    )
-
     this.measurements =
       measurementService.getAll()
-
-    const afterMemory =
-      performanceObject?.memory
-
-    console.log(
-      '[MeasurementStore] initialize END',
-      {
-        records: this.measurements.length,
-        elapsedMs:
-          Date.now() - startedAt,
-        memory:
-          afterMemory
-            ? {
-                usedJSHeapSizeMB:
-                  Math.round(
-                    afterMemory.usedJSHeapSize /
-                      1024 /
-                      1024,
-                  ),
-                totalJSHeapSizeMB:
-                  Math.round(
-                    afterMemory.totalJSHeapSize /
-                      1024 /
-                      1024,
-                  ),
-              }
-            : 'memory API unavailable',
-      },
-    )
 
     this.initialized = true
 
@@ -118,6 +64,21 @@ class MeasurementStore {
     ]
 
     this.notify()
+
+    void healthConnectSyncService
+      .exportBloodPressure(record)
+      .then((exported) => {
+        console.log(
+          '[HealthConnect] export result',
+          exported,
+        )
+      })
+      .catch((error) => {
+        console.error(
+          '[HealthConnect] export failed',
+          error,
+        )
+      })
   }
 
   createMany(
