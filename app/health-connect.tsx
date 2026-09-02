@@ -3,12 +3,14 @@ import { useEffect, useState } from 'react'
 import {
   Alert,
   Pressable,
+  ScrollView,
   StyleSheet,
   View,
 } from 'react-native'
 
+import Ionicons from '@expo/vector-icons/Ionicons'
+
 import {
-  Card,
   Screen,
   Text,
 } from '@/components/ui'
@@ -40,6 +42,7 @@ export default function HealthConnectScreen() {
     useState(0)
 
   useEffect(() => {
+    measurementStore.initialize()
     const settings =
       getHealthConnectSettings()
 
@@ -79,7 +82,6 @@ export default function HealthConnectScreen() {
       }
 
       setHealthConnectEnabled(true)
-
       setEnabled(true)
 
       Alert.alert(
@@ -147,168 +149,313 @@ export default function HealthConnectScreen() {
 
   return (
     <Screen>
-      <View style={styles.container}>
-        <Text style={styles.title}>
-          Health Connect
-        </Text>
-
-        <Text style={styles.subtitle}>
-          Sincroniza tus mediciones con
-          Google Health Connect.
-        </Text>
-
-        <Card>
-          <Text style={styles.cardLabel}>
-            Estado
-          </Text>
-
-          <Text
-            style={[
-              styles.status,
-              enabled
-                ? styles.connected
-                : styles.disconnected,
-            ]}
-          >
-            {enabled
-              ? '● Conectado'
-              : '● Desconectado'}
-          </Text>
-        </Card>
-
-        <Card>
-          <Text style={styles.cardLabel}>
-            Mediciones almacenadas
-          </Text>
-
-          <Text style={styles.counter}>
-            {recordCount}
-          </Text>
-        </Card>
-
-        {!enabled ? (
-          <Pressable
-            style={styles.primaryButton}
-            onPress={handleConnect}
-          >
-            <Text style={styles.buttonText}>
-              Conectar Health Connect
+      <ScrollView
+        showsVerticalScrollIndicator={
+          false
+        }
+      >
+        <View style={styles.container}>
+          <View style={styles.header}>
+            <Text style={styles.title}>
+              Health Connect
             </Text>
-          </Pressable>
-        ) : (
-          <>
+
+            <Text style={styles.subtitle}>
+              Sincronizá tus mediciones de
+              presión arterial con Google
+              Health Connect.
+            </Text>
+          </View>
+
+          <Text style={styles.sectionLabel}>
+            ESTADO
+          </Text>
+
+          <View style={styles.card}>
+            <View
+              style={styles.cardContent}
+            >
+              <View
+                style={styles.iconContainer}
+              >
+                <Ionicons
+                  name="heart-outline"
+                  size={24}
+                  color={
+                    theme.colors.primary
+                  }
+                />
+              </View>
+
+              <View
+                style={styles.textContent}
+              >
+                <Text
+                  style={styles.cardTitle}
+                >
+                  Estado de conexión
+                </Text>
+
+                <Text
+                  style={
+                    styles.cardDescription
+                  }
+                >
+                  {enabled
+                    ? 'Health Connect conectado'
+                    : 'Health Connect desconectado'}
+                </Text>
+              </View>
+            </View>
+          </View>
+
+          <Text style={styles.sectionLabel}>
+            DATOS
+          </Text>
+
+          <View style={styles.card}>
+            <View
+              style={styles.cardContent}
+            >
+              <View
+                style={styles.iconContainer}
+              >
+                <Ionicons
+                  name="analytics-outline"
+                  size={24}
+                  color={
+                    theme.colors.primary
+                  }
+                />
+              </View>
+
+              <View
+                style={styles.textContent}
+              >
+                <Text
+                  style={styles.cardTitle}
+                >
+                  Mediciones locales
+                </Text>
+
+                <Text
+                  style={
+                    styles.cardDescription
+                  }
+                >
+                  {recordCount} registros
+                  almacenados
+                </Text>
+              </View>
+            </View>
+          </View>
+
+          <Text style={styles.sectionLabel}>
+            ACCIONES
+          </Text>
+
+          {!enabled ? (
             <Pressable
               style={styles.primaryButton}
-              onPress={handleSyncHistory}
+              onPress={handleConnect}
             >
-              <Text style={styles.buttonText}>
-                Sincronizar historial
-              </Text>
-            </Pressable>
+              <Ionicons
+                name="link-outline"
+                size={20}
+                color="#FFFFFF"
+              />
 
-            <Pressable
-              style={styles.secondaryButton}
-              onPress={handleDisconnect}
-            >
-              <Text style={styles.buttonText}>
-                Desconectar
+              <Text
+                style={
+                  styles.primaryButtonText
+                }
+              >
+                Conectar Health Connect
               </Text>
             </Pressable>
+          ) : (
+            <>
+              <Pressable
+                style={styles.primaryButton}
+                onPress={
+                  handleSyncHistory
+                }
+              >
+                <Ionicons
+                  name="sync-outline"
+                  size={20}
+                  color="#FFFFFF"
+                />
 
-            <Pressable
-              style={styles.dangerButton}
-              onPress={handleDeleteHistory}
-            >
-              <Text style={styles.buttonText}>
-                Eliminar registros exportados
-              </Text>
-            </Pressable>
-          </>
-        )}
-      </View>
+                <Text
+                  style={
+                    styles.primaryButtonText
+                  }
+                >
+                  Sincronizar historial
+                </Text>
+              </Pressable>
+
+              <Pressable
+                style={styles.secondaryButton}
+                onPress={
+                  handleDisconnect
+                }
+              >
+                <Ionicons
+                  name="close-circle-outline"
+                  size={20}
+                  color={
+                    theme.colors.primary
+                  }
+                />
+
+                <Text
+                  style={
+                    styles.secondaryButtonText
+                  }
+                >
+                  Desconectar
+                </Text>
+              </Pressable>
+
+              <Pressable
+                style={styles.secondaryButton}
+                onPress={
+                  handleDeleteHistory
+                }
+              >
+                <Ionicons
+                  name="trash-outline"
+                  size={20}
+                  color="#DC2626"
+                />
+
+                <Text
+                  style={[
+                    styles.secondaryButtonText,
+                    {
+                      color: '#DC2626',
+                    },
+                  ]}
+                >
+                  Eliminar registros
+                </Text>
+              </Pressable>
+            </>
+          )}
+        </View>
+      </ScrollView>
     </Screen>
   )
 }
 
 const styles = StyleSheet.create({
   container: {
-    gap: theme.spacing.lg,
-    paddingTop: theme.spacing.lg,
+    gap: theme.spacing.md,
+    paddingBottom: 40,
+  },
+
+  header: {
+    gap: theme.spacing.sm,
+    marginBottom: theme.spacing.md,
   },
 
   title: {
-    fontSize: 28,
-    color: theme.colors.text,
     fontFamily:
       theme.typography.bold,
+    fontSize: 28,
+    color: theme.colors.text,
   },
 
   subtitle: {
     color:
       theme.colors.textSecondary,
-    fontFamily:
-      theme.typography.regular,
   },
 
-  cardLabel: {
-    marginBottom: 8,
+  sectionLabel: {
+    fontFamily:
+      theme.typography.semiBold,
+    fontSize: 12,
+    letterSpacing: 0.6,
     color:
       theme.colors.textSecondary,
+  },
+
+  card: {
+    borderWidth: 1,
+    borderColor:
+      theme.colors.border,
+    borderRadius:
+      theme.radius.lg,
+    backgroundColor:
+      theme.colors.surface,
+  },
+
+  cardContent: {
+    flexDirection: 'row',
+    gap: theme.spacing.sm,
+    padding: theme.spacing.md,
+  },
+
+  iconContainer: {
+    width: 42,
+    height: 42,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor:
+      theme.colors.primary + '12',
+  },
+
+  textContent: {
+    flex: 1,
+  },
+
+  cardTitle: {
     fontFamily:
       theme.typography.semiBold,
   },
 
-  status: {
-    fontSize: 18,
-    fontFamily:
-      theme.typography.bold,
-  },
-
-  connected: {
-    color: '#16A34A',
-  },
-
-  disconnected: {
-    color: '#DC2626',
-  },
-
-  counter: {
-    fontSize: 36,
-    color: theme.colors.text,
-    fontFamily:
-      theme.typography.bold,
+  cardDescription: {
+    color:
+      theme.colors.textSecondary,
   },
 
   primaryButton: {
+    minHeight: 52,
+    flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
+    gap: theme.spacing.sm,
     borderRadius:
       theme.radius.md,
     backgroundColor:
       theme.colors.primary,
-    padding:
-      theme.spacing.md,
+  },
+
+  primaryButtonText: {
+    color: '#FFFFFF',
+    fontFamily:
+      theme.typography.semiBold,
   },
 
   secondaryButton: {
+    minHeight: 52,
+    flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
+    gap: theme.spacing.sm,
+    borderWidth: 1,
+    borderColor:
+      theme.colors.border,
     borderRadius:
       theme.radius.md,
-    backgroundColor: '#6B7280',
-    padding:
-      theme.spacing.md,
+    backgroundColor:
+      theme.colors.surface,
   },
 
-  dangerButton: {
-    alignItems: 'center',
-    borderRadius:
-      theme.radius.md,
-    backgroundColor: '#DC2626',
-    padding:
-      theme.spacing.md,
-  },
-
-  buttonText: {
-    color: '#FFFFFF',
+  secondaryButtonText: {
     fontFamily:
       theme.typography.semiBold,
   },
