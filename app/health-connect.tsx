@@ -8,6 +8,7 @@ import {
 } from 'react-native'
 
 import {
+  Card,
   Screen,
   Text,
 } from '@/components/ui'
@@ -28,18 +29,26 @@ import {
 } from '@/features/healthConnect/services/HealthConnectSyncService'
 
 import {
-  measurementService,
-} from '@/features/measurements/services/MeasurementService'
+  measurementStore,
+} from '@/features/measurements/services/MeasurementStore'
 
 export default function HealthConnectScreen() {
   const [enabled, setEnabled] =
     useState(false)
+
+  const [recordCount, setRecordCount] =
+    useState(0)
 
   useEffect(() => {
     const settings =
       getHealthConnectSettings()
 
     setEnabled(settings.enabled)
+
+    setRecordCount(
+      measurementStore.getSnapshot()
+        .length,
+    )
   }, [])
 
   const handleConnect =
@@ -50,14 +59,15 @@ export default function HealthConnectScreen() {
       if (!initialized) {
         Alert.alert(
           'Health Connect',
-          'Health Connect no está disponible en este dispositivo.',
+          'Health Connect no está disponible.',
         )
 
         return
       }
 
       const granted =
-        await healthConnectService.requestPermissions()
+        await healthConnectService
+          .requestPermissions()
 
       if (!granted) {
         Alert.alert(
@@ -74,7 +84,7 @@ export default function HealthConnectScreen() {
 
       Alert.alert(
         'Health Connect',
-        'Conexión realizada correctamente.',
+        'Conectado correctamente.',
       )
     }
 
@@ -93,12 +103,7 @@ export default function HealthConnectScreen() {
   const handleSyncHistory =
     async () => {
       const records =
-        measurementService.getAll()
-
-      console.log(
-        '[HealthConnect] Records found',
-        records.length,
-      )
+        measurementStore.getSnapshot()
 
       const exported =
         await healthConnectSyncService
@@ -112,6 +117,34 @@ export default function HealthConnectScreen() {
       )
     }
 
+  const handleDeleteHistory =
+    () => {
+      Alert.alert(
+        'Eliminar registros',
+        'Se eliminarán todos los registros exportados por CardioSync.',
+        [
+          {
+            text: 'Cancelar',
+            style: 'cancel',
+          },
+          {
+            text: 'Eliminar',
+            style: 'destructive',
+            onPress: async () => {
+              const deleted =
+                await healthConnectSyncService
+                  .deleteCardioSyncRecords()
+
+              Alert.alert(
+                'Health Connect',
+                `${deleted} registros eliminados.`,
+              )
+            },
+          },
+        ],
+      )
+    }
+
   return (
     <Screen>
       <View style={styles.container}>
@@ -119,26 +152,62 @@ export default function HealthConnectScreen() {
           Health Connect
         </Text>
 
-        <Text style={styles.status}>
-          Estado:{' '}
-          {enabled
-            ? 'Conectado'
-            : 'Desconectado'}
+        <Text style={styles.subtitle}>
+          Sincroniza tus mediciones con
+          Google Health Connect.
         </Text>
+
+        <Card>
+          <Text style={styles.cardLabel}>
+            Estado
+          </Text>
+
+          <Text
+            style={[
+              styles.status,
+              enabled
+                ? styles.connected
+                : styles.disconnected,
+            ]}
+          >
+            {enabled
+              ? '● Conectado'
+              : '● Desconectado'}
+          </Text>
+        </Card>
+
+        <Card>
+          <Text style={styles.cardLabel}>
+            Mediciones almacenadas
+          </Text>
+
+          <Text style={styles.counter}>
+            {recordCount}
+          </Text>
+        </Card>
 
         {!enabled ? (
           <Pressable
-            style={styles.button}
+            style={styles.primaryButton}
             onPress={handleConnect}
           >
             <Text style={styles.buttonText}>
-              Conectar
+              Conectar Health Connect
             </Text>
           </Pressable>
         ) : (
           <>
             <Pressable
-              style={styles.button}
+              style={styles.primaryButton}
+              onPress={handleSyncHistory}
+            >
+              <Text style={styles.buttonText}>
+                Sincronizar historial
+              </Text>
+            </Pressable>
+
+            <Pressable
+              style={styles.secondaryButton}
               onPress={handleDisconnect}
             >
               <Text style={styles.buttonText}>
@@ -147,11 +216,11 @@ export default function HealthConnectScreen() {
             </Pressable>
 
             <Pressable
-              style={styles.button}
-              onPress={handleSyncHistory}
+              style={styles.dangerButton}
+              onPress={handleDeleteHistory}
             >
               <Text style={styles.buttonText}>
-                Sincronizar historial
+                Eliminar registros exportados
               </Text>
             </Pressable>
           </>
@@ -168,25 +237,72 @@ const styles = StyleSheet.create({
   },
 
   title: {
+    fontSize: 28,
+    color: theme.colors.text,
     fontFamily:
       theme.typography.bold,
-    fontSize: 24,
-    color: theme.colors.text,
+  },
+
+  subtitle: {
+    color:
+      theme.colors.textSecondary,
+    fontFamily:
+      theme.typography.regular,
+  },
+
+  cardLabel: {
+    marginBottom: 8,
+    color:
+      theme.colors.textSecondary,
+    fontFamily:
+      theme.typography.semiBold,
   },
 
   status: {
+    fontSize: 18,
     fontFamily:
-      theme.typography.regular,
-    color:
-      theme.colors.textSecondary,
+      theme.typography.bold,
   },
 
-  button: {
+  connected: {
+    color: '#16A34A',
+  },
+
+  disconnected: {
+    color: '#DC2626',
+  },
+
+  counter: {
+    fontSize: 36,
+    color: theme.colors.text,
+    fontFamily:
+      theme.typography.bold,
+  },
+
+  primaryButton: {
     alignItems: 'center',
     borderRadius:
       theme.radius.md,
     backgroundColor:
       theme.colors.primary,
+    padding:
+      theme.spacing.md,
+  },
+
+  secondaryButton: {
+    alignItems: 'center',
+    borderRadius:
+      theme.radius.md,
+    backgroundColor: '#6B7280',
+    padding:
+      theme.spacing.md,
+  },
+
+  dangerButton: {
+    alignItems: 'center',
+    borderRadius:
+      theme.radius.md,
+    backgroundColor: '#DC2626',
     padding:
       theme.spacing.md,
   },
