@@ -45,32 +45,32 @@ export class HealthConnectService {
             recordType: 'HeartRate',
           },
           {
-            accessType: 'write',
-            recordType: 'HeartRate',
-          },
-          {
-            accessType: 'read',
-            recordType: 'Weight',
-          },
-          {
-            accessType: 'write',
-            recordType: 'Weight',
-          },
-          {
-            accessType: 'read',
-            recordType: 'OxygenSaturation',
-          },
-          {
-            accessType: 'write',
-            recordType: 'OxygenSaturation',
-          },
-          {
             accessType: 'read',
             recordType: 'Steps',
           },
           {
             accessType: 'read',
             recordType: 'SleepSession',
+          },
+          {
+            accessType: 'read',
+            recordType: 'ExerciseSession',
+          },
+          {
+            accessType: 'read',
+            recordType: 'Weight',
+          },
+          {
+            accessType: 'write',
+            recordType: 'Weight',
+          },
+          {
+            accessType: 'read',
+            recordType: 'OxygenSaturation',
+          },
+          {
+            accessType: 'write',
+            recordType: 'OxygenSaturation',
           },
         ])
 
