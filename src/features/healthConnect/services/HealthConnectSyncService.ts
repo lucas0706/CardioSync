@@ -1,6 +1,8 @@
 import {
   initialize,
   insertRecords,
+  readRecords,
+  deleteRecordsByUuids,
   BloodPressureBodyPosition,
   BloodPressureMeasurementLocation,
 } from 'react-native-health-connect'
@@ -26,10 +28,6 @@ export class HealthConnectSyncService {
         await initialize()
 
       if (!initialized) {
-        console.log(
-          '[HealthConnect] Not available',
-        )
-
         return 0
       }
 
@@ -47,9 +45,10 @@ export class HealthConnectSyncService {
           recordType:
             'BloodPressure' as const,
 
-          time: new Date(
-            record.dateTime,
-          ).toISOString(),
+          time:
+            new Date(
+              record.dateTime,
+            ).toISOString(),
 
           systolic: {
             value: record.systolic,
@@ -89,6 +88,70 @@ export class HealthConnectSyncService {
     } catch (error) {
       console.error(
         '[HealthConnect] exportAllBloodPressure failed',
+        error,
+      )
+
+      return 0
+    }
+  }
+
+  async deleteCardioSyncRecords(): Promise<number> {
+    try {
+      const initialized =
+        await initialize()
+
+      if (!initialized) {
+        return 0
+      }
+
+      const result =
+        await readRecords(
+          'BloodPressure',
+          {
+            timeRangeFilter: {
+              operator: 'after',
+              startTime:
+                '2000-01-01T00:00:00.000Z',
+            },
+            pageSize: 5000,
+          },
+        )
+
+      const clientRecordIds =
+        result.records
+          .map(
+            record =>
+              record.metadata
+                ?.clientRecordId,
+          )
+          .filter(
+            (
+              value,
+            ): value is string =>
+              Boolean(value),
+          )
+
+      if (
+        clientRecordIds.length === 0
+      ) {
+        return 0
+      }
+
+      await deleteRecordsByUuids(
+        'BloodPressure',
+        [],
+        clientRecordIds,
+      )
+
+      console.log(
+        '[HealthConnect] Deleted',
+        clientRecordIds.length,
+      )
+
+      return clientRecordIds.length
+    } catch (error) {
+      console.error(
+        '[HealthConnect] delete failed',
         error,
       )
 
