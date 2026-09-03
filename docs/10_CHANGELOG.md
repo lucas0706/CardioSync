@@ -765,3 +765,19 @@ Pendiente para próximas fases:
 - `02_ROADMAP.md`
 - `03_DECISIONS.md`
 - `14_VISUAL_REDESIGN_V2.md`
+
+--------------------------------------------------
+
+2026-09-03
+
+HEALTH CONNECT
+
+- Integración operativa completada.
+- Exportación automática de mediciones.
+- Sincronización manual desde Health Connect.
+- Importación de presión arterial.
+- Eliminación de registros exportados.
+- Gestión de permisos y reconexión.
+- Pantalla Health Connect integrada.
+- Checkpoint Health Connect generado.
+
