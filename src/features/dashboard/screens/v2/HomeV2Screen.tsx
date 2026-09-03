@@ -23,7 +23,6 @@ import {
   StatusBadge,
 } from '@/components/ui/v2'
 
-import { WaveBackground } from '@/components/ui/WaveBackground'
 
 import { BloodPressureClassifier } from '@/domain/clinical/classification'
 
@@ -295,7 +294,6 @@ export function HomeV2Screen() {
 
         <HealthSummaryCard />
 
-        <WaveBackground />
 
         <View style={styles.bottomSpace} />
       </ScrollView>
