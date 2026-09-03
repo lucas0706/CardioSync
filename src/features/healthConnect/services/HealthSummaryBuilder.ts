@@ -11,7 +11,10 @@ import {
 export class HealthSummaryBuilder {
   async build(): Promise<HealthSummary> {
     const {
+      heartRate,
+      steps,
       sleep,
+      exercise,
     } =
       await healthConnectCoordinator
         .syncAll()
@@ -51,27 +54,137 @@ export class HealthSummaryBuilder {
           )
         : 0
 
+    const today =
+      new Date()
+        .toISOString()
+        .slice(0, 10)
+
+    const exerciseMinutesToday =
+      exercise
+        .filter(
+          session =>
+            session.startTime.startsWith(
+              today,
+            ),
+        )
+        .reduce(
+          (
+            total,
+            session,
+          ) =>
+            total +
+            session.durationMinutes,
+          0,
+        )
+
+    const exerciseMinutes30Days =
+      exercise.reduce(
+        (
+          total,
+          session,
+        ) =>
+          total +
+          session.durationMinutes,
+        0,
+      )
+
+    const averageSleepHours30Days =
+      sleep.length > 0
+        ? Number(
+            (
+              sleep.reduce(
+                (
+                  total,
+                  session,
+                ) =>
+                  total +
+                  session.durationMinutes,
+                0,
+              ) /
+              sleep.length /
+              60
+            ).toFixed(1),
+          )
+        : 0
+
+    const averageHeartRate30Days =
+      heartRate.length > 0
+        ? Math.round(
+            heartRate.reduce(
+              (
+                total,
+                sample,
+              ) =>
+                total +
+                sample.bpm,
+              0,
+            ) /
+            heartRate.length,
+          )
+        : 0
+
+    const daysWithSteps =
+      new Set(
+        steps.map(
+          record =>
+            record.startTime.slice(
+              0,
+              10,
+            ),
+        ),
+      ).size
+
+    const averageDailySteps30Days =
+      daysWithSteps > 0
+        ? Math.round(
+            steps.reduce(
+              (
+                total,
+                record,
+              ) =>
+                total +
+                record.count,
+              0,
+            ) /
+            daysWithSteps,
+          )
+        : 0
+
     console.log(
       '[HC SUMMARY]',
       {
-        averageDailySteps:
-          todaySteps,
-        averageRestingHeartRate:
+        todaySteps,
+        todayHeartRateAverage:
           averageHeartRate,
         averageSleepHours:
           lastSleepHours,
+        exerciseMinutesToday,
+
+        averageHeartRate30Days,
+        averageDailySteps30Days,
+        averageSleepHours30Days,
+        exerciseMinutes30Days,
       },
     )
 
     return {
-      averageDailySteps:
-        todaySteps,
+      todaySteps,
 
-      averageRestingHeartRate:
+      todayHeartRateAverage:
         averageHeartRate,
 
       averageSleepHours:
         lastSleepHours,
+
+      exerciseMinutesToday,
+
+      averageHeartRate30Days,
+
+      averageDailySteps30Days,
+
+      averageSleepHours30Days,
+
+      exerciseMinutes30Days,
     }
   }
 }
