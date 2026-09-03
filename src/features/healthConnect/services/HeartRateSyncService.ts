@@ -2,19 +2,14 @@ import {
   readRecords,
 } from 'react-native-health-connect'
 
-import { HeartRateSample } from '@/domain/health/HeartRateSample'
-
-import { HeartRateMapper } from '../mappers/HeartRateMapper'
+import { HeartRateMapper }
+  from '../mappers/HeartRateMapper'
 
 export class HeartRateSyncService {
-  async readLast30Days(): Promise<
-    HeartRateSample[]
-  > {
-    const endTime =
-      new Date()
+  async readLast30Days() {
+    const endTime = new Date()
 
-    const startTime =
-      new Date()
+    const startTime = new Date()
 
     startTime.setDate(
       startTime.getDate() - 30,
@@ -33,6 +28,15 @@ export class HeartRateSyncService {
           },
         },
       )
+
+    console.log(
+      '[HEART RATE RAW RECORD]',
+      JSON.stringify(
+        result.records[0],
+        null,
+        2,
+      ),
+    )
 
     return result.records.map(
       HeartRateMapper.toDomain,

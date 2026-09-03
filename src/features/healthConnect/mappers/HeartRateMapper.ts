@@ -6,12 +6,13 @@ export class HeartRateMapper {
   ): HeartRateSample {
     return {
       dateTime:
-        record.time ??
+        record.samples?.[0]?.time ??
         record.startTime ??
         '',
 
       bpm:
-        record.beatsPerMinute ?? 0,
+        record.samples?.[0]?.beatsPerMinute ??
+        0,
     }
   }
 }

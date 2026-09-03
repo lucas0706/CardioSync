@@ -4,65 +4,74 @@ import {
   healthConnectCoordinator,
 } from './HealthConnectCoordinator'
 
+import {
+  healthAggregateService,
+} from './HealthAggregateService'
+
 export class HealthSummaryBuilder {
-  async build(): Promise<
-    HealthSummary
-  > {
+  async build(): Promise<HealthSummary> {
     const {
-      heartRate,
-      steps,
       sleep,
-      exercise,
     } =
       await healthConnectCoordinator
         .syncAll()
 
-    const averageRestingHeartRate =
-      heartRate.length > 0
-        ? Math.round(
-            heartRate.reduce(
-              (sum, item) =>
-                sum + item.bpm,
-              0,
-            ) / heartRate.length,
-          )
-        : 0
+    const [
+      todaySteps,
+      averageHeartRate,
+    ] =
+      await Promise.all([
+        healthAggregateService
+          .getTodaySteps(),
 
-    const averageDailySteps =
-      steps.length > 0
-        ? Math.round(
-            steps.reduce(
-              (sum, item) =>
-                sum + item.count,
-              0,
-            ) / steps.length,
-          )
-        : 0
+        healthAggregateService
+          .getTodayHeartRateAverage(),
+      ])
 
-    const averageSleepHours =
+    const latestSleep =
       sleep.length > 0
+        ? sleep.sort(
+            (a, b) =>
+              new Date(
+                b.endTime,
+              ).getTime() -
+              new Date(
+                a.endTime,
+              ).getTime(),
+          )[0]
+        : null
+
+    const lastSleepHours =
+      latestSleep
         ? Number(
             (
-              sleep.reduce(
-                (sum, item) =>
-                  sum +
-                  item.durationMinutes,
-                0,
-              ) /
-              sleep.length /
+              latestSleep.durationMinutes /
               60
             ).toFixed(1),
           )
         : 0
 
-    const weeklyExerciseSessions =
-      exercise.length
+    console.log(
+      '[HC SUMMARY]',
+      {
+        averageDailySteps:
+          todaySteps,
+        averageRestingHeartRate:
+          averageHeartRate,
+        averageSleepHours:
+          lastSleepHours,
+      },
+    )
 
     return {
-      averageRestingHeartRate,
-      averageDailySteps,
-      averageSleepHours,
-      weeklyExerciseSessions,
+      averageDailySteps:
+        todaySteps,
+
+      averageRestingHeartRate:
+        averageHeartRate,
+
+      averageSleepHours:
+        lastSleepHours,
     }
   }
 }
