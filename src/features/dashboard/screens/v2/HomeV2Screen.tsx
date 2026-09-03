@@ -36,6 +36,9 @@ import {
   useClinicalProfile,
 } from '@/features/profile/hooks'
 
+import { HealthSummaryCard }
+  from '@/features/dashboard/components/HealthSummaryCard'
+
 export function HomeV2Screen() {
   const router = useRouter()
   const insets = useSafeAreaInsets()
@@ -126,6 +129,7 @@ export function HomeV2Screen() {
   return (
     <Screen>
       <ScrollView
+        scrollEnabled={false}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.content}
       >
@@ -286,6 +290,9 @@ export function HomeV2Screen() {
           />
         </View>
 
+
+        <HealthSummaryCard />
+
         <View style={styles.bottomSpace} />
       </ScrollView>
 
@@ -303,8 +310,8 @@ const styles = StyleSheet.create({
   content: {
     paddingHorizontal: theme.spacing.md,
     paddingTop: theme.spacing.md,
-    paddingBottom: 96,
-    gap: theme.spacing.lg,
+    paddingBottom: 72,
+    gap: theme.spacing.md,
   },
 
   header: {
@@ -313,7 +320,7 @@ const styles = StyleSheet.create({
 
   greeting: {
     fontFamily: theme.typography.bold,
-    fontSize: 28,
+    fontSize: 24,
     lineHeight: 34,
     color: theme.colors.text,
   },
@@ -325,7 +332,7 @@ const styles = StyleSheet.create({
   },
 
   dateSelector: {
-    minHeight: 48,
+    minHeight: 40,
     paddingHorizontal: theme.spacing.md,
     borderRadius: theme.radius.md,
     borderWidth: 1,
@@ -377,7 +384,7 @@ const styles = StyleSheet.create({
   },
 
   metric: {
-    minHeight: 124,
+    minHeight: 112,
   },
 
   statusRow: {
@@ -394,7 +401,7 @@ const styles = StyleSheet.create({
   },
 
   summaryCard: {
-    minHeight: 104,
+    minHeight: 88,
     paddingHorizontal: theme.spacing.sm,
   },
 
@@ -415,6 +422,6 @@ const styles = StyleSheet.create({
   },
 
   bottomSpace: {
-    height: theme.spacing.md,
+    height: theme.spacing.xs,
   },
 })
