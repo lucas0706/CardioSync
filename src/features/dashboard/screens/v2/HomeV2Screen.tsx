@@ -25,6 +25,7 @@ import {
 
 
 import { BloodPressureClassifier } from '@/domain/clinical/classification'
+import { WaveBackground } from '@/components/ui/WaveBackground'
 
 import { BloodPressureSafetyWarning } from '@/features/measurements/components/BloodPressureSafetyWarning'
 
@@ -294,6 +295,9 @@ export function HomeV2Screen() {
 
         <HealthSummaryCard />
 
+        <WaveBackground />
+
+
 
         <View style={styles.bottomSpace} />
       </ScrollView>
@@ -378,6 +382,7 @@ const styles = StyleSheet.create({
 
   latestCard: {
     padding: theme.spacing.sm,
+    marginHorizontal: theme.spacing.xs,
   },
 
   metricRow: {
