@@ -252,7 +252,7 @@ export function HealthSummaryCard() {
 
           <Text style={styles.value}>
             {
-              summary.averageDailySteps
+              summary.todaySteps
             }
           </Text>
         </View>
@@ -274,8 +274,36 @@ export function HealthSummaryCard() {
 
           <Text style={styles.value}>
             {
-              summary.averageRestingHeartRate
+              summary.todayHeartRateAverage
             }
+          </Text>
+        </View>
+
+        <View style={styles.item}>
+          <View
+            style={styles.labelRow}
+          >
+            <MaterialCommunityIcons
+              name="run"
+              size={22}
+              color={
+                theme.colors.primary
+              }
+            />
+
+            <Text
+              style={
+                styles.label
+              }
+            >
+              Ejercicio hoy
+            </Text>
+          </View>
+
+          <Text style={styles.value}>
+            {
+              summary.exerciseMinutesToday
+            } min
           </Text>
         </View>
       </View>
