@@ -1,4 +1,7 @@
-import type { BloodPressureRecord } from '@/domain/measurements/BloodPressureRecord'
+import type {
+  BloodPressureRecord,
+} from '@/domain/measurements/BloodPressureRecord'
+
 import {
   StatisticsDomainService,
 } from '@/domain/statistics/services'
@@ -15,7 +18,9 @@ import {
   clinicalProfileService,
 } from '@/features/profile/services'
 
-import type { BloodPressureReport } from '../models/BloodPressureReport'
+import type {
+  BloodPressureReport,
+} from '../models/BloodPressureReport'
 
 export class ReportService {
   build(

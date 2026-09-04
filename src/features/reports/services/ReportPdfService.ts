@@ -2,8 +2,17 @@ import * as Print from 'expo-print'
 import * as Sharing from 'expo-sharing'
 import { File } from 'expo-file-system'
 
-import type { BloodPressureReport } from '../models/BloodPressureReport'
-import { ReportHtmlService } from './ReportHtmlService'
+import type {
+  BloodPressureReport,
+} from '../models/BloodPressureReport'
+
+import {
+  ReportHtmlService,
+} from './ReportHtmlService'
+
+import {
+  reportHealthContextBuilder,
+} from './ReportHealthContextBuilder'
 
 function formatFileDate(
   date: Date,
@@ -131,8 +140,19 @@ export class ReportPdfService {
   static async generate(
     report: BloodPressureReport,
   ): Promise<string> {
+    const healthContext =
+      await reportHealthContextBuilder.build()
+
+    const reportWithContext: BloodPressureReport =
+      {
+        ...report,
+        healthContext,
+      }
+
     const html =
-      ReportHtmlService.build(report)
+      ReportHtmlService.build(
+        reportWithContext,
+      )
 
     const result =
       await Print.printToFileAsync({
@@ -143,7 +163,9 @@ export class ReportPdfService {
       new File(result.uri)
 
     const fileName =
-      buildFileName(report)
+      buildFileName(
+        reportWithContext,
+      )
 
     temporaryFile.rename(
       fileName,
@@ -166,16 +188,20 @@ export class ReportPdfService {
 
     try {
       await Sharing.shareAsync(uri, {
-        mimeType: 'application/pdf',
+        mimeType:
+          'application/pdf',
         dialogTitle:
           'Compartir reporte CardioSync',
-        UTI: 'com.adobe.pdf',
+        UTI:
+          'com.adobe.pdf',
       })
     } finally {
       const temporaryFile =
         new File(uri)
 
-      if (temporaryFile.exists) {
+      if (
+        temporaryFile.exists
+      ) {
         temporaryFile.delete()
       }
     }
@@ -189,6 +215,8 @@ export class ReportPdfService {
         report,
       )
 
-    await ReportPdfService.share(uri)
+    await ReportPdfService.share(
+      uri,
+    )
   }
 }

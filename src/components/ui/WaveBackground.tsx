@@ -88,7 +88,7 @@ export function WaveBackground() {
 
 const styles = StyleSheet.create({
   container: {
-    height: 500,
+    height: 140,
     overflow: 'hidden',
     marginLeft: -120,
     marginRight: -120,

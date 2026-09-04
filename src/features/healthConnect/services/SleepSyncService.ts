@@ -1,10 +1,14 @@
 import {
-  readRecords,
-} from 'react-native-health-connect'
+  SleepSessionRecord,
+} from '@/domain/health/SleepSessionRecord'
 
-import { SleepSessionRecord } from '@/domain/health/SleepSessionRecord'
+import {
+  SleepMapper,
+} from '../mappers/SleepMapper'
 
-import { SleepMapper } from '../mappers/SleepMapper'
+import {
+  readAllRecords,
+} from './HealthConnectPagination'
 
 export class SleepSyncService {
   async readLast30Days(): Promise<
@@ -20,8 +24,8 @@ export class SleepSyncService {
       startTime.getDate() - 30,
     )
 
-    const result =
-      await readRecords(
+    const records =
+      await readAllRecords(
         'SleepSession',
         {
           timeRangeFilter: {
@@ -34,7 +38,7 @@ export class SleepSyncService {
         },
       )
 
-    return result.records.map(
+    return records.map(
       SleepMapper.toDomain,
     )
   }

@@ -11,6 +11,7 @@ import {
 import {
   useCallback,
   useEffect,
+  useMemo,
 } from 'react'
 
 import Animated, {
@@ -194,6 +195,80 @@ export function HealthSummaryCard() {
     }, [reload]),
   )
 
+  const metrics =
+    useMemo(
+      () => [
+        {
+          label:
+            'Último sueño',
+          value:
+            `${summary?.averageSleepHours ?? 0} h`,
+          icon: (
+            <AnimatedSleep />
+          ),
+        },
+        {
+          label:
+            'Pasos del día',
+          value:
+            String(
+              summary?.todaySteps ??
+                0,
+            ),
+          icon: (
+            <AnimatedSteps />
+          ),
+        },
+        {
+          label:
+            'FC promedio',
+          value:
+            String(
+              summary?.todayHeartRateAverage ??
+                0,
+            ),
+          icon: (
+            <AnimatedHeart />
+          ),
+        },
+        {
+          label:
+            'Ejercicio hoy',
+          value:
+            `${summary?.exerciseMinutesToday ?? 0} min`,
+          icon: (
+            <MaterialCommunityIcons
+              name="run"
+              size={22}
+              color={
+                theme.colors.primary
+              }
+            />
+          ),
+        },
+
+        {
+          label:
+            'Último peso',
+          value:
+            summary?.latestWeightKg !== undefined
+              ? `${summary.latestWeightKg.toFixed(1)} kg`
+              : '--',
+          icon: (
+            <MaterialCommunityIcons
+              name="scale-bathroom"
+              size={22}
+              color={
+                theme.colors.primary
+              }
+            />
+          ),
+        },
+
+      ],
+      [summary],
+    )
+
   if (loading) {
     return (
       <Card style={styles.card}>
@@ -213,99 +288,46 @@ export function HealthSummaryCard() {
       </Text>
 
       <View style={styles.grid}>
-        <View style={styles.item}>
-          <View
-            style={styles.labelRow}
-          >
-            <AnimatedSleep />
-
-            <Text
+        {metrics.map(
+          metric => (
+            <View
+              key={
+                metric.label
+              }
               style={
-                styles.label
+                styles.item
               }
             >
-              Último sueño
-            </Text>
-          </View>
+              <View
+                style={
+                  styles.labelRow
+                }
+              >
+                {metric.icon}
 
-          <Text style={styles.value}>
-            {
-              summary.averageSleepHours
-            } h
-          </Text>
-        </View>
+                <Text
+                  style={
+                    styles.label
+                  }
+                >
+                  {
+                    metric.label
+                  }
+                </Text>
+              </View>
 
-        <View style={styles.item}>
-          <View
-            style={styles.labelRow}
-          >
-            <AnimatedSteps />
-
-            <Text
-              style={
-                styles.label
-              }
-            >
-              Pasos del día
-            </Text>
-          </View>
-
-          <Text style={styles.value}>
-            {
-              summary.todaySteps
-            }
-          </Text>
-        </View>
-
-        <View style={styles.item}>
-          <View
-            style={styles.labelRow}
-          >
-            <AnimatedHeart />
-
-            <Text
-              style={
-                styles.label
-              }
-            >
-              FC promedio
-            </Text>
-          </View>
-
-          <Text style={styles.value}>
-            {
-              summary.todayHeartRateAverage
-            }
-          </Text>
-        </View>
-
-        <View style={styles.item}>
-          <View
-            style={styles.labelRow}
-          >
-            <MaterialCommunityIcons
-              name="run"
-              size={22}
-              color={
-                theme.colors.primary
-              }
-            />
-
-            <Text
-              style={
-                styles.label
-              }
-            >
-              Ejercicio hoy
-            </Text>
-          </View>
-
-          <Text style={styles.value}>
-            {
-              summary.exerciseMinutesToday
-            } min
-          </Text>
-        </View>
+              <Text
+                style={
+                  styles.value
+                }
+              >
+                {
+                  metric.value
+                }
+              </Text>
+            </View>
+          ),
+        )}
       </View>
     </Card>
   )
@@ -343,8 +365,9 @@ const styles = StyleSheet.create({
   },
 
   item: {
-    width: '50%',
-    paddingRight: 12,
+    width: '48%',
+    paddingRight: 8,
+    marginBottom: 12,
   },
 
   labelRow: {
@@ -368,6 +391,23 @@ const styles = StyleSheet.create({
     fontFamily:
       theme.typography.bold,
     fontSize: 22,
+    color:
+      theme.colors.text,
+  },
+
+  weightCard: {
+    marginTop:
+      theme.spacing.lg,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+
+  weightValue: {
+    marginTop: 4,
+    fontFamily:
+      theme.typography.bold,
+    fontSize: 24,
     color:
       theme.colors.text,
   },

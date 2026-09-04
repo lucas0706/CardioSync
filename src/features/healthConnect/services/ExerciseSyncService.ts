@@ -1,10 +1,14 @@
 import {
-  readRecords,
-} from 'react-native-health-connect'
+  ExerciseSessionRecord,
+} from '@/domain/health/ExerciseSessionRecord'
 
-import { ExerciseSessionRecord } from '@/domain/health/ExerciseSessionRecord'
+import {
+  ExerciseMapper,
+} from '../mappers/ExerciseMapper'
 
-import { ExerciseMapper } from '../mappers/ExerciseMapper'
+import {
+  readAllRecords,
+} from './HealthConnectPagination'
 
 export class ExerciseSyncService {
   async readLast30Days(): Promise<
@@ -20,8 +24,8 @@ export class ExerciseSyncService {
       startTime.getDate() - 30,
     )
 
-    const result =
-      await readRecords(
+    const records =
+      await readAllRecords(
         'ExerciseSession',
         {
           timeRangeFilter: {
@@ -34,7 +38,7 @@ export class ExerciseSyncService {
         },
       )
 
-    return result.records.map(
+    return records.map(
       ExerciseMapper.toDomain,
     )
   }
