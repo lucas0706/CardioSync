@@ -7,6 +7,10 @@ export interface HealthSummary {
 
   exerciseMinutesToday: number
 
+  latestWeightKg?: number
+
+  latestWeightDate?: string
+
   averageHeartRate30Days: number
 
   averageDailySteps30Days: number

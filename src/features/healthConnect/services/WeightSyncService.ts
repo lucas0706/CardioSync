@@ -1,10 +1,14 @@
 import {
-  readRecords,
-} from 'react-native-health-connect'
+  WeightRecord,
+} from '@/domain/health/WeightRecord'
 
-import { WeightRecord } from '@/domain/health/WeightRecord'
+import {
+  WeightMapper,
+} from '../mappers/WeightMapper'
 
-import { WeightMapper } from '../mappers/WeightMapper'
+import {
+  readAllRecords,
+} from './HealthConnectPagination'
 
 export class WeightSyncService {
   async readLast30Days(): Promise<
@@ -20,8 +24,8 @@ export class WeightSyncService {
       startTime.getDate() - 30,
     )
 
-    const result =
-      await readRecords(
+    const records =
+      await readAllRecords(
         'Weight',
         {
           timeRangeFilter: {
@@ -34,7 +38,7 @@ export class WeightSyncService {
         },
       )
 
-    return result.records.map(
+    return records.map(
       WeightMapper.toDomain,
     )
   }

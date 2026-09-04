@@ -1155,6 +1155,90 @@ small {
   </div>
 </section>
 
+<section class="section">
+  <h2 class="section-title">
+    Contexto fisiológico
+  </h2>
+
+  <div class="indicator-grid">
+
+    <div class="indicator">
+      <div class="indicator-label">
+        Pasos diarios promedio
+      </div>
+
+      <div class="indicator-value">
+        ${
+          report.healthContext
+            ?.averageDailySteps30Days ?? '—'
+        }
+      </div>
+    </div>
+
+    <div class="indicator">
+      <div class="indicator-label">
+        Frecuencia cardíaca promedio
+      </div>
+
+      <div class="indicator-value">
+        ${
+          report.healthContext
+            ?.averageHeartRate30Days ?? '—'
+        }
+        lpm
+      </div>
+    </div>
+
+    <div class="indicator">
+      <div class="indicator-label">
+        Sueño promedio
+      </div>
+
+      <div class="indicator-value">
+        ${
+          report.healthContext
+            ?.averageSleepHours30Days ?? '—'
+        }
+        h
+      </div>
+    </div>
+
+    <div class="indicator">
+      <div class="indicator-label">
+        Ejercicio acumulado
+      </div>
+
+      <div class="indicator-value">
+        ${
+          report.healthContext
+            ?.exerciseMinutes30Days ?? '—'
+        }
+        min
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<div
+  style="
+    margin-top:16px;
+    padding:12px;
+    border:1px solid #e5e7eb;
+    border-radius:8px;
+    font-size:12px;
+    line-height:1.5;
+    color:#6b7280;
+  "
+>
+  <strong>Fuente de datos:</strong>
+  Información obtenida desde Health Connect.
+  Los indicadores de pasos, frecuencia cardíaca,
+  sueño, ejercicio y peso son calculados por
+  CardioSync a partir de los registros disponibles
+  durante los últimos 30 días.
+</div>
+
 <footer class="footer">
   Las métricas se calculan exclusivamente a partir
   de las mediciones registradas durante el período

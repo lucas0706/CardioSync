@@ -56,8 +56,12 @@ export class HealthAggregateService {
       })
 
     console.log(
-      '[HC AGG HEART]',
-      result,
+      '[HC AGG HEART FULL]',
+      JSON.stringify(
+        result,
+        null,
+        2,
+      ),
     )
 
     return Math.round(

@@ -6,6 +6,7 @@ import {
 } from 'react-native'
 
 import { useRouter } from 'expo-router'
+import { LinearGradient } from 'expo-linear-gradient'
 
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
@@ -25,7 +26,6 @@ import {
 
 
 import { BloodPressureClassifier } from '@/domain/clinical/classification'
-import { WaveBackground } from '@/components/ui/WaveBackground'
 
 import { BloodPressureSafetyWarning } from '@/features/measurements/components/BloodPressureSafetyWarning'
 
@@ -129,11 +129,28 @@ export function HomeV2Screen() {
           : latestMeasurement?.position ?? null
 
   return (
-    <Screen>
+    <LinearGradient
+      colors={[
+        '#FFFFFF',
+        '#F4F8FF',
+        '#EAF3FF',
+      ]}
+      style={{ flex: 1 }}
+    >
+      <Screen
+      style={{
+        backgroundColor: '#F6FAFF',
+      }}
+    >
       <ScrollView
-        scrollEnabled={false}
+        scrollEnabled={true}
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.content}
+        contentContainerStyle={[
+          styles.content,
+          {
+            flexGrow: 1,
+          },
+        ]}
       >
         <View style={styles.header}>
           <Text style={styles.greeting}>
@@ -295,8 +312,6 @@ export function HomeV2Screen() {
 
         <HealthSummaryCard />
 
-        <WaveBackground />
-
 
 
         <View style={styles.bottomSpace} />
@@ -309,6 +324,7 @@ export function HomeV2Screen() {
         }
       />
     </Screen>
+    </LinearGradient>
   )
 }
 

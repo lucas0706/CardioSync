@@ -8,13 +8,21 @@ import {
   healthAggregateService,
 } from './HealthAggregateService'
 
+import {
+  profileWeightSyncService,
+} from './ProfileWeightSyncService'
+
 export class HealthSummaryBuilder {
   async build(): Promise<HealthSummary> {
+    await profileWeightSyncService
+      .syncLatestWeight()
+
     const {
       heartRate,
       steps,
       sleep,
       exercise,
+      weight,
     } =
       await healthConnectCoordinator
         .syncAll()
@@ -150,22 +158,18 @@ export class HealthSummaryBuilder {
           )
         : 0
 
-    console.log(
-      '[HC SUMMARY]',
-      {
-        todaySteps,
-        todayHeartRateAverage:
-          averageHeartRate,
-        averageSleepHours:
-          lastSleepHours,
-        exerciseMinutesToday,
-
-        averageHeartRate30Days,
-        averageDailySteps30Days,
-        averageSleepHours30Days,
-        exerciseMinutes30Days,
-      },
-    )
+    const latestWeight =
+      weight.length > 0
+        ? [...weight].sort(
+            (a, b) =>
+              new Date(
+                b.dateTime,
+              ).getTime() -
+              new Date(
+                a.dateTime,
+              ).getTime(),
+          )[0]
+        : undefined
 
     return {
       todaySteps,
@@ -177,6 +181,9 @@ export class HealthSummaryBuilder {
         lastSleepHours,
 
       exerciseMinutesToday,
+
+      latestWeightKg:
+        latestWeight?.weightKg,
 
       averageHeartRate30Days,
 

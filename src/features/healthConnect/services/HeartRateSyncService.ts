@@ -1,22 +1,25 @@
 import {
-  readRecords,
-} from 'react-native-health-connect'
+  readAllRecords,
+} from './HealthConnectPagination'
 
-import { HeartRateMapper }
-  from '../mappers/HeartRateMapper'
+import {
+  HeartRateMapper,
+} from '../mappers/HeartRateMapper'
 
 export class HeartRateSyncService {
   async readLast30Days() {
-    const endTime = new Date()
+    const endTime =
+      new Date()
 
-    const startTime = new Date()
+    const startTime =
+      new Date()
 
     startTime.setDate(
       startTime.getDate() - 30,
     )
 
-    const result =
-      await readRecords(
+    const records =
+      await readAllRecords(
         'HeartRate',
         {
           timeRangeFilter: {
@@ -30,15 +33,15 @@ export class HeartRateSyncService {
       )
 
     console.log(
-      '[HEART RATE RAW RECORD]',
+      '[HEART RAW SAMPLE]',
       JSON.stringify(
-        result.records[0],
+        records[0],
         null,
         2,
       ),
     )
 
-    return result.records.map(
+    return records.map(
       HeartRateMapper.toDomain,
     )
   }
