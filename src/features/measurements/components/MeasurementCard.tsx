@@ -1,85 +1,127 @@
-import { StyleSheet, View } from 'react-native'
+import { useRouter } from 'expo-router'
+import { memo } from 'react'
+import {
+  Pressable,
+  StyleSheet,
+  View,
+} from 'react-native'
 
 import { Card, Text } from '@/components/ui'
-import { BloodPressureRecord } from '@/domain/measurements/BloodPressureRecord'
+import { BloodPressureSafetyWarning } from '@/features/measurements/components/BloodPressureSafetyWarning'
 import { ClassificationBadge } from '@/features/measurements/components/ClassificationBadge'
-import { classifyBloodPressure } from '@/features/measurements/utils/classifyBloodPressure'
+import { BloodPressureClassifier } from '@/domain/clinical/classification'
+import type { BloodPressureRecord } from '@/domain/measurements/BloodPressureRecord'
+import { formatDateTime } from '@/utils/date'
 
 type Props = {
   record: BloodPressureRecord
 }
 
-export function MeasurementCard({
+function MeasurementCardComponent({
   record,
 }: Props) {
-  const classification = classifyBloodPressure(
-    record.systolic,
-    record.diastolic,
-  )
+  const router = useRouter()
+
+  const classification =
+    BloodPressureClassifier.classify(
+      record.systolic,
+      record.diastolic,
+    )
 
   return (
-    <Card>
-      <View style={styles.header}>
-        <ClassificationBadge
-          classification={classification}
-        />
+    <Pressable
+      onPress={() =>
+        router.push({
+          pathname: '/measurement/[id]',
+          params: {
+            id: record.id,
+          },
+        })
+      }
+    >
+      <Card>
+        <View style={styles.content}>
+          <View style={styles.leftColumn}>
+            <Text style={styles.pressure}>
+              {record.systolic}/{record.diastolic} mmHg
+            </Text>
 
-        <Text style={styles.date}>
-          {new Date(record.dateTime).toLocaleString()}
-        </Text>
-      </View>
+            <Text style={styles.secondaryLine}>
+              {[
+                record.heartRate != null
+                  ? `❤️ ${record.heartRate} bpm`
+                  : null,
+                formatDateTime(
+                  record.dateTime,
+                ),
+                record.arm === 'left'
+                  ? 'Brazo izquierdo'
+                  : record.arm === 'right'
+                    ? 'Brazo derecho'
+                    : null,
+                record.position === 'sitting'
+                  ? 'Sentado'
+                  : record.position ===
+                      'standing'
+                    ? 'De pie'
+                    : record.position ===
+                        'lying'
+                      ? 'Acostado'
+                      : null,
+              ]
+                .filter(Boolean)
+                .join(' • ')}
+            </Text>
+          </View>
 
-      <Text style={styles.pressure}>
-        {record.systolic}/{record.diastolic}
-      </Text>
+          <View style={styles.rightColumn}>
+            <ClassificationBadge
+              classification={classification}
+            />
 
-      <View style={styles.info}>
-        {record.heartRate != null && (
-          <Text>
-            ❤️ {record.heartRate} lpm
-          </Text>
-        )}
-
-        {record.weight != null && (
-          <Text>
-            ⚖️ {record.weight} kg
-          </Text>
-        )}
-      </View>
-
-      {record.notes ? (
-        <Text style={styles.notes}>
-          {record.notes}
-        </Text>
-      ) : null}
-    </Card>
+            <BloodPressureSafetyWarning
+              warnings={
+                classification.safetyWarnings
+              }
+            />
+          </View>
+        </View>
+      </Card>
+    </Pressable>
   )
 }
 
+export const MeasurementCard =
+  memo(MeasurementCardComponent)
+
 const styles = StyleSheet.create({
-  header: {
+  content: {
     alignItems: 'center',
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 12,
+    gap: 8,
   },
 
-  date: {
-    opacity: 0.6,
+  leftColumn: {
+    flex: 1,
+    gap: 1,
   },
 
   pressure: {
-    fontSize: 34,
+    color: '#0F172A',
+    fontSize: 18,
     fontWeight: '700',
-    marginBottom: 12,
+    lineHeight: 20,
   },
 
-  info: {
-    gap: 6,
+  secondaryLine: {
+    color: '#64748B',
+    fontSize: 11,
+    lineHeight: 14,
   },
 
-  notes: {
-    marginTop: 12,
-    opacity: 0.75,
+  rightColumn: {
+    alignItems: 'flex-end',
+    justifyContent: 'center',
   },
 })

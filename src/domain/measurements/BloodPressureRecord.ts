@@ -1,12 +1,42 @@
+import type { Arm } from './types/Arm'
+import type { MeasurementOrigin } from './types/MeasurementOrigin'
+import type { Position } from './types/Position'
+
+/**
+ * Aggregate Root representing a blood pressure measurement.
+ *
+ * Phase 5 note:
+ * The properties are grouped by responsibility.
+ * Clinical-context fields remain temporarily for compatibility and will be
+ * extracted into ClinicalContext in a future roadmap phase.
+ */
 export interface BloodPressureRecord {
+  // Identity
+
   id: string
+  createdAt: string
+  updatedAt: string
+
+  // Core measurement
 
   dateTime: string
 
   systolic: number
   diastolic: number
-
   heartRate?: number
+
+  // Measurement conditions
+
+  arm?: Arm
+  position?: Position
+
+  // Data provenance
+
+  origin?: MeasurementOrigin
+
+  notes?: string
+
+  // Reserved for future ClinicalContext
 
   weight?: number
   height?: number
@@ -19,27 +49,7 @@ export interface BloodPressureRecord {
 
   pain?: number
 
-  arm?: 'left' | 'right'
-
-  position?: 'sitting' | 'standing' | 'lying'
-
-  device?: string
-
-  cuffSize?: 'small' | 'medium' | 'large'
-
-  context?: string
-
-  symptoms?: string
-
-  medicationTaken?: boolean
-
-  medicationName?: string
-
-  notes?: string
+  // Reserved for future clinical analysis
 
   guideline?: string
-
-  createdAt: string
-
-  updatedAt: string
 }

@@ -6,12 +6,21 @@ import {
   MeasurementFormData,
 } from '../schema/measurement.schema'
 
-export function useMeasurementForm() {
+export function useMeasurementForm(
+  initialValues?: Partial<MeasurementFormData>,
+) {
   return useForm<MeasurementFormData>({
     resolver: zodResolver(measurementSchema),
+
     defaultValues: {
-      systolic: 120,
-      diastolic: 80,
+      dateTime: new Date().toISOString(),
+      systolic: undefined,
+      diastolic: undefined,
+      heartRate: undefined,
+      notes: '',
+      arm: undefined,
+      position: undefined,
+      ...initialValues,
     },
   })
 }

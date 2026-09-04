@@ -39,3 +39,11 @@ yarn-error.*
 # generated native folders
 /ios
 /android
+project/audit/
+
+# Datos personales utilizados para pruebas de importación
+*.db
+*.xls
+*.csv
+# Google Services
+google-services.json
