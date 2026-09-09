@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "204307583100",
+    "project_id": "cardiosync-506718",
+    "storage_bucket": "cardiosync-506718.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:204307583100:android:df94795dd2ae68be96b9f9",
+        "android_client_info": {
+          "package_name": "com.lucas0706a.CardioSync"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "204307583100-504qtem95cmt2e7jcmfdpjt3tjhmuvb2.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAYlQUp-9o95Zc9-6ynNEW4EVXhQtUHRjo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "204307583100-504qtem95cmt2e7jcmfdpjt3tjhmuvb2.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
