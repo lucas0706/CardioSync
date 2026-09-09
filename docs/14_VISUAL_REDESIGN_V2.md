@@ -932,3 +932,68 @@ La implementación mantiene como restricciones técnicas principales:
 - validación mediante compilación TypeScript.
 
 Este documento pasa a ser la referencia técnica del estado final del Rediseño Visual V2 implementado durante agosto de 2026.
+
+---
+
+# Splash Screen V1
+
+## Objetivo
+
+Mejorar la percepción visual inicial de CardioSync mediante una pantalla de bienvenida consistente con la identidad visual de la aplicación.
+
+## Componentes
+
+### Logo
+
+Logo principal de CardioSync centrado.
+
+### Marca
+
+CardioSync
+
+Tipografía:
+
+DM Sans Bold.
+
+### Descripción
+
+Monitoreo inteligente de presión arterial.
+
+Tipografía:
+
+DM Sans Regular.
+
+### ECG
+
+Elemento visual decorativo inspirado en un trazado electrocardiográfico.
+
+Características:
+
+- Línea base horizontal.
+- Onda P.
+- Complejo QRS.
+- Onda T.
+- Animación visual de actividad.
+
+## Paleta
+
+Color principal:
+
+#2563EB
+
+Derivado de:
+
+src/theme/colors.ts
+
+## Restricciones
+
+- Sin dependencias nuevas.
+- Compatible Expo SDK 57.
+- Compatible Android.
+- Compatible iOS.
+- Compatible TypeScript strict.
+
+## Estado
+
+Versión activa: Splash V1.
+

@@ -781,3 +781,240 @@ HEALTH CONNECT
 - Pantalla Health Connect integrada.
 - Checkpoint Health Connect generado.
 
+
+---
+
+# 2026-09-09 — About Feature
+
+### Tipo
+
+Nueva funcionalidad / UX
+
+### Cambios realizados
+
+Se implementó la nueva pantalla **Acerca de CardioSync** como feature independiente.
+
+### Arquitectura
+
+- Creación del módulo `src/features/about`.
+- Separación completa respecto de otras features.
+- Integración mediante Expo Router usando la ruta `/about`.
+- Acceso desde la pantalla **Más**.
+
+### Contenido incorporado
+
+#### Objetivos terapéuticos
+
+- Inclusión de objetivos terapéuticos basados en el Consenso Argentino de Hipertensión Arterial 2025.
+- Presentación de objetivos clínicos para distintos perfiles de pacientes.
+
+#### Integración con Health Connect
+
+- Descripción de la integración nativa con Android Health Connect.
+- Sincronización de presión arterial.
+- Sincronización de frecuencia cardíaca.
+- Sincronización de peso corporal.
+- Preparación de la arquitectura para futuras integraciones:
+  - sueño,
+  - actividad física,
+  - pasos,
+  - saturación de oxígeno.
+
+#### Información de la aplicación
+
+- Nombre de la aplicación.
+- Versión instalada.
+- Información general del proyecto.
+- Estado actual de desarrollo.
+
+#### Historial de cambios
+
+- Incorporación de novedades visibles para el usuario.
+- Preparación para futuras actualizaciones OTA mediante Expo Updates.
+
+### Limpieza técnica
+
+- Eliminado archivo duplicado:
+
+  src/features/about/config/versionInfo.ts
+
+- Conservado como fuente única:
+
+  src/features/about/config/version-info.ts
+
+### Validación
+
+- TypeScript strict: limpio.
+- Expo Router: validado.
+- Navegación desde menú Más: validada.
+- Compatibilidad Expo SDK 57: validada.
+
+### Resultado
+
+CardioSync dispone ahora de una pantalla institucional propia para informar:
+
+- objetivos terapéuticos,
+- capacidades de integración con Health Connect,
+- versión instalada,
+- novedades de cada lanzamiento.
+
+
+---
+
+# 2026-09-09 — About Screen y gestión de versión
+
+### Tipo
+
+UI / Documentación / Mantenimiento
+
+### Cambios realizados
+
+- Implementada la pantalla "Acerca de CardioSync".
+- Incorporada navegación desde la sección "Más".
+- Agregada sección de novedades de la versión actual.
+- Documentados los objetivos terapéuticos basados en el Consenso Argentino de HTA 2025.
+- Documentada la integración con Health Connect:
+  - Presión arterial.
+  - Frecuencia cardíaca.
+  - Peso corporal.
+  - Sincronización manual.
+  - Permisos y estado de conexión.
+- Unificada la configuración de versión de la aplicación.
+- Eliminado archivo duplicado `versionInfo.ts`.
+- Conservado `version-info.ts` como única fuente oficial de información de versión.
+
+### Validación
+
+- TypeScript strict sin errores.
+- Navegación a `/about` validada.
+- Sin duplicación de entradas en la pantalla "Más".
+- Estructura compatible con Expo Router.
+
+### Resultado
+
+CardioSync dispone de una pantalla institucional centralizada para:
+
+- Información de la aplicación.
+- Historial de novedades.
+- Capacidades actuales.
+- Estado de integración Health Connect.
+- Gestión futura de versiones mediante OTA Updates.
+
+
+---
+
+# 2026-09-09 — Splash Screen V1
+
+### Tipo
+
+UI / Experiencia de usuario
+
+### Objetivo
+
+Incorporar una pantalla de inicio propia de CardioSync para reemplazar la transición directa desde el splash nativo de Expo hacia la aplicación.
+
+### Cambios realizados
+
+- Creación del módulo Splash dentro de la arquitectura de Features.
+- Implementación de pantalla Splash propia.
+- Integración del logo institucional de CardioSync.
+- Incorporación de tipografía DM Sans utilizada en el resto de la aplicación.
+- Incorporación del subtítulo:
+
+  Monitoreo inteligente de presión arterial.
+
+- Implementación de componente ECG decorativo.
+- Implementación de animación visual sobre el ECG.
+- Integración con RootLayout.
+- Coordinación con la carga de fuentes de la aplicación.
+
+### Arquitectura
+
+Nuevo módulo:
+
+src/features/splash
+
+Estructura:
+
+- screens/SplashScreen.tsx
+- components/EcgWave.tsx
+- components/AnimatedEcg.tsx
+
+### Decisiones
+
+- No incorporar nuevas dependencias.
+- Reutilizar react-native-svg ya presente en el proyecto.
+- Mantener compatibilidad con Expo SDK 57.
+- Mantener TypeScript strict.
+- Mantener la Splash como pantalla liviana y de rápida carga.
+
+### Validación
+
+- TypeScript strict limpio.
+- Compilación correcta.
+- Ejecución correcta en Expo Development Build.
+- Integración correcta con la carga de fuentes.
+
+### Estado
+
+✅ Completado
+
+
+---
+
+# 2026-09-09 — Splash Screen personalizada (Fase 1)
+
+### Tipo
+
+UI / Experiencia de usuario
+
+### Cambios realizados
+
+Se implementó la primera versión de la Splash Screen interna de CardioSync.
+
+### Arquitectura
+
+Se creó el feature independiente:
+
+- src/features/splash
+
+Con la siguiente estructura:
+
+- components/AnimatedEcg.tsx
+- components/EcgWave.tsx
+- screens/SplashScreen.tsx
+
+### UI
+
+La pantalla incorpora:
+
+- Logo de CardioSync.
+- Título principal.
+- Subtítulo descriptivo.
+- Animación ECG personalizada.
+
+### Diseño
+
+Se reutilizan los colores definidos en:
+
+- src/theme/colors.ts
+
+Manteniendo consistencia visual con el resto de la aplicación.
+
+### Arranque
+
+Se modificó app/_layout.tsx para:
+
+- Mantener la splash nativa de Expo durante la carga inicial.
+- Esperar la carga de fuentes DM Sans.
+- Inicializar SQLite.
+- Mostrar la Splash Screen interna durante un breve intervalo.
+- Continuar luego hacia la navegación principal.
+
+### Validación
+
+- TypeScript strict: limpio.
+- Expo SDK 57: compatible.
+- Sin dependencias nuevas.
+- Sin cambios en dominio ni base de datos.
+

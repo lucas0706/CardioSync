@@ -130,6 +130,19 @@ export default function MoreScreen() {
                   router.push('/settings')
                 }
               />
+
+              <View style={styles.divider} />
+
+              <MenuItem
+                title="Acerca de CardioSync"
+                description="Información de la aplicación y novedades."
+                icon="information-circle-outline"
+                onPress={() =>
+                  router.push('/about')
+                }
+              />
+
+
             </View>
           </View>
 
