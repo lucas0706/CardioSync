@@ -182,6 +182,24 @@ function AnimatedSleep() {
   )
 }
 
+
+function formatHoursMinutes(
+  hours: number,
+): string {
+  const totalMinutes =
+    Math.round(hours * 60)
+
+  const hh =
+    Math.floor(
+      totalMinutes / 60,
+    )
+
+  const mm =
+    totalMinutes % 60
+
+  return `${hh} h ${mm} min`
+}
+
 export function HealthSummaryCard() {
   const {
     summary,
@@ -202,7 +220,10 @@ export function HealthSummaryCard() {
           label:
             'Último sueño',
           value:
-            `${summary?.averageSleepHours ?? 0} h`,
+            formatHoursMinutes(
+              summary?.averageSleepHours ??
+                0,
+            ),
           icon: (
             <AnimatedSleep />
           ),
