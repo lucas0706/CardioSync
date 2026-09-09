@@ -53,6 +53,30 @@ function formatDateTime(value: string): string {
   )
 }
 
+function formatHoursMinutes(
+  hours: number | undefined,
+): string {
+  if (
+    hours === undefined ||
+    !Number.isFinite(hours)
+  ) {
+    return '—'
+  }
+
+  const totalMinutes =
+    Math.round(hours * 60)
+
+  const hh =
+    Math.floor(
+      totalMinutes / 60,
+    )
+
+  const mm =
+    totalMinutes % 60
+
+  return `${hh} h ${mm} min`
+}
+
 function getPeriodLabel(
   report: BloodPressureReport,
 ): string {
@@ -1157,7 +1181,7 @@ small {
 
 <section class="section">
   <h2 class="section-title">
-    Contexto fisiológico
+    Contexto fisiológico (últimos 30 días)
   </h2>
 
   <div class="indicator-grid">
@@ -1197,9 +1221,13 @@ small {
       <div class="indicator-value">
         ${
           report.healthContext
-            ?.averageSleepHours30Days ?? '—'
+            ?.averageSleepHours30Days != null
+            ? formatHoursMinutes(
+                report.healthContext
+                  .averageSleepHours30Days,
+              )
+            : '—'
         }
-        h
       </div>
     </div>
 
@@ -1211,9 +1239,47 @@ small {
       <div class="indicator-value">
         ${
           report.healthContext
-            ?.exerciseMinutes30Days ?? '—'
+            ?.exerciseMinutes30Days != null
+            ? formatHoursMinutes(
+                report.healthContext
+                  .exerciseMinutes30Days / 60,
+              )
+            : '—'
         }
-        min
+      </div>
+    </div>
+
+    <div class="indicator">
+      <div class="indicator-label">
+        Último peso
+      </div>
+
+      <div class="indicator-value">
+        ${
+          report.healthContext
+            ?.latestWeightKg != null
+            ? `${report.healthContext.latestWeightKg.toFixed(
+                1,
+              )} kg`
+            : '—'
+        }
+      </div>
+    </div>
+
+    <div class="indicator">
+      <div class="indicator-label">
+        Fecha del peso
+      </div>
+
+      <div class="indicator-value">
+        ${
+          report.healthContext
+            ?.latestWeightDate
+            ? formatDate(
+                report.healthContext.latestWeightDate,
+              )
+            : '—'
+        }
       </div>
     </div>
 

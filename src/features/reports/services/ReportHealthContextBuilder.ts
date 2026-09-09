@@ -47,6 +47,9 @@ export class ReportHealthContextBuilder {
 
         latestWeightKg:
           summary.latestWeightKg,
+
+        latestWeightDate:
+          summary.latestWeightDate,
       }
     } catch (error) {
       console.error(

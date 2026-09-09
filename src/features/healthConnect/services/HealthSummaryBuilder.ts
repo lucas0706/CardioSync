@@ -96,24 +96,53 @@ export class HealthSummaryBuilder {
         0,
       )
 
+    const sleepMinutesByDay =
+      new Map<
+        string,
+        number
+      >()
+
+    sleep.forEach(
+      session => {
+        const day =
+          session.startTime.slice(
+            0,
+            10,
+          )
+
+        sleepMinutesByDay.set(
+          day,
+          (
+            sleepMinutesByDay.get(
+              day,
+            ) ?? 0
+          ) +
+            session.durationMinutes,
+        )
+      },
+    )
+
     const averageSleepHours30Days =
-      sleep.length > 0
+      sleepMinutesByDay.size > 0
         ? Number(
             (
-              sleep.reduce(
+              Array.from(
+                sleepMinutesByDay.values(),
+              ).reduce(
                 (
                   total,
-                  session,
+                  minutes,
                 ) =>
                   total +
-                  session.durationMinutes,
+                  minutes,
                 0,
               ) /
-              sleep.length /
+              sleepMinutesByDay.size /
               60
             ).toFixed(1),
           )
         : 0
+
 
     const averageHeartRate30Days =
       heartRate.length > 0
@@ -184,6 +213,9 @@ export class HealthSummaryBuilder {
 
       latestWeightKg:
         latestWeight?.weightKg,
+
+      latestWeightDate:
+        latestWeight?.dateTime,
 
       averageHeartRate30Days,
 
