@@ -1,16 +1,43 @@
 import { PropsWithChildren } from 'react'
-import { SafeAreaView, StyleSheet } from 'react-native'
+import {
+  SafeAreaView,
+  StyleSheet,
+  ViewStyle,
+} from 'react-native'
 
 import { theme } from '@/theme'
 
-export function Screen({ children }: PropsWithChildren) {
-  return <SafeAreaView style={styles.container}>{children}</SafeAreaView>
+interface ScreenProps
+  extends PropsWithChildren {
+  style?: ViewStyle
+}
+
+export function Screen({
+  children,
+  style,
+}: ScreenProps) {
+  return (
+    <SafeAreaView
+      style={[
+        styles.container,
+        style,
+      ]}
+    >
+      {children}
+    </SafeAreaView>
+  )
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: theme.colors.background,
-    padding: theme.spacing.md,
+    backgroundColor:
+      theme.colors.background,
+    paddingHorizontal:
+      theme.spacing.md,
+    paddingTop:
+      theme.spacing.lg,
+    paddingBottom:
+      theme.spacing.md,
   },
 })

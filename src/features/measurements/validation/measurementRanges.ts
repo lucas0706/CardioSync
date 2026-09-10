@@ -14,11 +14,6 @@ export const MeasurementRanges = {
     max: 250,
   },
 
-  weight: {
-    min: 1,
-    max: 400,
-  },
-
   height: {
     min: 30,
     max: 250,
