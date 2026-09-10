@@ -8,7 +8,7 @@ export const VERSION_INFO = {
 
   releaseDate: '09/09/2026',
 
-  status: 'Beta privada',
+  status: 'Beta privada - OTA TEST 1',
 
   technical: {
     expoSdk: '57',
