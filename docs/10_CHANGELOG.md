@@ -1018,3 +1018,64 @@ Se modificó app/_layout.tsx para:
 - Sin dependencias nuevas.
 - Sin cambios en dominio ni base de datos.
 
+
+---
+
+# 2026-09-XX — Infraestructura de distribución y actualizaciones
+
+### Tipo
+
+Infraestructura / Build
+
+### Cambios realizados
+
+Se incorporó la infraestructura necesaria para distribución y actualización remota de CardioSync.
+
+Incluye:
+
+- Configuración de Expo Updates (OTA).
+- Incorporación de canal Beta para distribución controlada.
+- Integración de Google Services en la configuración Android.
+- Preparación de la aplicación para futuras actualizaciones remotas sin necesidad de generar una nueva APK para cada cambio.
+
+### Resultado
+
+CardioSync queda preparado para:
+
+- Distribución Beta controlada.
+- Actualizaciones OTA mediante Expo Updates.
+- Integraciones Android dependientes de Google Services.
+- Evolución futura del sistema de despliegue sin modificar la arquitectura de la aplicación.
+
+### Commits relacionados
+
+- build: add google services configuration
+- build: remove google-services ignore
+- build: configure OTA beta channel
+- build: configure expo updates and beta channel
+
+
+---
+
+# 2026-09-05 — Infraestructura OTA y Google Services
+
+### Tipo
+
+Infraestructura
+
+### Cambios realizados
+
+- Configuración de Google Services para Android.
+- Incorporación de `google-services.json`.
+- Habilitación de Expo Updates (OTA).
+- Configuración de canal Beta para distribución controlada.
+- Preparación de la infraestructura de releases futuras.
+
+### Resultado
+
+CardioSync queda preparado para distribuir actualizaciones OTA y gestionar ciclos Beta sin necesidad de generar una nueva APK para cada corrección menor.
+
+Checkpoint relacionado:
+
+`17_CHECKPOINT_OTA_AND_GOOGLE_SERVICES_2026-09-05.md`
+
