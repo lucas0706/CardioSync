@@ -35,8 +35,8 @@ import {
 } from '@/features/reports/services/ReportService'
 
 import {
-  ReportPdfService,
-} from '@/features/reports/services/ReportPdfService'
+  router,
+} from 'expo-router'
 
 import { theme } from '@/theme'
 
@@ -115,28 +115,17 @@ export default function ReportsScreen() {
     !customRangeIncomplete &&
     report.records.length > 0
 
-  const generateReport = async () => {
+  const generateReport = () => {
     if (!canGenerate) {
       return
     }
 
-    setError(null)
-    setIsGenerating(true)
-
-    try {
-      await ReportPdfService.generateAndShare(
-        report,
-      )
-    } catch (cause) {
-      const message =
-        cause instanceof Error
-          ? cause.message
-          : 'No se pudo generar el reporte.'
-
-      setError(message)
-    } finally {
-      setIsGenerating(false)
-    }
+    router.push({
+                pathname: '/report-preview',
+                params: {
+                  period: filter.period,
+                },
+              })
   }
 
   return (
@@ -305,7 +294,7 @@ export default function ReportsScreen() {
             title={
               isGenerating
                 ? 'Generando reporte...'
-                : 'Generar y compartir PDF'
+                : 'Ver reporte'
             }
             onPress={generateReport}
           />

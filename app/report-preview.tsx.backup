@@ -1,0 +1,464 @@
+import {
+  ScrollView,
+  View,
+  type TextStyle,
+  type ViewStyle,
+} from 'react-native'
+
+import {
+  Screen,
+  Card,
+  Text,
+} from '@/components/ui'
+
+import {
+  useLocalSearchParams,
+} from 'expo-router'
+
+import { useMeasurements } from '@/features/measurements/hooks/useMeasurements'
+
+import {
+  ClinicalChart,
+} from '@/components/charts/ClinicalChart'
+
+import {
+  BloodPressureClassifier,
+} from '@/domain/clinical/classification'
+
+import { theme } from '@/theme'
+
+import {
+  reportService,
+} from '@/features/reports/services/ReportService'
+
+export default function ReportPreviewScreen() {
+  const {
+    measurements,
+  } = useMeasurements()
+
+  const {
+    period,
+  } =
+    useLocalSearchParams<{
+      period?: string
+    }>()
+
+  const report =
+    reportService.build(
+      measurements,
+      {
+        period:
+          (period as
+            | '7d'
+            | '30d'
+            | '90d') ?? '30d',
+      },
+    )
+
+  return (
+    <Screen>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={
+          styles.content
+        }
+      >
+        <View style={styles.reportHeader}>
+          <Text style={styles.brand}>
+            CardioSync
+          </Text>
+
+          <Text style={styles.reportTitle}>
+            Reporte de presión arterial
+          </Text>
+
+          <Text style={styles.patientInfo}>
+            {report.patientName ??
+              'Paciente no configurado'}
+
+            {report.patientAge != null
+              ? ` · ${report.patientAge} años`
+              : ''}
+          </Text>
+
+          <Text style={styles.periodInfo}>
+            {report.summary.totalMeasurements}{' '}
+            mediciones analizadas
+          </Text>
+        </View>
+
+        <View style={styles.kpiGrid}>
+          <Card style={styles.kpiCard}>
+            <Text style={styles.kpiLabel}>
+              Presión promedio
+            </Text>
+
+            <Text style={styles.kpiValue}>
+              {Math.round(
+                report.summary.averageSystolic,
+              )}
+              /
+              {Math.round(
+                report.summary.averageDiastolic,
+              )}
+            </Text>
+
+            <Text style={styles.kpiUnit}>
+              mmHg
+            </Text>
+          </Card>
+
+          <Card style={styles.kpiCard}>
+            <Text style={styles.kpiLabel}>
+              FC promedio
+            </Text>
+
+            <Text style={styles.kpiValue}>
+              {report.summary.averageHeartRate
+                ? Math.round(
+                    report.summary.averageHeartRate,
+                  )
+                : '—'}
+            </Text>
+
+            <Text style={styles.kpiUnit}>
+              lpm
+            </Text>
+          </Card>
+
+          <Card style={styles.kpiCard}>
+            <Text style={styles.kpiLabel}>
+              PAM
+            </Text>
+
+            <Text style={styles.kpiValue}>
+              {Math.round(
+                report.summary
+                  .meanArterialPressureAverage,
+              )}
+            </Text>
+
+            <Text style={styles.kpiUnit}>
+              mmHg
+            </Text>
+          </Card>
+
+          <Card style={styles.kpiCard}>
+            <Text style={styles.kpiLabel}>
+              Presión de pulso
+            </Text>
+
+            <Text style={styles.kpiValue}>
+              {Math.round(
+                report.summary
+                  .pulsePressureAverage,
+              )}
+            </Text>
+
+            <Text style={styles.kpiUnit}>
+              mmHg
+            </Text>
+          </Card>
+        </View>
+
+        <ClinicalChart
+          records={report.records}
+        />
+
+        <Card style={styles.card}>
+          <Text style={styles.sectionTitle}>
+            Mediciones incluidas
+          </Text>
+
+          <View
+            style={styles.measurementsHeader}
+          >
+            <Text
+              style={[
+                styles.measurementHeader,
+                { flex: 1.8 },
+              ]}
+            >
+              Fecha
+            </Text>
+
+            <Text
+              style={[
+                styles.measurementHeader,
+                { flex: 1.1 },
+              ]}
+            >
+              PA
+            </Text>
+
+            <Text
+              style={[
+                styles.measurementHeader,
+                { flex: 0.7 },
+              ]}
+            >
+              FC
+            </Text>
+
+            <Text
+              style={[
+                styles.measurementHeader,
+                { flex: 2.4 },
+              ]}
+            >
+              Clasificación
+            </Text>
+          </View>
+
+          {report.records.map(
+            (record, index) => {
+              const classification =
+                BloodPressureClassifier.classify(
+                  record.systolic,
+                  record.diastolic,
+                )
+
+              const classificationLabel =
+                classification.category ===
+                'normal'
+                  ? 'Normal'
+                  : classification.category ===
+                      'borderline'
+                    ? 'Limítrofe'
+                    : classification.category ===
+                        'grade-1'
+                      ? 'HTA Nivel 1'
+                      : classification.category ===
+                          'grade-2'
+                        ? 'HTA Nivel 2'
+                        : 'HTA Sistólica'
+
+              return (
+                <View
+                  key={record.id}
+                  style={[
+                    styles.measurementRow,
+                    index % 2 === 0
+                      ? styles.measurementRowEven
+                      : styles.measurementRowOdd,
+                  ]}
+                >
+                  <Text
+                    style={[
+                      styles.measurementDate,
+                      { flex: 1.8 },
+                    ]}
+                  >
+                    {new Date(
+                      record.dateTime,
+                    ).toLocaleDateString()}
+                  </Text>
+
+                  <Text
+                    style={[
+                      styles.measurementValue,
+                      { flex: 1.1 },
+                    ]}
+                  >
+                    {record.systolic}/
+                    {record.diastolic}
+                  </Text>
+
+                  <Text
+                    style={[
+                      styles.measurementPulse,
+                      { flex: 0.7 },
+                    ]}
+                  >
+                    {record.heartRate ??
+                      '—'}
+                  </Text>
+
+                  <View
+                    style={[
+                      styles.classificationBadge,
+                      { flex: 2.4 },
+                      {
+                        backgroundColor:
+                          classification.color +
+                          '20',
+                      },
+                    ]}
+                  >
+                    <Text
+                      style={[
+                        styles.measurementClass,
+                        {
+                          color:
+                            classification.color,
+                        },
+                      ]}
+                      numberOfLines={1}
+                    >
+                      {classificationLabel}
+                    </Text>
+                  </View>
+                </View>
+              )
+            },
+          )}
+        </Card>
+      </ScrollView>
+    </Screen>
+  )
+}
+
+const styles: {
+  content: ViewStyle
+  reportHeader: ViewStyle
+  brand: TextStyle
+  reportTitle: TextStyle
+  patientInfo: TextStyle
+  periodInfo: TextStyle
+  kpiGrid: ViewStyle
+  kpiCard: ViewStyle
+  kpiLabel: TextStyle
+  kpiValue: TextStyle
+  kpiUnit: TextStyle
+  card: ViewStyle
+  sectionTitle: TextStyle
+  measurementsHeader: ViewStyle
+  measurementHeader: TextStyle
+  measurementRow: ViewStyle
+  measurementRowEven: ViewStyle
+  measurementRowOdd: ViewStyle
+  measurementDate: TextStyle
+  measurementValue: TextStyle
+  measurementPulse: TextStyle
+  measurementClass: TextStyle
+  classificationBadge: ViewStyle
+} = {
+  content: {
+    gap: theme.spacing.md,
+    paddingTop: theme.spacing.md,
+    paddingBottom: theme.spacing.xl,
+  },
+
+  reportHeader: {
+    gap: 4,
+  },
+
+  brand: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#2563EB',
+  },
+
+  reportTitle: {
+    fontSize: 28,
+    fontWeight: '700',
+    color: '#0F172A',
+  },
+
+  patientInfo: {
+    fontSize: 14,
+    color: '#475569',
+  },
+
+  periodInfo: {
+    fontSize: 13,
+    color: '#64748B',
+  },
+
+  kpiGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 12,
+  },
+
+  kpiCard: {
+    width: '48%',
+  },
+
+  kpiLabel: {
+    fontSize: 12,
+    color: '#64748B',
+  },
+
+  kpiValue: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: '#0F172A',
+  },
+
+  kpiUnit: {
+    fontSize: 12,
+    color: '#64748B',
+  },
+
+  card: {
+    padding: theme.spacing.md,
+    gap: theme.spacing.sm,
+  },
+
+  sectionTitle: {
+    fontFamily:
+      theme.typography.bold as string,
+    fontSize: 18,
+    color:
+      theme.colors.text,
+  },
+
+  measurementsHeader: {
+    flexDirection: 'row',
+    paddingBottom: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: '#CBD5E1',
+  },
+
+  measurementHeader: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#475569',
+  },
+
+  measurementRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E2E8F0',
+  },
+
+  measurementRowEven: {
+    backgroundColor: '#FFFFFF',
+  },
+
+  measurementRowOdd: {
+    backgroundColor: '#F8FAFC',
+  },
+
+  measurementDate: {
+    fontSize: 12,
+    color: '#475569',
+  },
+
+  measurementValue: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#0F172A',
+  },
+
+  measurementPulse: {
+    fontSize: 13,
+    color: '#334155',
+  },
+
+  measurementClass: {
+    fontSize: 11,
+    fontFamily:
+      theme.typography.bold as string,
+  },
+
+  classificationBadge: {
+    justifyContent: 'center',
+    borderRadius: 999,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+  },
+}
