@@ -44,7 +44,7 @@ import type {
 
 import {
   buildReportRedesignV1,
-} from '@/devtools/reports/ReportRedesignV1'
+} from '@/features/reports/renderers/ReportRedesignV1'
 
 export default function ReportPreviewScreen() {
   const insets =
