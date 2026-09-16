@@ -14,3 +14,6 @@ export const ClinicalTargets = {
     diastolic: 80,
   },
 } as const
+
+export type ClinicalTarget =
+  typeof ClinicalTargets.default

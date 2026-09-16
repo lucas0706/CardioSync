@@ -1,12 +1,20 @@
-import { StyleSheet, TextInput, View } from 'react-native'
+import {
+  StyleSheet,
+  TextInput,
+  View,
+} from 'react-native'
+import { useEffect, useState } from 'react'
 
 import { Text } from '@/components/ui'
+import { theme } from '@/theme'
 
 type Props = {
   label: string
   placeholder?: string
   value?: number
-  keyboardType?: 'number-pad' | 'decimal-pad'
+  keyboardType?:
+    | 'number-pad'
+    | 'decimal-pad'
   onChange(value?: number): void
 }
 
@@ -17,6 +25,19 @@ export function NumberField({
   keyboardType = 'number-pad',
   onChange,
 }: Props) {
+  const [text, setText] = useState(
+    value?.toString() ?? '',
+  )
+
+  useEffect(() => {
+    const externalValue =
+      value?.toString() ?? ''
+
+    if (externalValue !== text) {
+      setText(externalValue)
+    }
+  }, [value])
+
   return (
     <View style={styles.container}>
       <Text style={styles.label}>
@@ -26,18 +47,39 @@ export function NumberField({
       <TextInput
         style={styles.input}
         placeholder={placeholder}
+        placeholderTextColor={
+          theme.colors.textSecondary
+        }
         keyboardType={keyboardType}
-        value={value?.toString() ?? ''}
-        onChangeText={(text) => {
-          if (!text) {
+        value={text}
+        onChangeText={nextText => {
+          if (!nextText) {
+            setText('')
             onChange(undefined)
             return
           }
 
-          const parsed = Number(text)
+          const normalized =
+            nextText.replace(',', '.')
 
-          if (!Number.isNaN(parsed)) {
-            onChange(parsed)
+          if (
+            !/^\d*\.?\d*$/.test(normalized)
+          ) {
+            return
+          }
+
+          setText(nextText)
+
+          if (
+            normalized !== '.' &&
+            normalized !== ''
+          ) {
+            const parsed =
+              Number(normalized)
+
+            if (!Number.isNaN(parsed)) {
+              onChange(parsed)
+            }
           }
         }}
       />
@@ -47,19 +89,33 @@ export function NumberField({
 
 const styles = StyleSheet.create({
   container: {
-    gap: 6,
+    gap: theme.spacing.xs,
   },
 
   label: {
-    fontWeight: '600',
+    fontFamily:
+      theme.typography.semiBold,
+    fontSize:
+      theme.typography.caption,
+    color: theme.colors.text,
   },
 
   input: {
     borderWidth: 1,
-    borderColor: '#D4D4D8',
-    borderRadius: 12,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-    fontSize: 16,
+    borderColor:
+      theme.colors.border,
+    borderRadius:
+      theme.radius.md,
+    paddingHorizontal:
+      theme.spacing.md,
+    paddingVertical:
+      theme.spacing.sm,
+    fontFamily:
+      theme.typography.regular,
+    fontSize:
+      theme.typography.body,
+    color: theme.colors.text,
+    backgroundColor:
+      theme.colors.surface,
   },
 })
