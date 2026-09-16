@@ -1,13 +1,15 @@
 import {
   Alert,
+  Pressable,
   StyleSheet,
   View,
 } from 'react-native'
 
 import { router } from 'expo-router'
 
+import Ionicons from '@expo/vector-icons/Ionicons'
+
 import {
-  Button,
   Card,
   Screen,
   Text,
@@ -42,26 +44,59 @@ export default function ClearRecordsScreen() {
     <Screen>
       <View style={styles.container}>
         <Card>
-          <Text variant="h1">
+          <View style={styles.iconContainer}>
+            <Ionicons
+              name="trash-outline"
+              size={42}
+              color={theme.colors.danger}
+            />
+          </View>
+
+          <Text
+            variant="h1"
+            style={styles.title}
+          >
             Borrar mediciones
           </Text>
 
           <Text style={styles.description}>
-            Esta acción eliminará todos los registros
-            de presión arterial almacenados
-            actualmente en CardioSync.
+            Esta acción eliminará permanentemente
+            todas las mediciones almacenadas en
+            CardioSync.
           </Text>
 
-          <Text style={styles.warning}>
-            Antes de continuar, asegurate de tener
-            una copia de seguridad si necesitás
-            conservar estos datos.
-          </Text>
+          <View style={styles.warningBox}>
+            <Ionicons
+              name="warning-outline"
+              size={20}
+              color={theme.colors.danger}
+            />
 
-          <Button
-            title="Borrar todas las mediciones"
+            <Text style={styles.warningText}>
+              Esta acción no se puede deshacer.
+              Si deseás conservar los datos,
+              realizá una copia de seguridad antes
+              de continuar.
+            </Text>
+          </View>
+
+          <Pressable
+            style={styles.deleteButton}
             onPress={handleClear}
-          />
+          >
+            <Text style={styles.deleteButtonText}>
+              Borrar todas las mediciones
+            </Text>
+          </Pressable>
+
+          <Pressable
+            style={styles.cancelButton}
+            onPress={() => router.back()}
+          >
+            <Text style={styles.cancelButtonText}>
+              Cancelar
+            </Text>
+          </Pressable>
         </Card>
       </View>
     </Screen>
@@ -73,13 +108,61 @@ const styles = StyleSheet.create({
     padding: theme.spacing.md,
   },
 
-  description: {
-    marginTop: theme.spacing.sm,
+  iconContainer: {
+    alignItems: 'center',
+    marginBottom: theme.spacing.md,
   },
 
-  warning: {
+  title: {
+    textAlign: 'center',
+  },
+
+  description: {
     marginTop: theme.spacing.md,
-    marginBottom: theme.spacing.lg,
+    textAlign: 'center',
+    color: theme.colors.textSecondary,
+  },
+
+  warningBox: {
+    marginTop: theme.spacing.lg,
+    flexDirection: 'row',
+    gap: theme.spacing.sm,
+    padding: theme.spacing.md,
+    borderRadius: theme.radius.md,
+    backgroundColor: '#FEF2F2',
+    borderWidth: 1,
+    borderColor: '#FECACA',
+  },
+
+  warningText: {
+    flex: 1,
     color: theme.colors.danger,
+  },
+
+  deleteButton: {
+    marginTop: theme.spacing.lg,
+    backgroundColor: theme.colors.danger,
+    paddingVertical: theme.spacing.md,
+    borderRadius: theme.radius.md,
+    alignItems: 'center',
+  },
+
+  deleteButtonText: {
+    color: theme.colors.white,
+    fontFamily: theme.typography.semiBold,
+  },
+
+  cancelButton: {
+    marginTop: theme.spacing.sm,
+    paddingVertical: theme.spacing.md,
+    borderRadius: theme.radius.md,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+  },
+
+  cancelButtonText: {
+    color: theme.colors.text,
+    fontFamily: theme.typography.semiBold,
   },
 })

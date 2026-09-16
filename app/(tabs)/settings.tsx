@@ -113,8 +113,8 @@ export default function SettingsScreen() {
 
             <View style={styles.card}>
               <SettingsItem
-                title="Importar y exportar"
-                description="Importar registros y exportar los datos de CardioSync."
+                title="Importar mediciones"
+                description="Importar mediciones desde archivos CSV o bases de datos compatibles."
                 icon="swap-vertical-outline"
                 onPress={() =>
                   router.push('/import')
@@ -141,6 +141,17 @@ export default function SettingsScreen() {
                 description="Próximamente."
                 icon="time-outline"
                 disabled
+              />
+
+              <View style={styles.divider} />
+
+              <SettingsItem
+                title="Borrar todas las mediciones"
+                description="Eliminar permanentemente todos los registros almacenados."
+                icon="trash-outline"
+                onPress={() =>
+                  router.push('/clear-records')
+                }
               />
             </View>
           </View>
