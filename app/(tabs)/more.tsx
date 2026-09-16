@@ -134,6 +134,17 @@ export default function MoreScreen() {
               <View style={styles.divider} />
 
               <MenuItem
+                title="Borrar todas las mediciones"
+                description="Eliminar permanentemente todos los registros almacenados."
+                icon="trash-outline"
+                onPress={() =>
+                  router.push('/clear-records')
+                }
+              />
+
+              <View style={styles.divider} />
+
+              <MenuItem
                 title="Acerca de CardioSync"
                 description="Información de la aplicación y novedades."
                 icon="information-circle-outline"
@@ -141,10 +152,9 @@ export default function MoreScreen() {
                   router.push('/about')
                 }
               />
-
-
             </View>
           </View>
+
 
           <View style={styles.developmentSection}>
             <Pressable

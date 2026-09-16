@@ -1,16 +1,22 @@
 import {
   ActivityIndicator,
   Pressable,
+  ScrollView,
   StyleSheet,
   View,
 } from 'react-native'
 
 import { useState } from 'react'
 
+import Ionicons from '@expo/vector-icons/Ionicons'
+
 import {
+  Card,
   Screen,
   Text,
 } from '@/components/ui'
+
+import { theme } from '@/theme'
 
 import {
   selectAndParseCsv,
@@ -25,7 +31,6 @@ import {
 } from '../services/ImportPersistenceService'
 
 import type { ImportPreview } from '../models/ImportPreview'
-
 import type { NormalizedImportRecord } from '../types/NormalizedImportRecord'
 
 export default function ImportScreen() {
@@ -101,6 +106,7 @@ export default function ImportScreen() {
           : 'No se pudo procesar el archivo.'
 
       setError(message)
+
       setStatus(
         'La importación se detuvo por un error.',
       )
@@ -117,7 +123,10 @@ export default function ImportScreen() {
     setImporting(true)
     setError(null)
     setSuccess(null)
-    setStatus('Guardando mediciones...')
+
+    setStatus(
+      'Guardando mediciones...',
+    )
 
     try {
       const importedCount =
@@ -141,6 +150,7 @@ export default function ImportScreen() {
           : 'No se pudieron guardar las mediciones.'
 
       setError(message)
+
       setStatus(
         'La importación no se completó.',
       )
@@ -157,141 +167,200 @@ export default function ImportScreen() {
 
   return (
     <Screen>
-      <View style={styles.container}>
-        <Text variant="h1">
-          Importar mediciones
-        </Text>
+      <ScrollView contentContainerStyle={styles.container}>
+        <Card>
+          <View style={styles.iconContainer}>
+            <Ionicons
+              name="download-outline"
+              size={44}
+              color={theme.colors.primary}
+            />
+          </View>
 
-        <Text>
-          Importá mediciones desde archivos
-          exportados por otras aplicaciones.
-        </Text>
-
-        <Text>
-          Se importarán fecha, presión arterial,
-          frecuencia cardíaca, brazo, posición
-          y notas.
-        </Text>
-
-        <View style={styles.buttonGroup}>
-          <Pressable
-            style={styles.button}
-            onPress={handleSelectCsv}
-            disabled={
-              loading ||
-              importing
-            }
-          >
-            {loading ? (
-              <ActivityIndicator />
-            ) : (
-              <Text>
-                Seleccionar archivo CSV
-              </Text>
-            )}
-          </Pressable>
-
-          <Pressable
-            style={styles.button}
-            onPress={handleSelectDb}
-            disabled={
-              loading ||
-              importing
-            }
-          >
-            {loading ? (
-              <ActivityIndicator />
-            ) : (
-              <Text>
-                Seleccionar base de datos DB
-              </Text>
-            )}
-          </Pressable>
-        </View>
-
-        <View style={styles.statusCard}>
-          <Text variant="h2">
-            Estado
+          <Text variant="h1">
+            Importar mediciones
           </Text>
 
-          <Text>
-            {status}
+          <Text style={styles.description}>
+            Importá registros exportados desde
+            otras aplicaciones compatibles.
           </Text>
-        </View>
 
-        {error ? (
-          <View style={styles.errorCard}>
+          <Text style={styles.warning}>
+            Revisá cuidadosamente la vista previa
+            antes de confirmar la importación.
+          </Text>
+
+          <View style={styles.buttonGroup}>
+            <Pressable
+              style={styles.actionButton}
+              onPress={handleSelectCsv}
+              disabled={loading || importing}
+            >
+              {loading ? (
+                <ActivityIndicator />
+              ) : (
+                <Text style={styles.buttonText}>
+                  Seleccionar CSV
+                </Text>
+              )}
+            </Pressable>
+
+            <Pressable
+              style={styles.actionButton}
+              onPress={handleSelectDb}
+              disabled={loading || importing}
+            >
+              {loading ? (
+                <ActivityIndicator />
+              ) : (
+                <Text style={styles.buttonText}>
+                  Seleccionar DB
+                </Text>
+              )}
+            </Pressable>
+          </View>
+        </Card>
+
+        <Card>
+          <View style={styles.statusHeader}>
+            <Ionicons
+              name={
+                error
+                  ? 'alert-circle'
+                  : success
+                  ? 'checkmark-circle'
+                  : loading || importing
+                  ? 'sync'
+                  : 'hourglass-outline'
+              }
+              size={28}
+              color={
+                error
+                  ? '#DC2626'
+                  : success
+                  ? '#16A34A'
+                  : loading || importing
+                  ? theme.colors.primary
+                  : '#F59E0B'
+              }
+            />
+
             <Text variant="h2">
-              Error
-            </Text>
-
-            <Text>
-              {error}
+              Estado
             </Text>
           </View>
+
+          <Text style={styles.cardText}>
+            {status}
+          </Text>
+        </Card>
+
+        {error ? (
+          <Card>
+            <View style={styles.errorHeader}>
+              <Ionicons
+                name="alert-circle"
+                size={30}
+                color="#DC2626"
+              />
+
+              <Text variant="h2">
+                Error de importación
+              </Text>
+            </View>
+
+            <Text style={styles.errorText}>
+              {error}
+            </Text>
+          </Card>
         ) : null}
 
         {success ? (
-          <View style={styles.successCard}>
-            <Text variant="h2">
-              Importación completada
-            </Text>
+          <Card>
+            <View style={styles.successHeader}>
+              <Ionicons
+                name="checkmark-circle"
+                size={32}
+                color="#16A34A"
+              />
 
-            <Text>
+              <Text variant="h2">
+                Importación completada
+              </Text>
+            </View>
+
+            <Text style={styles.successText}>
               {success}
             </Text>
-          </View>
+          </Card>
         ) : null}
 
-        {preview ? (
-          <View style={styles.previewCard}>
+                {preview ? (
+          <Card>
             <Text variant="h2">
-              Vista previa
+            Vista previa
             </Text>
 
-            <Text>
-              Archivo: {preview.fileName}
+            <Text style={styles.cardText}>
+              {preview.fileName}
             </Text>
 
-            <Text>
-              Registros encontrados:{' '}
-              {preview.totalRows}
+            <View style={styles.metricsGrid}>
+              <View style={styles.metricCard}>
+                <Text style={styles.metricValue}>
+                  {preview.totalRows}
+                </Text>
+
+                <Text style={styles.metricLabel}>
+                  Encontrados
+                </Text>
+              </View>
+
+              <View style={styles.metricCard}>
+                <Text style={styles.metricValue}>
+                  {preview.validRecords}
+                </Text>
+
+                <Text style={styles.metricLabel}>
+                  Válidos
+                </Text>
+              </View>
+
+              <View style={styles.metricCard}>
+                <Text style={styles.metricValue}>
+                  {newRecordCount}
+                </Text>
+
+                <Text style={styles.metricLabel}>
+                  Nuevos
+                </Text>
+              </View>
+
+              <View style={styles.metricCard}>
+                <Text style={styles.metricValue}>
+                  {existingCount}
+                </Text>
+
+                <Text style={styles.metricLabel}>
+                  Existentes
+                </Text>
+              </View>
+            </View>
+
+            <Text style={styles.previewDetail}>
+              Duplicados: {preview.duplicateCount}
             </Text>
 
-            <Text>
-              Registros válidos:{' '}
-              {preview.validRecords}
+            <Text style={styles.previewDetail}>
+              Errores: {preview.errorCount}
             </Text>
 
-            <Text>
-              Duplicados:{' '}
-              {preview.duplicateCount}
-            </Text>
-
-            <Text>
-              Errores:{' '}
-              {preview.errorCount}
-            </Text>
-
-            <Text>
+            <Text style={styles.previewDetail}>
               Sin frecuencia cardíaca:{' '}
               {preview.missingHeartRateCount}
             </Text>
-
-            <Text>
-              Ya existentes en CardioSync:{' '}
-              {existingCount}
-            </Text>
-
-            <Text>
-              Nuevos para importar:{' '}
-              {newRecordCount}
-            </Text>
-
-            <Text style={styles.warning}>
-              Ningún dato fue guardado todavía.
-            </Text>
-          </View>
+          </Card>
         ) : null}
 
         {preview &&
@@ -304,72 +373,165 @@ export default function ImportScreen() {
             disabled={importing}
           >
             {importing ? (
-              <ActivityIndicator />
+              <ActivityIndicator color="#FFFFFF" />
             ) : (
-              <Text>
+              <Text style={styles.importButtonText}>
                 Importar {newRecordCount} registros
               </Text>
             )}
           </Pressable>
         ) : null}
-      </View>
+      </ScrollView>
     </Screen>
   )
 }
 
 const styles = StyleSheet.create({
   container: {
-    gap: 16,
+    gap: theme.spacing.md,
+    paddingTop: theme.spacing.lg,
+    paddingBottom: theme.spacing.xl,
   },
 
-  buttonGroup: {
-    gap: 12,
-  },
-
-  button: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 14,
-    padding: 18,
+  iconContainer: {
     alignItems: 'center',
+    marginBottom: theme.spacing.md,
   },
 
-  importButton: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 14,
-    padding: 18,
-    alignItems: 'center',
-  },
-
-  statusCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 14,
-    padding: 18,
-    gap: 8,
-  },
-
-  previewCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 14,
-    padding: 18,
-    gap: 8,
-  },
-
-  errorCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 14,
-    padding: 18,
-    gap: 8,
-  },
-
-  successCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 14,
-    padding: 18,
-    gap: 8,
+  description: {
+    marginTop: theme.spacing.sm,
   },
 
   warning: {
-    marginTop: 8,
-    fontWeight: '600',
+    marginTop: theme.spacing.md,
+    color: theme.colors.danger,
+    marginBottom: theme.spacing.lg,
+  },
+
+  buttonGroup: {
+    gap: theme.spacing.sm,
+  },
+
+  actionButton: {
+    backgroundColor: theme.colors.primary,
+    borderRadius: theme.radius.md,
+    paddingVertical: theme.spacing.md,
+    alignItems: 'center',
+  },
+
+  buttonText: {
+    color: theme.colors.white,
+  },
+
+  statusHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: theme.spacing.sm,
+    marginBottom: theme.spacing.sm,
+  },
+
+
+  statusTextSuccess: {
+    color: "#16A34A",
+  },
+
+  statusTextError: {
+    color: "#DC2626",
+  },
+
+  statusTextWarning: {
+    color: "#F59E0B",
+  },
+
+  cardText: {
+    marginTop: theme.spacing.sm,
+  },
+
+
+  errorHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.spacing.sm,
+    marginBottom: theme.spacing.sm,
+  },
+
+  errorText: {
+    color: theme.colors.danger,
+    marginTop: theme.spacing.sm,
+  },
+
+  importButton: {
+    backgroundColor: theme.colors.primary,
+    borderRadius: theme.radius.md,
+    paddingVertical: theme.spacing.md,
+    alignItems: 'center',
+  },
+
+  importButtonText: {
+    color: theme.colors.white,
+    fontFamily: theme.typography.semiBold,
+  },
+
+  metricsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: theme.spacing.sm,
+    marginTop: theme.spacing.md,
+    marginBottom: theme.spacing.md,
+  },
+
+  metricCard: {
+    width: '47%',
+    padding: theme.spacing.md,
+    borderRadius: theme.radius.md,
+    backgroundColor: theme.colors.background,
+    alignItems: 'center',
+  },
+
+  metricValue: {
+    fontSize: 22,
+    fontFamily: theme.typography.bold,
+    color: theme.colors.primary,
+  },
+
+  metricLabel: {
+    marginTop: 4,
+    color: theme.colors.textSecondary,
+  },
+
+  qualitySection: {
+    marginTop: theme.spacing.lg,
+    gap: theme.spacing.sm,
+  },
+
+  detailRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingVertical: theme.spacing.sm,
+    borderBottomWidth: 1,
+    borderBottomColor: theme.colors.background,
+  },
+
+  detailValue: {
+    fontFamily: theme.typography.bold,
+    color: theme.colors.primary,
+  },
+
+  successHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: theme.spacing.sm,
+    marginBottom: theme.spacing.sm,
+  },
+
+  successText: {
+    color: "#16A34A",
+    fontFamily: theme.typography.semiBold,
+  },
+
+
+  previewDetail: {
+    marginTop: 6,
   },
 })
