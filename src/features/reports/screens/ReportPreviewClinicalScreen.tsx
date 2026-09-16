@@ -1,4 +1,9 @@
 import {
+  useEffect,
+  useState,
+} from 'react'
+
+import {
   ScrollView,
   View,
   type TextStyle,
@@ -25,11 +30,64 @@ import {
   reportService,
 } from '@/features/reports/services/ReportService'
 
+import {
+  reportHealthContextBuilder,
+} from '@/features/reports/services/ReportHealthContextBuilder'
+
+import type {
+  ReportHealthContext,
+} from '@/features/reports/models/ReportHealthContext'
+
 import { theme } from '@/theme'
+
+function formatHoursMinutes(
+  hours?: number,
+): string {
+  if (
+    hours === undefined ||
+    !Number.isFinite(hours)
+  ) {
+    return '—'
+  }
+
+  const totalMinutes =
+    Math.round(hours * 60)
+
+  const hh =
+    Math.floor(
+      totalMinutes / 60,
+    )
+
+  const mm =
+    totalMinutes % 60
+
+  return `${hh} h ${mm} min`
+}
 
 export function ReportPreviewClinicalScreen() {
   const { measurements } =
     useMeasurements()
+
+  const [
+    healthContext,
+    setHealthContext,
+  ] = useState<
+    ReportHealthContext | undefined
+  >()
+
+  useEffect(() => {
+    console.log(
+      '[REPORT SCREEN] mounted',
+    )
+    void (async () => {
+      const context =
+        await reportHealthContextBuilder.build()
+
+      setHealthContext(
+        context,
+      )
+    })()
+  }, [])
 
   const report =
     reportService.build(
@@ -88,6 +146,75 @@ export function ReportPreviewClinicalScreen() {
         <ClinicalChart
           records={report.records}
         />
+
+        <Card style={styles.healthCard}>
+          <Text style={styles.tableTitle}>
+            Contexto fisiológico
+          </Text>
+
+          <View style={styles.healthGrid}>
+            <View style={styles.healthItem}>
+              <Text style={styles.metricLabel}>
+                Pasos diarios promedio
+              </Text>
+
+              <Text style={styles.healthValue}>
+                {
+                  healthContext
+                    ?.averageDailySteps30Days ??
+                  '—'
+                }
+              </Text>
+            </View>
+
+            <View style={styles.healthItem}>
+              <Text style={styles.metricLabel}>
+                FC promedio
+              </Text>
+
+              <Text style={styles.healthValue}>
+                {
+                  healthContext
+                    ?.averageHeartRate30Days ??
+                  '—'
+                } lpm
+              </Text>
+            </View>
+
+            <View style={styles.healthItem}>
+              <Text style={styles.metricLabel}>
+                Sueño promedio
+              </Text>
+
+              <Text style={styles.healthValue}>
+                {formatHoursMinutes(
+                  healthContext
+                    ?.averageSleepHours30Days,
+                )}
+              </Text>
+            </View>
+
+            <View style={styles.healthItem}>
+              <Text style={styles.metricLabel}>
+                Ejercicio acumulado
+              </Text>
+
+              <Text style={styles.healthValue}>
+                {
+                  healthContext
+                    ?.exerciseMinutes30Days !=
+                  null
+                    ? formatHoursMinutes(
+                        healthContext
+                          .exerciseMinutes30Days /
+                          60,
+                      )
+                    : '—'
+                }
+              </Text>
+            </View>
+          </View>
+        </Card>
 
         <Card style={styles.tableCard}>
           <Text style={styles.tableTitle}>
@@ -212,6 +339,10 @@ const styles: {
   metricCard: ViewStyle
   metricLabel: TextStyle
   metricValue: TextStyle
+  healthCard: ViewStyle
+  healthGrid: ViewStyle
+  healthItem: ViewStyle
+  healthValue: TextStyle
   tableCard: ViewStyle
   tableTitle: TextStyle
   tableHeader: ViewStyle
@@ -261,6 +392,28 @@ const styles: {
   metricValue: {
     marginTop: 6,
     fontSize: 24,
+    fontFamily:
+      theme.typography.bold,
+  },
+
+  healthCard: {
+    padding: 16,
+  },
+
+  healthGrid: {
+    gap: 12,
+  },
+
+  healthItem: {
+    padding: 12,
+    borderRadius: 12,
+    backgroundColor:
+      '#F8FAFC',
+  },
+
+  healthValue: {
+    marginTop: 4,
+    fontSize: 18,
     fontFamily:
       theme.typography.bold,
   },

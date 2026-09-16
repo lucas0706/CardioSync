@@ -16,6 +16,8 @@ import { Card, Text } from '@/components/ui'
 
 import { ClinicalEmptyState } from './ClinicalEmptyState'
 import { ClinicalTargetLine } from './ClinicalTargetLine'
+import { ClinicalAverageLine } from './ClinicalAverageLine'
+import { ClinicalChartZone } from './ClinicalChartZone'
 
 import { clinicalSeries } from './ClinicalChart/constants/clinicalSeries'
 
@@ -62,6 +64,24 @@ export function ClinicalChart({
   })
 
   const font = useClinicalChartFont()
+
+  const averageSystolic =
+    records.length > 0
+      ? records.reduce(
+          (acc, item) =>
+            acc + item.systolic,
+          0,
+        ) / records.length
+      : undefined
+
+  const averageDiastolic =
+    records.length > 0
+      ? records.reduce(
+          (acc, item) =>
+            acc + item.diastolic,
+          0,
+        ) / records.length
+      : undefined
 
   if (
     data.length === 0 ||
@@ -133,6 +153,20 @@ export function ClinicalChart({
               chartBounds,
             }) => (
               <>
+                <ClinicalAverageLine
+                  value={averageSystolic}
+                  yScale={yScale}
+                  chartBounds={chartBounds}
+                  color="#388E3C"
+                />
+
+                <ClinicalAverageLine
+                  value={averageDiastolic}
+                  yScale={yScale}
+                  chartBounds={chartBounds}
+                  color="#1976D2"
+                />
+
                 <ClinicalTargetLine
                   value={
                     target?.systolic ??
@@ -180,13 +214,13 @@ export function ClinicalChart({
                       <Line
                         points={itemPoints}
                         color={item.color}
-                        strokeWidth={3}
+                        strokeWidth={2}
                       />
 
                       <Scatter
                         points={itemPoints}
                         color={item.color}
-                        radius={5}
+                        radius={3}
                       />
                     </React.Fragment>
                   )
@@ -205,6 +239,24 @@ export function ClinicalChart({
             Fecha
           </Text>
         </View>
+      </View>
+
+      <View style={styles.averageLegend}>
+        <Text style={styles.averageLegendText}>
+          Promedio sistólica (línea verde gruesa)
+        </Text>
+
+        <Text style={styles.averageLegendText}>
+          Promedio diastólica (línea azul gruesa)
+        </Text>
+
+        <Text style={styles.averageLegendText}>
+          Objetivo sistólica (120 mmHg)
+        </Text>
+
+        <Text style={styles.averageLegendText}>
+          Objetivo diastólica (80 mmHg)
+        </Text>
       </View>
 
       <View style={styles.legend}>
@@ -271,6 +323,18 @@ const styles = StyleSheet.create({
   xAxisTitle: {
     fontSize: 11,
     fontWeight: '600',
+    color: '#64748B',
+  },
+
+  averageLegend: {
+    marginTop: 8,
+    marginBottom: 8,
+    alignItems: 'center',
+    gap: 4,
+  },
+
+  averageLegendText: {
+    fontSize: 12,
     color: '#64748B',
   },
 
