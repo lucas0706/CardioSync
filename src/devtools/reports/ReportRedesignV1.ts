@@ -550,7 +550,7 @@ html,
 body {
   margin: 0;
   padding: 0;
-  background: #eef2f1;
+  background: #EDF4FF;
   color: #172033;
   font-family:
     -apple-system,
@@ -572,7 +572,7 @@ body {
 .header,
 .section {
   background: #ffffff;
-  border: 1px solid #dce4e1;
+  border: 1px solid #DBEAFE;
   border-radius: 18px;
 }
 
@@ -582,7 +582,7 @@ body {
 }
 
 .brand {
-  color: #176b57;
+  color: #2563EB;
   font-size: 26px;
   font-weight: 800;
 }
@@ -627,7 +627,7 @@ body {
 .primary-card {
   padding: 14px;
   border-radius: 13px;
-  background: #f3f7f5;
+  background: #EDF4FF;
 }
 
 .primary-label,
@@ -654,7 +654,7 @@ body {
 .indicator {
   padding: 11px;
   border-radius: 11px;
-  background: #f7f9f8;
+  background: #FFFFFF;
 }
 
 .metric-value,
@@ -672,7 +672,7 @@ body {
 .classification-card {
   padding: 12px;
   border-radius: 12px;
-  background: #f7f9f8;
+  background: #FFFFFF;
 }
 
 .classification-card-top {
@@ -711,13 +711,13 @@ body {
   margin-top: 6px;
   overflow: hidden;
   border-radius: 99px;
-  background: #e4eae7;
+  background: #EFF6FF;
 }
 
 .progress-fill {
   height: 100%;
   border-radius: 99px;
-  background: #26876f;
+  background: #3B82F6;
 }
 
 .chart-wrapper {
@@ -732,7 +732,7 @@ body {
 }
 
 .chart-grid {
-  stroke: #e2e8e5;
+  stroke: #DBEAFE;
   stroke-width: 1;
 }
 
@@ -742,7 +742,7 @@ body {
 }
 
 .line-systolic {
-  stroke: #176b57;
+  stroke: #2563EB;
   stroke-width: 2.8;
   stroke-linejoin: round;
   stroke-linecap: round;
@@ -756,7 +756,7 @@ body {
 }
 
 .point-systolic {
-  fill: #176b57;
+  fill: #2563EB;
 }
 
 .point-diastolic {
@@ -780,7 +780,7 @@ body {
 }
 
 .legend-dot.systolic {
-  background: #176b57;
+  background: #2563EB;
 }
 
 .legend-dot.diastolic {
@@ -802,12 +802,12 @@ th {
   text-align: left;
   color: #687585;
   font-weight: 650;
-  border-bottom: 1px solid #dce4e1;
+  border-bottom: 1px solid #DBEAFE;
 }
 
 td {
   padding: 9px 7px;
-  border-bottom: 1px solid #edf1ef;
+  border-bottom: 1px solid #F8FAFF;
   vertical-align: middle;
 }
 
@@ -829,8 +829,8 @@ small {
 }
 
 .classification.normal {
-  background: #e5f3ed;
-  color: #176b57;
+  background: #EFF6FF;
+  color: #2563EB;
 }
 
 .classification.borderline {
@@ -868,7 +868,7 @@ small {
 }
 
 .chart-empty {
-  background: #f7f9f8;
+  background: #FFFFFF;
   border-radius: 12px;
 }
 

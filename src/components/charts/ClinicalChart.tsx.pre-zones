@@ -17,7 +17,6 @@ import { Card, Text } from '@/components/ui'
 import { ClinicalEmptyState } from './ClinicalEmptyState'
 import { ClinicalTargetLine } from './ClinicalTargetLine'
 import { ClinicalAverageLine } from './ClinicalAverageLine'
-import { ClinicalChartZone } from './ClinicalChartZone'
 
 import { clinicalSeries } from './ClinicalChart/constants/clinicalSeries'
 
@@ -241,24 +240,6 @@ export function ClinicalChart({
         </View>
       </View>
 
-      <View style={styles.averageLegend}>
-        <Text style={styles.averageLegendText}>
-          Promedio sistólica (línea verde gruesa)
-        </Text>
-
-        <Text style={styles.averageLegendText}>
-          Promedio diastólica (línea azul gruesa)
-        </Text>
-
-        <Text style={styles.averageLegendText}>
-          Objetivo sistólica (120 mmHg)
-        </Text>
-
-        <Text style={styles.averageLegendText}>
-          Objetivo diastólica (80 mmHg)
-        </Text>
-      </View>
-
       <View style={styles.legend}>
         {activeSeries.map(item => (
           <View
@@ -323,18 +304,6 @@ const styles = StyleSheet.create({
   xAxisTitle: {
     fontSize: 11,
     fontWeight: '600',
-    color: '#64748B',
-  },
-
-  averageLegend: {
-    marginTop: 8,
-    marginBottom: 8,
-    alignItems: 'center',
-    gap: 4,
-  },
-
-  averageLegendText: {
-    fontSize: 12,
     color: '#64748B',
   },
 

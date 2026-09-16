@@ -1,5 +1,11 @@
+import React, {
+  useEffect,
+  useState,
+} from 'react'
+
 import {
-  ScrollView,
+  ActivityIndicator,
+  Image,
   StyleSheet,
   View,
 } from 'react-native'
@@ -8,34 +14,41 @@ import {
   useLocalSearchParams,
 } from 'expo-router'
 
+import { WebView } from 'react-native-webview'
+
 import {
-  Screen,
-  Card,
+  useSafeAreaInsets,
+} from 'react-native-safe-area-context'
+
+import {
   Text,
 } from '@/components/ui'
 
-import {
-  BloodPressureChart,
-} from '@/components/charts/BloodPressureChart'
-
-import {
-  BloodPressureClassifier,
-} from '@/domain/clinical/classification'
-
-import {
-  useMeasurements,
-} from '@/features/measurements/hooks/useMeasurements'
+import { measurementService } from '@/features/measurements/services/MeasurementService'
 
 import {
   reportService,
 } from '@/features/reports/services/ReportService'
 
-import { theme } from '@/theme'
+import {
+  reportHealthContextBuilder,
+} from '@/features/reports/services/ReportHealthContextBuilder'
+
+import type {
+  BloodPressureReport,
+} from '@/features/reports/models/BloodPressureReport'
+
+import type {
+  StatisticsFilter,
+} from '@/domain/statistics/models'
+
+import {
+  buildReportRedesignV1,
+} from '@/devtools/reports/ReportRedesignV1'
 
 export default function ReportPreviewScreen() {
-  const {
-    measurements,
-  } = useMeasurements()
+  const insets =
+    useSafeAreaInsets()
 
   const {
     period,
@@ -44,590 +57,188 @@ export default function ReportPreviewScreen() {
       period?: string
     }>()
 
-  const report =
-    reportService.build(
-      measurements,
-      {
-        period:
-          (period as
-            | '7d'
-            | '30d'
-            | '90d'
-            | 'custom') ??
-          '30d',
-      },
+  const [
+    html,
+    setHtml,
+  ] = useState<string>('')
+
+  useEffect(() => {
+    void (async () => {
+      const records =
+        measurementService.getAll()
+
+      const now =
+        new Date()
+
+      const startDate =
+        new Date(now)
+
+      switch (period) {
+        case '7d':
+          startDate.setDate(
+            now.getDate() - 7,
+          )
+          break
+
+        case '90d':
+          startDate.setDate(
+            now.getDate() - 90,
+          )
+          break
+
+        case '30d':
+        default:
+          startDate.setDate(
+            now.getDate() - 30,
+          )
+      }
+
+      const filter: StatisticsFilter =
+        {
+          period:
+            (period as
+              | '7d'
+              | '30d'
+              | '90d'
+              | 'custom') ??
+            '30d',
+
+          startDate,
+          endDate: now,
+        }
+
+      const report =
+        reportService.build(
+          records,
+          filter,
+        )
+
+      const healthContext =
+        await reportHealthContextBuilder.build()
+
+      const reportWithContext:
+        BloodPressureReport = {
+          ...report,
+          healthContext,
+        }
+
+      setHtml(
+        buildReportRedesignV1(
+          reportWithContext,
+        ),
+      )
+    })()
+  }, [period])
+
+  if (!html) {
+    return (
+      <View style={styles.loader}>
+        <Image
+          source={require('../assets/images/icon.png')}
+          style={styles.logo}
+          resizeMode="contain"
+        />
+
+        <Text style={styles.title}>
+          CardioSync
+        </Text>
+
+        <Text style={styles.subtitle}>
+          Generando informe clínico
+        </Text>
+
+        <Text style={styles.description}>
+          Analizando mediciones e
+          integrando datos de
+          Health Connect...
+        </Text>
+
+        <ActivityIndicator
+          size="large"
+        />
+      </View>
     )
-
-  const predominant =
-    report.summary.predominantClassification
-
-  const predominantLabel =
-    predominant
-      ? BloodPressureClassifier.getClassification(
-          predominant as never,
-        ).label
-      : 'Sin datos'
-
-  const sortedRecords =
-    [...report.records].sort(
-      (a, b) =>
-        new Date(a.dateTime).getTime() -
-        new Date(b.dateTime).getTime(),
-    )
-
-  const firstRecord =
-    sortedRecords[0]
-
-  const lastRecord =
-    sortedRecords[
-      sortedRecords.length - 1
-    ]
-
-  const periodLabel =
-    firstRecord && lastRecord
-      ? `${new Date(
-          firstRecord.dateTime,
-        ).toLocaleDateString()} → ${new Date(
-          lastRecord.dateTime,
-        ).toLocaleDateString()}`
-      : 'Sin registros'
-
-  const distribution =
-    report.summary
-      .classificationDistribution ?? {}
-
-  const trendLabel =
-    report.summary.trend === 'up'
-      ? 'Ascendente'
-      : report.summary.trend === 'down'
-        ? 'Descendente'
-        : 'Estable'
+  }
 
   return (
-    <Screen>
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={
-          styles.content
+    <View
+      style={[
+        styles.container,
+        {
+          paddingTop:
+            insets.top,
+
+          paddingBottom:
+            insets.bottom,
+        },
+      ]}
+    >
+      <WebView
+        originWhitelist={['*']}
+        source={{ html }}
+        style={styles.webview}
+        javaScriptEnabled={false}
+        domStorageEnabled={false}
+        showsVerticalScrollIndicator
+        showsHorizontalScrollIndicator={
+          false
         }
-      >
-        <View style={styles.header}>
-          <Text style={styles.brand}>
-            CardioSync
-          </Text>
-
-          <Text style={styles.title}>
-            Reporte clínico
-          </Text>
-
-          <Text style={styles.patient}>
-            {report.patientName ??
-              'Paciente'}
-            {report.patientAge != null
-              ? ` · ${report.patientAge} años`
-              : ''}
-          </Text>
-
-          <Text style={styles.subtitle}>
-            {
-              report.summary
-                .totalMeasurements
-            }{' '}
-            mediciones analizadas
-          </Text>
-
-          <Text
-            style={styles.periodRange}
-          >
-            Período analizado: {periodLabel}
-          </Text>
-        </View>
-
-        <View style={styles.kpiGrid}>
-          <Card style={styles.kpiCard}>
-            <Text style={styles.kpiLabel}>
-              Presión promedio
-            </Text>
-
-            <Text style={styles.kpiValue}>
-              {Math.round(
-                report.summary
-                  .averageSystolic,
-              )}
-              /
-              {Math.round(
-                report.summary
-                  .averageDiastolic,
-              )}
-            </Text>
-
-            <Text style={styles.kpiUnit}>
-              mmHg
-            </Text>
-          </Card>
-
-          <Card style={styles.kpiCard}>
-            <Text style={styles.kpiLabel}>
-              FC promedio
-            </Text>
-
-            <Text style={styles.kpiValue}>
-              {report.summary
-                .averageHeartRate
-                ? Math.round(
-                    report.summary
-                      .averageHeartRate,
-                  )
-                : '—'}
-            </Text>
-
-            <Text style={styles.kpiUnit}>
-              lpm
-            </Text>
-          </Card>
-
-          <Card style={styles.kpiCard}>
-            <Text style={styles.kpiLabel}>
-              PAM
-            </Text>
-
-            <Text style={styles.kpiValue}>
-              {Math.round(
-                report.summary
-                  .meanArterialPressureAverage,
-              )}
-            </Text>
-
-            <Text style={styles.kpiUnit}>
-              mmHg
-            </Text>
-          </Card>
-
-          <Card style={styles.kpiCard}>
-            <Text style={styles.kpiLabel}>
-              Clasificación
-            </Text>
-
-            <Text
-              style={[
-                styles.kpiValue,
-                {
-                  fontSize: 18,
-                },
-              ]}
-            >
-              {predominantLabel}
-            </Text>
-          </Card>
-        </View>
-
-        <Card style={styles.section}>
-          <Text style={styles.sectionTitle}>
-            Evolución de presión arterial
-          </Text>
-
-          <BloodPressureChart
-            records={report.records}
-          />
-        </Card>
-
-        <Card style={styles.section}>
-          <Text style={styles.sectionTitle}>
-            Resumen clínico
-          </Text>
-
-          <View style={styles.summaryRow}>
-            <Text style={styles.summaryLabel}>
-              Máxima
-            </Text>
-
-            <Text style={styles.summaryValue}>
-              {
-                report.summary
-                  .maximumSystolic
-              }
-              /
-              {
-                report.summary
-                  .maximumDiastolic
-              }
-            </Text>
-          </View>
-
-          <View style={styles.summaryRow}>
-            <Text style={styles.summaryLabel}>
-              Mínima
-            </Text>
-
-            <Text style={styles.summaryValue}>
-              {
-                report.summary
-                  .minimumSystolic
-              }
-              /
-              {
-                report.summary
-                  .minimumDiastolic
-              }
-            </Text>
-          </View>
-
-          <View style={styles.summaryRow}>
-            <Text style={styles.summaryLabel}>
-              Variabilidad sistólica
-            </Text>
-
-            <Text style={styles.summaryValue}>
-              {report.summary.systolicVariability.toFixed(
-                1,
-              )}
-              %
-            </Text>
-          </View>
-
-          <View style={styles.summaryRow}>
-            <Text style={styles.summaryLabel}>
-              Variabilidad diastólica
-            </Text>
-
-            <Text style={styles.summaryValue}>
-              {report.summary.diastolicVariability.toFixed(
-                1,
-              )}
-              %
-            </Text>
-          </View>
-
-          <View style={styles.summaryRow}>
-            <Text style={styles.summaryLabel}>
-              Carga hipertensiva
-            </Text>
-
-            <Text style={styles.summaryValue}>
-              {report.summary.hypertensionLoad.toFixed(
-                1,
-              )}
-              %
-            </Text>
-          </View>
-
-          <View style={styles.summaryRow}>
-            <Text style={styles.summaryLabel}>
-              Tiempo en objetivo
-            </Text>
-
-            <Text style={styles.summaryValue}>
-              {report.summary.timeInTarget.toFixed(
-                1,
-              )}
-              %
-            </Text>
-          </View>
-
-          <View style={styles.summaryRow}>
-            <Text style={styles.summaryLabel}>
-              Tendencia
-            </Text>
-
-            <Text style={styles.summaryValue}>
-              {trendLabel}
-            </Text>
-          </View>
-        </Card>
-
-        <Card style={styles.section}>
-          <Text style={styles.sectionTitle}>
-            Distribución clínica
-          </Text>
-
-          {Object.entries(
-            distribution,
-          ).map(
-            ([category, count]) => {
-              const classification =
-                BloodPressureClassifier.getClassification(
-                  category as never,
-                )
-
-              return (
-                <View
-                  key={category}
-                  style={
-                    styles.summaryRow
-                  }
-                >
-                  <Text
-                    style={{
-                      color:
-                        classification.color,
-                    }}
-                  >
-                    {
-                      classification.label
-                    }
-                  </Text>
-
-                  <Text
-                    style={
-                      styles.summaryValue
-                    }
-                  >
-                    {count}
-                  </Text>
-                </View>
-              )
-            },
-          )}
-        </Card>
-
-        <Card style={styles.section}>
-          <Text style={styles.sectionTitle}>
-            Mediciones del período
-          </Text>
-
-          <View style={styles.tableHeader}>
-            <Text
-              style={[
-                styles.headerCell,
-                { flex: 1.4 },
-              ]}
-            >
-              Fecha
-            </Text>
-
-            <Text
-              style={[
-                styles.headerCell,
-                { flex: 1 },
-              ]}
-            >
-              PA
-            </Text>
-
-            <Text
-              style={[
-                styles.headerCell,
-                { flex: 0.7 },
-              ]}
-            >
-              FC
-            </Text>
-
-            <Text
-              style={[
-                styles.headerCell,
-                { flex: 2 },
-              ]}
-            >
-              Clasificación
-            </Text>
-          </View>
-
-          {report.records.map(
-            record => {
-              const classification =
-                BloodPressureClassifier.classify(
-                  record.systolic,
-                  record.diastolic,
-                )
-
-              return (
-                <View
-                  key={record.id}
-                  style={
-                    styles.tableRow
-                  }
-                >
-                  <Text
-                    style={[
-                      styles.cell,
-                      {
-                        flex: 1.4,
-                      },
-                    ]}
-                  >
-                    {new Date(
-                      record.dateTime,
-                    ).toLocaleDateString()}
-                  </Text>
-
-                  <Text
-                    style={[
-                      styles.cellValue,
-                      {
-                        flex: 1,
-                      },
-                    ]}
-                  >
-                    {record.systolic}/
-                    {record.diastolic}
-                  </Text>
-
-                  <Text
-                    style={[
-                      styles.cell,
-                      {
-                        flex: 0.7,
-                      },
-                    ]}
-                  >
-                    {record.heartRate ??
-                      '—'}
-                  </Text>
-
-                  <Text
-                    style={[
-                      styles.cell,
-                      {
-                        flex: 2,
-                        color:
-                          classification.color,
-                      },
-                    ]}
-                  >
-                    {
-                      classification.label
-                    }
-                  </Text>
-                </View>
-              )
-            },
-          )}
-        </Card>
-      </ScrollView>
-    </Screen>
+      />
+    </View>
   )
 }
 
 const styles =
   StyleSheet.create({
-    content: {
-      paddingBottom: 40,
-      gap: 16,
+    container: {
+      flex: 1,
+      backgroundColor:
+        '#EDF4FF',
     },
 
-    header: {
-      gap: 4,
+    webview: {
+      flex: 1,
+      backgroundColor:
+        '#EDF4FF',
     },
 
-    brand: {
-      color:
-        theme.colors.primary,
-      fontFamily:
-        theme.typography.bold,
-      fontSize: 13,
+    loader: {
+      flex: 1,
+      justifyContent:
+        'center',
+      alignItems:
+        'center',
+      paddingHorizontal:
+        32,
+      backgroundColor:
+        '#EDF4FF',
+    },
+
+    logo: {
+      width: 120,
+      height: 120,
+      marginBottom: 20,
     },
 
     title: {
-      fontSize: 30,
-      fontFamily:
-        theme.typography.bold,
-    },
-
-    patient: {
-      color:
-        theme.colors.textSecondary,
+      fontSize: 28,
+      fontWeight: '700',
+      color: '#2563EB',
+      marginBottom: 8,
     },
 
     subtitle: {
-      color:
-        theme.colors.textSecondary,
-      fontSize: 13,
-    },
-
-    periodRange: {
-      color:
-        theme.colors.textSecondary,
-      fontSize: 12,
-    },
-
-    kpiGrid: {
-      flexDirection: 'row',
-      flexWrap: 'wrap',
-      gap: 12,
-    },
-
-    kpiCard: {
-      width: '48%',
-    },
-
-    kpiLabel: {
-      fontSize: 12,
-      color:
-        theme.colors.textSecondary,
-    },
-
-    kpiValue: {
-      marginTop: 8,
-      fontSize: 28,
-      fontFamily:
-        theme.typography.bold,
-    },
-
-    kpiUnit: {
-      color:
-        theme.colors.textSecondary,
-      fontSize: 12,
-    },
-
-    section: {
-      gap: 16,
-    },
-
-    sectionTitle: {
       fontSize: 18,
-      fontFamily:
-        theme.typography.bold,
+      fontWeight: '600',
+      textAlign: 'center',
+      marginBottom: 8,
     },
 
-    summaryRow: {
-      flexDirection: 'row',
-      justifyContent:
-        'space-between',
-    },
-
-    summaryLabel: {
-      color:
-        theme.colors.textSecondary,
-    },
-
-    summaryValue: {
-      fontFamily:
-        theme.typography.bold,
-    },
-
-    tableHeader: {
-      flexDirection: 'row',
-      borderBottomWidth: 1,
-      borderBottomColor:
-        theme.colors.border,
-      paddingBottom: 8,
-    },
-
-    headerCell: {
-      fontSize: 12,
-      fontFamily:
-        theme.typography.bold,
-      color:
-        theme.colors.textSecondary,
-    },
-
-    tableRow: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      paddingVertical: 10,
-      borderBottomWidth: 1,
-      borderBottomColor:
-        theme.colors.border,
-    },
-
-    cell: {
-      fontSize: 12,
-    },
-
-    cellValue: {
-      fontSize: 13,
-      fontFamily:
-        theme.typography.bold,
+    description: {
+      fontSize: 14,
+      textAlign: 'center',
+      opacity: 0.7,
+      marginBottom: 24,
+      lineHeight: 20,
     },
   })
