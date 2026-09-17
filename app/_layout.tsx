@@ -2,6 +2,7 @@ import { Stack } from 'expo-router'
 import { StatusBar } from 'expo-status-bar'
 import { useEffect, useState } from 'react'
 import { SplashScreen } from 'expo-router'
+import * as Updates from 'expo-updates'
 
 import {
   useFonts,
@@ -35,6 +36,28 @@ export default function RootLayout() {
   }, [])
 
   useEffect(() => {
+    async function checkUpdates() {
+      try {
+        const update =
+          await Updates.checkForUpdateAsync()
+
+        if (update.isAvailable) {
+          await Updates.fetchUpdateAsync()
+
+          await Updates.reloadAsync()
+        }
+      } catch (error) {
+        console.log(
+          '[OTA] update check failed',
+          error,
+        )
+      }
+    }
+
+    void checkUpdates()
+  }, [])
+
+  useEffect(() => {
     async function prepare() {
       if (
         !fontsLoaded &&
@@ -50,7 +73,7 @@ export default function RootLayout() {
       }, 3500)
     }
 
-    prepare()
+    void prepare()
   }, [fontsLoaded, fontError])
 
   if (
