@@ -152,6 +152,17 @@ export default function MoreScreen() {
                   router.push('/about')
                 }
               />
+
+              <View style={styles.divider} />
+
+              <MenuItem
+                title="Actualizaciones"
+                description="Consultar nuevas versiones disponibles."
+                icon="cloud-download-outline"
+                onPress={() =>
+                  router.push('/updates')
+                }
+              />
             </View>
           </View>
 
