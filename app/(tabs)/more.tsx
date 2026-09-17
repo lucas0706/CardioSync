@@ -156,7 +156,7 @@ export default function MoreScreen() {
               <View style={styles.divider} />
 
               <MenuItem
-                title="Actualizaciones OTA TEST OTA TEST"
+                title="Actualizaciones OTA TEST OTA TEST OTA TEST"
                 description="Consultar nuevas versiones disponibles."
                 icon="cloud-download-outline"
                 onPress={() =>
