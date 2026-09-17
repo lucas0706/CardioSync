@@ -2,7 +2,6 @@ import { Stack } from 'expo-router'
 import { StatusBar } from 'expo-status-bar'
 import { useEffect, useState } from 'react'
 import { SplashScreen } from 'expo-router'
-import * as Updates from 'expo-updates'
 
 import {
   useFonts,
