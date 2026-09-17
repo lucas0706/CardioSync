@@ -34,27 +34,6 @@ export default function RootLayout() {
     initializeDatabase()
   }, [])
 
-  useEffect(() => {
-    async function checkUpdates() {
-      try {
-        const update =
-          await Updates.checkForUpdateAsync()
-
-        if (update.isAvailable) {
-          await Updates.fetchUpdateAsync()
-
-          await Updates.reloadAsync()
-        }
-      } catch (error) {
-        console.log(
-          '[OTA] update check failed',
-          error,
-        )
-      }
-    }
-
-    void checkUpdates()
-  }, [])
 
   useEffect(() => {
     async function prepare() {
