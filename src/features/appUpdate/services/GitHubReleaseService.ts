@@ -11,6 +11,11 @@ export class GitHubReleaseService {
       GitHubRelease | undefined
     > {
     try {
+      console.log(
+        '[UPDATE] Request:',
+        GITHUB_LATEST_RELEASE_URL,
+      )
+
       const response =
         await fetch(
           GITHUB_LATEST_RELEASE_URL,
@@ -22,12 +27,27 @@ export class GitHubReleaseService {
           },
         )
 
+      console.log(
+        '[UPDATE] Status:',
+        response.status,
+      )
+
+      const text =
+        await response.text()
+
+      console.log(
+        '[UPDATE] Body:',
+        text,
+      )
+
       if (!response.ok) {
         return undefined
       }
 
       const data =
-        (await response.json()) as GitHubRelease
+        JSON.parse(
+          text,
+        ) as GitHubRelease
 
       if (
         data.draft ||
@@ -37,7 +57,12 @@ export class GitHubReleaseService {
       }
 
       return data
-    } catch {
+    } catch (error) {
+      console.log(
+        '[UPDATE] ERROR:',
+        error,
+      )
+
       return undefined
     }
   }
