@@ -8,7 +8,7 @@ export const VERSION_INFO = {
 
   releaseDate: '09/09/2026',
 
-  status: 'Beta privada - OTA TEST 1',
+  status: 'Beta privada',
 
   technical: {
     expoSdk: '57',
@@ -17,71 +17,10 @@ export const VERSION_INFO = {
     database: 'SQLite',
   },
 
-  links: {
-    privacyPolicy: 'Próximamente',
-    website: 'Próximamente',
-    contact: 'Próximamente',
-  },
-
   highlights: [
     {
-      title:
-        'Objetivos terapéuticos basados en Consenso Argentino HTA 2025',
-
-      items: [
-        'Clasificación clínica de presión arterial',
-        'Objetivos terapéuticos personalizados',
-        'Evaluación de control tensional',
-        'Reglas clínicas y advertencias de seguridad',
-      ],
-    },
-
-    {
-      title: 'Ecosistema Health Connect',
-
-      items: [
-        'Presión arterial',
-        'Frecuencia cardíaca',
-        'Peso corporal',
-        'Sueño',
-        'Pasos',
-        'Ejercicio',
-        'Resumen de salud integrado',
-      ],
-    },
-
-    {
-      title: 'Reportes clínicos',
-
-      items: [
-        'Generación de reportes PDF',
-        'Contexto clínico integrado',
-        'Historial de presión arterial',
-      ],
-    },
-
-    {
-      title: 'Estadísticas avanzadas',
-
-      items: [
-        'Promedios y tendencias',
-        'Variabilidad tensional',
-        'Carga hipertensiva',
-        'Tiempo en objetivo terapéutico',
-        'Clasificación clínica automática',
-      ],
-    },
-
-    {
-      title: 'Gestión de datos',
-
-      items: [
-        'Importación CSV',
-        'Importación SQLite',
-        'Backup local',
-        'Restauración de datos',
-        'Integración Google Drive',
-      ],
+      title: 'Actualización actual',
+      items: [],
     },
   ],
-} as const
+}
