@@ -99,7 +99,10 @@ export default function ReportsScreen() {
     setFilter(current => ({
       ...current,
       startDate,
-      endDate,
+      endDate:
+        endDate ??
+        current.endDate ??
+        new Date(),
     }))
   }
 
@@ -121,11 +124,15 @@ export default function ReportsScreen() {
     }
 
     router.push({
-                pathname: '/report-preview',
-                params: {
-                  period: filter.period,
-                },
-              })
+      pathname: '/report-preview',
+      params: {
+        period: filter.period,
+        startDate:
+          filter.startDate?.toISOString(),
+        endDate:
+          filter.endDate?.toISOString(),
+      },
+    })
   }
 
   return (

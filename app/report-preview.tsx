@@ -52,9 +52,13 @@ export default function ReportPreviewScreen() {
 
   const {
     period,
+    startDate: startDateParam,
+    endDate: endDateParam,
   } =
     useLocalSearchParams<{
       period?: string
+      startDate?: string
+      endDate?: string
     }>()
 
   const [
@@ -70,27 +74,45 @@ export default function ReportPreviewScreen() {
       const now =
         new Date()
 
-      const startDate =
-        new Date(now)
+      let startDate: Date
+      let endDate: Date
 
-      switch (period) {
-        case '7d':
-          startDate.setDate(
-            now.getDate() - 7,
-          )
-          break
+      if (
+        period === 'custom' &&
+        startDateParam &&
+        endDateParam
+      ) {
+        startDate =
+          new Date(startDateParam)
 
-        case '90d':
-          startDate.setDate(
-            now.getDate() - 90,
-          )
-          break
+        endDate =
+          new Date(endDateParam)
+      } else {
+        startDate =
+          new Date(now)
 
-        case '30d':
-        default:
-          startDate.setDate(
-            now.getDate() - 30,
-          )
+        endDate =
+          now
+
+        switch (period) {
+          case '7d':
+            startDate.setDate(
+              now.getDate() - 7,
+            )
+            break
+
+          case '90d':
+            startDate.setDate(
+              now.getDate() - 90,
+            )
+            break
+
+          case '30d':
+          default:
+            startDate.setDate(
+              now.getDate() - 30,
+            )
+        }
       }
 
       const filter: StatisticsFilter =
@@ -104,7 +126,7 @@ export default function ReportPreviewScreen() {
             '30d',
 
           startDate,
-          endDate: now,
+          endDate,
         }
 
       const report =
@@ -128,7 +150,11 @@ export default function ReportPreviewScreen() {
         ),
       )
     })()
-  }, [period])
+  }, [
+    period,
+    startDateParam,
+    endDateParam,
+  ])
 
   if (!html) {
     return (

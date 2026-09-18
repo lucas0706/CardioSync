@@ -12,11 +12,28 @@ import type { StatisticsFilter } from '@/domain/statistics/models'
 const OPTIONS: Array<{
   label: string
   value: StatisticsFilter['period']
+  flex: number
 }> = [
-  { label: '7 días', value: '7d' },
-  { label: '30 días', value: '30d' },
-  { label: '90 días', value: '90d' },
-  { label: 'Personalizado', value: 'custom' },
+  {
+    label: '7 días',
+    value: '7d',
+    flex: 0.8,
+  },
+  {
+    label: '30 días',
+    value: '30d',
+    flex: 0.9,
+  },
+  {
+    label: '90 días',
+    value: '90d',
+    flex: 0.9,
+  },
+  {
+    label: 'Personalizado',
+    value: 'custom',
+    flex: 1.6,
+  },
 ]
 
 interface Props {
@@ -48,10 +65,15 @@ export function StatisticsPeriodSelector({
             }
             style={[
               styles.option,
-              selected && styles.selected,
+              {
+                flex: option.flex,
+              },
+              selected &&
+                styles.selected,
             ]}
           >
             <Text
+              numberOfLines={1}
               style={[
                 styles.label,
                 selected &&
@@ -80,13 +102,13 @@ const styles = StyleSheet.create({
   },
 
   option: {
-    flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
     minHeight: 40,
     paddingHorizontal:
       theme.spacing.sm,
-    borderRadius: theme.radius.sm,
+    borderRadius:
+      theme.radius.sm,
   },
 
   selected: {
@@ -104,7 +126,8 @@ const styles = StyleSheet.create({
   },
 
   selectedLabel: {
-    color: theme.colors.white,
+    color:
+      theme.colors.white,
     fontFamily:
       theme.typography.semiBold,
   },
