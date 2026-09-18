@@ -19,6 +19,20 @@ interface Props {
   ) => void
 }
 
+function normalizeDate(
+  date: Date,
+): Date {
+  return new Date(
+    date.getUTCFullYear(),
+    date.getUTCMonth(),
+    date.getUTCDate(),
+    12,
+    0,
+    0,
+    0,
+  )
+}
+
 export function StatisticsDateRangeSelector({
   startDate,
   endDate,
@@ -27,33 +41,53 @@ export function StatisticsDateRangeSelector({
   function handleStartChange(
     date: Date,
   ) {
+    const normalizedDate =
+      normalizeDate(date)
+
     if (
       endDate &&
-      date.getTime() > endDate.getTime()
+      normalizedDate.getTime() >
+        endDate.getTime()
     ) {
-      onChange(endDate, date)
+      onChange(
+        endDate,
+        normalizedDate,
+      )
       return
     }
 
-    onChange(date, endDate)
+    onChange(
+      normalizedDate,
+      endDate,
+    )
   }
 
   function handleEndChange(
     date: Date,
   ) {
+    const normalizedDate =
+      normalizeDate(date)
+
     if (!startDate) {
-      onChange(date)
+      onChange(normalizedDate)
       return
     }
 
     if (
-      date.getTime() < startDate.getTime()
+      normalizedDate.getTime() <
+      startDate.getTime()
     ) {
-      onChange(date, startDate)
+      onChange(
+        normalizedDate,
+        startDate,
+      )
       return
     }
 
-    onChange(startDate, date)
+    onChange(
+      startDate,
+      normalizedDate,
+    )
   }
 
   const defaultStart =
@@ -62,7 +96,6 @@ export function StatisticsDateRangeSelector({
 
   const defaultEnd =
     endDate ??
-    startDate ??
     new Date()
 
   return (
