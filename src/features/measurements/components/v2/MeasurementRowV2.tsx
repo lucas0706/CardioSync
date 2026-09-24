@@ -127,6 +127,9 @@ function MeasurementRowV2Component({
       record.diastolic,
     )
 
+  const hasClinicalAlert =
+    classification.safetyWarnings.length > 0
+
   const arm =
     getArmLabel(record.arm)
 
@@ -163,6 +166,12 @@ function MeasurementRowV2Component({
         </Text>
 
         <View style={styles.classification}>
+          {hasClinicalAlert ? (
+            <Text style={styles.alertIcon}>
+              ⚠️
+            </Text>
+          ) : null}
+
           <View
             style={[
               styles.dot,
@@ -286,6 +295,11 @@ const styles = StyleSheet.create({
     flexShrink: 0,
     flexDirection: 'row',
     alignItems: 'center',
+  },
+
+  alertIcon: {
+    marginRight: 4,
+    fontSize: 14,
   },
 
   dot: {

@@ -1,3 +1,5 @@
+import type { BloodPressureRecord } from '@/domain/measurements/BloodPressureRecord'
+
 export interface StatisticsSummary {
   totalMeasurements: number
 
@@ -10,6 +12,10 @@ export interface StatisticsSummary {
 
   minimumSystolic: number
   minimumDiastolic: number
+
+  maximumRecord?: BloodPressureRecord
+
+  minimumRecord?: BloodPressureRecord
 
   pulsePressureAverage: number
 

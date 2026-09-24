@@ -140,6 +140,7 @@ function getRecordClassification(
 ): {
   category: string
   label: string
+  hasClinicalAlert: boolean
 } {
   const classification =
     BloodPressureClassifier.classify(
@@ -150,6 +151,8 @@ function getRecordClassification(
   return {
     category: classification.category,
     label: classification.label,
+    hasClinicalAlert:
+      classification.safetyWarnings.length > 0,
   }
 }
 
@@ -224,6 +227,20 @@ function buildTrendChart(
 
   const valueRange =
     Math.max(maxValue - minValue, 20)
+
+  const maximumRecord =
+    records.reduce((current, record) =>
+      record.systolic > current.systolic
+        ? record
+        : current,
+    )
+
+  const minimumRecord =
+    records.reduce((current, record) =>
+      record.systolic < current.systolic
+        ? record
+        : current,
+    )
 
   const getX = (index: number): number => {
     if (records.length === 1) {
@@ -312,6 +329,59 @@ function buildTrendChart(
     )
     .join('')
 
+
+  const extremeLabels = records
+    .map((record, index) => {
+      const labels: string[] = []
+
+      if (
+        record.id === maximumRecord.id
+      ) {
+        labels.push(`
+          <circle
+            cx="${getX(index)}"
+            cy="${getY(record.systolic)}"
+            r="6"
+            class="point-highlight-high"
+          />
+
+          <text
+            x="${getX(index)}"
+            y="${getY(record.systolic) - 12}"
+            text-anchor="middle"
+            class="highlight-label-high"
+          >
+            ${record.systolic}/${record.diastolic}
+          </text>
+        `)
+      }
+
+      if (
+        record.id === minimumRecord.id
+      ) {
+        labels.push(`
+          <circle
+            cx="${getX(index)}"
+            cy="${getY(record.systolic)}"
+            r="6"
+            class="point-highlight-low"
+          />
+
+          <text
+            x="${getX(index)}"
+            y="${getY(record.systolic) + 20}"
+            text-anchor="middle"
+            class="highlight-label-low"
+          >
+            ${record.systolic}/${record.diastolic}
+          </text>
+        `)
+      }
+
+      return labels.join('')
+    })
+    .join('')
+
   const xLabels = records
     .map((record, index) => {
       if (
@@ -380,6 +450,7 @@ function buildTrendChart(
 
         ${systolicPoints}
         ${diastolicPoints}
+        ${extremeLabels}
         ${xLabels}
       </svg>
     </div>
@@ -493,6 +564,7 @@ function buildMeasurementRows(
             <span class="classification ${getClassificationClass(
               classification.category,
             )}">
+              ${classification.hasClinicalAlert ? '⚠️ ' : ''}
               ${escapeHtml(
                 classification.label,
               )}
@@ -582,7 +654,7 @@ body {
 }
 
 .brand {
-  color: #2563EB;
+  color: #16A34A;
   font-size: 26px;
   font-weight: 800;
 }
@@ -647,6 +719,13 @@ body {
 .metric-unit {
   margin-left: 4px;
   font-size: 11px;
+  color: #687585;
+}
+
+.metric-subvalue {
+  margin-top: 4px;
+  font-size: 11px;
+  font-weight: 500;
   color: #687585;
 }
 
@@ -763,6 +842,30 @@ body {
   fill: #718096;
 }
 
+.point-highlight-high {
+  fill: #DC2626;
+  stroke: #FFFFFF;
+  stroke-width: 2;
+}
+
+.point-highlight-low {
+  fill: #2563EB;
+  stroke: #FFFFFF;
+  stroke-width: 2;
+}
+
+.highlight-label-high {
+  fill: #DC2626;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.highlight-label-low {
+  fill: #2563EB;
+  font-size: 11px;
+  font-weight: 700;
+}
+
 .chart-legend {
   display: flex;
   gap: 18px;
@@ -830,29 +933,29 @@ small {
 
 .classification.normal {
   background: #EFF6FF;
-  color: #2563EB;
+  color: #16A34A;
 }
 
 .classification.borderline {
   background: #f6f0dd;
-  color: #80691d;
+  color: #CA8A04;
 }
 
 .classification.grade1 {
   background: #fde4dc;
-  color: #b33a24;
+  color: #EA580C;
   font-weight: 750;
 }
 
 .classification.grade2 {
   background: #f8d2d2;
-  color: #a51f1f;
+  color: #DC2626;
   font-weight: 750;
 }
 
 .classification.isolated-systolic {
   background: #eee5ff;
-  color: #6d28a9;
+  color: #7C3AED;
   font-weight: 750;
 }
 
@@ -1083,9 +1186,20 @@ small {
       </div>
 
       <div class="metric-value">
-        ${summary.maximumSystolic}/
-        ${summary.maximumDiastolic}
+        ${summary.maximumRecord
+          ? `${summary.maximumRecord.systolic}/${summary.maximumRecord.diastolic}`
+          : '--'}
         <span class="metric-unit">mmHg</span>
+
+        ${
+          summary.maximumRecord
+            ? `<div class="metric-subvalue">
+                ${formatDate(
+                  summary.maximumRecord.dateTime,
+                )}
+              </div>`
+            : ''
+        }
       </div>
     </div>
 
@@ -1095,9 +1209,20 @@ small {
       </div>
 
       <div class="metric-value">
-        ${summary.minimumSystolic}/
-        ${summary.minimumDiastolic}
+        ${summary.minimumRecord
+          ? `${summary.minimumRecord.systolic}/${summary.minimumRecord.diastolic}`
+          : '--'}
         <span class="metric-unit">mmHg</span>
+
+        ${
+          summary.minimumRecord
+            ? `<div class="metric-subvalue">
+                ${formatDate(
+                  summary.minimumRecord.dateTime,
+                )}
+              </div>`
+            : ''
+        }
       </div>
     </div>
 
@@ -1179,6 +1304,9 @@ small {
   </div>
 </section>
 
+${
+  report.healthContext
+    ? `
 <section class="section">
   <h2 class="section-title">
     Contexto fisiológico (últimos 30 días)
@@ -1304,6 +1432,10 @@ small {
   CardioSync a partir de los registros disponibles
   durante los últimos 30 días.
 </div>
+`
+    : ''
+}
+
 
 <footer class="footer">
   Las métricas se calculan exclusivamente a partir
