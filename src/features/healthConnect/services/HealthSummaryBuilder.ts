@@ -1,6 +1,11 @@
 import { HealthSummary } from '@/domain/health/HealthSummary'
 
 import {
+  getHealthConnectSettings,
+  updateHealthConnectLastSync,
+} from './HealthConnectSettingsService'
+
+import {
   healthConnectCoordinator,
 } from './HealthConnectCoordinator'
 
@@ -26,6 +31,12 @@ export class HealthSummaryBuilder {
     } =
       await healthConnectCoordinator
         .syncAll()
+
+    updateHealthConnectLastSync()
+
+    const {
+      updatedAt,
+    } = getHealthConnectSettings()
 
     const [
       todaySteps,
@@ -143,7 +154,6 @@ export class HealthSummaryBuilder {
           )
         : 0
 
-
     const averageHeartRate30Days =
       heartRate.length > 0
         ? Math.round(
@@ -224,6 +234,9 @@ export class HealthSummaryBuilder {
       averageSleepHours30Days,
 
       exerciseMinutes30Days,
+
+      lastSyncAt:
+        updatedAt,
     }
   }
 }

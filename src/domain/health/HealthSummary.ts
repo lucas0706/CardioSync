@@ -18,4 +18,6 @@ export interface HealthSummary {
   averageSleepHours30Days: number
 
   exerciseMinutes30Days: number
+
+  lastSyncAt: string
 }

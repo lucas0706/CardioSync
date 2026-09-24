@@ -10,17 +10,7 @@ import {
 
 import {
   useCallback,
-  useEffect,
-  useMemo,
 } from 'react'
-
-import Animated, {
-  useAnimatedStyle,
-  useSharedValue,
-  withRepeat,
-  withSequence,
-  withTiming,
-} from 'react-native-reanimated'
 
 import {
   MaterialCommunityIcons,
@@ -36,152 +26,6 @@ import {
 } from '@/features/healthConnect'
 
 import { theme } from '@/theme'
-
-function AnimatedHeart() {
-  const scale =
-    useSharedValue(1)
-
-  useEffect(() => {
-    scale.value =
-      withRepeat(
-        withSequence(
-          withTiming(
-            1.15,
-            {
-              duration: 450,
-            },
-          ),
-          withTiming(
-            1,
-            {
-              duration: 450,
-            },
-          ),
-        ),
-        -1,
-      )
-  }, [scale])
-
-  const style =
-    useAnimatedStyle(() => ({
-      transform: [
-        {
-          scale:
-            scale.value,
-        },
-      ],
-    }))
-
-  return (
-    <Animated.View style={style}>
-      <MaterialCommunityIcons
-        name="heart-pulse"
-        size={22}
-        color={
-          theme.colors.primary
-        }
-      />
-    </Animated.View>
-  )
-}
-
-function AnimatedSteps() {
-  const translateY =
-    useSharedValue(0)
-
-  useEffect(() => {
-    translateY.value =
-      withRepeat(
-        withSequence(
-          withTiming(
-            -3,
-            {
-              duration: 350,
-            },
-          ),
-          withTiming(
-            0,
-            {
-              duration: 350,
-            },
-          ),
-        ),
-        -1,
-      )
-  }, [translateY])
-
-  const style =
-    useAnimatedStyle(() => ({
-      transform: [
-        {
-          translateY:
-            translateY.value,
-        },
-      ],
-    }))
-
-  return (
-    <Animated.View style={style}>
-      <MaterialCommunityIcons
-        name="walk"
-        size={22}
-        color={
-          theme.colors.primary
-        }
-      />
-    </Animated.View>
-  )
-}
-
-function AnimatedSleep() {
-  const translateY =
-    useSharedValue(0)
-
-  useEffect(() => {
-    translateY.value =
-      withRepeat(
-        withSequence(
-          withTiming(
-            -2,
-            {
-              duration: 1200,
-            },
-          ),
-          withTiming(
-            2,
-            {
-              duration: 1200,
-            },
-          ),
-        ),
-        -1,
-        true,
-      )
-  }, [translateY])
-
-  const style =
-    useAnimatedStyle(() => ({
-      transform: [
-        {
-          translateY:
-            translateY.value,
-        },
-      ],
-    }))
-
-  return (
-    <Animated.View style={style}>
-      <MaterialCommunityIcons
-        name="sleep"
-        size={22}
-        color={
-          theme.colors.primary
-        }
-      />
-    </Animated.View>
-  )
-}
-
 
 function formatHoursMinutes(
   hours: number,
@@ -200,6 +44,242 @@ function formatHoursMinutes(
   return `${hh} h ${mm} min`
 }
 
+function formatLastSync(
+  value: string,
+): string {
+  const date =
+    new Date(value)
+
+  return date.toLocaleTimeString(
+    'es-AR',
+    {
+      hour: '2-digit',
+      minute: '2-digit',
+    },
+  )
+}
+
+type ClinicalStatus = {
+  label: string
+  color: string
+  bars: number
+}
+
+function getSleepStatus(
+  hours: number,
+): ClinicalStatus {
+  if (hours >= 8) {
+    return {
+      label: 'Óptimo',
+      color:
+        theme.colors.success,
+      bars: 8,
+    }
+  }
+
+  if (hours >= 7) {
+    return {
+      label: 'Bueno',
+      color: '#EAB308',
+      bars: 6,
+    }
+  }
+
+  if (hours >= 6) {
+    return {
+      label: 'Mejorable',
+      color:
+        theme.colors.warning,
+      bars: 4,
+    }
+  }
+
+  return {
+    label: 'Bajo',
+    color:
+      theme.colors.danger,
+    bars: 2,
+  }
+}
+
+function getStepsStatus(
+  steps: number,
+): ClinicalStatus {
+  if (steps >= 10000) {
+    return {
+      label: 'Óptimo',
+      color:
+        theme.colors.success,
+      bars: 8,
+    }
+  }
+
+  if (steps >= 7500) {
+    return {
+      label: 'Bueno',
+      color: '#EAB308',
+      bars: 6,
+    }
+  }
+
+  if (steps >= 5000) {
+    return {
+      label: 'Mejorable',
+      color:
+        theme.colors.warning,
+      bars: 4,
+    }
+  }
+
+  return {
+    label: 'Bajo',
+    color:
+      theme.colors.danger,
+    bars: 2,
+  }
+}
+
+function getExerciseStatus(
+  minutes: number,
+): ClinicalStatus {
+  if (minutes >= 45) {
+    return {
+      label: 'Óptimo',
+      color:
+        theme.colors.success,
+      bars: 8,
+    }
+  }
+
+  if (minutes >= 30) {
+    return {
+      label: 'Bueno',
+      color: '#EAB308',
+      bars: 6,
+    }
+  }
+
+  if (minutes >= 15) {
+    return {
+      label: 'Mejorable',
+      color:
+        theme.colors.warning,
+      bars: 4,
+    }
+  }
+
+  return {
+    label: 'Bajo',
+    color:
+      theme.colors.danger,
+    bars: 2,
+  }
+}
+
+function ClinicalBars({
+  status,
+}: {
+  status: ClinicalStatus
+}) {
+  return (
+    <View style={styles.chart}>
+      {Array.from({
+        length: 8,
+      }).map(
+        (_, index) => (
+          <View
+            key={index}
+            style={[
+              styles.bar,
+              {
+                height:
+                  12 +
+                  index * 4,
+                backgroundColor:
+                  index <
+                  status.bars
+                    ? status.color
+                    : '#E5E7EB',
+              },
+            ]}
+          />
+        ),
+      )}
+    </View>
+  )
+}
+
+type MetricRowProps = {
+  icon: keyof typeof MaterialCommunityIcons.glyphMap
+  label: string
+  value: string
+  status: ClinicalStatus
+}
+
+function MetricRow({
+  icon,
+  label,
+  value,
+  status,
+}: MetricRowProps) {
+  return (
+    <Card
+      padded={false}
+      style={styles.metricCard}
+    >
+      <View
+        style={styles.metricLeft}
+      >
+        <View
+          style={styles.iconContainer}
+        >
+          <MaterialCommunityIcons
+            name={icon}
+            size={22}
+            color={
+              theme.colors.primary
+            }
+          />
+        </View>
+
+        <View>
+          <Text
+            style={
+              styles.metricLabel
+            }
+          >
+            {label}
+          </Text>
+
+          <Text
+            style={
+              styles.metricValue
+            }
+          >
+            {value}
+          </Text>
+
+          <Text
+            style={[
+              styles.status,
+              {
+                color:
+                  status.color,
+              },
+            ]}
+          >
+            {status.label}
+          </Text>
+        </View>
+      </View>
+
+      <ClinicalBars
+        status={status}
+      />
+    </Card>
+  )
+}
+
 export function HealthSummaryCard() {
   const {
     summary,
@@ -213,86 +293,9 @@ export function HealthSummaryCard() {
     }, [reload]),
   )
 
-  const metrics =
-    useMemo(
-      () => [
-        {
-          label:
-            'Último sueño',
-          value:
-            formatHoursMinutes(
-              summary?.averageSleepHours ??
-                0,
-            ),
-          icon: (
-            <AnimatedSleep />
-          ),
-        },
-        {
-          label:
-            'Pasos del día',
-          value:
-            String(
-              summary?.todaySteps ??
-                0,
-            ),
-          icon: (
-            <AnimatedSteps />
-          ),
-        },
-        {
-          label:
-            'FC promedio',
-          value:
-            String(
-              summary?.todayHeartRateAverage ??
-                0,
-            ),
-          icon: (
-            <AnimatedHeart />
-          ),
-        },
-        {
-          label:
-            'Ejercicio hoy',
-          value:
-            `${summary?.exerciseMinutesToday ?? 0} min`,
-          icon: (
-            <MaterialCommunityIcons
-              name="run"
-              size={22}
-              color={
-                theme.colors.primary
-              }
-            />
-          ),
-        },
-
-        {
-          label:
-            'Último peso',
-          value:
-            summary?.latestWeightKg !== undefined
-              ? `${summary.latestWeightKg.toFixed(1)} kg`
-              : '--',
-          icon: (
-            <MaterialCommunityIcons
-              name="scale-bathroom"
-              size={22}
-              color={
-                theme.colors.primary
-              }
-            />
-          ),
-        },
-
-      ],
-      [summary],
-    )
-
   if (loading) {
     return (
-      <Card style={styles.card}>
+      <Card>
         <ActivityIndicator />
       </Card>
     )
@@ -303,133 +306,302 @@ export function HealthSummaryCard() {
   }
 
   return (
-    <Card style={styles.card}>
-      <Text style={styles.title}>
-        Salud integrada
-      </Text>
+    <Card style={styles.container}>
+      <View style={styles.header}>
+        <View>
+          <Text
+            style={styles.title}
+          >
+            Salud integrada
+          </Text>
 
-      <View style={styles.grid}>
-        {metrics.map(
-          metric => (
-            <View
-              key={
-                metric.label
-              }
-              style={
-                styles.item
-              }
-            >
-              <View
-                style={
-                  styles.labelRow
-                }
-              >
-                {metric.icon}
+          <Text
+            style={
+              styles.subtitle
+            }
+          >
+            Datos sincronizados
+            desde Health Connect
+          </Text>
+        </View>
 
-                <Text
-                  style={
-                    styles.label
-                  }
-                >
-                  {
-                    metric.label
-                  }
-                </Text>
-              </View>
+        <MaterialCommunityIcons
+          name="heart-pulse"
+          size={28}
+          color={
+            theme.colors.primary
+          }
+        />
+      </View>
 
-              <Text
-                style={
-                  styles.value
-                }
-              >
-                {
-                  metric.value
-                }
-              </Text>
-            </View>
-          ),
+      <MetricRow
+        icon="sleep"
+        label="Último sueño"
+        value={formatHoursMinutes(
+          summary.averageSleepHours,
         )}
+        status={getSleepStatus(
+          summary.averageSleepHours,
+        )}
+      />
+
+      <MetricRow
+        icon="walk"
+        label="Pasos del día"
+        value={String(
+          summary.todaySteps,
+        )}
+        status={getStepsStatus(
+          summary.todaySteps,
+        )}
+      />
+
+      <MetricRow
+        icon="run"
+        label="Ejercicio hoy"
+        value={`${summary.exerciseMinutesToday} min`}
+        status={getExerciseStatus(
+          summary.exerciseMinutesToday,
+        )}
+      />
+
+      <View style={styles.bottomRow}>
+        <Card
+          padded={false}
+          style={
+            styles.smallCard
+          }
+        >
+          <MaterialCommunityIcons
+            name="heart"
+            size={20}
+            color={
+              theme.colors.primary
+            }
+          />
+
+          <Text
+            style={
+              styles.smallLabel
+            }
+          >
+            FC promedio
+          </Text>
+
+          <Text
+            style={
+              styles.smallValue
+            }
+          >
+            {
+              summary.todayHeartRateAverage
+            }
+          </Text>
+        </Card>
+
+        <Card
+          padded={false}
+          style={
+            styles.smallCard
+          }
+        >
+          <MaterialCommunityIcons
+            name="scale-bathroom"
+            size={20}
+            color={
+              theme.colors.primary
+            }
+          />
+
+          <Text
+            style={
+              styles.smallLabel
+            }
+          >
+            Último peso
+          </Text>
+
+          <Text
+            style={
+              styles.smallValue
+            }
+          >
+            {summary.latestWeightKg !==
+            undefined
+              ? `${summary.latestWeightKg.toFixed(
+                  1,
+                )} kg`
+              : '--'}
+          </Text>
+        </Card>
+      </View>
+
+      <View
+        style={
+          styles.syncContainer
+        }
+      >
+        <MaterialCommunityIcons
+          name="sync"
+          size={14}
+          color={
+            theme.colors.textSecondary
+          }
+        />
+
+        <Text
+          style={
+            styles.syncText
+          }
+        >
+          Última sincronización:{' '}
+          {formatLastSync(
+            summary.lastSyncAt,
+          )}
+        </Text>
       </View>
     </Card>
   )
 }
 
-const styles = StyleSheet.create({
-  card: {
-    padding:
-      theme.spacing.md,
-    borderRadius:
-      theme.radius.lg,
-    backgroundColor:
-      theme.colors.surface,
-    borderWidth: 1,
-    borderColor:
-      theme.colors.border,
-  },
+const styles =
+  StyleSheet.create({
+    container: {
+      borderWidth: 1,
+      borderColor:
+        theme.colors.border,
+    },
 
-  title: {
-    marginBottom:
-      theme.spacing.md,
-    fontFamily:
-      theme.typography.semiBold,
-    fontSize:
-      theme.typography.body,
-    color:
-      theme.colors.text,
-  },
+    header: {
+      flexDirection: 'row',
+      justifyContent:
+        'space-between',
+      alignItems: 'center',
+      marginBottom: 16,
+    },
 
-  grid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    rowGap:
-      theme.spacing.md,
-  },
+    title: {
+      fontFamily:
+        theme.typography.bold,
+      fontSize: 18,
+      color:
+        theme.colors.text,
+    },
 
-  item: {
-    width: '48%',
-    paddingRight: 8,
-    marginBottom: 12,
-  },
+    subtitle: {
+      marginTop: 2,
+      fontSize: 12,
+      color:
+        theme.colors.textSecondary,
+    },
 
-  labelRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-  },
+    metricCard: {
+      padding: 14,
+      marginBottom: 12,
+      borderWidth: 1,
+      borderColor:
+        theme.colors.border,
+      flexDirection: 'row',
+      justifyContent:
+        'space-between',
+      alignItems: 'center',
+    },
 
-  label: {
-    fontFamily:
-      theme.typography.medium,
-    fontSize:
-      theme.typography.caption,
-    color:
-      theme.colors.textSecondary,
-  },
+    metricLeft: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 12,
+    },
 
-  value: {
-    marginTop: 4,
-    marginLeft: 28,
-    fontFamily:
-      theme.typography.bold,
-    fontSize: 22,
-    color:
-      theme.colors.text,
-  },
+    iconContainer: {
+      width: 42,
+      height: 42,
+      borderRadius: 21,
+      alignItems: 'center',
+      justifyContent:
+        'center',
+      backgroundColor:
+        '#EFF6FF',
+    },
 
-  weightCard: {
-    marginTop:
-      theme.spacing.lg,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-  },
+    metricLabel: {
+      fontSize: 12,
+      color:
+        theme.colors.textSecondary,
+    },
 
-  weightValue: {
-    marginTop: 4,
-    fontFamily:
-      theme.typography.bold,
-    fontSize: 24,
-    color:
-      theme.colors.text,
-  },
-})
+    metricValue: {
+      marginTop: 2,
+      fontFamily:
+        theme.typography.bold,
+      fontSize: 20,
+      color:
+        theme.colors.text,
+    },
+
+    status: {
+      marginTop: 4,
+      fontSize: 12,
+      fontFamily:
+        theme.typography.semiBold,
+    },
+
+    chart: {
+      flexDirection: 'row',
+      alignItems: 'flex-end',
+      gap: 3,
+      height: 44,
+    },
+
+    bar: {
+      width: 6,
+      borderRadius: 99,
+    },
+
+    bottomRow: {
+      flexDirection: 'row',
+      gap: 12,
+      marginTop: 4,
+    },
+
+    smallCard: {
+      flex: 1,
+      padding: 14,
+      borderWidth: 1,
+      borderColor:
+        theme.colors.border,
+    },
+
+    smallLabel: {
+      marginTop: 8,
+      fontSize: 12,
+      color:
+        theme.colors.textSecondary,
+    },
+
+    smallValue: {
+      marginTop: 6,
+      fontFamily:
+        theme.typography.bold,
+      fontSize: 24,
+      color:
+        theme.colors.text,
+    },
+
+    syncContainer: {
+      marginTop: 16,
+      paddingTop: 12,
+      borderTopWidth: 1,
+      borderTopColor:
+        theme.colors.border,
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 6,
+    },
+
+    syncText: {
+      fontSize: 12,
+      color:
+        theme.colors.textSecondary,
+    },
+  })
