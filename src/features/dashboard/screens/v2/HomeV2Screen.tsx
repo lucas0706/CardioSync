@@ -41,6 +41,9 @@ import {
 import { HealthSummaryCard }
   from '@/features/dashboard/components/HealthSummaryCard'
 
+import { WeeklyCardiovascularStatusCard }
+  from '@/features/dashboard/components/WeeklyCardiovascularStatusCard'
+
 export function HomeV2Screen() {
   const router = useRouter()
   const insets = useSafeAreaInsets()
@@ -309,6 +312,14 @@ export function HomeV2Screen() {
           />
         </View>
 
+        <WeeklyCardiovascularStatusCard
+          averageSystolic={
+            dashboard.averageSystolic
+          }
+          averageDiastolic={
+            dashboard.averageDiastolic
+          }
+        />
 
         <HealthSummaryCard />
 
