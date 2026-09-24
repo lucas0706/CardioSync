@@ -1,6 +1,7 @@
 import {
   useCallback,
   useEffect,
+  useRef,
   useState,
 } from 'react'
 
@@ -19,6 +20,9 @@ import {
 } from '../services/HealthSummaryBuilder'
 
 export function useHealthSummary() {
+  const mountedRef =
+    useRef(true)
+
   const [
     summary,
     setSummary,
@@ -38,18 +42,30 @@ export function useHealthSummary() {
           getHealthConnectSettings()
 
         if (!settings.enabled) {
-          setSummary(null)
+          if (
+            mountedRef.current
+          ) {
+            setSummary(null)
+          }
 
           return
         }
 
-        setLoading(true)
+        if (
+          mountedRef.current
+        ) {
+          setLoading(true)
+        }
 
         const initialized =
           await healthConnectService.initialize()
 
         if (!initialized) {
-          setSummary(null)
+          if (
+            mountedRef.current
+          ) {
+            setSummary(null)
+          }
 
           return
         }
@@ -57,21 +73,41 @@ export function useHealthSummary() {
         const result =
           await healthSummaryBuilder.build()
 
-        setSummary(result)
+        if (
+          mountedRef.current
+        ) {
+          setSummary(result)
+        }
       } catch (error) {
-        setSummary(null)
+        if (
+          mountedRef.current
+        ) {
+          setSummary(null)
+        }
 
         console.error(
           '[HealthSummary] load failed',
           error,
         )
       } finally {
-        setLoading(false)
+        if (
+          mountedRef.current
+        ) {
+          setLoading(false)
+        }
       }
     }, [])
 
   useEffect(() => {
+    mountedRef.current =
+      true
+
     void load()
+
+    return () => {
+      mountedRef.current =
+        false
+    }
   }, [load])
 
   return {

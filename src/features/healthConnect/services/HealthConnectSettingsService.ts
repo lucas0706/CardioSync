@@ -105,3 +105,19 @@ export function setHealthConnectEnabled(
 
   return getHealthConnectSettings()
 }
+
+export function updateHealthConnectLastSync():
+  void {
+  ensureSettingsRow()
+
+  database.runSync(
+    `
+      UPDATE health_connect_settings
+      SET
+        updatedAt = ?
+      WHERE id = ?
+    `,
+    new Date().toISOString(),
+    SETTINGS_ID,
+  )
+}
