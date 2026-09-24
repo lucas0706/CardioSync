@@ -80,7 +80,7 @@ function getSleepStatus(
   if (hours >= 7) {
     return {
       label: 'Bueno',
-      color: '#EAB308',
+      color: theme.colors.success,
       bars: 6,
     }
   }
@@ -117,7 +117,7 @@ function getStepsStatus(
   if (steps >= 7500) {
     return {
       label: 'Bueno',
-      color: '#EAB308',
+      color: theme.colors.success,
       bars: 6,
     }
   }
@@ -154,7 +154,7 @@ function getExerciseStatus(
   if (minutes >= 30) {
     return {
       label: 'Bueno',
-      color: '#EAB308',
+      color: theme.colors.success,
       bars: 6,
     }
   }
@@ -199,7 +199,7 @@ function ClinicalBars({
                   index <
                   status.bars
                     ? status.color
-                    : '#E5E7EB',
+                    : theme.colors.border,
               },
             ]}
           />
