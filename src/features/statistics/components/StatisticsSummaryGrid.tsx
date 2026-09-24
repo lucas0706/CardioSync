@@ -93,17 +93,21 @@ export function StatisticsSummaryGrid({
     },
     {
       title: 'Valor máximo',
-      value: `${summary.maximumSystolic}/${summary.maximumDiastolic}`,
+      value: summary.maximumRecord
+        ? `${summary.maximumRecord.systolic}/${summary.maximumRecord.diastolic}`
+        : '--',
       subtitle: 'mmHg',
       description:
-        'Valor de presión arterial más alto registrado durante el período seleccionado.',
+        'Registro real con la presión sistólica más alta durante el período seleccionado.',
     },
     {
       title: 'Valor mínimo',
-      value: `${summary.minimumSystolic}/${summary.minimumDiastolic}`,
+      value: summary.minimumRecord
+        ? `${summary.minimumRecord.systolic}/${summary.minimumRecord.diastolic}`
+        : '--',
       subtitle: 'mmHg',
       description:
-        'Valor de presión arterial más bajo registrado durante el período seleccionado.',
+        'Registro real con la presión sistólica más baja durante el período seleccionado.',
     },
     {
       title: 'Desviación estándar sistólica',

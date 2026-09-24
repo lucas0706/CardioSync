@@ -91,6 +91,20 @@ export class StatisticsEngine {
     const pulsePressure = metrics.pulsePressure
     const mapValues = metrics.meanArterialPressure
 
+    const maximumRecord =
+      filteredRecords.reduce((current, record) =>
+        record.systolic > current.systolic
+          ? record
+          : current,
+      )
+
+    const minimumRecord =
+      filteredRecords.reduce((current, record) =>
+        record.systolic < current.systolic
+          ? record
+          : current,
+      )
+
     return {
       totalMeasurements: filteredRecords.length,
 
@@ -114,6 +128,10 @@ export class StatisticsEngine {
 
       minimumDiastolic:
         MinCalculator.calculate(diastolic),
+
+      maximumRecord,
+
+      minimumRecord,
 
       pulsePressureAverage:
         AverageCalculator.calculate(pulsePressure),

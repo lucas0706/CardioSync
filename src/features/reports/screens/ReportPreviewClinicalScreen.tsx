@@ -79,6 +79,7 @@ export function ReportPreviewClinicalScreen() {
     console.log(
       '[REPORT SCREEN] mounted',
     )
+
     void (async () => {
       const context =
         await reportHealthContextBuilder.build()
@@ -107,7 +108,7 @@ export function ReportPreviewClinicalScreen() {
       >
         <View style={styles.header}>
           <Text style={styles.title}>
-            Reporte clínico
+            REPORTE CLINICO TEST 999
           </Text>
 
           <Text style={styles.subtitle}>
@@ -147,74 +148,67 @@ export function ReportPreviewClinicalScreen() {
           records={report.records}
         />
 
-        <Card style={styles.healthCard}>
-          <Text style={styles.tableTitle}>
-            Contexto fisiológico
-          </Text>
+        {healthContext ? (
+          <Card style={styles.healthCard}>
+            <Text style={styles.tableTitle}>
+              Contexto fisiológico
+            </Text>
 
-          <View style={styles.healthGrid}>
-            <View style={styles.healthItem}>
-              <Text style={styles.metricLabel}>
-                Pasos diarios promedio
-              </Text>
+            <View style={styles.healthGrid}>
+              <View style={styles.healthItem}>
+                <Text style={styles.metricLabel}>
+                  Pasos diarios promedio
+                </Text>
 
-              <Text style={styles.healthValue}>
-                {
-                  healthContext
-                    ?.averageDailySteps30Days ??
-                  '—'
-                }
-              </Text>
+                <Text style={styles.healthValue}>
+                  {
+                    healthContext
+                      .averageDailySteps30Days
+                  }
+                </Text>
+              </View>
+
+              <View style={styles.healthItem}>
+                <Text style={styles.metricLabel}>
+                  FC promedio
+                </Text>
+
+                <Text style={styles.healthValue}>
+                  {
+                    healthContext
+                      .averageHeartRate30Days
+                  } lpm
+                </Text>
+              </View>
+
+              <View style={styles.healthItem}>
+                <Text style={styles.metricLabel}>
+                  Sueño promedio
+                </Text>
+
+                <Text style={styles.healthValue}>
+                  {formatHoursMinutes(
+                    healthContext
+                      .averageSleepHours30Days,
+                  )}
+                </Text>
+              </View>
+
+              <View style={styles.healthItem}>
+                <Text style={styles.metricLabel}>
+                  Ejercicio acumulado
+                </Text>
+
+                <Text style={styles.healthValue}>
+                  {formatHoursMinutes(
+                    healthContext
+                      .exerciseMinutes30Days / 60,
+                  )}
+                </Text>
+              </View>
             </View>
-
-            <View style={styles.healthItem}>
-              <Text style={styles.metricLabel}>
-                FC promedio
-              </Text>
-
-              <Text style={styles.healthValue}>
-                {
-                  healthContext
-                    ?.averageHeartRate30Days ??
-                  '—'
-                } lpm
-              </Text>
-            </View>
-
-            <View style={styles.healthItem}>
-              <Text style={styles.metricLabel}>
-                Sueño promedio
-              </Text>
-
-              <Text style={styles.healthValue}>
-                {formatHoursMinutes(
-                  healthContext
-                    ?.averageSleepHours30Days,
-                )}
-              </Text>
-            </View>
-
-            <View style={styles.healthItem}>
-              <Text style={styles.metricLabel}>
-                Ejercicio acumulado
-              </Text>
-
-              <Text style={styles.healthValue}>
-                {
-                  healthContext
-                    ?.exerciseMinutes30Days !=
-                  null
-                    ? formatHoursMinutes(
-                        healthContext
-                          .exerciseMinutes30Days /
-                          60,
-                      )
-                    : '—'
-                }
-              </Text>
-            </View>
-          </View>
-        </Card>
+          </Card>
+        ) : null}
 
         <Card style={styles.tableCard}>
           <Text style={styles.tableTitle}>
@@ -319,6 +313,8 @@ export function ReportPreviewClinicalScreen() {
                     ]}
                   >
                     {classification.label}
+  {' '}
+  [{classification.safetyWarnings.length}]
                   </Text>
                 </View>
               )
