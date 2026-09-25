@@ -1,5 +1,7 @@
 import {
   ActivityIndicator,
+  Modal,
+  Pressable,
   StyleSheet,
   View,
 } from 'react-native'
@@ -10,6 +12,7 @@ import {
 
 import {
   useCallback,
+  useState,
 } from 'react'
 
 import {
@@ -24,6 +27,13 @@ import {
 import {
   useHealthSummary,
 } from '@/features/healthConnect'
+
+import {
+  ClinicalStatus,
+  getExerciseStatus,
+  getSleepStatus,
+  getStepsStatus,
+} from '@/domain/health/HealthClinicalRules'
 
 import { theme } from '@/theme'
 
@@ -57,123 +67,6 @@ function formatLastSync(
       minute: '2-digit',
     },
   )
-}
-
-type ClinicalStatus = {
-  label: string
-  color: string
-  bars: number
-}
-
-function getSleepStatus(
-  hours: number,
-): ClinicalStatus {
-  if (hours >= 8) {
-    return {
-      label: 'Óptimo',
-      color:
-        theme.colors.success,
-      bars: 8,
-    }
-  }
-
-  if (hours >= 7) {
-    return {
-      label: 'Bueno',
-      color: theme.colors.success,
-      bars: 6,
-    }
-  }
-
-  if (hours >= 6) {
-    return {
-      label: 'Mejorable',
-      color:
-        theme.colors.warning,
-      bars: 4,
-    }
-  }
-
-  return {
-    label: 'Bajo',
-    color:
-      theme.colors.danger,
-    bars: 2,
-  }
-}
-
-function getStepsStatus(
-  steps: number,
-): ClinicalStatus {
-  if (steps >= 10000) {
-    return {
-      label: 'Óptimo',
-      color:
-        theme.colors.success,
-      bars: 8,
-    }
-  }
-
-  if (steps >= 7500) {
-    return {
-      label: 'Bueno',
-      color: theme.colors.success,
-      bars: 6,
-    }
-  }
-
-  if (steps >= 5000) {
-    return {
-      label: 'Mejorable',
-      color:
-        theme.colors.warning,
-      bars: 4,
-    }
-  }
-
-  return {
-    label: 'Bajo',
-    color:
-      theme.colors.danger,
-    bars: 2,
-  }
-}
-
-function getExerciseStatus(
-  minutes: number,
-): ClinicalStatus {
-  if (minutes >= 45) {
-    return {
-      label: 'Óptimo',
-      color:
-        theme.colors.success,
-      bars: 8,
-    }
-  }
-
-  if (minutes >= 30) {
-    return {
-      label: 'Bueno',
-      color: theme.colors.success,
-      bars: 6,
-    }
-  }
-
-  if (minutes >= 15) {
-    return {
-      label: 'Mejorable',
-      color:
-        theme.colors.warning,
-      bars: 4,
-    }
-  }
-
-  return {
-    label: 'Bajo',
-    color:
-      theme.colors.danger,
-    bars: 2,
-  }
 }
 
 function ClinicalBars({
@@ -214,6 +107,7 @@ type MetricRowProps = {
   label: string
   value: string
   status: ClinicalStatus
+  onPressInfo: () => void
 }
 
 function MetricRow({
@@ -221,6 +115,7 @@ function MetricRow({
   label,
   value,
   status,
+  onPressInfo,
 }: MetricRowProps) {
   return (
     <Card
@@ -259,17 +154,37 @@ function MetricRow({
             {value}
           </Text>
 
-          <Text
-            style={[
-              styles.status,
-              {
-                color:
-                  status.color,
-              },
-            ]}
+          <View
+            style={
+              styles.statusRow
+            }
           >
-            {status.label}
-          </Text>
+            <Text
+              style={[
+                styles.status,
+                {
+                  color:
+                    status.color,
+                },
+              ]}
+            >
+              {status.label}
+            </Text>
+
+            <Pressable
+              onPress={() =>
+                onPressInfo()
+              }
+            >
+              <MaterialCommunityIcons
+                name="help-circle-outline"
+                size={14}
+                color={
+                  theme.colors.textSecondary
+                }
+              />
+            </Pressable>
+          </View>
         </View>
       </View>
 
@@ -286,6 +201,16 @@ export function HealthSummaryCard() {
     loading,
     reload,
   } = useHealthSummary()
+
+  const [
+    selectedClinicalInfo,
+    setSelectedClinicalInfo,
+  ] = useState<
+    'sleep' |
+    'steps' |
+    'exercise' |
+    null
+  >(null)
 
   useFocusEffect(
     useCallback(() => {
@@ -343,6 +268,11 @@ export function HealthSummaryCard() {
         status={getSleepStatus(
           summary.averageSleepHours,
         )}
+        onPressInfo={() =>
+          setSelectedClinicalInfo(
+            'sleep',
+          )
+        }
       />
 
       <MetricRow
@@ -354,6 +284,11 @@ export function HealthSummaryCard() {
         status={getStepsStatus(
           summary.todaySteps,
         )}
+        onPressInfo={() =>
+          setSelectedClinicalInfo(
+            'steps',
+          )
+        }
       />
 
       <MetricRow
@@ -363,6 +298,11 @@ export function HealthSummaryCard() {
         status={getExerciseStatus(
           summary.exerciseMinutesToday,
         )}
+        onPressInfo={() =>
+          setSelectedClinicalInfo(
+            'exercise',
+          )
+        }
       />
 
       <View style={styles.bottomRow}>
@@ -460,6 +400,144 @@ export function HealthSummaryCard() {
           )}
         </Text>
       </View>
+
+      <Modal
+        visible={
+          selectedClinicalInfo !==
+          null
+        }
+        transparent
+        animationType="fade"
+        onRequestClose={() =>
+          setSelectedClinicalInfo(
+            null,
+          )
+        }
+      >
+        <View
+          style={{
+            flex: 1,
+            backgroundColor:
+              'rgba(0,0,0,0.45)',
+            justifyContent: 'center',
+            padding: 24,
+          }}
+        >
+          <Card>
+            <Text
+              style={{
+                fontFamily:
+                  theme.typography.bold,
+                fontSize: 18,
+                marginBottom: 12,
+              }}
+            >
+              Referencias clínicas
+            </Text>
+
+            {selectedClinicalInfo ===
+            'sleep' ? (
+              <Text
+                style={{
+                  marginBottom: 16,
+                }}
+              >
+                American Academy of Sleep
+                Medicine (AASM) y Sleep
+                Research Society.
+                {'\n\n'}
+                Recomendación general:
+                7 a 9 horas de sueño por
+                noche para adultos.
+                {'\n\n'}
+                Clasificación utilizada:
+                {'\n'}
+                Óptimo ≥ 8 h
+                {'\n'}
+                Adecuado 7–7.9 h
+                {'\n'}
+                Mejorable 6–6.9 h
+                {'\n'}
+                Bajo &lt; 6 h
+              </Text>
+            ) : selectedClinicalInfo ===
+              'steps' ? (
+              <Text
+                style={{
+                  marginBottom: 16,
+                }}
+              >
+                Paluch et al.
+                The Lancet Public Health
+                (2022).
+                {'\n\n'}
+                Beneficios observados desde
+                aproximadamente 5.000 pasos
+                diarios, con mejoras
+                progresivas entre 7.500 y
+                10.000 pasos.
+                {'\n\n'}
+                Clasificación utilizada:
+                {'\n'}
+                Óptimo ≥ 10.000
+                {'\n'}
+                Adecuado 7.500–9.999
+                {'\n'}
+                Mejorable 5.000–7.499
+                {'\n'}
+                Bajo &lt; 5.000
+              </Text>
+            ) : (
+              <Text
+                style={{
+                  marginBottom: 16,
+                }}
+              >
+                World Health Organization
+                Physical Activity
+                Guidelines (2020)
+                y European Society of
+                Cardiology Prevention
+                Guidelines.
+                {'\n\n'}
+                Se recomienda realizar
+                actividad física regular
+                para mejorar la salud
+                cardiovascular.
+                {'\n\n'}
+                Clasificación utilizada:
+                {'\n'}
+                Óptimo ≥ 45 min
+                {'\n'}
+                Adecuado 30–44 min
+                {'\n'}
+                Mejorable 15–29 min
+                {'\n'}
+                Bajo &lt; 15 min
+              </Text>
+            )}
+
+            <Pressable
+              onPress={() =>
+                setSelectedClinicalInfo(
+            null,
+          )
+              }
+            >
+              <Text
+                style={{
+                  color:
+                    theme.colors.primary,
+                  fontFamily:
+                    theme.typography.semiBold,
+                }}
+              >
+                Cerrar
+              </Text>
+            </Pressable>
+          </Card>
+        </View>
+      </Modal>
     </Card>
   )
 }
@@ -540,10 +618,16 @@ const styles =
     },
 
     status: {
-      marginTop: 4,
       fontSize: 12,
       fontFamily:
         theme.typography.semiBold,
+    },
+
+    statusRow: {
+      marginTop: 4,
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 4,
     },
 
     chart: {
