@@ -1,9 +1,20 @@
-import { Text as RNText, TextProps, StyleSheet } from 'react-native'
+import {
+  Text as RNText,
+  TextProps,
+  StyleSheet,
+} from 'react-native'
 
 import { theme } from '@/theme'
 
 type Props = TextProps & {
-  variant?: 'h1' | 'h2' | 'h3' | 'title' | 'body' | 'caption' | 'small'
+  variant?:
+    | 'h1'
+    | 'h2'
+    | 'h3'
+    | 'title'
+    | 'body'
+    | 'caption'
+    | 'small'
 }
 
 export function Text({
@@ -15,7 +26,10 @@ export function Text({
     <RNText
       style={[
         styles.base,
-        { fontSize: theme.typography[variant] },
+        {
+          fontSize:
+            theme.typography[variant],
+        },
         style,
       ]}
       {...props}
@@ -25,6 +39,8 @@ export function Text({
 
 const styles = StyleSheet.create({
   base: {
+    fontFamily:
+      theme.typography.regular,
     color: theme.colors.text,
   },
 })
