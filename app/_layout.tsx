@@ -13,6 +13,7 @@ import {
 
 import { initializeDatabase } from '@/core/database'
 import AppSplashScreen from '@/features/splash/screens/SplashScreen'
+import { syncScheduledBackupTask } from '@/features/backup/services/ScheduledBackupService'
 
 SplashScreen.preventAutoHideAsync().catch(() => {
   // Splash may already be hidden.
@@ -32,8 +33,14 @@ export default function RootLayout() {
 
   useEffect(() => {
     initializeDatabase()
-  }, [])
 
+    try {
+      void syncScheduledBackupTask()
+    } catch {
+      // La sincronización del scheduler no debe impedir
+      // que CardioSync pueda iniciar normalmente.
+    }
+  }, [])
 
   useEffect(() => {
     async function prepare() {

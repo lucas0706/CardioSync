@@ -9,6 +9,12 @@ module.exports = {
   expo: {
     ...appJson.expo,
 
+    plugins: [
+      ...(appJson.expo.plugins ?? []),
+      'expo-background-task',
+      'expo-notifications',
+    ],
+
     updates: {
       url: 'https://u.expo.dev/50eb957c-a191-4fcb-b6ac-619e72790d2a',
     },
