@@ -4,9 +4,9 @@ export const appInfo = {
   tagline:
     'Monitoreo inteligente de presión arterial',
 
-  version: '1.0.0',
+  version: '1.1.0',
 
-  releaseDate: '09/09/2026',
+  releaseDate: '29/09/2026',
 
   status: 'Beta privada',
 
@@ -20,6 +20,13 @@ export const appInfo = {
     'Integración de ejercicio',
     'Integración de peso',
     'Dashboard de salud integrada',
+    'Correcciones en reportes y rangos de fechas',
+    'Correcciones en estadísticas y destacados de gráficos',
+    'Mejoras en el resumen de salud y sincronización',
+    'Corrección del cálculo de sueño y fechas locales',
+    'Correcciones en la sección de actualizaciones',
+    'Copias programadas de seguridad en Google Drive',
+    'Notificaciones del resultado de las copias programadas',
   ],
 
   technical: {

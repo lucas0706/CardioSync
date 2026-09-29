@@ -138,9 +138,13 @@ export default function SettingsScreen() {
 
               <SettingsItem
                 title="Copias programadas"
-                description="Próximamente."
+                description="Configurar copias automáticas en Google Drive."
                 icon="time-outline"
-                disabled
+                onPress={() =>
+                  router.push(
+                    '/backup-settings',
+                  )
+                }
               />
 
               <View style={styles.divider} />

@@ -13,6 +13,7 @@ import { useEffect, useState } from 'react'
 import Ionicons from '@expo/vector-icons/Ionicons'
 
 import {
+  Button,
   Screen,
   Text,
 } from '@/components/ui'
@@ -23,6 +24,13 @@ import {
   type BackupFrequency,
   type BackupSettings,
 } from '@/features/backup/services/BackupSettingsService'
+import {
+  runScheduledBackupNowForTesting,
+  syncScheduledBackupTask,
+} from '@/features/backup/services/ScheduledBackupService'
+import {
+  requestBackupNotificationPermission,
+} from '@/features/backup/services/BackupNotificationService'
 
 import { theme } from '@/theme'
 
@@ -260,6 +268,8 @@ export default function BackupSettingsScreen() {
         )
 
       setSettings(updated)
+
+      await syncScheduledBackupTask()
     } catch (error) {
       const message =
         error instanceof Error
@@ -275,12 +285,57 @@ export default function BackupSettingsScreen() {
     }
   }
 
+
+  async function handleRunTestBackup(): Promise<void> {
+    try {
+      const success =
+        await runScheduledBackupNowForTesting()
+
+      const refreshed =
+        getBackupSettings()
+
+      setSettings(refreshed)
+
+      Alert.alert(
+        success
+          ? 'Copia completada'
+          : 'Sin copia pendiente',
+        success
+          ? 'La copia se ejecutó correctamente.'
+          : 'No había ninguna ventana pendiente para ejecutar.',
+      )
+    } catch (error) {
+      Alert.alert(
+        'Error',
+        error instanceof Error
+          ? error.message
+          : 'No se pudo ejecutar la copia.',
+      )
+    }
+  }
+
   function handleToggle(
     enabled: boolean,
   ): void {
-    void saveSettings({
-      enabled,
-    })
+    void (async () => {
+      if (enabled) {
+        const granted =
+          await requestBackupNotificationPermission()
+
+        if (!granted) {
+          Alert.alert(
+            'Permiso requerido',
+            'CardioSync necesita permiso para mostrar el resultado de las copias programadas.',
+          )
+
+          return
+        }
+      }
+
+      await saveSettings({
+        enabled,
+      })
+    })()
   }
 
   function handleFrequency(
@@ -923,6 +978,13 @@ export default function BackupSettingsScreen() {
                 </View>
               </View>
             </View>
+
+            <Button
+              title="Ejecutar copia ahora"
+              onPress={() => {
+                void handleRunTestBackup()
+              }}
+            />
           </View>
 
           <View
@@ -941,11 +1003,10 @@ export default function BackupSettingsScreen() {
                 styles.warningText
               }
             >
-              La configuración de horarios
-              queda guardada localmente.
-              La ejecución automática será
-              conectada al sistema de copias
-              programadas en la siguiente fase.
+              Los horarios funcionan como ventanas
+              objetivo. Android puede ejecutar la
+              copia unos minutos después según las
+              condiciones del sistema.
             </Text>
           </View>
         </View>
