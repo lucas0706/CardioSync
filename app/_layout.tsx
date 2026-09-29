@@ -1,5 +1,6 @@
 import { Stack } from 'expo-router'
 import { StatusBar } from 'expo-status-bar'
+import * as Notifications from 'expo-notifications'
 import { useEffect, useState } from 'react'
 import { SplashScreen } from 'expo-router'
 
@@ -18,6 +19,16 @@ import { syncScheduledBackupTask } from '@/features/backup/services/ScheduledBac
 SplashScreen.preventAutoHideAsync().catch(() => {
   // Splash may already be hidden.
 })
+
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowBanner: true,
+    shouldShowList: true,
+    shouldPlaySound: false,
+    shouldSetBadge: false,
+  }),
+})
+
 
 export default function RootLayout() {
   const [showSplash, setShowSplash] =

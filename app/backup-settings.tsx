@@ -25,7 +25,7 @@ import {
   type BackupSettings,
 } from '@/features/backup/services/BackupSettingsService'
 import {
-  runScheduledBackupNowForTesting,
+  runImmediateBackupTest,
   syncScheduledBackupTask,
 } from '@/features/backup/services/ScheduledBackupService'
 import {
@@ -291,8 +291,7 @@ export default function BackupSettingsScreen() {
 
   async function handleRunTestBackup(): Promise<void> {
     try {
-      const success =
-        await runScheduledBackupNowForTesting()
+      await runImmediateBackupTest()
 
       const refreshed =
         getBackupSettings()
@@ -300,12 +299,8 @@ export default function BackupSettingsScreen() {
       setSettings(refreshed)
 
       Alert.alert(
-        success
-          ? 'Copia completada'
-          : 'Sin copia pendiente',
-        success
-          ? 'La copia se ejecutó correctamente.'
-          : 'No había ninguna ventana pendiente para ejecutar.',
+        'Prueba completada',
+        'Se ejecutó una copia y se envió una notificación de prueba.',
       )
     } catch (error) {
       Alert.alert(
