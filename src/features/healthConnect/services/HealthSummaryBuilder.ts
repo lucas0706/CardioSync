@@ -17,6 +17,22 @@ import {
   profileWeightSyncService,
 } from './ProfileWeightSyncService'
 
+function getLocalDateString(): string {
+  const now = new Date()
+
+  const year = now.getFullYear()
+
+  const month = String(
+    now.getMonth() + 1,
+  ).padStart(2, '0')
+
+  const day = String(
+    now.getDate(),
+  ).padStart(2, '0')
+
+  return `${year}-${month}-${day}`
+}
+
 export class HealthSummaryBuilder {
   async build(): Promise<HealthSummary> {
     await profileWeightSyncService
@@ -52,7 +68,7 @@ export class HealthSummaryBuilder {
 
     const latestSleep =
       sleep.length > 0
-        ? sleep.sort(
+        ? [...sleep].sort(
             (a, b) =>
               new Date(
                 b.endTime,
@@ -63,20 +79,44 @@ export class HealthSummaryBuilder {
           )[0]
         : null
 
-    const lastSleepHours =
-      latestSleep
-        ? Number(
-            (
-              latestSleep.durationMinutes /
-              60
-            ).toFixed(1),
+    let lastSleepHours = 0
+
+    if (latestSleep) {
+      const latestSleepDay =
+        latestSleep.endTime.slice(
+          0,
+          10,
+        )
+
+      const latestSleepMinutes =
+        sleep
+          .filter(
+            session =>
+              session.endTime.slice(
+                0,
+                10,
+              ) === latestSleepDay,
           )
-        : 0
+          .reduce(
+            (
+              total,
+              session,
+            ) =>
+              total +
+              session.durationMinutes,
+            0,
+          )
+
+      lastSleepHours = Number(
+        (
+          latestSleepMinutes /
+          60
+        ).toFixed(1),
+      )
+    }
 
     const today =
-      new Date()
-        .toISOString()
-        .slice(0, 10)
+      getLocalDateString()
 
     const exerciseMinutesToday =
       exercise
@@ -166,7 +206,7 @@ export class HealthSummaryBuilder {
                 sample.bpm,
               0,
             ) /
-            heartRate.length,
+              heartRate.length,
           )
         : 0
 
@@ -193,7 +233,7 @@ export class HealthSummaryBuilder {
                 record.count,
               0,
             ) /
-            daysWithSteps,
+              daysWithSteps,
           )
         : 0
 
