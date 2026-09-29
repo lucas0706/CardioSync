@@ -1,5 +1,7 @@
 import {
   Image,
+  Linking,
+  Pressable,
   ScrollView,
   StyleSheet,
   View,
@@ -11,6 +13,15 @@ import { VERSION_INFO }
   from '../config/version-info'
 
 import { theme } from '@/theme'
+
+const PRIVACY_URL =
+  'https://lucas0706.github.io/cardiosync-site/privacy.html'
+
+const WEBSITE_URL =
+  'https://lucas0706.github.io/cardiosync-site/'
+
+const CONTACT_EMAIL =
+  'cardiosync.support@gmail.com'
 
 export default function AboutScreen() {
   return (
@@ -114,20 +125,44 @@ export default function AboutScreen() {
 
           <Card>
             <Text style={styles.sectionTitle}>
-              Próximamente
+              Información y soporte
             </Text>
 
-            <Text>
-              Política de privacidad
-            </Text>
+            <Pressable
+              onPress={() => {
+                void Linking.openURL(
+                  PRIVACY_URL,
+                )
+              }}
+            >
+              <Text style={styles.link}>
+                Política de privacidad
+              </Text>
+            </Pressable>
 
-            <Text>
-              Sitio web oficial
-            </Text>
+            <Pressable
+              onPress={() => {
+                void Linking.openURL(
+                  WEBSITE_URL,
+                )
+              }}
+            >
+              <Text style={styles.link}>
+                Sitio web oficial
+              </Text>
+            </Pressable>
 
-            <Text>
-              Contacto
-            </Text>
+            <Pressable
+              onPress={() => {
+                void Linking.openURL(
+                  `mailto:${CONTACT_EMAIL}`,
+                )
+              }}
+            >
+              <Text style={styles.link}>
+                {CONTACT_EMAIL}
+              </Text>
+            </Pressable>
           </Card>
         </View>
       </ScrollView>
@@ -181,5 +216,13 @@ const styles = StyleSheet.create({
 
   bullet: {
     marginBottom: 4,
+  },
+
+  link: {
+    marginBottom: 12,
+    color:
+      theme.colors.primary,
+    textDecorationLine:
+      'underline',
   },
 })

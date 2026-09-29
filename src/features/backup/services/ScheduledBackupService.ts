@@ -399,3 +399,37 @@ export async function syncScheduledBackupTask(): Promise<void> {
 export async function runScheduledBackupNowForTesting(): Promise<boolean> {
   return executeScheduledBackup()
 }
+
+export async function runImmediateBackupTest(): Promise<void> {
+  const executedAt =
+    new Date().toISOString()
+
+  try {
+    const result =
+      await createGoogleDriveBackup()
+
+    recordBackupSuccess(
+      executedAt,
+    )
+
+    await showBackupSuccessNotification(
+      result.measurementCount,
+    )
+  } catch (error) {
+    const message =
+      error instanceof Error
+        ? error.message
+        : 'Error desconocido'
+
+    recordBackupError(
+      message,
+      executedAt,
+    )
+
+    await showBackupErrorNotification(
+      message,
+    )
+
+    throw error
+  }
+}

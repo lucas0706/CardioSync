@@ -1,3 +1,5 @@
+import { Platform } from 'react-native'
+
 import * as Notifications from 'expo-notifications'
 
 const BACKUP_NOTIFICATION_CHANNEL_ID =
@@ -10,7 +12,7 @@ export async function initializeBackupNotifications(): Promise<void> {
     return
   }
 
-  if (process.env.EXPO_OS === 'android') {
+  if (Platform.OS === 'android') {
     await Notifications.setNotificationChannelAsync(
       BACKUP_NOTIFICATION_CHANNEL_ID,
       {
