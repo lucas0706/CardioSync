@@ -31,6 +31,9 @@ import {
 import {
   requestBackupNotificationPermission,
 } from '@/features/backup/services/BackupNotificationService'
+import {
+  openBatteryOptimizationSettings,
+} from '@/features/backup/services/BatteryOptimizationService'
 
 import { theme } from '@/theme'
 
@@ -310,6 +313,17 @@ export default function BackupSettingsScreen() {
         error instanceof Error
           ? error.message
           : 'No se pudo ejecutar la copia.',
+      )
+    }
+  }
+
+  async function handleOpenBatteryOptimization(): Promise<void> {
+    try {
+      await openBatteryOptimizationSettings()
+    } catch {
+      Alert.alert(
+        'Error',
+        'No se pudo abrir la configuración de optimización de batería.',
       )
     }
   }
@@ -983,6 +997,47 @@ export default function BackupSettingsScreen() {
               title="Ejecutar copia ahora"
               onPress={() => {
                 void handleRunTestBackup()
+              }}
+            />
+          </View>
+
+          <View
+            style={styles.card}
+          >
+            <View
+              style={styles.statusRow}
+            >
+              <View
+                style={styles.statusIcon}
+              >
+                <Ionicons
+                  name="battery-charging-outline"
+                  size={22}
+                  color={theme.colors.primary}
+                />
+              </View>
+
+              <View
+                style={styles.statusContent}
+              >
+                <Text
+                  style={styles.itemTitle}
+                >
+                  Optimización de batería
+                </Text>
+
+                <Text
+                  style={styles.statusDescription}
+                >
+                  Para mejorar la ejecución de las copias programadas, agregá CardioSync a la lista de aplicaciones sin restricciones de batería.
+                </Text>
+              </View>
+            </View>
+
+            <Button
+              title="Abrir configuración"
+              onPress={() => {
+                void handleOpenBatteryOptimization()
               }}
             />
           </View>
