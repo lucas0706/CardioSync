@@ -801,8 +801,7 @@ export default function BackupSettingsScreen() {
                           styles.selectedValue
                         }
                       >
-                        {settings.times.length}
-                        /3
+                        Hasta 3 horarios
                       </Text>
                     </View>
 
@@ -811,8 +810,7 @@ export default function BackupSettingsScreen() {
                         styles.helperText
                       }
                     >
-                      Seleccioná uno, dos o hasta
-                      tres horarios por día.
+                      Elegí los horarios en los que CardioSync realizará automáticamente las copias de seguridad.
                     </Text>
 
                     <View
