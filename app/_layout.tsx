@@ -18,6 +18,8 @@ import {
   syncScheduledBackupTask,
   runPendingBackupCheck,
 } from '@/features/backup/services/ScheduledBackupService'
+import { otaUpdateService } from '@/features/updates/services/OtaUpdateService'
+import { UpdateBanner } from '@/features/updates/components/UpdateBanner'
 
 SplashScreen.preventAutoHideAsync().catch(() => {
   // Splash may already be hidden.
@@ -36,6 +38,9 @@ export default function RootLayout() {
   const [showSplash, setShowSplash] =
     useState(true)
 
+  const [showUpdateBanner, setShowUpdateBanner] =
+    useState(false)
+
   const [fontsLoaded, fontError] =
     useFonts({
       DMSans_400Regular,
@@ -53,6 +58,22 @@ export default function RootLayout() {
     } catch {
       // Ignorar errores de inicio.
     }
+  }, [])
+
+  useEffect(() => {
+    void otaUpdateService
+      .shouldShowUpdateBanner()
+      .then((show) => {
+        if (!show) {
+          return
+        }
+
+        setShowUpdateBanner(true)
+
+        setTimeout(() => {
+          setShowUpdateBanner(false)
+        }, 5000)
+      })
   }, [])
 
   useEffect(() => {
@@ -88,6 +109,10 @@ export default function RootLayout() {
   return (
     <>
       <StatusBar style="dark" />
+
+      {showUpdateBanner && (
+        <UpdateBanner />
+      )}
 
       <Stack
         screenOptions={{
