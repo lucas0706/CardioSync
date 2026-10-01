@@ -26,8 +26,12 @@ import {
 } from '@/features/backup/services/BackupSettingsService'
 import {
   runImmediateBackupTest,
+  runScheduledBackupNowForTesting,
   syncScheduledBackupTask,
+  CARDIOSYNC_BACKUP_TASK,
 } from '@/features/backup/services/ScheduledBackupService'
+
+import * as TaskManager from 'expo-task-manager'
 import {
   requestBackupNotificationPermission,
 } from '@/features/backup/services/BackupNotificationService'
@@ -226,12 +230,19 @@ export default function BackupSettingsScreen() {
     setSaving,
   ] = useState(false)
 
+  const [
+    taskRegistered,
+    setTaskRegistered,
+  ] = useState<boolean | null>(null)
+
   useEffect(() => {
     try {
       const current =
         getBackupSettings()
 
       setSettings(current)
+
+      void refreshTaskStatus()
     } catch (error) {
       const message =
         error instanceof Error
@@ -273,6 +284,8 @@ export default function BackupSettingsScreen() {
       setSettings(updated)
 
       await syncScheduledBackupTask()
+
+      await refreshTaskStatus()
     } catch (error) {
       const message =
         error instanceof Error
@@ -288,6 +301,22 @@ export default function BackupSettingsScreen() {
     }
   }
 
+
+
+  async function refreshTaskStatus(): Promise<void> {
+    try {
+      const registered =
+        await TaskManager.isTaskRegisteredAsync(
+          CARDIOSYNC_BACKUP_TASK,
+        )
+
+      setTaskRegistered(
+        registered,
+      )
+    } catch {
+      setTaskRegistered(null)
+    }
+  }
 
   async function handleRunTestBackup(): Promise<void> {
     try {
@@ -319,6 +348,32 @@ export default function BackupSettingsScreen() {
       Alert.alert(
         'Error',
         'No se pudo abrir la configuración de optimización de batería.',
+      )
+    }
+  }
+
+  async function handleRunSchedulerTest(): Promise<void> {
+    try {
+      const executed =
+        await runScheduledBackupNowForTesting()
+
+      const refreshed =
+        getBackupSettings()
+
+      setSettings(refreshed)
+
+      Alert.alert(
+        'Diagnóstico scheduler',
+        executed
+          ? 'Se encontró una ventana válida y se ejecutó el backup.'
+          : 'El scheduler despertó correctamente pero no encontró una ventana pendiente.',
+      )
+    } catch (error) {
+      Alert.alert(
+        'Error',
+        error instanceof Error
+          ? error.message
+          : 'No se pudo ejecutar el diagnóstico.',
       )
     }
   }
@@ -909,6 +964,40 @@ export default function BackupSettingsScreen() {
             <Text
               style={styles.sectionLabel}
             >
+              DIAGNÓSTICO
+            </Text>
+
+            <View
+              style={styles.summaryCard}
+            >
+              <View
+                style={styles.summaryRow}
+              >
+                <Text
+                  style={styles.summaryLabel}
+                >
+                  Scheduler Android
+                </Text>
+
+                <Text
+                  style={styles.summaryValue}
+                >
+                  {taskRegistered === null
+                    ? 'Desconocido'
+                    : taskRegistered
+                      ? 'Registrado'
+                      : 'NO registrado'}
+                </Text>
+              </View>
+            </View>
+          </View>
+
+          <View
+            style={styles.section}
+          >
+            <Text
+              style={styles.sectionLabel}
+            >
               ÚLTIMA EJECUCIÓN
             </Text>
 
@@ -994,7 +1083,141 @@ export default function BackupSettingsScreen() {
                 void handleRunTestBackup()
               }}
             />
+
+            <Button
+              title="Ejecutar scheduler (diagnóstico)"
+              onPress={() => {
+                void handleRunSchedulerTest()
+              }}
+            />
           </View>
+
+          <View
+            style={styles.section}
+          >
+            <Text
+              style={styles.sectionLabel}
+            >
+              DIAGNÓSTICO SCHEDULER
+            </Text>
+
+            <View
+              style={styles.summaryCard}
+            >
+              <View
+                style={
+                  styles.summaryRow
+                }
+              >
+                <Text
+                  style={
+                    styles.summaryLabel
+                  }
+                >
+                  Scheduler Android
+                </Text>
+
+                <Text
+                  style={
+                    styles.summaryValue
+                  }
+                >
+                  {settings.enabled
+                    ? 'Registrado'
+                    : 'Desactivado'}
+                </Text>
+              </View>
+
+              <View
+                style={styles.summaryDivider}
+              />
+
+              <View
+                style={
+                  styles.summaryRow
+                }
+              >
+                <Text
+                  style={
+                    styles.summaryLabel
+                  }
+                >
+                  Último wake-up Android
+                </Text>
+
+                <Text
+                  style={
+                    styles.summaryValue
+                  }
+                >
+                  {formatDate(
+                    settings.lastSchedulerWakeAt,
+                  )}
+                </Text>
+              </View>
+
+              <View
+                style={styles.summaryDivider}
+              />
+
+              <View
+                style={
+                  styles.summaryRow
+                }
+              >
+                <Text
+                  style={
+                    styles.summaryLabel
+                  }
+                >
+                  Última ejecución backup
+                </Text>
+
+                <Text
+                  style={
+                    styles.summaryValue
+                  }
+                >
+                  {formatDate(
+                    settings.lastRunAt,
+                  )}
+                </Text>
+              </View>
+
+              <View
+                style={styles.summaryDivider}
+              />
+
+              <View
+                style={
+                  styles.summaryRow
+                }
+              >
+                <Text
+                  style={
+                    styles.summaryLabel
+                  }
+                >
+                  Estado
+                </Text>
+
+                <Text
+                  style={
+                    styles.summaryValue
+                  }
+                >
+                  {settings.lastStatus ===
+                  'success'
+                    ? 'Backup ejecutado'
+                    : settings.lastStatus ===
+                        'error'
+                      ? 'Error'
+                      : 'Esperando horario'}
+                </Text>
+              </View>
+            </View>
+          </View>
+
 
           <View
             style={styles.card}
