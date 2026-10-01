@@ -20,7 +20,7 @@ export const CARDIOSYNC_BACKUP_TASK =
 const BACKGROUND_TASK_MINIMUM_INTERVAL_SECONDS =
   15 * 60
 
-const SCHEDULE_WINDOW_MINUTES = 90
+const SCHEDULE_WINDOW_MINUTES = 30
 
 let backupExecutionInProgress = false
 
@@ -228,13 +228,6 @@ function findDueSchedule(
       settings,
     )
 
-  /*
-   * Priorizamos la ventana más reciente.
-   *
-   * Esto evita ejecutar varias copias de golpe si
-   * Android despierta tarde y encuentra más de una
-   * ventana dentro del período de tolerancia.
-   */
   const latestCandidate =
     candidates[0]
 
@@ -328,6 +321,14 @@ async function executeScheduledBackup(): Promise<boolean> {
     }
   } finally {
     backupExecutionInProgress = false
+  }
+}
+
+export async function runPendingBackupCheck(): Promise<void> {
+  try {
+    await executeScheduledBackup()
+  } catch {
+    // No impedir apertura de la app.
   }
 }
 

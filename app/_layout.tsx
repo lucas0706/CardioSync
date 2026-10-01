@@ -14,7 +14,10 @@ import {
 
 import { initializeDatabase } from '@/core/database'
 import AppSplashScreen from '@/features/splash/screens/SplashScreen'
-import { syncScheduledBackupTask } from '@/features/backup/services/ScheduledBackupService'
+import {
+  syncScheduledBackupTask,
+  runPendingBackupCheck,
+} from '@/features/backup/services/ScheduledBackupService'
 
 SplashScreen.preventAutoHideAsync().catch(() => {
   // Splash may already be hidden.
@@ -28,7 +31,6 @@ Notifications.setNotificationHandler({
     shouldSetBadge: false,
   }),
 })
-
 
 export default function RootLayout() {
   const [showSplash, setShowSplash] =
@@ -47,9 +49,9 @@ export default function RootLayout() {
 
     try {
       void syncScheduledBackupTask()
+      void runPendingBackupCheck()
     } catch {
-      // La sincronización del scheduler no debe impedir
-      // que CardioSync pueda iniciar normalmente.
+      // Ignorar errores de inicio.
     }
   }, [])
 
