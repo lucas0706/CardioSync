@@ -17,6 +17,7 @@ export type BackupSettings = {
   lastRunAt: string | null
   lastStatus: BackupLastStatus
   lastError: string | null
+  lastSchedulerWakeAt: string | null
   updatedAt: string
 }
 
@@ -30,6 +31,7 @@ type BackupSettingsRow = {
   lastRunAt: string | null
   lastStatus: string | null
   lastError: string | null
+  lastSchedulerWakeAt: string | null
   updatedAt: string
 }
 
@@ -93,6 +95,8 @@ function rowToSettings(
     lastRunAt: row.lastRunAt,
     lastStatus,
     lastError: row.lastError,
+    lastSchedulerWakeAt:
+      row.lastSchedulerWakeAt,
     updatedAt: row.updatedAt,
   }
 }
@@ -106,6 +110,7 @@ function getDefaultSettings(): BackupSettings {
     lastRunAt: null,
     lastStatus: null,
     lastError: null,
+    lastSchedulerWakeAt: null,
     updatedAt: new Date().toISOString(),
   }
 }
@@ -326,6 +331,28 @@ export function resetBackupExecutionStatus(): BackupSettings {
     null,
     null,
     null,
+    new Date().toISOString(),
+    SETTINGS_ID,
+  )
+
+  return getBackupSettings()
+}
+
+export function recordSchedulerWake(
+  executedAt: string =
+    new Date().toISOString(),
+): BackupSettings {
+  ensureSettingsRow()
+
+  database.runSync(
+    `
+      UPDATE backup_settings
+      SET
+        lastSchedulerWakeAt = ?,
+        updatedAt = ?
+      WHERE id = ?
+    `,
+    executedAt,
     new Date().toISOString(),
     SETTINGS_ID,
   )

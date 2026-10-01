@@ -5,6 +5,7 @@ import {
   getBackupSettings,
   recordBackupError,
   recordBackupSuccess,
+  recordSchedulerWake,
   type BackupSettings,
 } from './BackupSettingsService'
 import {
@@ -333,6 +334,10 @@ async function executeScheduledBackup(): Promise<boolean> {
 TaskManager.defineTask(
   CARDIOSYNC_BACKUP_TASK,
   async () => {
+    recordSchedulerWake(
+      new Date().toISOString(),
+    )
+
     const success =
       await executeScheduledBackup()
 
