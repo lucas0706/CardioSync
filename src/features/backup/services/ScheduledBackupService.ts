@@ -3,16 +3,12 @@ import * as TaskManager from 'expo-task-manager'
 
 import {
   getBackupSettings,
-  recordBackupError,
-  recordBackupSuccess,
   recordSchedulerWake,
   type BackupSettings,
 } from './BackupSettingsService'
 import {
-  showBackupErrorNotification,
-  showBackupSuccessNotification,
-} from './BackupNotificationService'
-import { createGoogleDriveBackup } from './GoogleDriveService'
+  executeBackup,
+} from './BackupExecutionCoordinator'
 
 export const CARDIOSYNC_BACKUP_TASK =
   'cardiosync-scheduled-backup'
@@ -21,8 +17,6 @@ const BACKGROUND_TASK_MINIMUM_INTERVAL_SECONDS =
   15 * 60
 
 const SCHEDULE_WINDOW_MINUTES = 30
-
-let backupExecutionInProgress = false
 
 type DueSchedule = {
   scheduledAt: Date
@@ -247,80 +241,29 @@ function findDueSchedule(
   return latestCandidate
 }
 
-function normalizeError(
-  error: unknown,
-): string {
-  if (error instanceof Error) {
-    return error.message
-  }
-
-  if (
-    typeof error === 'string'
-  ) {
-    return error
-  }
-
-  return 'No se pudo completar la copia programada.'
-}
-
 async function executeScheduledBackup(): Promise<boolean> {
-  if (backupExecutionInProgress) {
+  const settings =
+    getBackupSettings()
+
+  if (!settings.enabled) {
     return false
   }
 
-  backupExecutionInProgress = true
+  const dueSchedule =
+    findDueSchedule(
+      new Date(),
+      settings,
+    )
 
-  const executedAt =
-    new Date()
+  if (!dueSchedule) {
+    return false
+  }
 
   try {
-    const settings =
-      getBackupSettings()
-
-    if (!settings.enabled) {
-      return false
-    }
-
-    const dueSchedule =
-      findDueSchedule(
-        executedAt,
-        settings,
-      )
-
-    if (!dueSchedule) {
-      return false
-    }
-
-    try {
-      const result =
-        await createGoogleDriveBackup()
-
-      recordBackupSuccess(
-        executedAt.toISOString(),
-      )
-
-      await showBackupSuccessNotification(
-        result.measurementCount,
-      )
-
-      return true
-    } catch (error) {
-      const normalizedError =
-        normalizeError(error)
-
-      recordBackupError(
-        normalizedError,
-        executedAt.toISOString(),
-      )
-
-      await showBackupErrorNotification(
-        normalizedError,
-      )
-
-      return false
-    }
-  } finally {
-    backupExecutionInProgress = false
+    await executeBackup()
+    return true
+  } catch {
+    return false
   }
 }
 
@@ -328,7 +271,7 @@ export async function runPendingBackupCheck(): Promise<void> {
   try {
     await executeScheduledBackup()
   } catch {
-    // No impedir apertura de la app.
+    // No impedir la apertura de la app.
   }
 }
 
@@ -402,40 +345,6 @@ export async function syncScheduledBackupTask(): Promise<void> {
   await unregisterScheduledBackupTask()
 }
 
-export async function runScheduledBackupNowForTesting(): Promise<boolean> {
-  return executeScheduledBackup()
-}
-
 export async function runImmediateBackupTest(): Promise<void> {
-  const executedAt =
-    new Date().toISOString()
-
-  try {
-    const result =
-      await createGoogleDriveBackup()
-
-    recordBackupSuccess(
-      executedAt,
-    )
-
-    await showBackupSuccessNotification(
-      result.measurementCount,
-    )
-  } catch (error) {
-    const message =
-      error instanceof Error
-        ? error.message
-        : 'Error desconocido'
-
-    recordBackupError(
-      message,
-      executedAt,
-    )
-
-    await showBackupErrorNotification(
-      message,
-    )
-
-    throw error
-  }
+  await executeBackup()
 }
