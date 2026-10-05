@@ -1,6 +1,6 @@
 import { NativeModules } from 'react-native'
 
-import type { BackupSettings } from './BackupSettingsService'
+import { isValidBackupTime, type BackupSettings } from './BackupSettingsService'
 
 type AlarmSchedulerModule = {
   syncAlarms(
@@ -39,11 +39,15 @@ export async function openExactAlarmSettings(): Promise<void> {
 }
 
 export async function syncBackupAlarms(settings: BackupSettings): Promise<void> {
+  if (!isValidBackupTime(settings.time)) {
+    throw new Error('El horario de la copia debe tener formato HH:mm y ser válido.')
+  }
+
   const synchronized = await requireModule().syncAlarms(
     settings.enabled,
     settings.frequency,
     settings.weekday,
-    settings.times,
+    [settings.time],
   )
 
   if (!synchronized) {

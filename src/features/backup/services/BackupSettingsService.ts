@@ -8,7 +8,7 @@ export type BackupSettings = {
   enabled: boolean
   frequency: BackupFrequency
   weekday: number
-  times: string[]
+  time: string
   lastRunAt: string | null
   lastStatus: BackupLastStatus
   lastError: string | null
@@ -21,8 +21,6 @@ type BackupSettingsRow = {
   frequency: string
   weekday: number | null
   time1: string | null
-  time2: string | null
-  time3: string | null
   lastRunAt: string | null
   lastStatus: string | null
   lastError: string | null
@@ -34,14 +32,21 @@ const SETTINGS_ID = 1
 
 const DEFAULT_TIME = '03:00'
 
-function normalizeTimes(times: string[]): string[] {
-  return Array.from(
-    new Set(
-      times
-        .filter((time): time is string => typeof time === 'string' && /^\d{2}:\d{2}$/.test(time))
-        .slice(0, 3),
-    ),
-  ).sort()
+export function isValidBackupTime(value: unknown): value is string {
+  if (typeof value !== 'string') {
+    return false
+  }
+
+  const match = /^(\d{2}):(\d{2})$/.exec(value)
+
+  if (!match) {
+    return false
+  }
+
+  const hour = Number(match[1])
+  const minute = Number(match[2])
+
+  return hour >= 0 && hour <= 23 && minute >= 0 && minute <= 59
 }
 
 function rowToSettings(row: BackupSettingsRow): BackupSettings {
@@ -50,10 +55,6 @@ function rowToSettings(row: BackupSettingsRow): BackupSettings {
   const weekday =
     typeof row.weekday === 'number' && row.weekday >= 0 && row.weekday <= 6 ? row.weekday : 1
 
-  const times = normalizeTimes([row.time1 ?? '', row.time2 ?? '', row.time3 ?? ''])
-
-  const finalTimes = times.length > 0 ? times : [DEFAULT_TIME]
-
   const lastStatus: BackupLastStatus =
     row.lastStatus === 'success' || row.lastStatus === 'error' ? row.lastStatus : null
 
@@ -61,7 +62,7 @@ function rowToSettings(row: BackupSettingsRow): BackupSettings {
     enabled: row.enabled === 1,
     frequency,
     weekday,
-    times: finalTimes,
+    time: isValidBackupTime(row.time1) ? row.time1 : DEFAULT_TIME,
     lastRunAt: row.lastRunAt,
     lastStatus,
     lastError: row.lastError,
@@ -75,7 +76,7 @@ function getDefaultSettings(): BackupSettings {
     enabled: false,
     frequency: 'daily',
     weekday: 1,
-    times: [DEFAULT_TIME],
+    time: DEFAULT_TIME,
     lastRunAt: null,
     lastStatus: null,
     lastError: null,
@@ -92,8 +93,6 @@ function ensureSettingsRow(): void {
           frequency,
           weekday,
           time1,
-          time2,
-          time3,
           lastRunAt,
           lastStatus,
           lastError,
@@ -134,9 +133,9 @@ function ensureSettingsRow(): void {
     defaults.enabled ? 1 : 0,
     defaults.frequency,
     defaults.weekday,
-    defaults.times[0] ?? null,
-    defaults.times[1] ?? null,
-    defaults.times[2] ?? null,
+    defaults.time,
+    null,
+    null,
     defaults.lastRunAt,
     defaults.lastStatus,
     defaults.lastError,
@@ -155,8 +154,6 @@ export function getBackupSettings(): BackupSettings {
           frequency,
           weekday,
           time1,
-          time2,
-          time3,
           lastRunAt,
           lastStatus,
           lastError,
@@ -177,19 +174,21 @@ export function getBackupSettings(): BackupSettings {
 }
 
 export function updateBackupSettings(
-  settings: Partial<Pick<BackupSettings, 'enabled' | 'frequency' | 'weekday' | 'times'>>,
+  settings: Partial<Pick<BackupSettings, 'enabled' | 'frequency' | 'weekday' | 'time'>>,
 ): BackupSettings {
   const current = getBackupSettings()
+
+  const time = settings.time ?? current.time
+
+  if (!isValidBackupTime(time)) {
+    throw new Error('El horario de la copia debe tener formato HH:mm y ser válido.')
+  }
 
   const next: BackupSettings = {
     ...current,
     ...settings,
-    times: normalizeTimes(settings.times ?? current.times),
+    time,
     updatedAt: new Date().toISOString(),
-  }
-
-  if (next.times.length === 0) {
-    next.times = [DEFAULT_TIME]
   }
 
   database.runSync(
@@ -208,9 +207,9 @@ export function updateBackupSettings(
     next.enabled ? 1 : 0,
     next.frequency,
     next.weekday,
-    next.times[0] ?? null,
-    next.times[1] ?? null,
-    next.times[2] ?? null,
+    next.time,
+    null,
+    null,
     next.updatedAt,
     SETTINGS_ID,
   )
