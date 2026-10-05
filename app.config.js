@@ -1,8 +1,6 @@
-const fs = require('fs');
+const fs = require('fs')
 
-const appJson = JSON.parse(
-  fs.readFileSync('./app.json', 'utf8'),
-);
+const appJson = JSON.parse(fs.readFileSync('./app.json', 'utf8'))
 
 module.exports = {
   ...appJson,
@@ -11,8 +9,8 @@ module.exports = {
 
     plugins: [
       ...(appJson.expo.plugins ?? []),
-      'expo-background-task',
       'expo-notifications',
+      './plugins/withCardioSyncAlarm',
     ],
 
     updates: {
@@ -25,9 +23,7 @@ module.exports = {
 
     android: {
       ...appJson.expo.android,
-      googleServicesFile:
-        process.env.GOOGLE_SERVICES_JSON ??
-        './google-services.json',
+      googleServicesFile: process.env.GOOGLE_SERVICES_JSON ?? './google-services.json',
     },
   },
-};
+}

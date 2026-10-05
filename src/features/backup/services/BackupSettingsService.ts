@@ -1,13 +1,8 @@
 import { database } from '@/core/database/database'
 
-export type BackupFrequency =
-  | 'daily'
-  | 'weekly'
+export type BackupFrequency = 'daily' | 'weekly'
 
-export type BackupLastStatus =
-  | 'success'
-  | 'error'
-  | null
+export type BackupLastStatus = 'success' | 'error' | null
 
 export type BackupSettings = {
   enabled: boolean
@@ -39,53 +34,28 @@ const SETTINGS_ID = 1
 
 const DEFAULT_TIME = '03:00'
 
-function normalizeTimes(
-  times: string[],
-): string[] {
+function normalizeTimes(times: string[]): string[] {
   return Array.from(
     new Set(
       times
-        .filter(
-          (time): time is string =>
-            typeof time === 'string' &&
-            /^\d{2}:\d{2}$/.test(time),
-        )
+        .filter((time): time is string => typeof time === 'string' && /^\d{2}:\d{2}$/.test(time))
         .slice(0, 3),
     ),
   ).sort()
 }
 
-function rowToSettings(
-  row: BackupSettingsRow,
-): BackupSettings {
-  const frequency: BackupFrequency =
-    row.frequency === 'weekly'
-      ? 'weekly'
-      : 'daily'
+function rowToSettings(row: BackupSettingsRow): BackupSettings {
+  const frequency: BackupFrequency = row.frequency === 'weekly' ? 'weekly' : 'daily'
 
   const weekday =
-    typeof row.weekday === 'number' &&
-    row.weekday >= 0 &&
-    row.weekday <= 6
-      ? row.weekday
-      : 1
+    typeof row.weekday === 'number' && row.weekday >= 0 && row.weekday <= 6 ? row.weekday : 1
 
-  const times = normalizeTimes([
-    row.time1 ?? '',
-    row.time2 ?? '',
-    row.time3 ?? '',
-  ])
+  const times = normalizeTimes([row.time1 ?? '', row.time2 ?? '', row.time3 ?? ''])
 
-  const finalTimes =
-    times.length > 0
-      ? times
-      : [DEFAULT_TIME]
+  const finalTimes = times.length > 0 ? times : [DEFAULT_TIME]
 
   const lastStatus: BackupLastStatus =
-    row.lastStatus === 'success' ||
-    row.lastStatus === 'error'
-      ? row.lastStatus
-      : null
+    row.lastStatus === 'success' || row.lastStatus === 'error' ? row.lastStatus : null
 
   return {
     enabled: row.enabled === 1,
@@ -95,8 +65,7 @@ function rowToSettings(
     lastRunAt: row.lastRunAt,
     lastStatus,
     lastError: row.lastError,
-    lastSchedulerWakeAt:
-      row.lastSchedulerWakeAt,
+    lastSchedulerWakeAt: row.lastSchedulerWakeAt,
     updatedAt: row.updatedAt,
   }
 }
@@ -116,9 +85,8 @@ function getDefaultSettings(): BackupSettings {
 }
 
 function ensureSettingsRow(): void {
-  const existing =
-    database.getFirstSync<BackupSettingsRow>(
-      `
+  const existing = database.getFirstSync<BackupSettingsRow>(
+    `
         SELECT
           enabled,
           frequency,
@@ -129,20 +97,20 @@ function ensureSettingsRow(): void {
           lastRunAt,
           lastStatus,
           lastError,
+          lastSchedulerWakeAt,
           updatedAt
         FROM backup_settings
         WHERE id = ?
         LIMIT 1
       `,
-      SETTINGS_ID,
-    )
+    SETTINGS_ID,
+  )
 
   if (existing) {
     return
   }
 
-  const defaults =
-    getDefaultSettings()
+  const defaults = getDefaultSettings()
 
   database.runSync(
     `
@@ -157,9 +125,10 @@ function ensureSettingsRow(): void {
         lastRunAt,
         lastStatus,
         lastError,
+        lastSchedulerWakeAt,
         updatedAt
       )
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `,
     SETTINGS_ID,
     defaults.enabled ? 1 : 0,
@@ -171,6 +140,7 @@ function ensureSettingsRow(): void {
     defaults.lastRunAt,
     defaults.lastStatus,
     defaults.lastError,
+    defaults.lastSchedulerWakeAt,
     defaults.updatedAt,
   )
 }
@@ -178,9 +148,8 @@ function ensureSettingsRow(): void {
 export function getBackupSettings(): BackupSettings {
   ensureSettingsRow()
 
-  const row =
-    database.getFirstSync<BackupSettingsRow>(
-      `
+  const row = database.getFirstSync<BackupSettingsRow>(
+    `
         SELECT
           enabled,
           frequency,
@@ -191,45 +160,32 @@ export function getBackupSettings(): BackupSettings {
           lastRunAt,
           lastStatus,
           lastError,
+          lastSchedulerWakeAt,
           updatedAt
         FROM backup_settings
         WHERE id = ?
         LIMIT 1
       `,
-      SETTINGS_ID,
-    )
+    SETTINGS_ID,
+  )
 
   if (!row) {
-    throw new Error(
-      'No se pudo obtener la configuración de copias programadas.',
-    )
+    throw new Error('No se pudo obtener la configuración de copias programadas.')
   }
 
   return rowToSettings(row)
 }
 
 export function updateBackupSettings(
-  settings: Partial<
-    Pick<
-      BackupSettings,
-      'enabled' |
-      'frequency' |
-      'weekday' |
-      'times'
-    >
-  >,
+  settings: Partial<Pick<BackupSettings, 'enabled' | 'frequency' | 'weekday' | 'times'>>,
 ): BackupSettings {
-  const current =
-    getBackupSettings()
+  const current = getBackupSettings()
 
   const next: BackupSettings = {
     ...current,
     ...settings,
-    times: normalizeTimes(
-      settings.times ?? current.times,
-    ),
-    updatedAt:
-      new Date().toISOString(),
+    times: normalizeTimes(settings.times ?? current.times),
+    updatedAt: new Date().toISOString(),
   }
 
   if (next.times.length === 0) {
@@ -262,10 +218,7 @@ export function updateBackupSettings(
   return getBackupSettings()
 }
 
-export function recordBackupSuccess(
-  executedAt: string =
-    new Date().toISOString(),
-): BackupSettings {
+export function recordBackupSuccess(executedAt: string = new Date().toISOString()): BackupSettings {
   ensureSettingsRow()
 
   database.runSync(
@@ -290,8 +243,7 @@ export function recordBackupSuccess(
 
 export function recordBackupError(
   error: string,
-  executedAt: string =
-    new Date().toISOString(),
+  executedAt: string = new Date().toISOString(),
 ): BackupSettings {
   ensureSettingsRow()
 
@@ -338,10 +290,7 @@ export function resetBackupExecutionStatus(): BackupSettings {
   return getBackupSettings()
 }
 
-export function recordSchedulerWake(
-  executedAt: string =
-    new Date().toISOString(),
-): BackupSettings {
+export function recordSchedulerWake(executedAt: string = new Date().toISOString()): BackupSettings {
   ensureSettingsRow()
 
   database.runSync(

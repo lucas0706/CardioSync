@@ -1,25 +1,24 @@
-import { Stack } from 'expo-router'
-import { StatusBar } from 'expo-status-bar'
 import * as Notifications from 'expo-notifications'
+import { SplashScreen, Stack } from 'expo-router'
+import { StatusBar } from 'expo-status-bar'
 import { useEffect, useState } from 'react'
-import { SplashScreen } from 'expo-router'
 
 import {
-  useFonts,
   DMSans_400Regular,
   DMSans_500Medium,
   DMSans_600SemiBold,
   DMSans_700Bold,
+  useFonts,
 } from '@expo-google-fonts/dm-sans'
 
 import { initializeDatabase } from '@/core/database'
-import AppSplashScreen from '@/features/splash/screens/SplashScreen'
 import {
-  syncScheduledBackupTask,
   runPendingBackupCheck,
+  syncScheduledBackupAlarms,
 } from '@/features/backup/services/ScheduledBackupService'
-import { otaUpdateService } from '@/features/updates/services/OtaUpdateService'
+import AppSplashScreen from '@/features/splash/screens/SplashScreen'
 import { UpdateBanner } from '@/features/updates/components/UpdateBanner'
+import { otaUpdateService } from '@/features/updates/services/OtaUpdateService'
 
 SplashScreen.preventAutoHideAsync().catch(() => {
   // Splash may already be hidden.
@@ -35,53 +34,43 @@ Notifications.setNotificationHandler({
 })
 
 export default function RootLayout() {
-  const [showSplash, setShowSplash] =
-    useState(true)
+  const [showSplash, setShowSplash] = useState(true)
 
-  const [showUpdateBanner, setShowUpdateBanner] =
-    useState(false)
+  const [showUpdateBanner, setShowUpdateBanner] = useState(false)
 
-  const [fontsLoaded, fontError] =
-    useFonts({
-      DMSans_400Regular,
-      DMSans_500Medium,
-      DMSans_600SemiBold,
-      DMSans_700Bold,
-    })
+  const [fontsLoaded, fontError] = useFonts({
+    DMSans_400Regular,
+    DMSans_500Medium,
+    DMSans_600SemiBold,
+    DMSans_700Bold,
+  })
 
   useEffect(() => {
     initializeDatabase()
 
-    try {
-      void syncScheduledBackupTask()
-      void runPendingBackupCheck()
-    } catch {
-      // Ignorar errores de inicio.
-    }
+    void syncScheduledBackupAlarms().catch((error) => {
+      console.error('Could not synchronize scheduled backup alarms.', error)
+    })
+    void runPendingBackupCheck()
   }, [])
 
   useEffect(() => {
-    void otaUpdateService
-      .shouldShowUpdateBanner()
-      .then((show) => {
-        if (!show) {
-          return
-        }
+    void otaUpdateService.shouldShowUpdateBanner().then((show) => {
+      if (!show) {
+        return
+      }
 
-        setShowUpdateBanner(true)
+      setShowUpdateBanner(true)
 
-        setTimeout(() => {
-          setShowUpdateBanner(false)
-        }, 5000)
-      })
+      setTimeout(() => {
+        setShowUpdateBanner(false)
+      }, 5000)
+    })
   }, [])
 
   useEffect(() => {
     async function prepare() {
-      if (
-        !fontsLoaded &&
-        !fontError
-      ) {
+      if (!fontsLoaded && !fontError) {
         return
       }
 
@@ -95,10 +84,7 @@ export default function RootLayout() {
     void prepare()
   }, [fontsLoaded, fontError])
 
-  if (
-    !fontsLoaded &&
-    !fontError
-  ) {
+  if (!fontsLoaded && !fontError) {
     return null
   }
 
@@ -110,9 +96,7 @@ export default function RootLayout() {
     <>
       <StatusBar style="dark" />
 
-      {showUpdateBanner && (
-        <UpdateBanner />
-      )}
+      {showUpdateBanner && <UpdateBanner />}
 
       <Stack
         screenOptions={{
