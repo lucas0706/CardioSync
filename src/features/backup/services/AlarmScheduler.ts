@@ -3,6 +3,7 @@ import { NativeModules } from 'react-native'
 import type { BackupSettings } from './BackupSettingsService'
 
 type AlarmSchedulerModule = {
+  scheduleTestAlarm(): Promise<boolean>
   syncAlarms(
     enabled: boolean,
     frequency: BackupSettings['frequency'],
@@ -32,6 +33,16 @@ function requireModule(): AlarmSchedulerModule {
 
 export async function canScheduleExactAlarms(): Promise<boolean> {
   return requireModule().canScheduleExactAlarms()
+}
+
+export async function scheduleHeadlessTestAlarm(): Promise<void> {
+  const scheduled = await requireModule().scheduleTestAlarm()
+
+  if (!scheduled) {
+    throw new Error(
+      'Android did not confirm that the one-shot Headless JS test alarm was scheduled.',
+    )
+  }
 }
 
 export async function openExactAlarmSettings(): Promise<void> {

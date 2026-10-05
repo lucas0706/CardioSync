@@ -59,6 +59,24 @@ class AlarmSchedulerModule(
     }
 
     @ReactMethod
+    fun scheduleTestAlarm(promise: Promise) {
+        try {
+            promise.resolve(
+                AlarmScheduling.scheduleTestAlarm(reactApplicationContext),
+            )
+        } catch (error: SecurityException) {
+            promise.reject(
+                "E_EXACT_ALARM_PERMISSION",
+                error.message
+                    ?: "Android exact-alarm permission is not granted for CardioSync.",
+                error,
+            )
+        } catch (error: Exception) {
+            promise.reject("E_TEST_ALARM_SCHEDULING", error.message, error)
+        }
+    }
+
+    @ReactMethod
     fun canScheduleExactAlarms(promise: Promise) {
         try {
             promise.resolve(
