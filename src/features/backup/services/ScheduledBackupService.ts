@@ -2,6 +2,7 @@ import { syncBackupAlarms } from './AlarmScheduler'
 import { executeBackup } from './BackupExecutionCoordinator'
 import {
   getBackupSettings,
+  isValidBackupTime,
   recordSchedulerWake,
   type BackupSettings,
 } from './BackupSettingsService'
@@ -10,25 +11,17 @@ const SCHEDULE_WINDOW_MINUTES = 30
 
 type DueSchedule = {
   scheduledAt: Date
-  time: string
 }
 
 function parseTime(value: string): {
   hour: number
   minute: number
 } | null {
-  const match = /^(\d{2}):(\d{2})$/.exec(value)
-
-  if (!match) {
+  if (!isValidBackupTime(value)) {
     return null
   }
 
-  const hour = Number(match[1])
-  const minute = Number(match[2])
-
-  if (hour < 0 || hour > 23 || minute < 0 || minute > 59) {
-    return null
-  }
+  const [hour, minute] = value.split(':').map(Number)
 
   return {
     hour,
@@ -65,21 +58,18 @@ function getRecentCandidateSchedules(now: Date, settings: BackupSettings): DueSc
       continue
     }
 
-    for (const time of settings.times) {
-      const scheduledAt = createScheduleDate(date, time)
+    const scheduledAt = createScheduleDate(date, settings.time)
 
-      if (!scheduledAt) {
-        continue
-      }
+    if (!scheduledAt) {
+      continue
+    }
 
-      const ageMinutes = (now.getTime() - scheduledAt.getTime()) / 60000
+    const ageMinutes = (now.getTime() - scheduledAt.getTime()) / 60000
 
-      if (ageMinutes >= 0 && ageMinutes <= SCHEDULE_WINDOW_MINUTES) {
-        candidates.push({
-          scheduledAt,
-          time,
-        })
-      }
+    if (ageMinutes >= 0 && ageMinutes <= SCHEDULE_WINDOW_MINUTES) {
+      candidates.push({
+        scheduledAt,
+      })
     }
   }
 
@@ -101,16 +91,13 @@ function getAlarmCandidateSchedule(
     return null
   }
 
-  const matchingTime = settings.times.find((time) => {
-    const configuredAt = createScheduleDate(scheduledAt, time)
+  const configuredAt = createScheduleDate(scheduledAt, settings.time)
 
-    return configuredAt?.getTime() === scheduledAtTimestamp
-  })
+  const matchesConfiguredTime = configuredAt?.getTime() === scheduledAtTimestamp
 
-  return matchingTime
+  return matchesConfiguredTime
     ? {
         scheduledAt,
-        time: matchingTime,
       }
     : null
 }

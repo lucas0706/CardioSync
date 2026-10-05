@@ -11,6 +11,7 @@ import {
 
 import { useEffect, useState } from 'react'
 
+import DateTimePicker from '@expo/ui/community/datetime-picker'
 import Ionicons from '@expo/vector-icons/Ionicons'
 
 import { Button, Screen, Text } from '@/components/ui'
@@ -44,11 +45,6 @@ const WEEKDAYS = [
   { value: 5, label: 'Viernes', short: 'Vie' },
   { value: 6, label: 'Sábado', short: 'Sáb' },
 ] as const
-
-const AVAILABLE_TIMES = Array.from(
-  { length: 24 },
-  (_, index) => `${String(index).padStart(2, '0')}:00`,
-)
 
 function formatDate(value: string | null): string {
   if (!value) {
@@ -126,44 +122,14 @@ function WeekdayOption({
   )
 }
 
-function TimeOption({
-  time,
-  selected,
-  disabled,
-  onPress,
-}: {
-  time: string
-  selected: boolean
-  disabled: boolean
-  onPress: () => void
-}) {
-  return (
-    <Pressable
-      accessibilityRole="checkbox"
-      accessibilityState={{
-        checked: selected,
-        disabled,
-      }}
-      disabled={disabled}
-      onPress={onPress}
-      style={({ pressed }) => [
-        styles.timeOption,
-        selected && styles.timeOptionSelected,
-        disabled && styles.timeOptionDisabled,
-        pressed && !disabled && styles.timeOptionPressed,
-      ]}
-    >
-      <Text style={[styles.timeOptionText, selected && styles.timeOptionTextSelected]}>{time}</Text>
-    </Pressable>
-  )
-}
-
 export default function BackupSettingsScreen() {
   const [settings, setSettings] = useState<BackupSettings | null>(null)
 
   const [loading, setLoading] = useState(true)
 
   const [saving, setSaving] = useState(false)
+
+  const [timePickerOpen, setTimePickerOpen] = useState(false)
 
   useEffect(() => {
     try {
@@ -196,7 +162,7 @@ export default function BackupSettingsScreen() {
   }, [])
 
   async function saveSettings(
-    changes: Partial<Pick<BackupSettings, 'enabled' | 'frequency' | 'weekday' | 'times'>>,
+    changes: Partial<Pick<BackupSettings, 'enabled' | 'frequency' | 'weekday' | 'time'>>,
   ): Promise<void> {
     if (saving) {
       return
@@ -317,36 +283,15 @@ export default function BackupSettingsScreen() {
     })
   }
 
-  function handleTimeToggle(time: string): void {
-    if (!settings) {
-      return
-    }
+  function createPickerDate(time: string): Date {
+    const [hour, minute] = time.split(':').map(Number)
+    const date = new Date()
+    date.setHours(hour, minute, 0, 0)
+    return date
+  }
 
-    const isSelected = settings.times.includes(time)
-
-    if (isSelected) {
-      if (settings.times.length === 1) {
-        Alert.alert('Horario requerido', 'Debe quedar al menos un horario configurado.')
-
-        return
-      }
-
-      void saveSettings({
-        times: settings.times.filter((item) => item !== time),
-      })
-
-      return
-    }
-
-    if (settings.times.length >= 3) {
-      Alert.alert('Límite de horarios', 'Podés configurar hasta 3 horarios de copia por día.')
-
-      return
-    }
-
-    void saveSettings({
-      times: [...settings.times, time],
-    })
+  function formatTime(date: Date): string {
+    return `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`
   }
 
   if (loading || !settings) {
@@ -369,7 +314,7 @@ export default function BackupSettingsScreen() {
             <Text style={styles.title}>Copias programadas</Text>
 
             <Text style={styles.subtitle}>
-              Configurá los días y horarios en los que CardioSync debe preparar una copia de
+              Configurá los días y el horario en los que CardioSync debe preparar una copia de
               seguridad.
             </Text>
           </View>
@@ -470,33 +415,54 @@ export default function BackupSettingsScreen() {
 
                   <View style={styles.settingBlock}>
                     <View style={styles.settingTitleRow}>
-                      <Text style={styles.settingTitle}>Horarios</Text>
-
-                      <Text style={styles.selectedValue}>Hasta 3 horarios</Text>
+                      <Text style={styles.settingTitle}>Horario</Text>
                     </View>
 
                     <Text style={styles.helperText}>
-                      Elegí los horarios en los que CardioSync realizará automáticamente las copias
-                      de seguridad.
+                      Elegí cuándo CardioSync realizará automáticamente las copias de seguridad.
                     </Text>
 
-                    <View style={styles.timeGrid}>
-                      {AVAILABLE_TIMES.map((time) => {
-                        const selected = settings.times.includes(time)
+                    <Pressable
+                      accessibilityRole="button"
+                      accessibilityLabel={`Seleccionar horario, actual ${settings.time}`}
+                      disabled={saving}
+                      onPress={() => setTimePickerOpen(true)}
+                      style={({ pressed }) => [
+                        styles.timePickerField,
+                        pressed && styles.timePickerFieldPressed,
+                        saving && styles.timePickerFieldDisabled,
+                      ]}
+                    >
+                      <Text style={styles.timePickerValue}>{settings.time}</Text>
 
-                        const disabled = !selected && settings.times.length >= 3
+                      <Ionicons name="time-outline" size={22} color={theme.colors.primary} />
+                    </Pressable>
 
-                        return (
-                          <TimeOption
-                            key={time}
-                            time={time}
-                            selected={selected}
-                            disabled={disabled || saving}
-                            onPress={() => handleTimeToggle(time)}
-                          />
-                        )
-                      })}
-                    </View>
+                    {timePickerOpen ? (
+                      <DateTimePicker
+                        value={createPickerDate(settings.time)}
+                        mode="time"
+                        presentation="dialog"
+                        display="default"
+                        is24Hour
+                        accentColor={theme.colors.primary}
+                        positiveButton={{
+                          label: 'Aceptar',
+                        }}
+                        negativeButton={{
+                          label: 'Cancelar',
+                        }}
+                        onValueChange={(_, date) => {
+                          setTimePickerOpen(false)
+                          void saveSettings({
+                            time: formatTime(date),
+                          })
+                        }}
+                        onDismiss={() => {
+                          setTimePickerOpen(false)
+                        }}
+                      />
+                    ) : null}
                   </View>
                 </>
               ) : null}
@@ -842,44 +808,30 @@ const styles = StyleSheet.create({
     color: theme.colors.textSecondary,
   },
 
-  timeGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: theme.spacing.xs,
-  },
-
-  timeOption: {
-    width: '23%',
-    minHeight: 42,
-    alignItems: 'center',
-    justifyContent: 'center',
+  timePickerField: {
+    minHeight: 56,
+    paddingHorizontal: theme.spacing.md,
     borderWidth: 1,
     borderColor: theme.colors.border,
     borderRadius: theme.radius.md,
     backgroundColor: theme.colors.surface,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
 
-  timeOptionSelected: {
-    borderColor: theme.colors.primary,
-    backgroundColor: theme.colors.primary,
-  },
-
-  timeOptionPressed: {
+  timePickerFieldPressed: {
     opacity: 0.7,
   },
 
-  timeOptionDisabled: {
+  timePickerFieldDisabled: {
     opacity: 0.4,
   },
 
-  timeOptionText: {
+  timePickerValue: {
     fontFamily: theme.typography.medium,
-    fontSize: theme.typography.small,
+    fontSize: theme.typography.body,
     color: theme.colors.text,
-  },
-
-  timeOptionTextSelected: {
-    color: '#FFFFFF',
   },
 
   summaryCard: {
