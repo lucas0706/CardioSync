@@ -2,7 +2,6 @@ import {
   ActivityIndicator,
   Alert,
   AppState,
-  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -19,7 +18,6 @@ import { Button, Screen, Text } from '@/components/ui'
 import {
   isExactAlarmPermissionError,
   openExactAlarmSettings,
-  scheduleHeadlessTestAlarm,
 } from '@/features/backup/services/AlarmScheduler'
 import {
   getBackupSettings,
@@ -167,8 +165,6 @@ export default function BackupSettingsScreen() {
 
   const [saving, setSaving] = useState(false)
 
-  const [schedulingHeadlessTest, setSchedulingHeadlessTest] = useState(false)
-
   useEffect(() => {
     try {
       const current = getBackupSettings()
@@ -265,67 +261,6 @@ export default function BackupSettingsScreen() {
       )
     } catch (error) {
       Alert.alert('Error', error instanceof Error ? error.message : 'No se pudo ejecutar la copia.')
-    }
-  }
-
-  async function handleScheduleHeadlessTest(): Promise<void> {
-    if (schedulingHeadlessTest) {
-      return
-    }
-
-    setSchedulingHeadlessTest(true)
-
-    try {
-      const notificationPermission = await requestBackupNotificationPermission()
-
-      if (!notificationPermission) {
-        Alert.alert(
-          'Permiso requerido',
-          'Permití las notificaciones para poder ver el resultado de la prueba Headless JS.',
-        )
-        return
-      }
-
-      await scheduleHeadlessTestAlarm()
-
-      Alert.alert(
-        'Prueba programada',
-        'En aproximadamente 30 segundos se ejecutará la prueba de AlarmManager + Headless JS. No se ejecutará ni modificará una copia de seguridad.',
-      )
-    } catch (error) {
-      if (isExactAlarmPermissionError(error)) {
-        Alert.alert(
-          'Se necesitan alarmas exactas',
-          'Android no permite programar la alarma de prueba. Habilitá el permiso para CardioSync en la configuración del sistema.',
-          [
-            {
-              text: 'Cancelar',
-              style: 'cancel',
-            },
-            {
-              text: 'Abrir ajustes',
-              onPress: () => {
-                void openExactAlarmSettings().catch((settingsError: unknown) => {
-                  Alert.alert(
-                    'No se pudieron abrir los ajustes',
-                    settingsError instanceof Error
-                      ? settingsError.message
-                      : 'Android no pudo abrir la configuración de alarmas exactas.',
-                  )
-                })
-              },
-            },
-          ],
-        )
-        return
-      }
-
-      Alert.alert(
-        'Error en la prueba Headless JS',
-        error instanceof Error ? error.message : 'No se pudo programar la alarma de prueba.',
-      )
-    } finally {
-      setSchedulingHeadlessTest(false)
     }
   }
 
@@ -617,16 +552,6 @@ export default function BackupSettingsScreen() {
                 void handleRunTestBackup()
               }}
             />
-
-            {Platform.OS === 'android' ? (
-              <Button
-                title="Probar AlarmManager + Headless JS"
-                onPress={() => {
-                  void handleScheduleHeadlessTest()
-                }}
-                disabled={schedulingHeadlessTest}
-              />
-            ) : null}
           </View>
 
           <View style={styles.card}>
