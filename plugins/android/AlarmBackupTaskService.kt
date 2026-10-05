@@ -11,22 +11,26 @@ class AlarmBackupTaskService : HeadlessJsTaskService() {
         if (scheduledAt <= 0L) {
             return null
         }
+        val isTest =
+            intent?.getBooleanExtra(AlarmScheduling.EXTRA_IS_TEST, false) ?: false
 
         val data = Arguments.createMap().apply {
             putDouble("scheduledAt", scheduledAt.toDouble())
             putInt("slot", intent?.getIntExtra("slot", -1) ?: -1)
+            putBoolean("isTest", isTest)
         }
 
         return HeadlessJsTaskConfig(
             TASK_KEY,
             data,
-            TASK_TIMEOUT_MILLIS,
-            false,
+            if (isTest) TEST_TIMEOUT_MILLIS else BACKUP_TIMEOUT_MILLIS,
+            isTest,
         )
     }
 
     private companion object {
         const val TASK_KEY = "CardioSyncScheduledBackup"
-        const val TASK_TIMEOUT_MILLIS = 15 * 60 * 1000L
+        const val TEST_TIMEOUT_MILLIS = 60_000L
+        const val BACKUP_TIMEOUT_MILLIS = 15 * 60 * 1000L
     }
 }

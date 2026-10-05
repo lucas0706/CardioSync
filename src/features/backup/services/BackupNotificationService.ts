@@ -2,8 +2,7 @@ import { Platform } from 'react-native'
 
 import * as Notifications from 'expo-notifications'
 
-const BACKUP_NOTIFICATION_CHANNEL_ID =
-  'cardiosync-backups'
+const BACKUP_NOTIFICATION_CHANNEL_ID = 'cardiosync-backups'
 
 let initialized = false
 
@@ -13,22 +12,12 @@ export async function initializeBackupNotifications(): Promise<void> {
   }
 
   if (Platform.OS === 'android') {
-    await Notifications.setNotificationChannelAsync(
-      BACKUP_NOTIFICATION_CHANNEL_ID,
-      {
-        name: 'Copias de seguridad',
-        importance:
-          Notifications.AndroidImportance.DEFAULT,
-        vibrationPattern: [
-          0,
-          250,
-          250,
-          250,
-        ],
-        lockscreenVisibility:
-          Notifications.AndroidNotificationVisibility.PUBLIC,
-      },
-    )
+    await Notifications.setNotificationChannelAsync(BACKUP_NOTIFICATION_CHANNEL_ID, {
+      name: 'Copias de seguridad',
+      importance: Notifications.AndroidImportance.DEFAULT,
+      vibrationPattern: [0, 250, 250, 250],
+      lockscreenVisibility: Notifications.AndroidNotificationVisibility.PUBLIC,
+    })
   }
 
   initialized = true
@@ -37,15 +26,13 @@ export async function initializeBackupNotifications(): Promise<void> {
 export async function requestBackupNotificationPermission(): Promise<boolean> {
   await initializeBackupNotifications()
 
-  const current =
-    await Notifications.getPermissionsAsync()
+  const current = await Notifications.getPermissionsAsync()
 
   if (current.granted) {
     return true
   }
 
-  const requested =
-    await Notifications.requestPermissionsAsync()
+  const requested = await Notifications.requestPermissionsAsync()
 
   return requested.granted
 }
@@ -53,17 +40,13 @@ export async function requestBackupNotificationPermission(): Promise<boolean> {
 async function canShowBackupNotification(): Promise<boolean> {
   await initializeBackupNotifications()
 
-  const permissions =
-    await Notifications.getPermissionsAsync()
+  const permissions = await Notifications.getPermissionsAsync()
 
   return permissions.granted
 }
 
-export async function showBackupSuccessNotification(
-  measurementCount: number,
-): Promise<void> {
-  const allowed =
-    await canShowBackupNotification()
+export async function showBackupSuccessNotification(measurementCount: number): Promise<void> {
+  const allowed = await canShowBackupNotification()
 
   if (!allowed) {
     return
@@ -76,8 +59,7 @@ export async function showBackupSuccessNotification(
 
   await Notifications.scheduleNotificationAsync({
     content: {
-      title:
-        'Copia de seguridad realizada',
+      title: 'Copia de seguridad realizada',
       body,
       data: {
         type: 'cardiosync-backup',
@@ -88,11 +70,8 @@ export async function showBackupSuccessNotification(
   })
 }
 
-export async function showBackupErrorNotification(
-  error: string,
-): Promise<void> {
-  const allowed =
-    await canShowBackupNotification()
+export async function showBackupErrorNotification(error: string): Promise<void> {
+  const allowed = await canShowBackupNotification()
 
   if (!allowed) {
     return
@@ -100,13 +79,54 @@ export async function showBackupErrorNotification(
 
   await Notifications.scheduleNotificationAsync({
     content: {
-      title:
-        'Error en la copia de seguridad',
-      body:
-        error ||
-        'No se pudo completar la copia de CardioSync en Google Drive.',
+      title: 'Error en la copia de seguridad',
+      body: error || 'No se pudo completar la copia de CardioSync en Google Drive.',
       data: {
         type: 'cardiosync-backup',
+        status: 'error',
+      },
+    },
+    trigger: null,
+  })
+}
+
+export async function showHeadlessAlarmTestSuccessNotification(): Promise<void> {
+  const allowed = await canShowBackupNotification()
+
+  if (!allowed) {
+    throw new Error(
+      'La prueba de AlarmManager + Headless JS terminó, pero Android no permite mostrar notificaciones.',
+    )
+  }
+
+  await Notifications.scheduleNotificationAsync({
+    content: {
+      title: 'Prueba de AlarmManager + Headless JS',
+      body: 'AlarmManager + Headless JS funcionan correctamente.',
+      data: {
+        type: 'cardiosync-headless-alarm-test',
+        status: 'success',
+      },
+    },
+    trigger: null,
+  })
+}
+
+export async function showHeadlessAlarmTestErrorNotification(error: string): Promise<void> {
+  const allowed = await canShowBackupNotification()
+
+  if (!allowed) {
+    throw new Error(
+      'La prueba de AlarmManager + Headless JS falló y Android no permite mostrar notificaciones.',
+    )
+  }
+
+  await Notifications.scheduleNotificationAsync({
+    content: {
+      title: 'Prueba de AlarmManager + Headless JS: error',
+      body: error,
+      data: {
+        type: 'cardiosync-headless-alarm-test',
         status: 'error',
       },
     },

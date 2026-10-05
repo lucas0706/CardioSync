@@ -22,10 +22,15 @@ internal object AlarmScheduling {
     private const val KEY_WEEKDAY = "weekday"
     private const val KEY_TIMES = "times"
     private const val FIRST_REQUEST_CODE = 7001
+    private const val TEST_REQUEST_CODE = 7099
     private const val ACTION_ALARM_PREFIX =
         "com.lucas0706a.CardioSync.alarm.SCHEDULED_BACKUP."
+    private const val ACTION_TEST_ALARM =
+        "com.lucas0706a.CardioSync.alarm.HEADLESS_TEST"
     const val EXTRA_SLOT = "cardiosync.alarm.slot"
     const val EXTRA_SCHEDULED_AT = "cardiosync.alarm.scheduledAt"
+    const val EXTRA_IS_TEST = "cardiosync.alarm.isTest"
+    private const val TEST_DELAY_MILLIS = 30_000L
 
     fun synchronize(
         context: Context,
@@ -72,6 +77,38 @@ internal object AlarmScheduling {
         checkExactAlarmPermission(alarmManager(context))
         scheduleNext(context, configuration, slot, nowMillis)
         return true
+    }
+
+    fun scheduleTestAlarm(context: Context): Boolean {
+        val manager = alarmManager(context)
+        cancelTestAlarm(context)
+        checkExactAlarmPermission(manager)
+
+        val triggerAtMillis =
+            System.currentTimeMillis() + TEST_DELAY_MILLIS
+        val pendingIntent =
+            createTestPendingIntent(context, triggerAtMillis)
+
+        try {
+            manager.setExactAndAllowWhileIdle(
+                AlarmManager.RTC_WAKEUP,
+                triggerAtMillis,
+                pendingIntent,
+            )
+        } catch (error: Exception) {
+            manager.cancel(pendingIntent)
+            pendingIntent.cancel()
+            throw error
+        }
+
+        return true
+    }
+
+    fun cancelTestAlarm(context: Context) {
+        val pendingIntent =
+            createTestPendingIntent(context, null)
+        alarmManager(context).cancel(pendingIntent)
+        pendingIntent.cancel()
     }
 
     fun cancelAll(context: Context) {
@@ -164,6 +201,26 @@ internal object AlarmScheduling {
         return PendingIntent.getBroadcast(
             context,
             FIRST_REQUEST_CODE + slot,
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+        )
+    }
+
+    private fun createTestPendingIntent(
+        context: Context,
+        scheduledAt: Long?,
+    ): PendingIntent {
+        val intent = Intent(context, AlarmReceiver::class.java).apply {
+            action = ACTION_TEST_ALARM
+            putExtra(EXTRA_IS_TEST, true)
+            if (scheduledAt != null) {
+                putExtra(EXTRA_SCHEDULED_AT, scheduledAt)
+            }
+        }
+
+        return PendingIntent.getBroadcast(
+            context,
+            TEST_REQUEST_CODE,
             intent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
         )
