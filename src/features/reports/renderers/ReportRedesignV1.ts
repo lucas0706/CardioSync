@@ -451,6 +451,22 @@ function getClassificationClass(
   }
 }
 
+function getClassificationColor(
+  category: string,
+): string | undefined {
+  switch (category) {
+    case 'normal':
+    case 'borderline':
+    case 'grade-1':
+    case 'grade-2':
+    case 'isolated-systolic':
+      return BloodPressureClassifier.getClassification(category).color
+
+    default:
+      return undefined
+  }
+}
+
 function buildTrendChart(
   report: BloodPressureReport,
 ): string {
@@ -751,6 +767,8 @@ function buildClassificationCards(
     .map(([classification, count]) => {
       const percentage =
         (count / total) * 100
+      const color =
+        getClassificationColor(classification)
 
       return `
         <div class="classification-card">
@@ -769,10 +787,9 @@ function buildClassificationCards(
           <div class="progress-track">
             <div
               class="progress-fill"
-              style="width: ${Math.min(
-                percentage,
-                100,
-              ).toFixed(1)}%"
+              style="width: ${Math.min(percentage, 100).toFixed(1)}%${
+                color ? `; background-color: ${color}` : ''
+              }"
             ></div>
           </div>
 
@@ -805,12 +822,12 @@ function buildMeasurementRows(
   }
 
   return records
-    .map(record => {
+    .map((record, index) => {
       const classification =
         getRecordClassification(record)
 
       return `
-        <tr>
+        <tr class="${index % 2 === 0 ? 'row-light' : 'row-shaded'}">
           <td>
             ${formatDateTime(record.dateTime)}
           </td>
@@ -1192,6 +1209,14 @@ table {
   width: 100%;
   border-collapse: collapse;
   font-size: 12px;
+}
+
+.measurements-table tbody .row-light {
+  background-color: #FFFFFF;
+}
+
+.measurements-table tbody .row-shaded {
+  background-color: #F8FAFF;
 }
 
 th {
@@ -1581,7 +1606,7 @@ small {
   </h2>
 
   <div class="table-wrapper">
-    <table>
+    <table class="measurements-table">
       <thead>
         <tr>
           <th>Fecha y hora</th>
