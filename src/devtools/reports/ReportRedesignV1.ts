@@ -1,6 +1,7 @@
 import type { BloodPressureRecord } from '@/domain/measurements/BloodPressureRecord'
 import { BloodPressureClassifier } from '@/domain/clinical/classification'
 import type { BloodPressureReport } from '@/features/reports/models/BloodPressureReport'
+import type { ReportHealthTrendPoint } from '@/features/reports/models/ReportHealthContext'
 
 function escapeHtml(value: string): string {
   return value
@@ -75,6 +76,273 @@ function formatHoursMinutes(
     totalMinutes % 60
 
   return `${hh} h ${mm} min`
+}
+
+type HealthChartMetric =
+  | 'steps'
+  | 'heartRate'
+  | 'sleep'
+  | 'exercise'
+
+function getNiceAxisStep(
+  rawStep: number,
+): number {
+  if (!Number.isFinite(rawStep) || rawStep <= 0) {
+    return 1
+  }
+
+  const magnitude =
+    10 ** Math.floor(Math.log10(rawStep))
+  const fraction = rawStep / magnitude
+  const niceFraction =
+    fraction <= 1
+      ? 1
+      : fraction <= 2
+        ? 2
+        : fraction <= 2.5
+          ? 2.5
+          : fraction <= 5
+            ? 5
+            : 10
+
+  return niceFraction * magnitude
+}
+
+function formatAxisValue(
+  value: number,
+  metric: HealthChartMetric,
+): string {
+  if (metric === 'sleep') {
+    return `${Number(value.toFixed(1))} h`
+  }
+
+  return Math.round(value).toLocaleString('es-AR')
+}
+
+function buildHealthChart(
+  series: ReportHealthTrendPoint[] | undefined,
+  metric: HealthChartMetric,
+  label: string,
+): string {
+  const values =
+    series?.map((point) =>
+      typeof point.value === 'number' &&
+      Number.isFinite(point.value)
+        ? point.value
+        : null,
+    ) ?? []
+
+  const validValues =
+    values.filter(
+      (value): value is number =>
+        value !== null,
+    )
+
+  if (validValues.length === 0) {
+    return `
+      <div
+        class="health-chart-empty"
+        role="img"
+        aria-label="${escapeHtml(label)}: sin datos disponibles"
+      >
+        Sin datos disponibles
+      </div>
+    `
+  }
+
+  const width = 360
+  const height = 142
+  const left = 48
+  const right = 5
+  const top = 8
+  const bottom = 25
+  const plotWidth = width - left - right
+  const plotHeight = height - top - bottom
+  const minimum = Math.min(...validValues)
+  const maximum = Math.max(...validValues)
+  const isHeartRate = metric === 'heartRate'
+  const minimumSpan =
+    metric === 'heartRate'
+      ? 40
+      : metric === 'steps'
+        ? 4000
+        : metric === 'sleep'
+          ? 4
+          : 60
+  const range = Math.max(maximum - minimum, minimumSpan, maximum * 0.05, 1)
+  const step = getNiceAxisStep(range / 4)
+  let axisMinimum =
+    isHeartRate
+      ? Math.floor((minimum - range * 0.05) / step) * step
+      : 0
+  let axisMaximum =
+    Math.ceil(
+      (maximum + (isHeartRate ? range * 0.05 : 0)) / step,
+    ) * step
+
+  if (isHeartRate && axisMaximum - axisMinimum < minimumSpan) {
+    const midpoint = (minimum + maximum) / 2
+    axisMinimum = Math.floor((midpoint - minimumSpan / 2) / step) * step
+    axisMaximum = Math.ceil((midpoint + minimumSpan / 2) / step) * step
+  }
+
+  axisMinimum = Math.max(0, axisMinimum)
+  const tickStep = getNiceAxisStep((axisMaximum - axisMinimum) / 4)
+  axisMinimum = Math.floor(axisMinimum / tickStep) * tickStep
+  axisMaximum = Math.ceil(axisMaximum / tickStep) * tickStep
+  axisMaximum = Math.max(axisMaximum, axisMinimum + tickStep)
+  const ticks: number[] = []
+
+  for (
+    let value = axisMinimum;
+    value <= axisMaximum + tickStep * 0.001;
+    value += tickStep
+  ) {
+    ticks.push(Number(value.toFixed(6)))
+  }
+
+  const yForValue = (value: number) =>
+    top + ((axisMaximum - value) / (axisMaximum - axisMinimum)) * plotHeight
+  const xForIndex = (index: number) =>
+    left +
+    (values.length <= 1 ? plotWidth / 2 : (index / (values.length - 1)) * plotWidth)
+  const grid = ticks
+    .map((value) => {
+      const y = yForValue(value)
+
+      return `
+        <line
+          x1="${left}"
+          y1="${y.toFixed(2)}"
+          x2="${(width - right).toFixed(2)}"
+          y2="${y.toFixed(2)}"
+          stroke="${value === axisMinimum ? '#94A3B8' : '#E2E8F0'}"
+          stroke-width="${value === axisMinimum ? '1.2' : '0.8'}"
+        />
+        <text
+          x="${left - 6}"
+          y="${(y + 3.5).toFixed(2)}"
+          text-anchor="end"
+          class="health-chart-axis-label"
+        >${escapeHtml(formatAxisValue(value, metric))}</text>
+      `
+    })
+    .join('')
+  const colors: Record<HealthChartMetric, string> = {
+    steps: '#2563EB',
+    heartRate: '#DC2626',
+    sleep: '#7C3AED',
+    exercise: '#16A34A',
+  }
+  const color = colors[metric]
+  let segments: string[][] = []
+  let currentSegment: string[] = []
+
+  values.forEach((value, index) => {
+    if (value === null) {
+      if (currentSegment.length > 0) {
+        segments.push(currentSegment)
+        currentSegment = []
+      }
+
+      return
+    }
+
+    const x = xForIndex(index)
+    const y = yForValue(value)
+
+    if (isHeartRate) {
+      currentSegment.push(`${x.toFixed(2)},${y.toFixed(2)}`)
+    } else {
+      const slotWidth = plotWidth / Math.max(values.length, 1)
+      const barWidth = Math.min(8, slotWidth * 0.62)
+      const barHeight = Math.max(top + plotHeight - y, 0)
+      currentSegment.push(
+        `<rect x="${(x - barWidth / 2).toFixed(2)}" y="${y.toFixed(2)}" width="${barWidth.toFixed(2)}" height="${barHeight.toFixed(2)}" rx="1.2" />`,
+      )
+    }
+  })
+
+  if (currentSegment.length > 0) {
+    segments.push(currentSegment)
+  }
+
+  const drawing = isHeartRate
+    ? segments
+        .filter((segment) => segment.length > 1)
+        .map((segment) => `<polyline points="${segment.join(' ')}" />`)
+        .join('')
+    : segments.flatMap((segment) => segment).join('')
+  const points = isHeartRate
+    ? segments
+        .flatMap((segment) => segment)
+        .map((point) => {
+          const [cx, cy] = point.split(',')
+          return `<circle cx="${cx}" cy="${cy}" r="2" />`
+        })
+        .join('')
+    : ''
+  const xTickIndexes = Array.from(
+    new Set(
+      [0, 5, 10, 15, 20, 25, values.length - 1].filter(
+        (index) => index >= 0 && index < values.length,
+      ),
+    ),
+  )
+  const xLabels = xTickIndexes
+    .map((index) => {
+      const dateLabel = series?.[index]?.date.slice(8, 10) ?? ''
+      return `
+        <text
+          x="${xForIndex(index).toFixed(2)}"
+          y="${height - 6}"
+          text-anchor="${
+            index === 0
+              ? 'start'
+              : index === values.length - 1
+                ? 'end'
+                : 'middle'
+          }"
+          class="health-chart-axis-label"
+        >${escapeHtml(String(Number(dateLabel)))}</text>
+      `
+    })
+    .join('')
+
+  return `
+    <svg
+      class="health-chart"
+      viewBox="0 0 ${width} ${height}"
+      preserveAspectRatio="none"
+      role="img"
+      aria-label="${escapeHtml(label)}: gráfico diario de los últimos 30 días"
+    >
+      ${grid}
+      <line
+        x1="${left}"
+        y1="${(top + plotHeight).toFixed(2)}"
+        x2="${width - right}"
+        y2="${(top + plotHeight).toFixed(2)}"
+        stroke="#64748B"
+        stroke-width="1.2"
+      />
+      <g
+        fill="${isHeartRate ? 'none' : color}"
+        stroke="${color}"
+        stroke-width="${isHeartRate ? '2.2' : '0'}"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        ${drawing}
+      </g>
+      <g fill="${color}">
+        ${points}
+      </g>
+      <g fill="#64748B">
+        ${xLabels}
+      </g>
+    </svg>
+  `
 }
 
 function getPeriodLabel(
@@ -657,6 +925,29 @@ body {
   background: #FFFFFF;
 }
 
+.health-chart {
+  display: block;
+  width: 100%;
+  height: 142px;
+  margin-top: 16px;
+  overflow: hidden;
+}
+
+.health-chart-axis-label {
+  fill: #64748B;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 10px;
+}
+
+.health-chart-empty {
+  display: flex;
+  align-items: center;
+  height: 142px;
+  margin-top: 16px;
+  color: #8A94A3;
+  font-size: 12px;
+}
+
 .metric-value,
 .indicator-value {
   margin-top: 4px;
@@ -1197,6 +1488,11 @@ small {
             ?.averageDailySteps30Days ?? '—'
         }
       </div>
+      ${buildHealthChart(
+        report.healthContext?.dailySteps30Days,
+        'steps',
+        'Pasos',
+      )}
     </div>
 
     <div class="indicator">
@@ -1211,6 +1507,11 @@ small {
         }
         lpm
       </div>
+      ${buildHealthChart(
+        report.healthContext?.dailyHeartRate30Days,
+        'heartRate',
+        'Frecuencia cardíaca',
+      )}
     </div>
 
     <div class="indicator">
@@ -1229,58 +1530,37 @@ small {
             : '—'
         }
       </div>
+      ${buildHealthChart(
+        report.healthContext?.dailySleepHours30Days,
+        'sleep',
+        'Sueño',
+      )}
     </div>
 
     <div class="indicator">
       <div class="indicator-label">
-        Ejercicio acumulado
+        Ejercicio promedio diario
       </div>
 
       <div class="indicator-value">
         ${
           report.healthContext
-            ?.exerciseMinutes30Days != null
+            ?.averageDailyExerciseMinutes30Days != null
             ? formatHoursMinutes(
                 report.healthContext
-                  .exerciseMinutes30Days / 60,
+                  .averageDailyExerciseMinutes30Days / 60,
               )
             : '—'
         }
       </div>
-    </div>
-
-    <div class="indicator">
       <div class="indicator-label">
-        Último peso
+        por día con datos
       </div>
-
-      <div class="indicator-value">
-        ${
-          report.healthContext
-            ?.latestWeightKg != null
-            ? `${report.healthContext.latestWeightKg.toFixed(
-                1,
-              )} kg`
-            : '—'
-        }
-      </div>
-    </div>
-
-    <div class="indicator">
-      <div class="indicator-label">
-        Fecha del peso
-      </div>
-
-      <div class="indicator-value">
-        ${
-          report.healthContext
-            ?.latestWeightDate
-            ? formatDate(
-                report.healthContext.latestWeightDate,
-              )
-            : '—'
-        }
-      </div>
+      ${buildHealthChart(
+        report.healthContext?.dailyExerciseMinutes30Days,
+        'exercise',
+        'Ejercicio',
+      )}
     </div>
 
   </div>
@@ -1300,7 +1580,7 @@ small {
   <strong>Fuente de datos:</strong>
   Información obtenida desde Health Connect.
   Los indicadores de pasos, frecuencia cardíaca,
-  sueño, ejercicio y peso son calculados por
+  sueño y ejercicio son calculados por
   CardioSync a partir de los registros disponibles
   durante los últimos 30 días.
 </div>
