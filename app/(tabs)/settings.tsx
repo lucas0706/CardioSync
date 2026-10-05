@@ -11,6 +11,7 @@ import Ionicons from '@expo/vector-icons/Ionicons'
 
 import {
   Screen,
+  ScreenHeader,
   Text,
 } from '@/components/ui'
 
@@ -87,6 +88,11 @@ function SettingsItem({
 export default function SettingsScreen() {
   return (
     <Screen>
+      <ScreenHeader
+        title="Configuración"
+        subtitle="Gestioná los datos, las copias de seguridad y las conexiones de CardioSync."
+      />
+
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={
@@ -94,18 +100,6 @@ export default function SettingsScreen() {
         }
       >
         <View style={styles.container}>
-          <View style={styles.header}>
-            <Text style={styles.title}>
-              Configuración
-            </Text>
-
-            <Text style={styles.subtitle}>
-              Gestioná los datos, las copias de
-              seguridad y las conexiones de
-              CardioSync.
-            </Text>
-          </View>
-
           <View style={styles.section}>
             <Text style={styles.sectionLabel}>
               DATOS

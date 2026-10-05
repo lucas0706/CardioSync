@@ -14,6 +14,7 @@ import {
   Card,
   FloatingActionButton,
   Screen,
+  ScreenHeader,
   Text,
 } from '@/components/ui'
 
@@ -145,6 +146,15 @@ export function HomeV2Screen() {
         backgroundColor: '#F6FAFF',
       }}
     >
+      <ScreenHeader
+        title={
+          profileName
+            ? `${greeting}, ${profileName}`
+            : greeting
+        }
+        subtitle="Así está tu presión hoy"
+      />
+
       <ScrollView
         scrollEnabled={true}
         showsVerticalScrollIndicator={false}
@@ -155,18 +165,6 @@ export function HomeV2Screen() {
           },
         ]}
       >
-        <View style={styles.header}>
-          <Text style={styles.greeting}>
-            {profileName
-              ? `${greeting}, ${profileName}`
-              : greeting}
-          </Text>
-
-          <Text style={styles.subtitle}>
-            Así está tu presión hoy
-          </Text>
-        </View>
-
         <Pressable
           accessibilityRole="button"
           style={styles.dateSelector}

@@ -1,6 +1,8 @@
 import { router } from 'expo-router'
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native'
 
+import { Screen, ScreenHeader } from '@/components/ui'
+
 type DevRoute = {
   label: string
   route: string
@@ -22,57 +24,56 @@ const routes: DevRoute[] = [
 
 export default function DevToolsScreen() {
   return (
-    <ScrollView
-      contentContainerStyle={styles.container}
-      showsVerticalScrollIndicator={false}
-    >
-      <View style={styles.header}>
-        <Text style={styles.eyebrow}>DESARROLLO</Text>
-        <Text style={styles.title}>Dev Tools</Text>
-        <Text style={styles.subtitle}>
-          Acceso rápido a las rutas de prueba de CardioSync.
-        </Text>
-      </View>
-
-      <View style={styles.list}>
-        {routes.map((item) => (
+    <Screen style={styles.screen}>
+      <ScreenHeader
+        eyebrow={<Text style={styles.eyebrow}>DESARROLLO</Text>}
+        title="Dev Tools"
+        subtitle="Acceso rápido a las rutas de prueba de CardioSync."
+        leading={
           <Pressable
-            key={item.route}
             style={({ pressed }) => [
-              styles.button,
+              styles.backButton,
               pressed && styles.buttonPressed,
             ]}
-            onPress={() => router.push(item.route as never)}
+            onPress={() => router.back()}
           >
-            <Text style={styles.buttonLabel}>{item.label}</Text>
-            <Text style={styles.route}>{item.route}</Text>
+            <Text style={styles.backLabel}>Volver</Text>
           </Pressable>
-        ))}
-      </View>
+        }
+      />
 
-      <Pressable
-        style={({ pressed }) => [
-          styles.backButton,
-          pressed && styles.buttonPressed,
-        ]}
-        onPress={() => router.back()}
+      <ScrollView
+        contentContainerStyle={styles.container}
+        showsVerticalScrollIndicator={false}
       >
-        <Text style={styles.backLabel}>Volver</Text>
-      </Pressable>
-    </ScrollView>
+        <View style={styles.list}>
+          {routes.map((item) => (
+            <Pressable
+              key={item.route}
+              style={({ pressed }) => [
+                styles.button,
+                pressed && styles.buttonPressed,
+              ]}
+              onPress={() => router.push(item.route as never)}
+            >
+              <Text style={styles.buttonLabel}>{item.label}</Text>
+              <Text style={styles.route}>{item.route}</Text>
+            </Pressable>
+          ))}
+        </View>
+      </ScrollView>
+    </Screen>
   )
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flexGrow: 1,
-    padding: 24,
-    paddingTop: 56,
+  screen: {
     backgroundColor: '#F8FAFC',
   },
 
-  header: {
-    marginBottom: 28,
+  container: {
+    flexGrow: 1,
+    paddingBottom: 24,
   },
 
   eyebrow: {
@@ -80,19 +81,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '700',
     letterSpacing: 1.2,
-    color: '#64748B',
-  },
-
-  title: {
-    fontSize: 32,
-    fontWeight: '700',
-    color: '#0F172A',
-  },
-
-  subtitle: {
-    marginTop: 8,
-    fontSize: 15,
-    lineHeight: 22,
     color: '#64748B',
   },
 

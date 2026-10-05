@@ -12,6 +12,7 @@ import {
   Button,
   Card,
   Screen,
+  ScreenHeader,
   Text,
 } from '@/components/ui'
 
@@ -38,21 +39,15 @@ export default function UpdateScreen() {
 
   return (
     <Screen>
+      <ScreenHeader
+        title="Actualizaciones"
+        subtitle="Verificar nuevas versiones de CardioSync publicadas en GitHub."
+      />
+
       <ScrollView
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.container}>
-          <View style={styles.header}>
-            <Text style={styles.title}>
-              Actualizaciones
-            </Text>
-
-            <Text style={styles.subtitle}>
-              Verificar nuevas versiones de
-              CardioSync publicadas en GitHub.
-            </Text>
-          </View>
-
           {checking ? (
             <Card>
               <View style={styles.centered}>

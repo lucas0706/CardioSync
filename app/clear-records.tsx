@@ -12,6 +12,7 @@ import Ionicons from '@expo/vector-icons/Ionicons'
 import {
   Card,
   Screen,
+  ScreenHeader,
   Text,
 } from '@/components/ui'
 
@@ -42,6 +43,11 @@ export default function ClearRecordsScreen() {
 
   return (
     <Screen>
+      <ScreenHeader
+        title="Borrar mediciones"
+        subtitle="Esta acción eliminará permanentemente todas las mediciones almacenadas en CardioSync."
+      />
+
       <View style={styles.container}>
         <Card>
           <View style={styles.iconContainer}>
@@ -51,19 +57,6 @@ export default function ClearRecordsScreen() {
               color={theme.colors.danger}
             />
           </View>
-
-          <Text
-            variant="h1"
-            style={styles.title}
-          >
-            Borrar mediciones
-          </Text>
-
-          <Text style={styles.description}>
-            Esta acción eliminará permanentemente
-            todas las mediciones almacenadas en
-            CardioSync.
-          </Text>
 
           <View style={styles.warningBox}>
             <Ionicons

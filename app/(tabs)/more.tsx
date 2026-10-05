@@ -12,6 +12,7 @@ import Ionicons from '@expo/vector-icons/Ionicons'
 
 import {
   Screen,
+  ScreenHeader,
   Text,
 } from '@/components/ui'
 
@@ -76,6 +77,11 @@ export default function MoreScreen() {
 
   return (
     <Screen>
+      <ScreenHeader
+        title="Más"
+        subtitle="Herramientas y funciones adicionales de CardioSync."
+      />
+
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={
@@ -83,17 +89,6 @@ export default function MoreScreen() {
         }
       >
         <View style={styles.container}>
-          <View style={styles.header}>
-            <Text style={styles.title}>
-              Más
-            </Text>
-
-            <Text style={styles.subtitle}>
-              Herramientas y funciones adicionales
-              de CardioSync.
-            </Text>
-          </View>
-
           <View style={styles.section}>
             <Text style={styles.sectionLabel}>
               GENERAL

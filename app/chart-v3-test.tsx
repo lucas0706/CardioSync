@@ -13,6 +13,7 @@ import { LineChart } from 'react-native-gifted-charts'
 import {
   Card,
   Screen,
+  ScreenHeader,
   Text,
 } from '@/components/ui'
 
@@ -565,6 +566,11 @@ export default function ClinicalChartV3TestScreen() {
 
   return (
     <Screen>
+      <ScreenHeader
+        title="ClinicalChart V3"
+        subtitle="Laboratorio de visualización"
+      />
+
       <ScrollView
         showsVerticalScrollIndicator={
           false
@@ -573,22 +579,6 @@ export default function ClinicalChartV3TestScreen() {
           styles.content
         }
       >
-        <View
-          style={styles.header}
-        >
-          <Text
-            style={styles.title}
-          >
-            ClinicalChart V3
-          </Text>
-
-          <Text
-            style={styles.subtitle}
-          >
-            Laboratorio de visualización
-          </Text>
-        </View>
-
         <Card
           style={styles.chartCard}
         >

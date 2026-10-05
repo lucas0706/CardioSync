@@ -11,6 +11,7 @@ import {
 import Ionicons from '@expo/vector-icons/Ionicons'
 
 import {
+  ScreenHeader,
   Screen,
   Text,
 } from '@/components/ui'
@@ -149,24 +150,17 @@ export default function HealthConnectScreen() {
 
   return (
     <Screen>
+      <ScreenHeader
+        title="Health Connect"
+        subtitle="Sincronizá tus mediciones de presión arterial con Google Health Connect."
+      />
+
       <ScrollView
         showsVerticalScrollIndicator={
           false
         }
       >
         <View style={styles.container}>
-          <View style={styles.header}>
-            <Text style={styles.title}>
-              Health Connect
-            </Text>
-
-            <Text style={styles.subtitle}>
-              Sincronizá tus mediciones de
-              presión arterial con Google
-              Health Connect.
-            </Text>
-          </View>
-
           <Text style={styles.sectionLabel}>
             ESTADO
           </Text>

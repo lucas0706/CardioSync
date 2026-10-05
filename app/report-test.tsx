@@ -11,6 +11,7 @@ import {
   Button,
   Card,
   Screen,
+  ScreenHeader,
   Text,
 } from '@/components/ui'
 
@@ -146,11 +147,9 @@ export default function ReportTestScreen() {
 
   return (
     <Screen>
-      <View style={styles.content}>
-        <Text variant="h1">
-          Datos de prueba
-        </Text>
+      <ScreenHeader title="Datos de prueba" />
 
+      <View style={styles.content}>
         <Card>
           <Text variant="title">
             Reporte 30 días

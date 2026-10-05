@@ -7,7 +7,7 @@ import {
   View,
 } from 'react-native'
 
-import { Card, Screen, Text } from '@/components/ui'
+import { Card, Screen, ScreenHeader, Text } from '@/components/ui'
 
 import { VERSION_INFO }
   from '../config/version-info'
@@ -26,6 +26,11 @@ const CONTACT_EMAIL =
 export default function AboutScreen() {
   return (
     <Screen>
+      <ScreenHeader
+        title={VERSION_INFO.appName}
+        subtitle={VERSION_INFO.description}
+      />
+
       <ScrollView
         showsVerticalScrollIndicator={false}
       >
@@ -35,14 +40,6 @@ export default function AboutScreen() {
               source={require('../../../../assets/images/icon.png')}
               style={styles.logo}
             />
-
-            <Text style={styles.title}>
-              {VERSION_INFO.appName}
-            </Text>
-
-            <Text style={styles.subtitle}>
-              {VERSION_INFO.description}
-            </Text>
           </View>
 
           <Card>

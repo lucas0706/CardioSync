@@ -6,6 +6,7 @@ import {
 
 import {
   Screen,
+  ScreenHeader,
   Text,
 } from '@/components/ui'
 
@@ -48,15 +49,13 @@ export default function StatisticsDbAuditScreen() {
 
   return (
     <Screen>
+      <ScreenHeader title="Statistics DB Audit" />
+
       <ScrollView
         contentContainerStyle={
           styles.content
         }
       >
-        <Text variant="h1">
-          Statistics DB Audit
-        </Text>
-
         <Text>
           Auditoría directa de los registros
           actualmente almacenados en SQLite.

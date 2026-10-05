@@ -12,6 +12,7 @@ import {
 
 import {
   Screen,
+  ScreenHeader,
   Card,
   Text,
 } from '@/components/ui'
@@ -100,22 +101,17 @@ export function ReportPreviewClinicalScreen() {
 
   return (
     <Screen>
+      <ScreenHeader
+        title="REPORTE CLINICO TEST 999"
+        subtitle="Vista previa PDF médico"
+      />
+
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={
           styles.content
         }
       >
-        <View style={styles.header}>
-          <Text style={styles.title}>
-            REPORTE CLINICO TEST 999
-          </Text>
-
-          <Text style={styles.subtitle}>
-            Vista previa PDF médico
-          </Text>
-        </View>
-
         <View style={styles.metricsRow}>
           <Card style={styles.metricCard}>
             <Text style={styles.metricLabel}>

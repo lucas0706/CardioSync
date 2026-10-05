@@ -14,7 +14,7 @@ import { useEffect, useState } from 'react'
 import DateTimePicker from '@expo/ui/community/datetime-picker'
 import Ionicons from '@expo/vector-icons/Ionicons'
 
-import { Button, Screen, Text } from '@/components/ui'
+import { Button, Screen, ScreenHeader, Text } from '@/components/ui'
 
 import {
   isExactAlarmPermissionError,
@@ -308,17 +308,13 @@ export default function BackupSettingsScreen() {
 
   return (
     <Screen>
+      <ScreenHeader
+        title="Copias programadas"
+        subtitle="Configurá los días y el horario en los que CardioSync debe preparar una copia de seguridad."
+      />
+
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
         <View style={styles.container}>
-          <View style={styles.header}>
-            <Text style={styles.title}>Copias programadas</Text>
-
-            <Text style={styles.subtitle}>
-              Configurá los días y el horario en los que CardioSync debe preparar una copia de
-              seguridad.
-            </Text>
-          </View>
-
           <View style={styles.infoCard}>
             <Ionicons name="cloud-upload-outline" size={22} color={theme.colors.primary} />
 

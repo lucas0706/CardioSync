@@ -10,6 +10,7 @@ import { useMemo, useState } from 'react'
 
 import {
   Card,
+  ScreenHeader,
   Screen,
   Text,
   Button,
@@ -137,24 +138,17 @@ export default function ReportsScreen() {
 
   return (
     <Screen>
+      <ScreenHeader
+        title="Reportes"
+        subtitle="Generá un informe de tus registros de presión arterial para compartir con tu médico."
+      />
+
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={
           styles.content
         }
       >
-        <View style={styles.header}>
-          <Text style={styles.title}>
-            Reportes
-          </Text>
-
-          <Text style={styles.subtitle}>
-            Generá un informe de tus registros
-            de presión arterial para compartir
-            con tu médico.
-          </Text>
-        </View>
-
         <View style={styles.section}>
           <Text style={styles.overline}>
             PERÍODO
@@ -484,4 +478,3 @@ const styles: {
     paddingTop: theme.spacing.xs,
   },
 }
-

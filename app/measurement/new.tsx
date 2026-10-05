@@ -8,7 +8,7 @@ import {
   View,
 } from 'react-native'
 
-import { Screen } from '@/components/ui'
+import { Screen, ScreenHeader } from '@/components/ui'
 import { MeasurementForm } from '@/features/measurements/components/MeasurementForm'
 
 export default function NewMeasurementScreen() {
@@ -27,6 +27,11 @@ export default function NewMeasurementScreen() {
 
   return (
     <Screen>
+      <ScreenHeader
+        title="Nueva medición"
+        subtitle="Registrá tu presión arterial"
+      />
+
       <KeyboardAvoidingView
         style={styles.container}
         behavior={
