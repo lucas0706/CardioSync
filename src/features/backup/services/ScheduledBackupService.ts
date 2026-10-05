@@ -1,20 +1,10 @@
-import * as BackgroundTask from 'expo-background-task'
-import * as TaskManager from 'expo-task-manager'
-
+import { syncBackupAlarms } from './AlarmScheduler'
+import { executeBackup } from './BackupExecutionCoordinator'
 import {
   getBackupSettings,
   recordSchedulerWake,
   type BackupSettings,
 } from './BackupSettingsService'
-import {
-  executeBackup,
-} from './BackupExecutionCoordinator'
-
-export const CARDIOSYNC_BACKUP_TASK =
-  'cardiosync-scheduled-backup'
-
-const BACKGROUND_TASK_MINIMUM_INTERVAL_SECONDS =
-  15 * 60
 
 const SCHEDULE_WINDOW_MINUTES = 30
 
@@ -23,14 +13,11 @@ type DueSchedule = {
   time: string
 }
 
-function parseTime(
-  value: string,
-): {
+function parseTime(value: string): {
   hour: number
   minute: number
 } | null {
-  const match =
-    /^(\d{2}):(\d{2})$/.exec(value)
+  const match = /^(\d{2}):(\d{2})$/.exec(value)
 
   if (!match) {
     return null
@@ -39,12 +26,7 @@ function parseTime(
   const hour = Number(match[1])
   const minute = Number(match[2])
 
-  if (
-    hour < 0 ||
-    hour > 23 ||
-    minute < 0 ||
-    minute > 59
-  ) {
+  if (hour < 0 || hour > 23 || minute < 0 || minute > 59) {
     return null
   }
 
@@ -54,80 +36,45 @@ function parseTime(
   }
 }
 
-function createScheduleDate(
-  date: Date,
-  time: string,
-): Date | null {
-  const parsed =
-    parseTime(time)
+function createScheduleDate(date: Date, time: string): Date | null {
+  const parsed = parseTime(time)
 
   if (!parsed) {
     return null
   }
 
-  const scheduledAt =
-    new Date(date)
+  const scheduledAt = new Date(date)
 
-  scheduledAt.setHours(
-    parsed.hour,
-    parsed.minute,
-    0,
-    0,
-  )
+  scheduledAt.setHours(parsed.hour, parsed.minute, 0, 0)
 
   return scheduledAt
 }
 
-function isScheduledDay(
-  date: Date,
-  settings: BackupSettings,
-): boolean {
-  if (settings.frequency === 'daily') {
-    return true
-  }
-
-  return (
-    date.getDay() ===
-    settings.weekday
-  )
+function isScheduledDay(date: Date, settings: BackupSettings): boolean {
+  return settings.frequency === 'daily' || date.getDay() === settings.weekday
 }
 
-function getCandidateSchedules(
-  now: Date,
-  settings: BackupSettings,
-): DueSchedule[] {
+function getRecentCandidateSchedules(now: Date, settings: BackupSettings): DueSchedule[] {
   const candidates: DueSchedule[] = []
 
-  const today =
-    new Date(now)
+  for (const offsetDays of [0, 1]) {
+    const date = new Date(now)
+    date.setDate(date.getDate() - offsetDays)
 
-  if (
-    isScheduledDay(
-      today,
-      settings,
-    )
-  ) {
+    if (!isScheduledDay(date, settings)) {
+      continue
+    }
+
     for (const time of settings.times) {
-      const scheduledAt =
-        createScheduleDate(
-          today,
-          time,
-        )
+      const scheduledAt = createScheduleDate(date, time)
 
       if (!scheduledAt) {
         continue
       }
 
-      const ageMinutes =
-        (now.getTime() -
-          scheduledAt.getTime()) /
-        60000
+      const ageMinutes = (now.getTime() - scheduledAt.getTime()) / 60000
 
-      if (
-        ageMinutes >= 0 &&
-        ageMinutes <=
-          SCHEDULE_WINDOW_MINUTES
-      ) {
+      if (ageMinutes >= 0 && ageMinutes <= SCHEDULE_WINDOW_MINUTES) {
         candidates.push({
           scheduledAt,
           time,
@@ -136,124 +83,77 @@ function getCandidateSchedules(
     }
   }
 
-  const yesterday =
-    new Date(now)
-
-  yesterday.setDate(
-    yesterday.getDate() - 1,
-  )
-
-  if (
-    isScheduledDay(
-      yesterday,
-      settings,
-    )
-  ) {
-    for (const time of settings.times) {
-      const scheduledAt =
-        createScheduleDate(
-          yesterday,
-          time,
-        )
-
-      if (!scheduledAt) {
-        continue
-      }
-
-      const ageMinutes =
-        (now.getTime() -
-          scheduledAt.getTime()) /
-        60000
-
-      if (
-        ageMinutes >= 0 &&
-        ageMinutes <=
-          SCHEDULE_WINDOW_MINUTES
-      ) {
-        candidates.push({
-          scheduledAt,
-          time,
-        })
-      }
-    }
-  }
-
-  return candidates.sort(
-    (a, b) =>
-      b.scheduledAt.getTime() -
-      a.scheduledAt.getTime(),
-  )
+  return candidates.sort((a, b) => b.scheduledAt.getTime() - a.scheduledAt.getTime())
 }
 
-function isAlreadyProcessed(
+function getAlarmCandidateSchedule(
+  now: Date,
   settings: BackupSettings,
-  candidate: DueSchedule,
-): boolean {
+  scheduledAtTimestamp: number,
+): DueSchedule | null {
+  if (!Number.isFinite(scheduledAtTimestamp) || scheduledAtTimestamp > now.getTime()) {
+    return null
+  }
+
+  const scheduledAt = new Date(scheduledAtTimestamp)
+
+  if (!isScheduledDay(scheduledAt, settings)) {
+    return null
+  }
+
+  const matchingTime = settings.times.find((time) => {
+    const configuredAt = createScheduleDate(scheduledAt, time)
+
+    return configuredAt?.getTime() === scheduledAtTimestamp
+  })
+
+  return matchingTime
+    ? {
+        scheduledAt,
+        time: matchingTime,
+      }
+    : null
+}
+
+function isAlreadyProcessed(settings: BackupSettings, candidate: DueSchedule): boolean {
   if (!settings.lastRunAt) {
     return false
   }
 
-  const lastRunAt =
-    new Date(
-      settings.lastRunAt,
-    )
+  const lastRunAt = new Date(settings.lastRunAt)
 
-  if (
-    Number.isNaN(
-      lastRunAt.getTime(),
-    )
-  ) {
+  if (Number.isNaN(lastRunAt.getTime())) {
     return false
   }
 
-  return (
-    lastRunAt.getTime() >=
-    candidate.scheduledAt.getTime()
-  )
+  return lastRunAt.getTime() >= candidate.scheduledAt.getTime()
 }
 
 function findDueSchedule(
   now: Date,
   settings: BackupSettings,
+  scheduledAtTimestamp?: number,
 ): DueSchedule | null {
-  const candidates =
-    getCandidateSchedules(
-      now,
-      settings,
-    )
+  const candidate =
+    scheduledAtTimestamp === undefined
+      ? (getRecentCandidateSchedules(now, settings)[0] ?? null)
+      : getAlarmCandidateSchedule(now, settings, scheduledAtTimestamp)
 
-  const latestCandidate =
-    candidates[0]
-
-  if (!latestCandidate) {
+  if (!candidate || isAlreadyProcessed(settings, candidate)) {
     return null
   }
 
-  if (
-    isAlreadyProcessed(
-      settings,
-      latestCandidate,
-    )
-  ) {
-    return null
-  }
-
-  return latestCandidate
+  return candidate
 }
 
-async function executeScheduledBackup(): Promise<boolean> {
-  const settings =
-    getBackupSettings()
+export async function executeScheduledBackup(scheduledAtTimestamp?: number): Promise<boolean> {
+  const settings = getBackupSettings()
 
   if (!settings.enabled) {
     return false
   }
 
-  const dueSchedule =
-    findDueSchedule(
-      new Date(),
-      settings,
-    )
+  const dueSchedule = findDueSchedule(new Date(), settings, scheduledAtTimestamp)
 
   if (!dueSchedule) {
     return false
@@ -267,82 +167,23 @@ async function executeScheduledBackup(): Promise<boolean> {
   }
 }
 
-export async function runPendingBackupCheck(): Promise<void> {
+export async function runPendingBackupCheck(scheduledAtTimestamp?: number): Promise<boolean> {
   try {
-    await executeScheduledBackup()
-  } catch {
-    // No impedir la apertura de la app.
+    return await executeScheduledBackup(scheduledAtTimestamp)
+  } catch (error) {
+    console.error('Scheduled backup check failed.', error)
+    return false
   }
 }
 
-TaskManager.defineTask(
-  CARDIOSYNC_BACKUP_TASK,
-  async () => {
-    recordSchedulerWake(
-      new Date().toISOString(),
-    )
+export async function runHeadlessScheduledBackup(scheduledAtTimestamp?: number): Promise<boolean> {
+  recordSchedulerWake(new Date().toISOString())
 
-    const success =
-      await executeScheduledBackup()
-
-    return {
-      success,
-    }
-  },
-)
-
-export async function registerScheduledBackupTask(): Promise<void> {
-  const settings =
-    getBackupSettings()
-
-  if (!settings.enabled) {
-    await unregisterScheduledBackupTask()
-    return
-  }
-
-  const isRegistered =
-    await TaskManager.isTaskRegisteredAsync(
-      CARDIOSYNC_BACKUP_TASK,
-    )
-
-  if (isRegistered) {
-    return
-  }
-
-  await BackgroundTask.registerTaskAsync(
-    CARDIOSYNC_BACKUP_TASK,
-    {
-      minimumInterval:
-        BACKGROUND_TASK_MINIMUM_INTERVAL_SECONDS,
-    },
-  )
+  return runPendingBackupCheck(scheduledAtTimestamp)
 }
 
-export async function unregisterScheduledBackupTask(): Promise<void> {
-  const isRegistered =
-    await TaskManager.isTaskRegisteredAsync(
-      CARDIOSYNC_BACKUP_TASK,
-    )
-
-  if (!isRegistered) {
-    return
-  }
-
-  await BackgroundTask.unregisterTaskAsync(
-    CARDIOSYNC_BACKUP_TASK,
-  )
-}
-
-export async function syncScheduledBackupTask(): Promise<void> {
-  const settings =
-    getBackupSettings()
-
-  if (settings.enabled) {
-    await registerScheduledBackupTask()
-    return
-  }
-
-  await unregisterScheduledBackupTask()
+export async function syncScheduledBackupAlarms(): Promise<void> {
+  await syncBackupAlarms(getBackupSettings())
 }
 
 export async function runImmediateBackupTest(): Promise<void> {

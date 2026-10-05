@@ -57,6 +57,8 @@ export function initializeDatabase() {
 
       lastError TEXT,
 
+      lastSchedulerWakeAt TEXT,
+
       updatedAt TEXT NOT NULL
     );
 
@@ -106,24 +108,16 @@ export function initializeDatabase() {
   `)
 
   try {
-    database.execSync(
-      `ALTER TABLE clinical_profile ADD COLUMN name TEXT`,
-    )
+    database.execSync(`ALTER TABLE clinical_profile ADD COLUMN name TEXT`)
   } catch {
     // La columna ya existe.
   }
 
-  const backupColumns =
-    database.getAllSync<{
-      name: string
-    }>(
-      `PRAGMA table_info(backup_settings)`,
-    )
+  const backupColumns = database.getAllSync<{
+    name: string
+  }>(`PRAGMA table_info(backup_settings)`)
 
-  const hasColumn = (name: string): boolean =>
-    backupColumns.some(
-      (column) => column.name === name,
-    )
+  const hasColumn = (name: string): boolean => backupColumns.some((column) => column.name === name)
 
   if (!hasColumn('weekday')) {
     database.execSync(`
@@ -153,8 +147,14 @@ export function initializeDatabase() {
     `)
   }
 
-  const legacyTimeColumn =
-    hasColumn('time')
+  if (!hasColumn('lastSchedulerWakeAt')) {
+    database.execSync(`
+      ALTER TABLE backup_settings
+      ADD COLUMN lastSchedulerWakeAt TEXT
+    `)
+  }
+
+  const legacyTimeColumn = hasColumn('time')
 
   if (legacyTimeColumn) {
     database.execSync(`
@@ -167,19 +167,12 @@ export function initializeDatabase() {
     `)
   }
 
-  const healthConnectColumns =
-    database.getAllSync<{
-      name: string
-    }>(
-      `PRAGMA table_info(health_connect_settings)`,
-    )
+  const healthConnectColumns = database.getAllSync<{
+    name: string
+  }>(`PRAGMA table_info(health_connect_settings)`)
 
-  const hasHealthColumn = (
-    name: string,
-  ): boolean =>
-    healthConnectColumns.some(
-      (column) => column.name === name,
-    )
+  const hasHealthColumn = (name: string): boolean =>
+    healthConnectColumns.some((column) => column.name === name)
 
   if (!hasHealthColumn('connectedAt')) {
     database.execSync(`
