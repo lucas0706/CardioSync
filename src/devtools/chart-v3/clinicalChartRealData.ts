@@ -1,3 +1,4 @@
+/** Static fixture retained for chart development experiments. */
 export type ClinicalChartRealPoint = {
   date: string
   systolic: number

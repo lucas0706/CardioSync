@@ -19,7 +19,7 @@ import {
 
 import {
   clinicalChartRealMeasurements,
-} from '@/features/clinicalChartV3/data/clinicalChartRealMeasurements'
+} from '@/devtools/chart-v3/clinicalChartRealMeasurements'
 
 import { ClinicalChartXAxisV3 } from '@/components/charts/ClinicalChartV3/ClinicalChartXAxisV3'
 

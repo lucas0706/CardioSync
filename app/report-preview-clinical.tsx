@@ -1,9 +1,5 @@
-import {
-  ReportPreviewClinicalScreen,
-} from '@/features/reports/screens/ReportPreviewClinicalScreen'
+import { ReportPreviewClinicalScreen } from '@/devtools/reports/ReportPreviewClinicalScreen'
 
 export default function ReportPreviewClinicalRoute() {
-  return (
-    <ReportPreviewClinicalScreen />
-  )
+  return <ReportPreviewClinicalScreen />
 }

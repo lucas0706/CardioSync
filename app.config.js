@@ -1,11 +1,28 @@
 const fs = require('fs')
 
 const appJson = JSON.parse(fs.readFileSync('./app.json', 'utf8'))
+const routerRoot =
+  process.env.CARDIOSYNC_ROUTER_ROOT ??
+  (process.env.NODE_ENV === 'production' ? 'app-production' : 'app')
+
+if (routerRoot !== 'app' && routerRoot !== 'app-production') {
+  throw new Error(
+    `Unsupported CARDIOSYNC_ROUTER_ROOT "${routerRoot}". Use "app" or "app-production".`,
+  )
+}
 
 module.exports = {
   ...appJson,
   expo: {
     ...appJson.expo,
+
+    extra: {
+      ...appJson.expo.extra,
+      router: {
+        ...appJson.expo.extra?.router,
+        root: routerRoot,
+      },
+    },
 
     plugins: [
       ...(appJson.expo.plugins ?? []),
