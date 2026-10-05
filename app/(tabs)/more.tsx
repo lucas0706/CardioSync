@@ -162,7 +162,12 @@ export default function MoreScreen() {
           </View>
 
 
-          <View style={styles.developmentSection}>
+          <View
+            style={[
+              styles.developmentSection,
+              !__DEV__ && styles.developmentHidden,
+            ]}
+          >
             <Pressable
               accessibilityRole="button"
               onPress={() =>
@@ -216,7 +221,7 @@ export default function MoreScreen() {
                 <Pressable
                   accessibilityRole="button"
                   onPress={() =>
-                    router.push('/dev-tools')
+                    router.push('/dev-tools' as never)
                   }
                   style={styles.devItem}
                 >
@@ -243,9 +248,7 @@ export default function MoreScreen() {
                 <Pressable
                   accessibilityRole="button"
                   onPress={() =>
-                    router.push(
-                      '/clinical-test',
-                    )
+                    router.push('/clinical-test' as never)
                   }
                   style={styles.devItem}
                 >
@@ -270,9 +273,7 @@ export default function MoreScreen() {
                 <Pressable
                   accessibilityRole="button"
                   onPress={() =>
-                    router.push(
-                      '/chart-v3-test',
-                    )
+                    router.push('/chart-v3-test' as never)
                   }
                   style={styles.devItem}
                 >
@@ -297,9 +298,7 @@ export default function MoreScreen() {
                 <Pressable
                   accessibilityRole="button"
                   onPress={() =>
-                    router.push(
-                      '/statistics-db-audit',
-                    )
+                    router.push('/statistics-db-audit' as never)
                   }
                   style={styles.devItem}
                 >
@@ -324,9 +323,7 @@ export default function MoreScreen() {
                 <Pressable
                   accessibilityRole="button"
                   onPress={() =>
-                    router.push(
-                      '/report-test',
-                    )
+                    router.push('/report-test' as never)
                   }
                   style={styles.devItem}
                 >
@@ -349,9 +346,7 @@ export default function MoreScreen() {
                 <Pressable
                   accessibilityRole="button"
                   onPress={() =>
-                    router.push(
-                      '/report-redesign-dev',
-                    )
+                    router.push('/report-redesign-dev' as never)
                   }
                   style={styles.devItem}
                 >
@@ -500,6 +495,10 @@ const styles = StyleSheet.create({
       StyleSheet.hairlineWidth,
     borderTopColor:
       theme.colors.border,
+  },
+
+  developmentHidden: {
+    display: 'none',
   },
 
   developmentHeader: {

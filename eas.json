@@ -7,19 +7,31 @@
     "development": {
       "developmentClient": true,
       "distribution": "internal",
-      "channel": "development"
+      "channel": "development",
+      "env": {
+        "CARDIOSYNC_ROUTER_ROOT": "app"
+      }
     },
     "preview": {
       "distribution": "internal",
-      "channel": "beta"
+      "channel": "beta",
+      "env": {
+        "CARDIOSYNC_ROUTER_ROOT": "app-production"
+      }
     },
     "production": {
       "autoIncrement": true,
-      "channel": "production"
+      "channel": "production",
+      "env": {
+        "CARDIOSYNC_ROUTER_ROOT": "app-production"
+      }
     },
     "production-apk": {
       "autoIncrement": true,
       "channel": "production",
+      "env": {
+        "CARDIOSYNC_ROUTER_ROOT": "app-production"
+      },
       "android": {
         "buildType": "apk"
       }
