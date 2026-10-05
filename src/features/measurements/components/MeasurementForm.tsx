@@ -479,20 +479,6 @@ export function MeasurementForm({
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>
-          {mode === 'edit'
-            ? 'Editar medición'
-            : 'Nueva medición'}
-        </Text>
-
-        <Text style={styles.subtitle}>
-          {mode === 'edit'
-            ? 'Modificá los datos de este registro'
-            : 'Registrá tu presión arterial'}
-        </Text>
-      </View>
-
       <View style={styles.metricsSection}>
         <Text style={styles.overline}>
           PRESIÓN ARTERIAL
@@ -821,28 +807,6 @@ const styles = StyleSheet.create({
     color: '#ffffff',
     fontSize: 14,
     fontWeight: '800',
-  },
-
-  header: {
-    gap: theme.spacing.xs,
-  },
-
-  title: {
-    fontFamily:
-      theme.typography.bold,
-    fontSize: 28,
-    lineHeight: 34,
-    color: theme.colors.text,
-  },
-
-  subtitle: {
-    fontFamily:
-      theme.typography.regular,
-    fontSize:
-      theme.typography.body,
-    lineHeight: 22,
-    color:
-      theme.colors.textSecondary,
   },
 
   metricsSection: {

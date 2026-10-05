@@ -13,6 +13,7 @@ import Ionicons from '@expo/vector-icons/Ionicons'
 import {
   Card,
   Screen,
+  ScreenHeader,
   Text,
 } from '@/components/ui'
 
@@ -167,6 +168,11 @@ export default function ImportScreen() {
 
   return (
     <Screen>
+      <ScreenHeader
+        title="Importar mediciones"
+        subtitle="Importá registros exportados desde otras aplicaciones compatibles."
+      />
+
       <ScrollView contentContainerStyle={styles.container}>
         <Card>
           <View style={styles.iconContainer}>
@@ -176,15 +182,6 @@ export default function ImportScreen() {
               color={theme.colors.primary}
             />
           </View>
-
-          <Text variant="h1">
-            Importar mediciones
-          </Text>
-
-          <Text style={styles.description}>
-            Importá registros exportados desde
-            otras aplicaciones compatibles.
-          </Text>
 
           <Text style={styles.warning}>
             Revisá cuidadosamente la vista previa

@@ -19,6 +19,7 @@ import {
 } from 'react-native'
 
 import {
+  ScreenHeader,
   Screen,
   Text,
 } from '@/components/ui'
@@ -112,6 +113,11 @@ export default function MeasurementDetailScreen() {
   if (!record) {
     return (
       <Screen>
+        <ScreenHeader
+          title="Detalle de medición"
+          subtitle="No se encontró la medición."
+        />
+
         <View
           style={styles.emptyState}
         >
@@ -125,6 +131,34 @@ export default function MeasurementDetailScreen() {
 
   return (
     <Screen>
+      <ScreenHeader
+        title={
+          isEditing
+            ? 'Editar medición'
+            : 'Detalle de medición'
+        }
+        subtitle={
+          isEditing
+            ? 'Modificá los datos de este registro'
+            : 'Presión arterial registrada'
+        }
+        leading={
+          <Text
+            style={styles.backText}
+            onPress={() => {
+              if (isEditing) {
+                setIsEditing(false)
+                return
+              }
+
+              router.back()
+            }}
+          >
+            ← Volver
+          </Text>
+        }
+      />
+
       <KeyboardAvoidingView
         style={styles.container}
         behavior={
@@ -145,17 +179,6 @@ export default function MeasurementDetailScreen() {
             keyboardShouldPersistTaps="handled"
             keyboardDismissMode="interactive"
           >
-            <View style={styles.header}>
-              <Text
-                style={styles.backText}
-                onPress={() =>
-                  setIsEditing(false)
-                }
-              >
-                ← Volver
-              </Text>
-            </View>
-
             <MeasurementForm
               mode="edit"
               existingRecord={record}
@@ -185,19 +208,6 @@ export default function MeasurementDetailScreen() {
           </ScrollView>
         ) : (
           <>
-            <View
-              style={styles.header}
-            >
-              <Text
-                style={styles.backText}
-                onPress={() =>
-                  router.back()
-                }
-              >
-                ← Volver
-              </Text>
-            </View>
-
             <MeasurementDetail
               record={record}
               onEdit={() =>
@@ -241,10 +251,6 @@ export default function MeasurementDetailScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-  },
-
-  header: {
-    marginBottom: 12,
   },
 
   backText: {

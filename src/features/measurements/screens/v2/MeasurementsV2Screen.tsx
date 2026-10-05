@@ -20,6 +20,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import {
   Screen,
+  ScreenHeader,
   Text,
 } from '@/components/ui'
 
@@ -226,17 +227,12 @@ export function MeasurementsV2Screen() {
 
   return (
     <Screen>
+      <ScreenHeader
+        title="Registros"
+        subtitle="Tus mediciones de presión arterial"
+      />
+
       <View style={styles.container}>
-        <View style={styles.header}>
-          <Text style={styles.title}>
-            Registros
-          </Text>
-
-          <Text style={styles.subtitle}>
-            Tus mediciones de presión arterial
-          </Text>
-        </View>
-
         <FlatList
           data={measurements}
           keyExtractor={item => item.id}

@@ -121,16 +121,6 @@ export function MeasurementDetail({
       }
       showsVerticalScrollIndicator={false}
     >
-      <View style={styles.header}>
-        <Text style={styles.title}>
-          Detalle de medición
-        </Text>
-
-        <Text style={styles.subtitle}>
-          Presión arterial registrada
-        </Text>
-      </View>
-
       <View style={styles.metricsSection}>
         <View style={styles.pressureRow}>
           <View
@@ -382,27 +372,6 @@ const styles = StyleSheet.create({
     paddingBottom:
       theme.spacing.lg,
     gap: theme.spacing.md,
-  },
-
-  header: {
-    gap: theme.spacing.xs,
-  },
-
-  title: {
-    fontFamily:
-      theme.typography.bold,
-    fontSize: 28,
-    lineHeight: 34,
-    color: theme.colors.text,
-  },
-
-  subtitle: {
-    fontFamily:
-      theme.typography.regular,
-    fontSize:
-      theme.typography.body,
-    color:
-      theme.colors.textSecondary,
   },
 
   metricsSection: {

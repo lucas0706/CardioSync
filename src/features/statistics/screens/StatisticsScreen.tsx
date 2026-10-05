@@ -12,6 +12,7 @@ import {
 
 import {
   Screen,
+  ScreenHeader,
   Text,
   Card,
 } from '@/components/ui'
@@ -56,15 +57,10 @@ export default function StatisticsScreen() {
   if (measurements.length === 0) {
     return (
       <Screen>
-        <View style={styles.header}>
-          <Text style={styles.title}>
-            Estadísticas
-          </Text>
-
-          <Text style={styles.subtitle}>
-            Análisis de tus mediciones
-          </Text>
-        </View>
+        <ScreenHeader
+          title="Estadísticas"
+          subtitle="Análisis de tus mediciones"
+        />
 
         <Card style={styles.emptyCard}>
           <Text style={styles.emptyTitle}>
@@ -82,6 +78,11 @@ export default function StatisticsScreen() {
 
   return (
     <Screen>
+      <ScreenHeader
+        title="Estadísticas"
+        subtitle="Análisis de tus mediciones"
+      />
+
       <ScrollView
         ref={scrollViewRef}
         showsVerticalScrollIndicator={false}
@@ -89,16 +90,6 @@ export default function StatisticsScreen() {
           styles.content
         }
       >
-        <View style={styles.header}>
-          <Text style={styles.title}>
-            Estadísticas
-          </Text>
-
-          <Text style={styles.subtitle}>
-            Análisis de tus mediciones
-          </Text>
-        </View>
-
         <StatisticsPeriodSelector
           value={filter.period}
           onChange={period =>

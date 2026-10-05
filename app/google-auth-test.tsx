@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { StyleSheet, Text, View } from 'react-native'
 
+import { Screen, ScreenHeader } from '@/components/ui'
+
 import {
   getGoogleAccessToken,
   isGoogleSignInCancelled,
@@ -49,31 +51,33 @@ export default function GoogleAuthTestScreen() {
   }
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Google Sign-In</Text>
+    <Screen>
+      <ScreenHeader title="Google Sign-In" />
 
-      <Text style={styles.status}>{status}</Text>
+      <View style={styles.container}>
+        <Text style={styles.status}>{status}</Text>
 
-      <Text
-        style={styles.button}
-        onPress={handleSignIn}
-      >
-        Iniciar sesión con Google
-      </Text>
-
-      <Text
-        style={styles.button}
-        onPress={handleSignOut}
-      >
-        Cerrar sesión
-      </Text>
-
-      {accessToken ? (
-        <Text style={styles.token}>
-          Access token obtenido correctamente.
+        <Text
+          style={styles.button}
+          onPress={handleSignIn}
+        >
+          Iniciar sesión con Google
         </Text>
-      ) : null}
-    </View>
+
+        <Text
+          style={styles.button}
+          onPress={handleSignOut}
+        >
+          Cerrar sesión
+        </Text>
+
+        {accessToken ? (
+          <Text style={styles.token}>
+            Access token obtenido correctamente.
+          </Text>
+        ) : null}
+      </View>
+    </Screen>
   )
 }
 
@@ -83,12 +87,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 20,
-    padding: 24,
-  },
-
-  title: {
-    fontSize: 28,
-    fontWeight: '700',
   },
 
   status: {

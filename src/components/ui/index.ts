@@ -1,6 +1,7 @@
 export * from './Button'
 export * from './Card'
 export * from './Screen'
+export * from './ScreenHeader'
 export * from './Text'
 export * from './FloatingActionButton'
 export * from './SectionTitle'

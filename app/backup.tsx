@@ -15,6 +15,7 @@ import Ionicons from '@expo/vector-icons/Ionicons'
 
 import {
   Screen,
+  ScreenHeader,
   Text,
 } from '@/components/ui'
 
@@ -367,6 +368,11 @@ export default function BackupScreen() {
 
   return (
     <Screen>
+      <ScreenHeader
+        title="Copias de seguridad"
+        subtitle="Protegé los datos de CardioSync mediante copias de seguridad de la base de datos."
+      />
+
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={
@@ -374,18 +380,6 @@ export default function BackupScreen() {
         }
       >
         <View style={styles.container}>
-          <View style={styles.header}>
-            <Text style={styles.title}>
-              Copias de seguridad
-            </Text>
-
-            <Text style={styles.subtitle}>
-              Protegé los datos de CardioSync
-              mediante copias de seguridad de
-              la base de datos.
-            </Text>
-          </View>
-
           <View style={styles.section}>
             <Text style={styles.sectionLabel}>
               COPIA MANUAL

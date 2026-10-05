@@ -9,6 +9,7 @@ import { useEffect, useState } from 'react'
 
 import {
   Screen,
+  ScreenHeader,
   Text,
   Button,
 } from '@/components/ui'
@@ -217,6 +218,11 @@ export default function ProfileScreen() {
 
   return (
     <Screen>
+      <ScreenHeader
+        title="Perfil"
+        subtitle="Tu información para contextualizar tu presión arterial."
+      />
+
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={
@@ -224,17 +230,6 @@ export default function ProfileScreen() {
         }
         keyboardShouldPersistTaps="handled"
       >
-        <View style={styles.header}>
-          <Text style={styles.title}>
-            Perfil
-          </Text>
-
-          <Text style={styles.subtitle}>
-            Tu información para contextualizar
-            tu presión arterial.
-          </Text>
-        </View>
-
         <View style={styles.card}>
           <Text style={styles.cardTitle}>
             Datos personales
