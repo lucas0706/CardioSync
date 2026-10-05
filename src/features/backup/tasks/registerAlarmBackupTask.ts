@@ -4,7 +4,6 @@ export const CARDIOSYNC_HEADLESS_BACKUP_TASK = 'CardioSyncScheduledBackup'
 
 type AlarmTaskData = {
   scheduledAt?: unknown
-  isTest?: unknown
 }
 
 function getScheduledAtTimestamp(taskData: AlarmTaskData): number | undefined {
@@ -16,29 +15,6 @@ function getScheduledAtTimestamp(taskData: AlarmTaskData): number | undefined {
 AppRegistry.registerHeadlessTask(
   CARDIOSYNC_HEADLESS_BACKUP_TASK,
   () => async (taskData: AlarmTaskData) => {
-    if (taskData.isTest === true) {
-      try {
-        const notifications = await import('@/features/backup/services/BackupNotificationService')
-        await notifications.showHeadlessAlarmTestSuccessNotification()
-      } catch (error) {
-        console.error('AlarmManager + Headless JS test notification failed.', error)
-
-        try {
-          const notifications = await import('@/features/backup/services/BackupNotificationService')
-          await notifications.showHeadlessAlarmTestErrorNotification(
-            error instanceof Error ? error.message : 'Error desconocido en la prueba Headless.',
-          )
-        } catch (notificationError) {
-          console.error(
-            'Could not show the Headless JS test error notification.',
-            notificationError,
-          )
-        }
-      }
-
-      return
-    }
-
     try {
       const [{ initializeDatabase }, { runHeadlessScheduledBackup }] = await Promise.all([
         import('@/core/database/init'),

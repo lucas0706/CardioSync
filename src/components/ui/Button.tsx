@@ -7,16 +7,11 @@ import { Text } from './Text'
 type Props = {
   title: string
   onPress?: () => void
-  disabled?: boolean
 }
 
-export function Button({ title, onPress, disabled = false }: Props) {
+export function Button({ title, onPress }: Props) {
   return (
-    <Pressable
-      onPress={onPress}
-      disabled={disabled}
-      style={[styles.button, disabled && styles.buttonDisabled]}
-    >
+    <Pressable onPress={onPress} style={styles.button}>
       <Text style={styles.text}>{title}</Text>
     </Pressable>
   )
@@ -29,11 +24,6 @@ const styles = StyleSheet.create({
     borderRadius: theme.radius.md,
     alignItems: 'center',
   },
-
-  buttonDisabled: {
-    opacity: 0.6,
-  },
-
   text: {
     fontFamily: theme.typography.semiBold,
     color: theme.colors.white,
