@@ -18,7 +18,7 @@ import {
 } from '@/components/ui'
 
 import {
-  StatisticsChartCard,
+  BloodPressureChart,
   StatisticsPeriodSelector,
   StatisticsDateRangeSelector,
   StatisticsSummaryGrid,
@@ -138,14 +138,14 @@ export default function StatisticsScreen() {
               </Text>
             </Card>
           ) : (
-            <StatisticsChartCard
-              records={filteredMeasurements}
-              period={
-                filter.period === 'custom'
-                  ? '30d'
-                  : filter.period
-              }
-            />
+            <Card
+              style={styles.chartCard}
+              padded={false}
+            >
+              <BloodPressureChart
+                data={filteredMeasurements}
+              />
+            </Card>
           )}
         </View>
 
@@ -206,6 +206,10 @@ const styles = StyleSheet.create({
 
   section: {
     marginTop: theme.spacing.md,
+  },
+
+  chartCard: {
+    marginBottom: 20,
   },
 
   overline: {

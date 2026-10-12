@@ -10,23 +10,42 @@ type ScreenHeaderProps = {
   eyebrow?: ReactNode
   leading?: ReactNode
   trailing?: ReactNode
+  trailingAlignedWithTitle?: boolean
 }
 
-export function ScreenHeader({ title, subtitle, eyebrow, leading, trailing }: ScreenHeaderProps) {
+export function ScreenHeader({
+  title,
+  subtitle,
+  eyebrow,
+  leading,
+  trailing,
+  trailingAlignedWithTitle = false,
+}: ScreenHeaderProps) {
   return (
     <View style={styles.container}>
       <View style={styles.actionRow}>
         <View style={styles.actionSlot}>{leading}</View>
 
-        <View style={[styles.actionSlot, styles.trailingSlot]}>{trailing}</View>
+        {!trailingAlignedWithTitle ? (
+          <View style={[styles.actionSlot, styles.trailingSlot]}>{trailing}</View>
+        ) : null}
       </View>
 
       <View style={styles.titleBlock}>
         {eyebrow ? <Text style={styles.eyebrow}>{eyebrow}</Text> : null}
 
-        <Text accessibilityRole="header" style={styles.title}>
-          {title}
-        </Text>
+        {trailingAlignedWithTitle ? (
+          <View style={styles.titleRow}>
+            <Text accessibilityRole="header" style={styles.title}>
+              {title}
+            </Text>
+            <View style={styles.titleTrailingSlot}>{trailing}</View>
+          </View>
+        ) : (
+          <Text accessibilityRole="header" style={styles.title}>
+            {title}
+          </Text>
+        )}
 
         {subtitle ? <Text style={styles.subtitle}>{subtitle}</Text> : null}
       </View>
@@ -71,6 +90,21 @@ const styles = StyleSheet.create({
     fontSize: 28,
     lineHeight: 34,
     color: theme.colors.text,
+  },
+
+  titleRow: {
+    height: 34,
+    justifyContent: 'center',
+    position: 'relative',
+  },
+
+  titleTrailingSlot: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    bottom: 0,
+    alignItems: 'flex-end',
+    justifyContent: 'center',
   },
 
   subtitle: {

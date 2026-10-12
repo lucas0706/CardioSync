@@ -21,7 +21,13 @@ class MeasurementStore {
 
   private initialized = false
 
+  private revision = 0
+
   private listeners = new Set<Listener>()
+
+  getRevision(): number {
+    return this.revision
+  }
 
   initialize(): void {
     if (this.initialized) {
@@ -139,6 +145,8 @@ class MeasurementStore {
   }
 
   private notify(): void {
+    this.revision += 1
+
     for (const listener of this.listeners) {
       listener()
     }
