@@ -18,8 +18,8 @@ export function useMeasurementForm(
       diastolic: undefined,
       heartRate: undefined,
       notes: '',
-      arm: undefined,
-      position: undefined,
+      arm: 'right',
+      position: 'sitting',
       ...initialValues,
     },
   })
