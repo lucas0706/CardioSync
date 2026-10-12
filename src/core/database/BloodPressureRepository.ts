@@ -4,6 +4,16 @@ import type { BloodPressureRecord } from '@/domain/measurements/BloodPressureRec
 import { database } from './database'
 
 export class BloodPressureRepository {
+  getAllAsync(): Promise<BloodPressureRecord[]> {
+    return database.getAllAsync<BloodPressureRecord>(
+      `
+      SELECT *
+      FROM blood_pressure_records
+      ORDER BY dateTime DESC
+      `,
+    )
+  }
+
   getAll(): BloodPressureRecord[] {
     const records =
       database.getAllSync<BloodPressureRecord>(
@@ -15,6 +25,34 @@ export class BloodPressureRepository {
       )
 
     return records
+  }
+
+  getByDateRangeAsync(
+    startDate: string,
+    endDate?: string,
+  ): Promise<BloodPressureRecord[]> {
+    if (endDate) {
+      return database.getAllAsync<BloodPressureRecord>(
+        `
+        SELECT *
+        FROM blood_pressure_records
+        WHERE datetime(dateTime) >= datetime(?)
+          AND datetime(dateTime) <= datetime(?)
+        ORDER BY datetime(dateTime) DESC
+        `,
+        [startDate, endDate],
+      )
+    }
+
+    return database.getAllAsync<BloodPressureRecord>(
+      `
+      SELECT *
+      FROM blood_pressure_records
+      WHERE datetime(dateTime) >= datetime(?)
+      ORDER BY datetime(dateTime) DESC
+      `,
+      [startDate],
+    )
   }
 
   getByDateRange(

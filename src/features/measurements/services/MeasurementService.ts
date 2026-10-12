@@ -4,6 +4,10 @@ import type { BloodPressureRecord } from '@/domain/measurements/BloodPressureRec
 import { bloodPressureRepository } from '@/core/database/BloodPressureRepository'
 
 export class MeasurementService {
+  getAllAsync(): Promise<BloodPressureRecord[]> {
+    return bloodPressureRepository.getAllAsync()
+  }
+
   getAll(): BloodPressureRecord[] {
     return bloodPressureRepository.getAll()
   }
@@ -14,6 +18,16 @@ export class MeasurementService {
 
   getDashboardMetrics(): DashboardMetrics {
     return bloodPressureRepository.getDashboardMetrics()
+  }
+
+  getByDateRangeAsync(
+    startDate: string,
+    endDate?: string,
+  ): Promise<BloodPressureRecord[]> {
+    return bloodPressureRepository.getByDateRangeAsync(
+      startDate,
+      endDate,
+    )
   }
 
   getByDateRange(
