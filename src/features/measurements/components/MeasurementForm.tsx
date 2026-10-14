@@ -8,6 +8,7 @@ import {
 import {
   Animated,
   Easing,
+  Keyboard,
   Pressable,
   StyleSheet,
   TextInput,
@@ -43,6 +44,7 @@ import type {
 import {
   measurementStore,
 } from '@/features/measurements/services/MeasurementStore'
+import { MeasurementRanges } from '@/features/measurements/validation/measurementRanges'
 
 import {
   MeasurementMetricInputCard,
@@ -297,6 +299,14 @@ export function MeasurementForm({
   const heartRate =
     watch('heartRate')
 
+  const systolicInputRef = useRef<TextInput>(null)
+  const diastolicInputRef = useRef<TextInput>(null)
+  const heartRateInputRef = useRef<TextInput>(null)
+  const autoAdvancedFieldsRef = useRef({
+    systolic: false,
+    diastolic: false,
+  })
+
   const updateDateTime = (
     nextDate: string,
     nextTime: string,
@@ -475,6 +485,29 @@ export function MeasurementForm({
         shouldValidate: true,
       },
     )
+
+    if (mode !== 'create' || field === 'heartRate') {
+      return
+    }
+
+    const range =
+      field === 'systolic'
+        ? MeasurementRanges.systolic
+        : MeasurementRanges.diastolic
+    const isValidValue =
+      parsed >= range.min && parsed <= range.max
+
+    if (!isValidValue || digits.length < 2) {
+      return
+    }
+
+    if (field === 'systolic' && !autoAdvancedFieldsRef.current.systolic) {
+      autoAdvancedFieldsRef.current.systolic = true
+      diastolicInputRef.current?.focus()
+    } else if (field === 'diastolic' && !autoAdvancedFieldsRef.current.diastolic) {
+      autoAdvancedFieldsRef.current.diastolic = true
+      heartRateInputRef.current?.focus()
+    }
   }
 
   return (
@@ -487,6 +520,21 @@ export function MeasurementForm({
         <View style={styles.metricRow}>
           <MeasurementMetricInputCard
             label="SIS"
+            inputRef={systolicInputRef}
+            autoFocus={mode === 'create'}
+            returnKeyType={mode === 'create' ? 'next' : undefined}
+            blurOnSubmit={mode === 'create' ? false : undefined}
+            onSubmitEditing={() => {
+              if (
+                mode === 'create' &&
+                systolic != null &&
+                systolic >= MeasurementRanges.systolic.min &&
+                systolic <= MeasurementRanges.systolic.max
+              ) {
+                autoAdvancedFieldsRef.current.systolic = true
+                diastolicInputRef.current?.focus()
+              }
+            }}
             value={
               systolic != null
                 ? String(systolic)
@@ -504,6 +552,20 @@ export function MeasurementForm({
 
           <MeasurementMetricInputCard
             label="DIA"
+            inputRef={diastolicInputRef}
+            returnKeyType={mode === 'create' ? 'next' : undefined}
+            blurOnSubmit={mode === 'create' ? false : undefined}
+            onSubmitEditing={() => {
+              if (
+                mode === 'create' &&
+                diastolic != null &&
+                diastolic >= MeasurementRanges.diastolic.min &&
+                diastolic <= MeasurementRanges.diastolic.max
+              ) {
+                autoAdvancedFieldsRef.current.diastolic = true
+                heartRateInputRef.current?.focus()
+              }
+            }}
             value={
               diastolic != null
                 ? String(diastolic)
@@ -523,6 +585,10 @@ export function MeasurementForm({
         <View style={styles.fcRow}>
           <MeasurementMetricInputCard
             label="FC"
+            inputRef={heartRateInputRef}
+            returnKeyType={mode === 'create' ? 'done' : undefined}
+            blurOnSubmit={mode === 'create' ? true : undefined}
+            onSubmitEditing={Keyboard.dismiss}
             value={
               heartRate != null
                 ? String(heartRate)

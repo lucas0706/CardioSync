@@ -26,10 +26,7 @@ import {
   type BackupFrequency,
   type BackupSettings,
 } from '@/features/backup/services/BackupSettingsService'
-import {
-  runImmediateBackupTest,
-  syncScheduledBackupAlarms,
-} from '@/features/backup/services/ScheduledBackupService'
+import { syncScheduledBackupAlarms } from '@/features/backup/services/ScheduledBackupService'
 
 import { requestBackupNotificationPermission } from '@/features/backup/services/BackupNotificationService'
 import { openBatteryOptimizationSettings } from '@/features/backup/services/BatteryOptimizationService'
@@ -210,23 +207,6 @@ export default function BackupSettingsScreen() {
       Alert.alert('Error', message)
     } finally {
       setSaving(false)
-    }
-  }
-
-  async function handleRunTestBackup(): Promise<void> {
-    try {
-      await runImmediateBackupTest()
-
-      const refreshed = getBackupSettings()
-
-      setSettings(refreshed)
-
-      Alert.alert(
-        'Prueba completada',
-        'Se ejecutó una copia y se envió una notificación de prueba.',
-      )
-    } catch (error) {
-      Alert.alert('Error', error instanceof Error ? error.message : 'No se pudo ejecutar la copia.')
     }
   }
 
@@ -507,13 +487,6 @@ export default function BackupSettingsScreen() {
                 </View>
               </View>
             </View>
-
-            <Button
-              title="Ejecutar copia ahora"
-              onPress={() => {
-                void handleRunTestBackup()
-              }}
-            />
           </View>
 
           <View style={styles.card}>

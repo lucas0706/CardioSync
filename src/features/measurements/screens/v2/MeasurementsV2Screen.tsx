@@ -49,6 +49,8 @@ type HistoryListItem =
       averageSystolic: number
       averageDiastolic: number
       color: string
+      systolicDetermines: boolean
+      diastolicDetermines: boolean
     }
   | {
       type: 'measurement'
@@ -203,6 +205,8 @@ function buildHistoryRows(records: BloodPressureRecord[]): HistoryListItem[] {
       averageSystolic,
       averageDiastolic,
       color: classification.color,
+      systolicDetermines: classification.determiningPressures.systolic,
+      diastolicDetermines: classification.determiningPressures.diastolic,
     })
 
     group.records.sort(
@@ -249,7 +253,25 @@ const MeasurementHistoryRow = memo(function MeasurementHistoryRow({
       <View style={styles.recordMainRow}>
         <View style={styles.recordMainLeft}>
           <Text numberOfLines={1} style={styles.pressureValue}>
-            {record.systolic}/{record.diastolic}
+            <Text
+              style={
+                classification.determiningPressures.systolic
+                  ? { color: classification.color }
+                  : undefined
+              }
+            >
+              {record.systolic}
+            </Text>
+            /
+            <Text
+              style={
+                classification.determiningPressures.diastolic
+                  ? { color: classification.color }
+                  : undefined
+              }
+            >
+              {record.diastolic}
+            </Text>
             <Text style={styles.pressureUnit}> mmHg</Text>
           </Text>
           <Text numberOfLines={1} style={styles.recordTime}>
@@ -556,7 +578,13 @@ export function MeasurementsV2Screen() {
             </Text>
             <View style={styles.groupSummary}>
               <Text style={styles.groupAverage}>
-                {item.averageSystolic}/{item.averageDiastolic}
+                <Text style={item.systolicDetermines ? { color: item.color } : undefined}>
+                  {item.averageSystolic}
+                </Text>
+                /
+                <Text style={item.diastolicDetermines ? { color: item.color } : undefined}>
+                  {item.averageDiastolic}
+                </Text>
               </Text>
               <Text style={styles.groupUnit}>mmHg</Text>
             </View>

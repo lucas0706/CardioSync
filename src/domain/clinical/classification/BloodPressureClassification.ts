@@ -18,5 +18,9 @@ export interface BloodPressureClassificationResult
   extends BloodPressureClassification {
   systolic: number
   diastolic: number
+  determiningPressures: {
+    systolic: boolean
+    diastolic: boolean
+  }
   safetyWarnings: BloodPressureSafetyWarning[]
 }
