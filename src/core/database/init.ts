@@ -105,6 +105,14 @@ export function initializeDatabase() {
 
       updatedAt TEXT NOT NULL
     );
+
+    CREATE TABLE IF NOT EXISTS app_update_settings (
+      id INTEGER PRIMARY KEY NOT NULL CHECK (id = 1),
+
+      automaticOtaEnabled INTEGER NOT NULL DEFAULT 1,
+
+      updatedAt TEXT NOT NULL
+    );
   `)
 
   try {

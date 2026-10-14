@@ -1,7 +1,10 @@
 export interface GitHubReleaseAsset {
+  id: number
   name: string
   browser_download_url: string
   content_type: string
+  size: number
+  digest?: string | null
 }
 
 export interface GitHubRelease {

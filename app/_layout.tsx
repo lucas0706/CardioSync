@@ -19,6 +19,7 @@ import {
 import AppSplashScreen from '@/features/splash/screens/SplashScreen'
 import { UpdateBanner } from '@/features/updates/components/UpdateBanner'
 import { otaUpdateService } from '@/features/updates/services/OtaUpdateService'
+import { OtaUpdateReadyBanner } from '@/features/updates/components/OtaUpdateReadyBanner'
 
 SplashScreen.preventAutoHideAsync().catch(() => {
   // Splash may already be hidden.
@@ -38,6 +39,8 @@ export default function RootLayout() {
 
   const [showUpdateBanner, setShowUpdateBanner] = useState(false)
 
+  const [showOtaReadyBanner, setShowOtaReadyBanner] = useState(false)
+
   const [fontsLoaded, fontError] = useFonts({
     DMSans_400Regular,
     DMSans_500Medium,
@@ -46,7 +49,21 @@ export default function RootLayout() {
   })
 
   useEffect(() => {
-    initializeDatabase()
+    try {
+      initializeDatabase()
+    } catch (error) {
+      console.error('Could not initialize the application database.', error)
+      return
+    }
+
+    void otaUpdateService
+      .checkAndDownloadIfEnabled()
+      .then((result) => {
+        setShowOtaReadyBanner(result === 'downloaded')
+      })
+      .catch((error: unknown) => {
+        console.error('Could not check or download an OTA update.', error)
+      })
 
     void syncScheduledBackupAlarms().catch((error) => {
       console.error('Could not synchronize scheduled backup alarms.', error)
@@ -97,6 +114,16 @@ export default function RootLayout() {
       <StatusBar style="dark" />
 
       {showUpdateBanner && <UpdateBanner />}
+      {showOtaReadyBanner && (
+        <OtaUpdateReadyBanner
+          onDismiss={() => setShowOtaReadyBanner(false)}
+          onApply={() => {
+            void otaUpdateService.applyDownloadedUpdate().catch((error: unknown) => {
+              console.error('Could not apply the downloaded OTA update.', error)
+            })
+          }}
+        />
+      )}
 
       <Stack
         screenOptions={{

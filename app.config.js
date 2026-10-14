@@ -37,6 +37,8 @@ const plugins = (appJson.expo.plugins ?? []).map((plugin) => {
   return plugin
 })
 
+plugins.push('./plugins/withCardioSyncUpdateInstaller')
+
 module.exports = {
   ...appJson,
   expo: {
@@ -58,14 +60,25 @@ module.exports = {
 
     updates: {
       url: 'https://u.expo.dev/50eb957c-a191-4fcb-b6ac-619e72790d2a',
+      checkAutomatically: 'NEVER',
     },
 
     runtimeVersion: {
       policy: 'appVersion',
     },
 
+    ios: {
+      ...appJson.expo.ios,
+      runtimeVersion: {
+        policy: 'fingerprint',
+      },
+    },
+
     android: {
       ...appJson.expo.android,
+      runtimeVersion: {
+        policy: 'fingerprint',
+      },
       googleServicesFile:
         process.env.GOOGLE_SERVICES_JSON ?? './google-services.json',
     },
