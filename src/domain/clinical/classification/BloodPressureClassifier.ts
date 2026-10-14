@@ -40,7 +40,11 @@ const CLASSIFICATIONS: Record<
 function classifyCategory(
   systolic: number,
   diastolic: number,
-): BloodPressureCategory {
+): {
+  category: BloodPressureCategory
+  systolicDetermines: boolean
+  diastolicDetermines: boolean
+} {
   /*
    * Consenso Argentino de Hipertensión Arterial 2025.
    *
@@ -56,31 +60,51 @@ function classifyCategory(
    */
 
   if (systolic >= 140 && diastolic < 90) {
-    return 'isolated-systolic'
+    return {
+      category: 'isolated-systolic',
+      systolicDetermines: true,
+      diastolicDetermines: true,
+    }
   }
 
   if (
     systolic >= 160 ||
     diastolic >= 100
   ) {
-    return 'grade-2'
+    return {
+      category: 'grade-2',
+      systolicDetermines: systolic >= 160,
+      diastolicDetermines: diastolic >= 100,
+    }
   }
 
   if (
     systolic >= 140 ||
     diastolic >= 90
   ) {
-    return 'grade-1'
+    return {
+      category: 'grade-1',
+      systolicDetermines: systolic >= 140,
+      diastolicDetermines: diastolic >= 90,
+    }
   }
 
   if (
     systolic >= 130 ||
     diastolic >= 80
   ) {
-    return 'borderline'
+    return {
+      category: 'borderline',
+      systolicDetermines: systolic >= 130,
+      diastolicDetermines: diastolic >= 80,
+    }
   }
 
-  return 'normal'
+  return {
+    category: 'normal',
+    systolicDetermines: true,
+    diastolicDetermines: true,
+  }
 }
 
 export class BloodPressureClassifier {
@@ -101,14 +125,14 @@ export class BloodPressureClassifier {
     systolic: number,
     diastolic: number,
   ): BloodPressureClassificationResult {
-    const category =
+    const categoryResult =
       classifyCategory(
         systolic,
         diastolic,
       )
 
     const classification =
-      this.getClassification(category)
+      this.getClassification(categoryResult.category)
 
     const safetyWarnings:
       BloodPressureClassificationResult[
@@ -125,6 +149,10 @@ export class BloodPressureClassifier {
       ...classification,
       systolic,
       diastolic,
+      determiningPressures: {
+        systolic: categoryResult.systolicDetermines,
+        diastolic: categoryResult.diastolicDetermines,
+      },
       safetyWarnings,
     }
   }

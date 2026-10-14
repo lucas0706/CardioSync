@@ -1,3 +1,4 @@
+import type { Ref } from 'react'
 import {
   KeyboardTypeOptions,
   StyleProp,
@@ -16,6 +17,11 @@ type Props = {
   unit: string
   onChangeText: (value: string) => void
   keyboardType?: KeyboardTypeOptions
+  inputRef?: Ref<TextInput>
+  autoFocus?: boolean
+  returnKeyType?: 'next' | 'done'
+  blurOnSubmit?: boolean
+  onSubmitEditing?: () => void
   error?: string
   style?: StyleProp<ViewStyle>
 }
@@ -26,6 +32,11 @@ export function MeasurementMetricInputCard({
   unit,
   onChangeText,
   keyboardType = 'number-pad',
+  inputRef,
+  autoFocus = false,
+  returnKeyType,
+  blurOnSubmit,
+  onSubmitEditing,
   error,
   style,
 }: Props) {
@@ -42,9 +53,14 @@ export function MeasurementMetricInputCard({
       </Text>
 
       <TextInput
+        ref={inputRef}
         value={value}
         onChangeText={onChangeText}
         keyboardType={keyboardType}
+        autoFocus={autoFocus}
+        returnKeyType={returnKeyType}
+        blurOnSubmit={blurOnSubmit}
+        onSubmitEditing={onSubmitEditing}
         style={styles.input}
         placeholder="--"
         placeholderTextColor={
