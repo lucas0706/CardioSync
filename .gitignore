@@ -46,3 +46,6 @@ project/audit/
 *.xls
 *.csv
 # Google Services
+
+# APKs de distribución: publicar mediante GitHub Releases
+*.apk
