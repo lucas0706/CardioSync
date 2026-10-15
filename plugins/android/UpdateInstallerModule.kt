@@ -83,12 +83,13 @@ class UpdateInstallerModule(
                     candidateSigners.isNotEmpty() &&
                         installedSigners.isNotEmpty() &&
                         (candidateSigners == installedSigners ||
-                            installedSigners.all { signature ->
-                                candidateSignatureInfo.hasSigningCertificate(
-                                    signature.toByteArray(),
-                                    PackageManager.CERT_INPUT_RAW,
-                                )
-                            })
+                            (candidateSigners.size == 1 &&
+                                installedSigners.size == 1 &&
+                                candidateSignatureInfo.hasPastSigningCertificates() &&
+                                candidateSignatureInfo.signingCertificateHistory
+                                    ?.any { signature ->
+                                        signature.toByteArray().toList() in installedSigners
+                                    } == true))
                 }
             } else {
                 val candidateSigners =
