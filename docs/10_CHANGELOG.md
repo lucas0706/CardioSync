@@ -1314,3 +1314,27 @@ Cambio exclusivamente documental. No se modificaron reglas, umbrales, código de
 - [Consenso Argentino 2025](clinical/guidelines/ARGENTINA_2025.md)
 - [Registro de fuentes clínicas](clinical/09_CLINICAL_GUIDELINE.md)
 - [Clasificación de presión arterial](../src/domain/clinical/classification/BloodPressureClassifier.ts)
+
+
+---
+
+# 2026-10-15 — Auditoría estática de objetivos terapéuticos argentinos
+
+### Tipo
+
+Auditoría de reglas clínicas y documentación
+
+### Hallazgos
+
+- Identificada una condición de buena tolerancia que el matcher evalúa siempre como falsa.
+- Registrada la ausencia de un objetivo específico localizado para hipertensión sistólica aislada en personas de 65–79 años dentro del arreglo revisado.
+- Señalada la necesidad de revisar la representación de fragilidad y el tratamiento de valores bajos.
+- Vinculados los hallazgos a la extracción del consenso y a los archivos de implementación inspeccionados.
+
+### Alcance y límites
+
+Solo documentación y auditoría estática. No se modificó código ni se alteraron objetivos. Los hallazgos requieren contraste con la fuente primaria, revisión del contexto clínico y pruebas antes de corregir la implementación.
+
+### Referencia
+
+- [Consenso Argentino 2025 — objetivos y hallazgos](clinical/guidelines/ARGENTINA_2025.md)
