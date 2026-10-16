@@ -108,3 +108,23 @@ La brecha documental se considera resuelta cuando:
 ## 7. Alcance y limitaciones
 
 Este plan se basa en la auditoría estática registrada en `docs/00_DOCUMENTATION_AUDIT_2026-10-15.md`. No se ejecutaron compilaciones, pruebas automatizadas ni pruebas en dispositivo para elaborar este documento. Las decisiones propuestas son iniciales y deben revisarse contra la rama fuente de verdad antes de integrar.
+
+
+## 5. Avance de resolución — 2026-10-15
+
+Se completaron dos documentos de orientación que no requieren inventar reglas clínicas:
+
+- `docs/00_CARDIOSYNC_CONSTITUTION.md`: principios rectores propuestos, con distinción entre diseño, implementación, validación y publicación. Queda sujeto a revisión antes de considerarse política formal aprobada.
+- `docs/clinical/00_INTRODUCTION.md`: alcance de la documentación clínica, navegación y requisitos de trazabilidad entre fuente publicada, interpretación del proyecto, regla implementada y validación.
+
+Estos documentos no modifican código, reglas clínicas ni configuración. No constituyen validación médica ni certificación de cumplimiento.
+
+## 6. Próximo orden de resolución
+
+1. Revisar la arquitectura y el dominio actuales para completar ADR solo cuando la decisión pueda demostrarse con código y consumidores.
+2. Completar el índice de guías clínicas sin introducir umbrales o recomendaciones sin fuente primaria verificable.
+3. Inspeccionar el modelo antropométrico antes de documentar fórmulas, unidades o rangos.
+4. Resolver los documentos operativos duplicados frente a roadmap, changelog y flujo de desarrollo.
+5. Validar enlaces, revisar cambios en Codespaces y preparar una solicitud de integración después de confirmar la rama fuente de verdad.
+
+La auditoría permanece abierta. No se considera resuelta hasta verificar los documentos restantes y revisar la integración contra el estado local del repositorio.
