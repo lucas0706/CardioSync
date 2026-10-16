@@ -18,7 +18,7 @@ La rama auditada contiene código de dominio clínico; este documento no sustitu
 
 ---
 
-> **Nota de auditoría (2026-10-15):** el estado anterior de «Planificado» estaba desactualizado. La presencia de modelos o servicios no demuestra por sí sola que todas las reglas clínicas estén completas, validadas o cubiertas por pruebas. Mantener la trazabilidad entre cada regla, su fuente y su implementación.
+> **Alcance:** este documento explica los conceptos y responsabilidades del dominio clínico. Las reglas activas, sus fuentes y su comportamiento deben mantenerse alineados con el código y con las pruebas clínicas disponibles.
 
 # Principios del dominio clínico
 
