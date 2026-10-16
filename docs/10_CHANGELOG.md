@@ -1113,3 +1113,30 @@ Documentación funcional
 - `docs/00_PRODUCT_OVERVIEW.md`
 - `docs/15_USER_GUIDE.md`
 - `docs/README.md`
+
+
+---
+
+# 2026-10-15 — Guía de copias y recuperación
+
+### Tipo
+
+Documentación funcional y técnica
+
+### Cambios realizados
+
+- Documentado el flujo de copia manual SQLite, Google Drive y copias programadas.
+- Explicado que la restauración reemplaza la base local completa y no combina registros.
+- Documentadas las validaciones de integridad y tablas antes de restaurar.
+- Diferenciada la restauración de una copia CardioSync de la importación de mediciones CSV o SQLite externa.
+- Corregidas afirmaciones genéricas sobre formatos de importación y exportación para reflejar el código revisado.
+
+### Documentos relacionados
+
+- `docs/16_BACKUP_AND_RESTORE.md`
+- `docs/09_DATABASE.md`
+- `docs/15_USER_GUIDE.md`
+
+### Alcance
+
+Revisión estática del código en la rama de referencia. No se ejecutaron pruebas en dispositivo ni de Google Drive.
