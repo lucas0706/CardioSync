@@ -1,287 +1,73 @@
-# CardioSync — Clinical Reports
+# Reportes
 
-| Campo | Valor |
-|-------|--------|
-| Documento | 07_REPORTS.md |
-| Tipo | Diseño Conceptual de Reportes |
-| Estado | Implementación presente; validación funcional pendiente |
-| Versión | Sincronizada con la versión del proyecto |
-| Última actualización | 2026-10-15 |
+CardioSync permite preparar un reporte de seguimiento a partir de las mediciones registradas y generar una versión PDF para conservarla o compartirla. El flujo de reportes se encuentra en `src/features/reports`.
 
----
+## Reporte de seguimiento
 
-# Objetivo
+El reporte está orientado a mostrar de forma organizada la información del período elegido. El contenido depende de las mediciones disponibles y de las opciones que ofrece la pantalla de reportes.
 
-Este documento describe el diseño esperado del sistema de reportes de CardioSync.
+El flujo de usuario general es:
 
-La rama auditada contiene servicios para construir reportes y generar, compartir o imprimir archivos PDF. Esta evidencia de código no certifica todos los flujos, formatos ni resultados en dispositivos; deben validarse mediante pruebas.
+1. Abrir **Más → Reportes**.
+2. Elegir un período o rango de fechas.
+3. Revisar los datos y la vista previa.
+4. Copiar el contenido o generar el PDF.
+5. Utilizar las opciones disponibles del sistema para compartir o imprimir el documento.
 
----
+La pantalla impide iniciar la generación cuando no hay mediciones en el período o cuando falta completar el rango personalizado.
 
-> **Alcance funcional:** la aplicación incluye generación de reportes PDF y flujos para compartir o imprimir. El reporte del paciente y el reporte médico no deben considerarse equivalentes: el primero tiene una orientación de seguimiento personal y el segundo permanece como evolución prevista.
+## Gráfico de evolución
 
-# Principios generales
+El PDF puede incluir un gráfico temporal con tres series:
 
-Los reportes deberán:
-
-- Utilizar información validada del sistema.
-- Mantener trazabilidad de los datos.
-- Diferenciar información clínica de información estadística.
-- Indicar fuentes utilizadas.
-- Reflejar los contextos disponibles.
-
-Los reportes no deberán:
-
-- Crear interpretaciones no respaldadas.
-- Modificar datos originales.
-- Reemplazar la evaluación profesional.
-
----
-
-# Tipos de reportes
-
-El diseño contempla dos tipos de reportes:
-
-1. Reporte del Paciente.
-2. Reporte Médico.
-
-Cada uno tendrá objetivos y niveles de detalle diferentes.
-
----
-
-# Reporte del Paciente
-
-Estado: **Implementación presente; validación funcional integral pendiente.**
-
-## Objetivo
-
-Proporcionar al usuario una visión clara y comprensible de su seguimiento de presión arterial.
-
-La implementación actual contiene un servicio que construye el reporte a partir de las mediciones filtradas y el perfil local, además de un servicio PDF basado en HTML, impresión y opciones para compartir. La cobertura de los flujos debe validarse en dispositivo.
-
-Debe priorizar comprensión y seguimiento personal.
-
----
-
-# Información incluida
-
-## Resumen general
-
-Puede incluir:
-
-- Evolución de presión arterial.
-- Cantidad de mediciones.
-- Tendencias generales.
-- Cumplimiento del seguimiento.
-
----
-
-## Estadísticas
-
-Información simplificada:
-
-- Promedios.
-- Evolución temporal.
-- Cambios relevantes.
-
----
-
-## Seguimiento
-
-Puede incluir:
-
-- Objetivos personales.
-- Recordatorios.
-- Recomendaciones generales.
-
----
-
-## Información clínica
-
-Cuando exista evaluación clínica disponible:
-
-- Clasificación obtenida.
-- Hallazgos relevantes.
-- Recomendaciones basadas en reglas clínicas.
-
-Siempre con lenguaje comprensible.
-
-
----
-
-## Gráfico clínico de evolución
-
-La implementación actual del reporte PDF incorpora un gráfico clínico de evolución temporal.
-
-El gráfico representa conjuntamente:
-
-- Presión sistólica.
-- Presión diastólica.
-- Frecuencia cardíaca.
-
-Las series utilizadas son:
-
-| Serie | Etiqueta | Unidad |
-| ----- | -------- | ----- |
+| Clave | Etiqueta | Unidad |
+|---|---|---|
 | `systolic` | Sistólica | mmHg |
 | `diastolic` | Diastólica | mmHg |
 | `heartRate` | Frecuencia cardíaca | lpm |
 
-La definición de las series se mantiene centralizada en:
+Las definiciones de las series se comparten con el gráfico de la aplicación desde `src/components/charts/ClinicalChart/constants/clinicalSeries.ts`. Esto permite mantener centralizados los nombres, las unidades y los colores de las series.
 
-`src/components/charts/ClinicalChart/constants/clinicalSeries.ts`
+El servicio `src/features/reports/services/ReportClinicalChartService.ts` construye una representación SVG/HTML para el PDF. El componente React Native del gráfico no se inserta directamente en el HTML de impresión; por eso el reporte utiliza un renderer específico que consume los datos preparados por `buildChartData`.
 
-El reporte PDF utiliza un renderer SVG/HTML específico porque el componente React Native `ClinicalChart` no puede insertarse directamente dentro del HTML procesado por `expo-print`.
+Si no hay registros o no hay valores numéricos disponibles para graficar, el renderer devuelve una sección explicando que no hay datos suficientes para mostrar el gráfico.
 
-La implementación específica se encuentra en:
+## Generación del PDF
 
-`src/features/reports/services/ReportClinicalChartService.ts`
+La generación utiliza contenido HTML procesado por el flujo de impresión de Expo. El gráfico se incorpora como SVG dentro de ese contenido. Esta separación permite que la vista de reporte y el documento impreso utilicen los datos de la misma función de preparación de gráficos sin intentar renderizar un componente nativo dentro del HTML.
 
-El renderer utiliza las mismas claves clínicas y la misma semántica visual de `ClinicalChart`.
+## Reporte del paciente y reporte médico
 
-La leyenda identifica las tres series y sus unidades.
+La funcionalidad descrita en esta guía es el reporte de seguimiento disponible en la aplicación. Un reporte médico independiente, con formato clínico especializado y trazabilidad completa de reglas, debe tratarse como una funcionalidad distinta y no inferirse únicamente a partir de la existencia del PDF actual.
 
+## Relación con estadísticas y análisis clínico
 
----
+Las estadísticas describen las mediciones del período seleccionado. El análisis clínico, cuando está integrado en el flujo correspondiente, aporta hallazgos generados por reglas clínicas. El reporte organiza la información que recibe; no debería sustituir el cálculo estadístico ni ejecutar por su cuenta las reglas clínicas.
 
-# Reporte Médico
+```text
+Período seleccionado
+       ↓
+Mediciones y estadísticas disponibles
+       ↓
+Preparación del reporte
+       ↓
+Vista previa
+       ↓
+HTML + gráfico SVG
+       ↓
+PDF / compartir / imprimir
+```
 
-Estado: 📋 PLANIFICADO
+## Privacidad
 
-## Objetivo
+Los reportes pueden contener datos personales y de salud. Antes de compartir o imprimir un documento, revisá su contenido y comprobá el destino. El PDF es una representación del período y de los datos disponibles al generarlo; no es un reemplazo del historial almacenado en la aplicación.
 
-Proporcionar información técnica detallada para profesionales de salud.
+## Archivos relacionados
 
-Debe priorizar precisión y trazabilidad.
-
----
-
-# Información incluida
-
-## Datos de mediciones
-
-- Historial completo.
-- Fechas.
-- Valores registrados.
-- Evolución.
-
----
-
-## Análisis estadístico
-
-Puede incluir:
-
-- Promedios.
-- Variabilidad.
-- Tendencias.
-- Distribuciones.
-
----
-
-## Evaluación clínica
-
-Cuando esté disponible:
-
-- Clasificaciones clínicas.
-- Reglas aplicadas.
-- Hallazgos.
-- Evidencia utilizada.
-
----
-
-## Contextos adicionales
-
-Cuando existan:
-
-- Sueño.
-- Actividad física.
-- Composición corporal.
-- Signos vitales.
-
-La ausencia de estos datos no debe impedir la generación del reporte.
-
----
-
-## Implementación del gráfico PDF
-
-El reporte utiliza un renderer SVG específico para representar Sistólica, Diastólica y Frecuencia cardíaca dentro del PDF, manteniendo las definiciones de series de ClinicalChart.
-
-# Diferencias principales
-
-| Característica | Paciente | Médico |
-|---|---|---|
-| Objetivo | Comprensión personal | Evaluación profesional |
-| Lenguaje | Simple | Técnico |
-| Detalle | Resumido | Completo |
-| Estadísticas | Simplificadas | Detalladas |
-| Reglas clínicas | Interpretadas | Trazables |
-
----
-
-# Relación con Clinical Analysis Engine
-
-Los reportes consumirán información proveniente del Clinical Analysis Engine.
-
-Flujo:
-
-ClinicalContext
-
-↓
-
-Clinical Rule Engine
-
-↓
-
-Clinical Analysis Engine
-
-↓
-
-Clinical Report
-
-↓
-
-Paciente / Médico
-
----
-
-# Relación con Health Connect
-
-Los datos externos podrán incorporarse cuando estén disponibles.
-
-Ejemplo:
-
-Health Connect
-
-↓
-
-SleepContext
-
-↓
-
-Clinical Analysis Engine
-
-↓
-
-Reporte
-
-La ausencia de datos externos no bloqueará la generación del reporte.
-
----
-
-# Restricciones
-
-- Los reportes no modifican datos.
-- Los reportes no ejecutan reglas clínicas.
-- Los reportes no acceden directamente a SQLite.
-- Los reportes utilizan resultados generados por otros módulos.
-
----
-
-# Evolución prevista
-
-La implementación de reportes comenzará después de:
-
-1. Finalizar dominio clínico.
-2. Implementar Clinical Rule Engine.
-3. Implementar Clinical Analysis Engine.
-
+- `src/features/reports/`
+- `src/features/reports/services/ReportClinicalChartService.ts`
+- `src/components/charts/ClinicalChart/constants/clinicalSeries.ts`
+- `src/components/charts/ClinicalChart/utils/buildChartData.ts`
+- [Guía de uso](15_USER_GUIDE.md)
+- [Estadísticas](11_MODULES.md)
+- [Análisis clínico](06_CLINICAL_ANALYSIS.md)
