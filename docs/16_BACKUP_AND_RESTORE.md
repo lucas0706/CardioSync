@@ -64,6 +64,20 @@ Para comprobarla:
 3. Revisar el estado y la fecha de última ejecución que muestre la pantalla.
 4. Si hubo error, revisar el mensaje disponible y volver a ejecutar una copia cuando las condiciones sean correctas.
 
+## 4.1. Límites de la programación en Android
+
+La implementación utiliza un módulo nativo Android llamado `AlarmScheduler` para sincronizar alarmas de copia. El servicio consulta si se pueden programar alarmas exactas y puede abrir la configuración del sistema correspondiente. Si el módulo nativo no está disponible, el código informa que es necesario reconstruir el cliente Android después del prebuild.
+
+La ejecución programada valida la configuración y solo intenta ejecutar una copia cuando detecta una programación pendiente dentro de su ventana de tiempo. La ejecución requiere que Google Drive esté conectado y que se obtenga un token válido.
+
+Por estos motivos:
+- La hora configurada no constituye garantía de ejecución exacta en todos los dispositivos.
+- Los permisos de alarmas exactas, las restricciones de batería y las políticas del fabricante pueden afectar la ejecución.
+- Una copia programada fallida no debe considerarse una copia válida solo porque la programación esté activada.
+- Revisar el último estado y la fecha de ejecución, y comprobar que el archivo remoto exista cuando se requiera certeza.
+
+La existencia del servicio y del módulo nativo no sustituye pruebas reales tras instalar la APK de producción.
+
 ## 5. Validación antes de restaurar
 
 Ruta: **Más → Configuración → Copias de seguridad → Restaurar copia**.
