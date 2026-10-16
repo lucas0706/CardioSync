@@ -1,50 +1,51 @@
 # Documentación de CardioSync
 
-La documentación está organizada para explicar primero el producto y sus funciones, y después su arquitectura, implementación y operación.
+Esta documentación explica qué hace CardioSync, cómo se utiliza, cómo está construida y cómo se mantiene. Está organizada para que una persona que llega por primera vez pueda empezar por el producto y profundizar después en su implementación.
 
-## Empezar por la aplicación
+## Empezar aquí
 
-- [Descripción funcional de CardioSync](00_PRODUCT_OVERVIEW.md): propósito, funcionalidades, recorrido de uso, datos y límites.
-- [Guía de uso](15_USER_GUIDE.md): navegación, registro y edición de mediciones, reportes, perfil, copias, Health Connect y actualizaciones.
-- [README del proyecto](../README.md): resumen del producto y puesta en marcha del entorno de desarrollo.
-- [Contexto maestro](00_PROJECT_MASTER_CONTEXT.md): visión, objetivos y principios generales del proyecto.
+- [Descripción del producto](00_PRODUCT_OVERVIEW.md): propósito, funcionalidades y recorrido general.
+- [Guía de uso](15_USER_GUIDE.md): navegación y operaciones disponibles en la aplicación.
+- [Arquitectura](01_ARCHITECTURE.md): organización del código, capas y dependencias.
+- [Estructura de carpetas](12_FOLDER_STRUCTURE.md): mapa del repositorio.
+- [Desarrollo y ejecución](17_DEVELOPMENT_WORKFLOW.md): entorno de desarrollo y comprobaciones habituales.
 
-## Funcionalidades y dominios
+## Funcionalidades
 
-| Tema | Documento |
+| Área | Descripción |
 |---|---|
-| Dominio clínico | [04_CLINICAL_DOMAIN.md](04_CLINICAL_DOMAIN.md) |
-| Motor de reglas clínicas | [05_CLINICAL_RULE_ENGINE.md](05_CLINICAL_RULE_ENGINE.md) |
-| Análisis clínico | [06_CLINICAL_ANALYSIS.md](06_CLINICAL_ANALYSIS.md) |
-| Reportes | [07_REPORTS.md](07_REPORTS.md) |
-| Health Connect | [08_HEALTH_CONNECT.md](08_HEALTH_CONNECT.md) |
-| Base de datos, importación y persistencia | [09_DATABASE.md](09_DATABASE.md) |\n| Copias de seguridad y recuperación | [16_BACKUP_AND_RESTORE.md](16_BACKUP_AND_RESTORE.md) |
-| Especificación de importación histórica | [13_IMPORTATION_SPECIFICATION.md](13_IMPORTATION_SPECIFICATION.md) |
+| [Dominio clínico](04_CLINICAL_DOMAIN.md) | Modelos de contexto del paciente y conceptos clínicos usados por la aplicación. |
+| [Motor de reglas clínicas](05_CLINICAL_RULE_ENGINE.md) | Cómo se ejecutan las reglas y cómo producen hallazgos. |
+| [Análisis clínico](06_CLINICAL_ANALYSIS.md) | Composición y resultado de un análisis. |
+| [Reportes](07_REPORTS.md) | Construcción, vista previa y generación de reportes. |
+| [Health Connect](08_HEALTH_CONNECT.md) | Integración con datos de salud de Android. |
+| [Base de datos e importación](09_DATABASE.md) | Persistencia, formatos de intercambio y acceso a datos. |
+| [Copias y recuperación](16_BACKUP_AND_RESTORE.md) | Copias locales, Google Drive, programación y restauración. |
+| [Actualizaciones y distribución](14_RELEASES_AND_UPDATES.md) | APK de producción, canales y actualizaciones OTA. |
 
-## Arquitectura y desarrollo
+## Arquitectura y decisiones
 
-- [Arquitectura](01_ARCHITECTURE.md): capas, responsabilidades y dependencias.
-- [Módulos](11_MODULES.md): mapa de funcionalidades y responsabilidades.
-- [Estructura de carpetas](12_FOLDER_STRUCTURE.md): organización del repositorio.
-- [Flujo de desarrollo y validación](17_DEVELOPMENT_WORKFLOW.md): pasos de trabajo, comprobaciones, pruebas y cierre de tareas.
-- [Decisiones arquitectónicas](03_DECISIONS.md): decisiones relevantes y sus motivos.
-- [Roadmap](02_ROADMAP.md): evolución prevista y estado registrado.
+- [Arquitectura](01_ARCHITECTURE.md)
+- [Módulos](11_MODULES.md)
+- [Estructura de carpetas](12_FOLDER_STRUCTURE.md)
+- [Decisiones arquitectónicas](03_DECISIONS.md)
+- [Roadmap](02_ROADMAP.md)
 
-## Distribución y mantenimiento
+## Mantenimiento del proyecto
 
-- [Versiones, actualizaciones y distribución Android](14_RELEASES_AND_UPDATES.md): configuración, OTA, APK y procedimiento de release.
-- [Historial de cambios](10_CHANGELOG.md): cambios relevantes registrados.
-- [Normas de documentación](99_DOCUMENTATION_GUIDELINES.md): cómo mantener esta documentación.
-- [Brechas documentales y plan de resolución](18_DOCUMENTATION_GAPS.md): inventario de documentos vacíos, discrepancias y orden de resolución.
+- [Flujo de desarrollo y validación](17_DEVELOPMENT_WORKFLOW.md)
+- [Historial de cambios](10_CHANGELOG.md)
+- [Normas para contribuir a la documentación](99_DOCUMENTATION_GUIDELINES.md)
 
-## Referencias clínicas e históricas
+## Documentación clínica
 
-La carpeta [clinical/](clinical/) contiene documentación del dominio, glosario y referencias relacionadas con guías. Las fuentes clínicas deben conservar su procedencia y distinguirse de las reglas que realmente utiliza la aplicación.
+La carpeta [clinical/](clinical/) reúne la descripción del dominio, las guías de referencia y las extracciones de sus fuentes. La documentación distingue entre lo que indica una fuente clínica y la lógica implementada por CardioSync.
 
-Los documentos con prefijo CHECKPOINT y la carpeta [checkpoints/](checkpoints/) conservan estados históricos del desarrollo. Son referencias de contexto y no necesariamente describen el estado actual.
+## Registros internos de mantenimiento
 
-## Mantenimiento interno
+Los siguientes documentos sirven para organizar el trabajo interno de documentación; no son la explicación principal de cómo funciona el producto:
 
-La revisión documental inicial está registrada en [Auditoría documental de octubre de 2026](00_DOCUMENTATION_AUDIT_2026-10-15.md). Ese informe sirve para organizar el trabajo de documentación; no es la descripción principal del producto.
+- [Auditoría documental de octubre de 2026](00_DOCUMENTATION_AUDIT_2026-10-15.md).
+- [Brechas documentales y plan de resolución](18_DOCUMENTATION_GAPS.md).
 
-Los documentos deben distinguir entre diseño, código implementado y comportamiento validado. La presencia de código no demuestra por sí sola que todos los escenarios funcionen correctamente en producción.
+Los archivos de checkpoints y los documentos históricos describen estados de desarrollo concretos. Para conocer el comportamiento actual de una función, se debe priorizar su documentación funcional y el código correspondiente.
