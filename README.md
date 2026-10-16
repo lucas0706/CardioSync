@@ -95,3 +95,7 @@ CardioSync se encuentra en evolución activa y dispone de una configuración Pro
 ## Aviso médico
 
 CardioSync está orientada al registro y visualización de información de salud y no sustituye una evaluación, diagnóstico ni tratamiento profesional.
+
+## Documentación del proyecto
+
+Consulta el [índice de documentación](docs/README.md) para acceder a la arquitectura, decisiones, documentación clínica, procedimientos técnicos e historial del proyecto. Los hallazgos de la revisión inicial están registrados en la [auditoría documental de octubre de 2026](docs/00_DOCUMENTATION_AUDIT_2026-10-15.md).
