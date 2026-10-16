@@ -12,12 +12,12 @@ Este documento controla la relación entre las fuentes clínicas consideradas po
 
 ## 2. Estado de referencias
 
-Los nombres de archivo siguientes proceden del árbol documental del repositorio. Su existencia no confirma por sí sola la publicación, su versión, su vigencia ni que sus recomendaciones estén implementadas.
+Los estados siguientes reflejan la evidencia localizada en el repositorio durante la revisión. La presencia de una fuente o de código asociado no demuestra por sí sola que todas las recomendaciones estén implementadas o validadas.
 
 | Referencia documental | Estado en esta auditoría | Evidencia requerida antes de considerarla activa |
 |---|---|---|
 | [AHA/ACC 2025](guidelines/AHA_ACC_2025.md) | Pendiente de verificación de fuente primaria | Título oficial, autores/organización, publicación, versión, enlace primario y secciones utilizadas |
-| [Argentina 2025](guidelines/ARGENTINA_2025.md) | Pendiente de verificación de fuente primaria | Organismo o sociedad responsable, título oficial, autores, fecha, publicación y secciones utilizadas |
+| [Argentina 2025](guidelines/ARGENTINA_2025.md) | **Implementación y extracción documental presentes; trazabilidad y validación integral pendientes** | Revisar la fuente primaria por cada regla, confirmar límites y población, y documentar pruebas automatizadas e integración |
 | [ESC 2024](guidelines/ESC_2024.md) | Pendiente de verificación de fuente primaria | Documento oficial, versión, publicación, alcance y secciones utilizadas |
 | [ISH 2020](guidelines/ISH_2020.md) | Pendiente de verificar vigencia | Fuente primaria y revisión explícita de su vigencia frente a las referencias más recientes |
 
@@ -49,4 +49,4 @@ El estado de cada regla debe contrastarse con [Dominio clínico](../04_CLINICAL_
 
 ## 6. Próxima revisión
 
-La siguiente tarea es localizar las publicaciones primarias oficiales y completar las fichas individuales de `guidelines/`. Hasta entonces, los archivos individuales permanecen como pendientes y no deben citarse como evidencia clínica verificada.
+La siguiente tarea es revisar cada fuente primaria contra la implementación y los casos de prueba. En el caso argentino, ya existen un clasificador, un modelo de guía, objetivos terapéuticos y una regla que genera hallazgos. La tarea pendiente no es comenzar la investigación desde cero, sino completar la trazabilidad y validar los escenarios y límites de cada regla.
