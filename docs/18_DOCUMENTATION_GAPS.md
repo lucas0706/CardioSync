@@ -128,3 +128,10 @@ Estos documentos no modifican código, reglas clínicas ni configuración. No co
 5. Validar enlaces, revisar cambios en Codespaces y preparar una solicitud de integración después de confirmar la rama fuente de verdad.
 
 La auditoría permanece abierta. No se considera resuelta hasta verificar los documentos restantes y revisar la integración contra el estado local del repositorio.
+
+
+## 7. Avance de arquitectura — 2026-10-15
+
+Se redactó un borrador para `docs/architecture/adr/ADR-001-blood-pressure-record-is-the-core.md`. El estado es **propuesto para revisión**, no aprobado formalmente. El documento separa la decisión propuesta de la evidencia inspeccionada y explicita qué aspectos siguen sin validación integral.
+
+No se completaron automáticamente los otros ADR vacíos: cada uno requiere comprobar su afirmación específica contra el código, las pruebas y las decisiones existentes. En particular, el patrón de estrategias de guías y la construcción “inteligente” de contexto no deben documentarse como hechos hasta encontrar evidencia concreta.
