@@ -7,9 +7,11 @@
 | Tipo | Normas de documentación |
 | Estado | Activo |
 | Versión | Sincronizada con la versión del proyecto |
-| Última actualización | 2026-08-03 |
+| Última actualización | 2026-10-15 |
 
 ---
+
+> **Actualización de mantenimiento (2026-10-15):** actualizar solo los documentos afectados por un cambio. No exigir cambios de fecha en todos los documentos en cada fase. Distinguir siempre código presente, pruebas realizadas y funcionalidad verificada.
 
 # Objetivo
 
