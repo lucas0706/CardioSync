@@ -168,19 +168,18 @@ No genera recomendaciones.
 
 ## Estado
 
-🚧 EN DESARROLLO
+**Implementación presente; validación funcional integral pendiente.**
 
-El dominio Clinical será responsable de la interpretación de las mediciones utilizando exclusivamente reglas derivadas de guías clínicas oficialmente soportadas.
+La rama auditada contiene modelos y servicios para análisis clínico, construcción de resultados y selección de objetivos. La existencia de estos componentes confirma implementación de código, pero no demuestra que todas las reglas, perfiles clínicos ni escenarios estén validados en producción.
 
-Su evolución contempla:
+Responsabilidades documentadas:
 
-- ClinicalContext
-- ClinicalRuleEngine
-- ClinicalAnalysisEngine
+- Evaluar mediciones dentro del contexto clínico disponible.
+- Aplicar reglas clínicas implementadas.
+- Construir hallazgos y resultados de análisis.
+- Mantener la lógica clínica desacoplada de la interfaz.
 
-No realizará persistencia.
-
-No implementará componentes React.
+El estado de cada regla y su trazabilidad deben verificarse en los documentos clínicos y en las pruebas correspondientes.
 
 ---
 
