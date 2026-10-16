@@ -4,21 +4,21 @@
 |-------|--------|
 | Documento | 06_CLINICAL_ANALYSIS.md |
 | Tipo | Diseño Conceptual |
-| Estado | Planificado |
+| Estado | Diseño de referencia; implementación y cobertura pendientes de verificación |
 | Versión | Sincronizada con la versión del proyecto |
-| Última actualización | 2026-08-03 |
+| Última actualización | 2026-10-15 |
 
 ---
 
 # Objetivo
 
-Este documento define el diseño conceptual del Clinical Analysis Engine de CardioSync.
+Este documento define el diseño y las responsabilidades esperadas del Clinical Analysis Engine de CardioSync.
 
-No contiene implementación.
-
-Su finalidad es establecer cómo se integrarán los distintos contextos clínicos para generar una evaluación integral basada en reglas clínicas documentadas.
+La rama auditada contiene componentes relacionados con contexto y análisis de salud. La correspondencia completa entre el diseño, la implementación y las pruebas debe verificarse antes de considerar la funcionalidad validada.
 
 ---
+
+> **Nota de auditoría (2026-10-15):** este documento describe el comportamiento esperado, no constituye una certificación clínica. Registrar explícitamente cualquier diferencia entre el diseño, el código y las pruebas disponibles.
 
 # Propósito
 
