@@ -140,3 +140,15 @@ No se completaron automáticamente los otros ADR vacíos: cada uno requiere comp
 ## Corrección de auditoría — guía argentina
 
 La revisión posterior confirmó que el Consenso Argentino de Hipertensión Arterial 2025 ya está referenciado en `src/domain/clinical/guidelines/ConsensoArgentinaHTA2025.ts`, implementado en el clasificador y en objetivos terapéuticos, y documentado mediante extracciones. Por eso, su estado se corrigió de «investigación pendiente» a «implementación y extracción presentes; trazabilidad y validación integral pendientes». No se afirma que toda la guía esté implementada o validada.
+
+
+### Hallazgos de objetivos terapéuticos argentinos
+
+La revisión estática de `ClinicalTargetSelector`, `ClinicalTargetMatcher`, `ConsensoArgentinaHTA2025Targets` y `TherapeuticTargetRule`, contrastada con la extracción `004_objetivos_terapeuticos_poblaciones.md`, identificó:
+
+- La condición `buena_tolerancia` se evalúa siempre como falsa, por lo que el objetivo deseable condicionado a tolerancia no puede seleccionarse mediante el matcher actual.
+- No se encontró en el arreglo de objetivos revisado una entrada específica para hipertensión sistólica aislada en personas de 65–79 años, aunque la extracción documenta ese escenario.
+- La extracción contempla fragilidad e individualización, pero el selector/matcher inspeccionado no muestra una condición de fragilidad.
+- La regla de objetivo terapéutico omite el hallazgo cuando la media PAS es <120 o la PAD <70; debe verificarse qué regla independiente comunica los riesgos o precauciones de estos escenarios.
+
+Son discrepancias estáticas que requieren validar contra la fuente primaria y el modelo completo antes de modificar el código. No se ha afirmado que toda la aplicación carezca de cobertura ni se ha cambiado ninguna regla clínica.
