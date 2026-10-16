@@ -6,9 +6,11 @@
 | Tipo | Roadmap Oficial del Proyecto |
 | Estado | Activo |
 | Versión | Sincronizada con la versión del proyecto |
-| Última actualización | 2026-08-22 |
+| Última actualización | 2026-10-15 |
 
 ---
+
+> **Nota de vigencia (2026-10-15):** las fases y estados históricos de este roadmap no se consideran automáticamente actuales. Revisar cada elemento contra la rama y el commit de referencia; separar implementación, validación, publicación y trabajo pendiente. El inventario de discrepancias se encuentra en [la auditoría documental](00_DOCUMENTATION_AUDIT_2026-10-15.md).
 
 # Objetivo
 
