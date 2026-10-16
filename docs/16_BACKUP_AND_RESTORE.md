@@ -1,13 +1,10 @@
 # Copias de seguridad y recuperación de datos
 
-| Campo | Valor |
-|---|---|
-| Tipo | Guía funcional y técnica |
-| Plataforma | Android |
-| Base de revisión | Código de `feature/app-updates` en el commit de referencia documental |
-| Estado | Descripción basada en código; pendiente de validación integral en dispositivo |
+# Copias de seguridad y recuperación de datos
 
-Este documento explica qué guarda CardioSync, cómo crear copias, cómo funciona la recuperación y qué precauciones tomar. Describe el comportamiento identificado en el código; no significa que todos los escenarios se hayan probado en dispositivos reales.
+CardioSync permite crear copias de su base SQLite local, guardar copias en una carpeta elegida o en Google Drive y restaurar una copia compatible. Esta guía describe las operaciones disponibles y las precauciones importantes para proteger el historial.
+
+Los pasos de copia programada dependen de los permisos y las restricciones de Android. Después de una ejecución, conviene comprobar el resultado y la fecha de la última copia; activar la programación no garantiza por sí solo que se haya guardado una copia.
 
 ## 1. Qué contiene una copia
 
