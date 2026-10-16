@@ -18,7 +18,7 @@ La rama auditada contiene servicios para inicialización, permisos, sincronizaci
 
 ---
 
-> **Nota de auditoría (2026-10-15):** el documento anteriormente figuraba como planificado. La presencia de servicios no prueba que todos los tipos de registros, permisos, escenarios de ausencia de datos ni dispositivos estén validados. No asumir que conceder permisos equivale a disponer de datos.
+> **Alcance funcional:** CardioSync consulta los tipos de registros implementados y autorizados en Health Connect. Los datos disponibles dependen de las fuentes conectadas y los permisos; un permiso concedido no garantiza que exista información para ese tipo de registro.
 
 # Principio fundamental
 
