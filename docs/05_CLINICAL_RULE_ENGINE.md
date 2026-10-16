@@ -1,229 +1,74 @@
-# CardioSync — Clinical Rule Engine
+# Motor de reglas clínicas
 
-| Campo | Valor |
-|-------|--------|
-| Documento | 05_CLINICAL_RULE_ENGINE.md |
-| Tipo | Diseño Conceptual |
-| Estado | Diseño de referencia; implementación y cobertura pendientes de verificación |
-| Versión | Sincronizada con la versión del proyecto |
-| Última actualización | 2026-10-15 |
+El motor de reglas clínicas evalúa información estructurada y genera hallazgos que después se reúnen en un análisis clínico. Las reglas se ejecutan en el dominio y no dependen de las pantallas que presentan los resultados.
 
----
+## 1. Contrato de una regla
 
-# Objetivo
+Las reglas implementan la interfaz `ClinicalRule`. Su método `evaluate(input, context)` recibe una entrada específica y un `ClinicalRuleContext`, y devuelve una lista de `ClinicalFinding`.
 
-Este documento define las responsabilidades, límites y comportamiento esperado del Clinical Rule Engine de CardioSync.
+El contexto común contiene:
 
-La rama auditada contiene código relacionado con el dominio clínico. La correspondencia exacta entre este diseño, las reglas implementadas, sus fuentes clínicas y sus pruebas todavía debe verificarse.
+- `guideline`: guía clínica usada para la evaluación, cuando está disponible.
+- `clinicalContext`: contexto del paciente, cuando corresponde.
+- `evaluatedAt`: fecha y hora de evaluación.
 
----
+Cada regla puede definir su propio tipo de entrada. Por ejemplo, la regla de clasificación recibe las medias sistólica y diastólica; la regla de objetivos terapéuticos recibe las estadísticas y el contexto del paciente.
 
-> **Alcance:** el motor aplica reglas explícitas sobre datos estructurados. Cada regla clínica debe mantener trazabilidad hacia su fuente y contar con pruebas apropiadas; el documento describe responsabilidades y no reemplaza esa evidencia.
+Las reglas no modifican las mediciones ni acceden directamente a la base de datos.
 
-# Propósito
+## 2. Reglas que coordina el servicio
 
-El Clinical Rule Engine será responsable de aplicar reglas clínicas basadas en guías clínicas oficialmente adoptadas por CardioSync.
+`ClinicalAnalysisDomainService` mantiene una composición de reglas para construir el análisis. La implementación actual incluye:
 
-Su objetivo será transformar datos clínicos estructurados en evaluaciones clínicas reproducibles y trazables.
+| Regla | Función |
+|---|---|
+| `HomeBloodPressureControlRule` | Evalúa el control de la presión arterial domiciliaria según los datos que recibe. |
+| `TrendRule` | Analiza tendencias de las estadísticas. |
+| `HypertensionLoadRule` | Evalúa la carga de hipertensión. |
+| `TimeInTargetRule` | Calcula o interpreta el tiempo dentro del objetivo a partir de la información disponible. |
+| `VariabilityRule` | Evalúa la variabilidad de la presión arterial. |
+| `TherapeuticTargetRule` | Compara las medias con el objetivo terapéutico seleccionado. |
+| `CardiovascularRiskRule` | Identifica antecedentes clínicos que el modelo relaciona con un nivel de riesgo aumentado. |
+| `BloodPressureSafetyRule` | Genera advertencias de seguridad, incluida una advertencia para presión diastólica media inferior a 70 mmHg. |
+| `BloodPressureClassificationRule` | Clasifica la presión arterial media usando `BloodPressureClassifier`. |
 
----
+La presencia de una regla en esta composición describe el código de coordinación. Los datos necesarios para cada evaluación pueden no estar disponibles en todos los análisis.
 
-# Principios fundamentales
+## 3. Flujo de ejecución
 
-El Clinical Rule Engine deberá:
+El flujo principal se implementa en `ClinicalAnalysisDomainService.analyze()`:
 
-- Utilizar reglas explícitas.
-- Basarse en evidencia científica.
-- Mantener trazabilidad hacia la guía clínica correspondiente.
-- Separar reglas clínicas de la interfaz.
-- Separar reglas clínicas de cálculos estadísticos.
+1. Construye el contexto común con la guía y la fecha de evaluación.
+2. Ejecuta las reglas con las entradas que corresponden a cada tipo.
+3. Cuando faltan estadísticas requeridas, omite las reglas que dependen de ellas.
+4. Combina los hallazgos devueltos por las reglas.
+5. Llama a `buildClinicalAnalysisResult` para agrupar los hallazgos por categoría.
+6. Devuelve el objeto `ClinicalAnalysis`.
 
-No deberá:
+El servicio no calcula las estadísticas a partir de las mediciones: consume el resumen estadístico que recibe en la entrada.
 
-- Realizar consultas SQL.
-- Modificar mediciones.
-- Reemplazar al profesional de salud.
-- Crear interpretaciones sin respaldo documental.
+## 4. Hallazgos
 
----
+Cada `ClinicalFinding` describe un resultado producido por una regla. Según el tipo de hallazgo, incluye un identificador, tipo, título, descripción, severidad, referencia a la guía y fecha de creación.
 
-# Entradas
+Una regla puede devolver una lista vacía cuando no se cumple su condición de generación o cuando la entrada necesaria no está disponible. La ausencia de hallazgos, por sí sola, no demuestra que una medición sea normal ni que se hayan evaluado todas las reglas.
 
-El Clinical Rule Engine recibirá información proveniente del ClinicalContext.
+## 5. Clasificación y objetivos terapéuticos
 
-Posibles entradas:
+La clasificación utiliza `BloodPressureClassifier` y la regla `BloodPressureClassificationRule` genera el hallazgo correspondiente.
 
-## MeasurementContext
+La evaluación de objetivos terapéuticos sigue otra ruta: `TherapeuticTargetRule` consulta `ClinicalTargetSelector`, que obtiene los objetivos asociados a la guía y selecciona uno según la población, las condiciones del contexto y la prioridad. Luego, `TargetRangeEvaluator` compara las medias con los rangos del objetivo seleccionado.
 
-Información principal:
+La selección de objetivo y la clasificación son procesos diferentes. Un resultado de clasificación no equivale a una evaluación de control terapéutico.
 
-- Presión arterial.
-- Fecha y hora.
-- Datos asociados a la medición.
+## 6. Trazabilidad de guías
 
-Obligatorio.
+Las reglas reciben el contexto de la guía y asocian su identificador a los hallazgos cuando corresponde. Los objetivos terapéuticos también incluyen un identificador de guía.
 
----
+Las fuentes, las extracciones y el alcance conocido de las reglas se describen en [Registro de guías clínicas](clinical/09_CLINICAL_GUIDELINE.md) y en las fichas específicas de cada guía. La existencia de una fuente o de una regla no implica que todas las recomendaciones del documento estén cubiertas.
 
-## StatisticsContext
+## 7. Límites de interpretación
 
-Información complementaria:
+El motor genera información estructurada para apoyar el seguimiento; no sustituye una evaluación médica. La salida depende de la calidad y completitud de las entradas, de la guía seleccionada y de las reglas que se ejecutan en esa versión.
 
-- Promedios.
-- Tendencias.
-- Variabilidad.
-- Evolución temporal.
-
-Opcional.
-
----
-
-## PatientContext
-
-Información del paciente cuando esté disponible.
-
-Opcional.
-
----
-
-## HistoryContext
-
-Información histórica relevante.
-
-Opcional.
-
----
-
-## Contextos externos
-
-Información proveniente de integraciones externas:
-
-- SleepContext.
-- ActivityContext.
-- BodyCompositionContext.
-- VitalSignsContext.
-
-Opcionales.
-
----
-
-# Salidas
-
-El Clinical Rule Engine podrá generar:
-
-## Clasificación clínica
-
-Ejemplo:
-
-- Categoría de presión arterial.
-- Situaciones relevantes según guía clínica.
-
----
-
-## Recomendaciones
-
-Las recomendaciones deberán:
-
-- Estar asociadas a una regla.
-- Indicar la fuente clínica.
-- Tener trazabilidad.
-
----
-
-## Alertas clínicas
-
-Podrá identificar situaciones que requieran atención adicional.
-
-Ejemplo:
-
-- Valores persistentemente elevados.
-- Necesidad de repetir mediciones.
-- Solicitud de información adicional.
-
----
-
-# Relación con guías clínicas
-
-Cada regla deberá registrar:
-
-- Nombre de la guía.
-- Versión.
-- Fecha.
-- Nivel de evidencia cuando corresponda.
-- Clase de recomendación cuando corresponda.
-
-No se implementarán reglas sin fuente documentada.
-
----
-
-# Flujo conceptual
-
-ClinicalContext
-
-↓
-
-Clinical Rule Engine
-
-↓
-
-Reglas clínicas
-
-↓
-
-Evaluación
-
-↓
-
-Recomendaciones / Clasificaciones / Alertas
-
----
-
-# Solicitud de información adicional
-
-El motor podrá detectar cuándo falta información necesaria.
-
-Ejemplos:
-
-- Síntomas no registrados.
-- Contexto insuficiente.
-- Mediciones insuficientes.
-
-En esos casos podrá solicitar información adicional.
-
-No deberá asumir datos faltantes.
-
----
-
-# Restricciones
-
-- No modifica BloodPressureRecord.
-- No depende de Health Connect.
-- No depende de React.
-- No depende de SQLite.
-- No realiza cálculos estadísticos.
-
----
-
-# Evolución prevista
-
-La implementación comenzará luego de:
-
-1. Finalizar la refactorización del dominio.
-2. Definir Clinical Domain.
-3. Definir modelos clínicos definitivos.
-
-
----
-
-## Eliminación de duplicidad de clasificación
-
-Se eliminó `ClinicalClassificationRule` de la composición del Clinical Rule Engine y posteriormente del código activo.
-
-La clasificación de presión arterial queda centralizada en:
-
-`BloodPressureClassificationRule`.
-
-Esto evita producir dos findings con el mismo tipo desde fuentes de clasificación diferentes.
-
----
-
+Cuando se cambia una regla, deben revisarse su fuente clínica, sus consumidores y los casos límite relevantes. Los cambios de comportamiento deben acompañarse de pruebas automatizadas apropiadas.
