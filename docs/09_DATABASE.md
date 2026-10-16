@@ -6,7 +6,7 @@
 | Tipo | Documentación del Modelo de Datos |
 | Estado | Activo |
 | Versión | Sincronizada con la versión del proyecto |
-| Última actualización | 2026-08-03 |
+| Última actualización | 2026-10-15 |
 
 ---
 
@@ -23,9 +23,11 @@ Su finalidad es documentar:
 
 ---
 
+> **Nota de auditoría (2026-10-15):** la base de datos usa SQLite y el código auditado incluye servicios de importación y backup/restauración. Este documento requiere una revisión del esquema completo, inicialización, migraciones, integridad, compatibilidad entre versiones y recuperación antes de considerarse una referencia exhaustiva.
+
 # Importación y Exportación de Datos
 
-Estado: 📋 PLANIFICADO
+Estado: Implementación presente; cobertura y compatibilidad pendientes de verificación
 
 ## Objetivo
 
@@ -37,7 +39,7 @@ También permitir la exportación de información propia del usuario.
 
 # Importación de históricos
 
-CardioSync podrá incorporar registros existentes mediante archivos externos.
+CardioSync contiene una implementación de importación de históricos mediante archivos externos. Los formatos aceptados, las reglas de validación, los límites y el comportamiento ante registros duplicados deben confirmarse contra los parsers, la interfaz y las pruebas de la rama que se publique.
 
 Fuentes posibles:
 
