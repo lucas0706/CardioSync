@@ -4,21 +4,21 @@
 |-------|--------|
 | Documento | 07_REPORTS.md |
 | Tipo | Diseño Conceptual de Reportes |
-| Estado | En implementación |
+| Estado | Implementación presente; validación funcional pendiente |
 | Versión | Sincronizada con la versión del proyecto |
-| Última actualización | 2026-08-10 |
+| Última actualización | 2026-10-15 |
 
 ---
 
 # Objetivo
 
-Este documento define el diseño conceptual del sistema de reportes de CardioSync.
+Este documento describe el diseño esperado del sistema de reportes de CardioSync.
 
-No contiene implementación.
-
-Su finalidad es establecer la estructura, objetivos y diferencias entre los distintos tipos de reportes que generará el sistema.
+La rama auditada contiene servicios para construir reportes y generar, compartir o imprimir archivos PDF. Esta evidencia de código no certifica todos los flujos, formatos ni resultados en dispositivos; deben validarse mediante pruebas.
 
 ---
+
+> **Nota de auditoría (2026-10-15):** el estado anterior no distinguía diseño de implementación. Verificar filtros, rangos de fechas, datos incluidos, tratamiento de archivos temporales y flujos de compartir/imprimir antes de declarar el sistema completamente validado.
 
 # Principios generales
 
