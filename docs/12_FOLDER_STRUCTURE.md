@@ -7,9 +7,11 @@
 | Tipo | Organización del repositorio |
 | Estado | Activo |
 | Versión | Sincronizada con la versión del proyecto |
-| Última actualización | 2026-08-03 |
+| Última actualización | 2026-10-15 |
 
 ---
+
+> **Nota de vigencia (2026-10-15):** la estructura documentada debe representar el árbol real de la rama revisada. En `src/` existen, además de `core`, `domain`, `features` y `components`, directorios como `clinical`, `services`, `store`, `hooks`, `theme`, `types`, `utils` y `devtools`. Esta nota registra su presencia sin proponer una reorganización automática.
 
 # Objetivo
 
