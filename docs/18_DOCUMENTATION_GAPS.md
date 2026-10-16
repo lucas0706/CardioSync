@@ -152,3 +152,26 @@ La revisión estática de `ClinicalTargetSelector`, `ClinicalTargetMatcher`, `Co
 - La regla de objetivo terapéutico omite el hallazgo cuando la media PAS es <120 o la PAD <70; debe verificarse qué regla independiente comunica los riesgos o precauciones de estos escenarios.
 
 Son discrepancias estáticas que requieren validar contra la fuente primaria y el modelo completo antes de modificar el código. No se ha afirmado que toda la aplicación carezca de cobertura ni se ha cambiado ninguna regla clínica.
+
+
+## 8. Seguimiento del contexto clínico y selección de objetivos — 2026-10-15
+
+La inspección estática del flujo de análisis y perfil en la rama documental amplía los hallazgos anteriores:
+
+- `ClinicalAnalysisDomainService` entrega `input.context` como contexto clínico a las reglas y usa el Consenso Argentino 2025 por defecto cuando no se proporciona otra guía.
+- `ClinicalProfileService` lee y guarda el `ClinicalContext` a través de `clinicalProfileRepository`; el hook `useClinicalProfile` lee el perfil local identificado por `LOCAL_PROFILE_ID`. En los archivos inspeccionados no aparece un constructor separado que complete o normalice automáticamente tolerancia o fragilidad.
+- `ClinicalContext.age`, `diabetes` y `chronicKidneyDisease` son opcionales. El selector clasifica edades `>=80` como `mayores_80` y cualquier otro caso —incluida edad ausente— como `adultos_16_79`. El selector no valida en ese punto el límite inferior de 16 años.
+- El selector filtra por población y condiciones, ordena por prioridad y, si no encuentra un objetivo que cumpla las condiciones, usa el primer objetivo de esa población como fallback. Esto explica por qué la condición `buena_tolerancia` falsa cae al objetivo base, pero también requiere pruebas para evitar que un contexto incompleto se interprete como población general.
+- Los objetivos de diabetes y enfermedad renal crónica no exigen explícitamente `buena_tolerancia` en sus condiciones, aunque sus descripciones dicen «cuando es tolerado». El comportamiento y la fuente primaria deben revisarse antes de cambiar esa modelización.
+- `TherapeuticTargetRule` omite el hallazgo de objetivo si la media PAS es <120 o la PAD <70. La auditoría actual no verificó todavía qué regla independiente genera alertas para esos valores ni si el contexto clínico se construye igual en todos los consumidores.
+
+**Conclusión limitada:** se verificó el cableado entre el perfil, el servicio de análisis y la regla de objetivos en los archivos inspeccionados. No se verificó en ejecución la persistencia, la entrada de datos del perfil, la invocación desde todas las pantallas ni la cobertura de reglas de seguridad.
+
+### Próxima auditoría técnica
+
+1. Localizar todos los consumidores de `ClinicalAnalysisDomainService.analyze()` y confirmar qué contexto le entregan.
+2. Inspeccionar `ClinicalProfileRepository`, el formulario de perfil y validaciones de edad/campos.
+3. Inspeccionar `BloodPressureSafetyRule` y sus consumidores para los casos PAS <120 y PAD <70.
+4. Contrastar los objetivos y condiciones con el PDF fuente antes de decidir cambios.
+5. Añadir pruebas unitarias para edad ausente, edades fuera de población, prioridad entre comorbilidades, fallback y condiciones de tolerancia.
+6. No cambiar código clínico hasta cerrar esos puntos y revisar la fuente primaria.
