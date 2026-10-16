@@ -25,7 +25,7 @@ Su finalidad es documentar:
 
 > **Alcance:** CardioSync utiliza SQLite para la persistencia local. Este documento reúne el modelo de datos y los flujos de intercambio; los detalles de esquema y migraciones deben actualizarse cuando cambie la estructura de almacenamiento.
 
-# Importación y Exportación de Datos
+# Persistencia, copias e intercambio de datos\n\nLa guía específica de [copias de seguridad y recuperación](16_BACKUP_AND_RESTORE.md) explica la copia manual, Google Drive, las copias programadas y la diferencia entre restaurar una base completa e importar mediciones.\n\n# Importación y Exportación de Datos
 
 Estado: Implementación presente; cobertura y compatibilidad pendientes de verificación
 
