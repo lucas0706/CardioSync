@@ -1,0 +1,92 @@
+# Consenso Argentino de Hipertensión Arterial 2025
+
+| Campo | Valor |
+|---|---|
+| Estado documental | Fuente incorporada al repositorio y con reglas asociadas |
+| Organizaciones registradas en código | Federación Argentina de Cardiología (FAC), Sociedad Argentina de Hipertensión Arterial (SAHA), Sociedad Argentina de Cardiología (SAC) |
+| Año | 2025 |
+| Referencia bibliográfica registrada en extracción | Rev Fed Arg Cardiol. 2025; 54 (Suplemento 6): 5-64 |
+| Última revisión documental | 2026-10-15 |
+
+## 1. Estado y alcance
+
+CardioSync ya contiene una implementación que declara utilizar el Consenso Argentino de Hipertensión Arterial 2025. También existe un PDF fuente dentro de `docs/clinical/guidelines/source/argentina/` y documentos de extracción por tema en `docs/clinical/guidelines/extraction/argentina/consenso-2025/`.
+
+Por tanto, esta guía no debe describirse como una referencia sin investigar. El trabajo pendiente consiste en comprobar la trazabilidad completa de cada regla, la correspondencia exacta con el documento primario y la validación técnica y clínica de los escenarios.
+
+La presencia de código o de una extracción documental no certifica por sí sola que toda la guía esté implementada ni que cada regla haya sido validada.
+
+## 2. Evidencia encontrada en el repositorio
+
+### Clasificación de presión arterial
+
+Archivo de implementación:
+
+- `src/domain/clinical/classification/BloodPressureClassifier.ts`
+
+El comentario de implementación identifica el Consenso Argentino de Hipertensión Arterial 2025 y señala que la clasificación es para presión arterial en consultorio en personas de 16 años o más. El código implementa categorías normal, limítrofe, HTA nivel 1, HTA nivel 2 e hipertensión sistólica aislada, con los umbrales expresados en el propio clasificador.
+
+Documento de extracción relacionado:
+
+- [Definición y clasificación de HTA](extraction/argentina/consenso-2025/002_definicion_y_clasificacion_hta.md)
+
+La extracción identifica la página 10 y la tabla 1 del documento fuente. Para modificar umbrales o el orden de precedencia de las categorías, debe revisarse la tabla original y los casos límite del código; no basta con cambiar las etiquetas.
+
+### Identificación de la guía
+
+Archivo:
+
+- `src/domain/clinical/guidelines/ConsensoArgentinaHTA2025.ts`
+
+El modelo de guía registra el identificador `consenso-hta-argentina-2025`, las tres organizaciones indicadas, el año 2025, el área clínica de hipertensión y población `adult`.
+
+### Regla que genera el hallazgo
+
+Archivo:
+
+- `src/domain/clinical/rules/blood-pressure/BloodPressureClassificationRule.ts`
+
+La regla invoca `BloodPressureClassifier` y asocia el hallazgo al identificador de la guía recibido en el contexto de ejecución. La clasificación de este archivo no selecciona por sí sola una guía distinta para cada población: utiliza el clasificador central que se le importa.
+
+### Objetivos terapéuticos
+
+Archivo:
+
+- `src/domain/clinical/targets/guidelines/ConsensoArgentinaHTA2025Targets.ts`
+
+El archivo declara objetivos para población general adulta, buena tolerancia, enfermedad renal crónica, diabetes y mayores de 80 años. Estos valores deben mantenerse vinculados a las secciones exactas de la fuente primaria y a pruebas que verifiquen la selección de objetivos. Esta ficha no sustituye esa revisión.
+
+## 3. Fuente y extracción
+
+- [Índice de fuentes clínicas](source/INDEX.md)
+- [Fuente argentina](source/argentina/README.md)
+- [Índice de extracción del consenso 2025](extraction/argentina/consenso-2025/README.md)
+- [Extracción: definición y clasificación](extraction/argentina/consenso-2025/002_definicion_y_clasificacion_hta.md)
+
+El repositorio identifica la fuente como *Rev Fed Arg Cardiol. 2025; 54 (Suplemento 6): 5-64*. Antes de cambiar una regla, verificar directamente el PDF incluido, su página y tabla, y registrar la decisión derivada.
+
+## 4. Límites y validación pendiente
+
+Esta revisión estática confirma la presencia de archivos y la relación explícita que establece el código; no confirma que todos los escenarios hayan pasado pruebas.
+
+Pendiente de verificar:
+
+1. Que los límites y precedencias del clasificador coincidan exactamente con la fuente primaria, incluidos valores fronterizos y combinaciones discordantes de PAS/PAD.
+2. Que el rango de edad y el contexto de medición se apliquen efectivamente en el flujo que invoca la clasificación, no solo en el comentario.
+3. Que los objetivos terapéuticos correspondan a las secciones y poblaciones indicadas en el consenso.
+4. Que `ClinicalGuideline` seleccionada en el contexto y los hallazgos generados conserven trazabilidad correcta.
+5. Que existan pruebas automatizadas y pruebas de integración para estos escenarios y que su ejecución se documente.
+6. Que las diferencias con otras guías se mantengan explícitas y no se mezclen umbrales entre fuentes.
+
+## 5. Política de cambios
+
+Cualquier cambio clínico relacionado con este consenso debe incluir:
+
+- referencia de fuente primaria y sección/página;
+- explicación del cambio respecto de la regla anterior;
+- archivos de código afectados;
+- casos de prueba para límites y combinaciones relevantes;
+- revisión de los consumidores de la clasificación;
+- estado de validación técnica y clínica por separado.
+
+No utilizar este documento como consejo médico ni como sustituto de evaluación profesional.
