@@ -1388,3 +1388,29 @@ La documentación principal debe responder qué hace cada parte, cómo se organi
 ### Alcance
 
 Cambios documentales. No se modificó código funcional, reglas clínicas, dependencias ni configuración de la aplicación.
+
+
+---
+
+# 2026-10-15 — Documentación funcional y técnica reader-first
+
+### Tipo
+
+Documentación de funcionamiento y arquitectura
+
+### Cambios realizados
+
+- Reescrito `06_CLINICAL_ANALYSIS.md` para explicar el flujo real del servicio de análisis clínico y la composición actual de reglas.
+- Reescrito `07_REPORTS.md` para describir el flujo de reportes y el renderer SVG/HTML del gráfico PDF.
+- Reescrito `08_HEALTH_CONNECT.md` para explicar la integración, sus componentes, permisos y flujo de datos.
+- Reescrito `09_DATABASE.md` para explicar persistencia local, validación de restauración e importación CSV/SQLite.
+- Reescrito `11_MODULES.md` y `12_FOLDER_STRUCTURE.md` para reflejar los módulos y directorios presentes en el árbol de código.
+- Reescrito `14_RELEASES_AND_UPDATES.md` como guía de distribución Android, diferenciando APK y OTA y conservando las comprobaciones operativas necesarias.
+
+### Criterio editorial
+
+Los documentos explican qué hace cada módulo, dónde vive su implementación y cómo se relaciona con el resto de CardioSync. Las precauciones se mantienen donde afectan a la seguridad de datos, a la interpretación clínica o a la publicación de versiones; no sustituyen la explicación funcional.
+
+### Alcance
+
+Cambios documentales en la rama `docs/documentation-audit`. No se modificó código de la aplicación, dependencias ni configuración nativa.
