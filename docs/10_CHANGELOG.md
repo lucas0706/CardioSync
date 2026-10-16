@@ -1165,3 +1165,28 @@ Documentación funcional y técnica
 ### Alcance
 
 Revisión estática del código en la rama de referencia. No se ejecutaron pruebas en dispositivo ni de Google Drive.
+
+---
+
+# 2026-10-15 — Plan de resolución de brechas documentales
+
+### Tipo
+
+Mantenimiento documental
+
+### Cambios realizados
+
+- Añadido un plan para resolver los 24 archivos vacíos identificados en la auditoría inicial.
+- Clasificados los documentos por área y propuesta de tratamiento: completar, consolidar, mantener pendiente o retirar tras revisión.
+- Añadidos criterios para evitar duplicidad de roadmaps y decisiones arquitectónicas.
+- Establecida una regla explícita para no inventar contenido clínico ni atribuir validación funcional sin evidencia.
+- Enlazado el plan desde el índice documental.
+
+### Alcance
+
+Solo documentación. No se modificaron código de aplicación, dependencias, configuración nativa ni reglas clínicas. No se ejecutaron compilaciones ni pruebas en dispositivo.
+
+### Documento relacionado
+
+- `docs/18_DOCUMENTATION_GAPS.md`
+
