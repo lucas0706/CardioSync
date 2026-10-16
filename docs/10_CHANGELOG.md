@@ -1364,3 +1364,27 @@ Solo documentación. La revisión fue estática en la rama `docs/documentation-a
 
 - `docs/18_DOCUMENTATION_GAPS.md`
 - `docs/clinical/guidelines/ARGENTINA_2025.md`
+
+
+---
+
+# 2026-10-15 — Reorganización de la documentación para lectores del proyecto
+
+### Tipo
+
+Documentación de producto y arquitectura
+
+### Cambios realizados
+
+- Reorientado el índice para que una persona nueva empiece por el producto, la guía de uso, la arquitectura y las funcionalidades.
+- Reescrita la arquitectura para explicar la organización real del código y el recorrido de la información.
+- Reescritos los documentos de dominio clínico y motor de reglas para describir sus modelos, componentes y flujo de ejecución.
+- Separados los documentos de mantenimiento interno de la documentación que explica cómo funciona la aplicación.
+
+### Criterio editorial
+
+La documentación principal debe responder qué hace cada parte, cómo se organiza y cómo interactúa con el resto del sistema. Los hallazgos de auditoría, las discrepancias y las tareas pendientes pertenecen a documentos internos específicos, no deben dominar la explicación de producto o arquitectura.
+
+### Alcance
+
+Cambios documentales. No se modificó código funcional, reglas clínicas, dependencias ni configuración de la aplicación.
