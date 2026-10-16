@@ -90,6 +90,8 @@ Ante síntomas graves o una situación urgente, no se debe esperar a que la apli
 
 ## 6. Cómo leer el resto de la documentación
 
+Para una explicación paso a paso de las pantallas y las operaciones de usuario, consultar la [Guía de uso de CardioSync](15_USER_GUIDE.md).
+
 - [Arquitectura](01_ARCHITECTURE.md): cómo se organiza técnicamente la aplicación.
 - [Dominio clínico](04_CLINICAL_DOMAIN.md), [reglas](05_CLINICAL_RULE_ENGINE.md) y [análisis](06_CLINICAL_ANALYSIS.md): cómo se modela y procesa la información clínica.
 - [Reportes](07_REPORTS.md): composición y generación de reportes.
