@@ -10,7 +10,7 @@
 
 ---
 
-> **Nota de vigencia (2026-10-15):** este documento conserva decisiones y contexto histórico. La implementación debe contrastarse con la rama y el commit registrados en [la auditoría documental](00_DOCUMENTATION_AUDIT_2026-10-15.md). Los estados funcionales no se consideran verificados solo por estar descritos aquí.
+> **Guía de lectura:** para conocer primero qué hace CardioSync y cómo se utiliza, comenzar por la [descripción funcional del producto](00_PRODUCT_OVERVIEW.md). Este documento conserva el contexto general, los objetivos y los principios arquitectónicos del proyecto; los detalles de implementación se describen en las guías técnicas específicas.
 
 # 1. Propósito
 
