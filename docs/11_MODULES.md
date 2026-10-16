@@ -6,9 +6,11 @@
 | Tipo | Inventario de módulos |
 | Estado | Activo |
 | Versión | Sincronizada con la versión del proyecto |
-| Última actualización | 2026-08-03 |
+| Última actualización | 2026-10-15 |
 
 ---
+
+> **Nota de vigencia (2026-10-15):** este inventario es una guía, no un listado exhaustivo de todos los archivos. La estructura de módulos debe contrastarse con la rama auditada y actualizarse cuando cambien responsabilidades. Los módulos con código presente no deben marcarse como funcionalmente verificados sin pruebas.
 
 # Objetivo
 
