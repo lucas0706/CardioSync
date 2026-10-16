@@ -24,9 +24,9 @@ Cada fase del proyecto deberá actualizar este documento para reflejar exactamen
 
 | Estado | Significado |
 |---------|-------------|
-| ✅ COMPLETADO | Funcionalidad implementada, validada y documentada. |
-| 🚧 EN DESARROLLO | Fase actualmente en ejecución. |
-| 📋 PLANIFICADO | Fase prevista para futuras versiones. |
+| ✅ IMPLEMENTADO | La funcionalidad está implementada en el código. |
+| 🚧 EN DESARROLLO | Trabajo de desarrollo o documentación que todavía se está realizando. No se usa para rebajar el estado de una funcionalidad ya implementada. |
+| 📋 PLANIFICADO | Funcionalidad que todavía no está implementada en el código y se prevé desarrollar. |
 
 ---
 
