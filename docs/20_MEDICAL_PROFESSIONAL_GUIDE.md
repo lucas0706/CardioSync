@@ -1,150 +1,133 @@
 # Guía para profesionales de la salud: cómo funciona CardioSync
 
-**Público:** médicos y otros profesionales que revisan datos exportados o presentados por CardioSync.  
-**Propósito:** explicar el registro, la clasificación de presión arterial y la lectura de estadísticas.  
-**Alcance:** descripción funcional del comportamiento documentado en el repositorio; no es una guía de práctica clínica ni una validación médica del software.
+## Propósito de esta guía
 
-## 1. Qué es y qué no es CardioSync
+Esta guía explica cómo CardioSync registra y presenta mediciones de presión arterial, cómo asigna categorías, qué significan sus estadísticas y qué aspectos conviene revisar al interpretar un reporte.
 
-CardioSync es una aplicación Android orientada al registro y seguimiento personal de la presión arterial. Permite guardar mediciones, consultar el historial, visualizar datos en gráficos y estadísticas, y preparar reportes para compartir con un profesional.
+Está dirigida a profesionales de la salud que reciben información de la aplicación. No requiere conocimientos de programación. Describe el comportamiento implementado en la versión de CardioSync tomada como referencia para esta documentación.
 
-La aplicación organiza información para facilitar el seguimiento longitudinal. **No debe tratarse como un dispositivo de diagnóstico autónomo**, ni una clasificación aislada debe interpretarse como diagnóstico de hipertensión, decisión terapéutica o evaluación de una urgencia.
+## 1. Qué es CardioSync
 
-La interpretación clínica requiere considerar técnica de medición, repetición de registros, período de observación, síntomas, antecedentes, tratamiento, comorbilidades y la guía clínica aplicable.
+CardioSync es una aplicación Android para el registro y seguimiento personal de la presión arterial. Permite conservar mediciones, consultar el historial, visualizar la evolución en gráficos y revisar estadísticas de un período. La información puede utilizarse para preparar reportes y compartirlos con un profesional.
 
-## 2. Qué representa una medición
+La aplicación ayuda a organizar los datos a lo largo del tiempo. No reemplaza la evaluación clínica, no confirma por sí sola un diagnóstico y no debe utilizarse como único criterio para decidir tratamientos o conductas urgentes.
 
-Cada registro de presión arterial representa una observación individual. Los campos principales son:
+Para interpretar sus resultados es necesario considerar la técnica de medición, la repetición de los registros, el período observado, los síntomas, los antecedentes, los tratamientos y las condiciones particulares de cada paciente.
 
-- presión arterial sistólica (PAS), en mmHg;
-- presión arterial diastólica (PAD), en mmHg;
-- fecha y hora;
-- cuando están disponibles, frecuencia cardíaca y otros datos complementarios.
+## 2. Qué información contiene un registro
 
-El registro observado debe distinguirse de su interpretación. La categoría que muestra la aplicación es un resultado derivado de una regla de software; no reemplaza ni modifica los valores originales registrados.
+Una medición puede incluir:
 
-El origen de los datos importa: una medición ingresada manualmente, una importación y un dato recibido desde una integración externa pueden tener diferente contexto y metadatos. La disponibilidad de datos externos depende de las fuentes y permisos configurados.
+- **Presión arterial sistólica (PAS):** presión registrada durante la contracción del corazón, expresada en mmHg.
+- **Presión arterial diastólica (PAD):** presión registrada entre latidos, expresada en mmHg.
+- **Fecha y hora:** permiten ubicar la medición en el tiempo.
+- **Frecuencia cardíaca:** cuando está disponible.
+- **Otros datos complementarios:** según la información registrada o la fuente de origen.
 
-## 3. Clasificación de presión arterial según el código de desarrollo
+Los valores originales deben distinguirse de las interpretaciones que la aplicación calcula a partir de ellos. Una categoría, un color o un resumen estadístico es información derivada: no modifica los valores registrados ni demuestra por sí mismo que la medición se haya realizado correctamente.
 
-En la rama `feature/app-updates`, el clasificador del dominio está implementado en `src/domain/clinical/classification/BloodPressureClassifier.ts`. Su comentario identifica expresamente el **Consenso Argentino de Hipertensión Arterial 2025** y dice que aplica la clasificación de presión arterial en consultorio para personas de 16 años o más.
+Los datos pueden incorporarse de distintas maneras, por ejemplo mediante ingreso manual o integraciones disponibles. El contexto y los metadatos dependen del origen de cada registro y de los permisos configurados.
 
-La categoría se determina usando PAS y PAD. El código evalúa las condiciones en este orden:
+## 3. Cómo clasifica la presión arterial
 
-| Orden | Condición | Categoría |
+La versión de referencia aplica una clasificación basada en el **Consenso Argentino de Hipertensión Arterial 2025**, para la clasificación de presión arterial en consultorio en personas de 16 años o más.
+
+La categoría se determina a partir de la PAS y la PAD. La aplicación evalúa las condiciones en el orden siguiente:
+
+| Orden de evaluación | Valores registrados | Categoría asignada |
 |---|---|---|
-| 1 | PAS ≥ 140 y PAD < 90 | Hipertensión sistólica aislada |
-| 2 | PAS ≥ 160 o PAD ≥ 100 | Hipertensión arterial nivel 2 |
-| 3 | PAS ≥ 140 o PAD ≥ 90 | Hipertensión arterial nivel 1 |
-| 4 | PAS ≥ 130 o PAD ≥ 80 | Presión arterial limítrofe |
-| 5 | Ninguna condición anterior | Presión arterial normal |
+| 1 | PAS ≥ 140 mmHg y PAD < 90 mmHg | Hipertensión sistólica aislada |
+| 2 | PAS ≥ 160 mmHg o PAD ≥ 100 mmHg | Hipertensión arterial nivel 2 |
+| 3 | PAS ≥ 140 mmHg o PAD ≥ 90 mmHg | Hipertensión arterial nivel 1 |
+| 4 | PAS ≥ 130 mmHg o PAD ≥ 80 mmHg | Presión arterial limítrofe |
+| 5 | Ninguna de las condiciones anteriores | Presión arterial normal |
 
-La hipertensión sistólica aislada se evalúa primero. El resultado también informa qué presión determinó la categoría y agrega la advertencia `low-diastolic` si PAD < 70. Los colores solo distinguen visualmente las etiquetas.
+La hipertensión sistólica aislada se evalúa primero. Por ese motivo, cuando se cumple esa condición, se asigna esa categoría antes de evaluar las siguientes.
 
-### 3.1 Dónde se utiliza
+La aplicación también genera una advertencia cuando la PAD es inferior a 70 mmHg. Esa advertencia es una señal para prestar atención al valor registrado; no equivale por sí sola a un diagnóstico.
 
-En la rama de desarrollo se encontraron estos usos:
+Los colores utilizados en la interfaz sirven para distinguir visualmente las categorías. El color no aporta una evaluación clínica adicional.
 
-- `ClinicalClassificationCalculator` clasifica cada medición del período seleccionado y cuenta las categorías para obtener su distribución y la categoría predominante.
-- `StatisticsService` del dashboard clasifica cada registro para calcular la categoría predominante y el porcentaje de registros normales.
-- `BloodPressureClassificationRule` clasifica las medias sistólica y diastólica que recibe como entrada del análisis clínico.
-- `ClinicalAnalysisDomainService` usa `ConsensoArgentinaHTA2025` como guía predeterminada cuando no se proporciona otra.
+### ¿Dónde aparece esta clasificación?
 
-Estos resultados no son intercambiables: clasificar cada registro, clasificar dos promedios y elegir la categoría más frecuente son operaciones distintas.
+La clasificación se utiliza en más de un tipo de resultado:
 
-### 3.2 Objetivos terapéuticos
+- **En las mediciones individuales:** asigna una categoría a cada registro.
+- **En la distribución estadística:** cuenta cuántos registros pertenecen a cada categoría y permite identificar la más frecuente.
+- **En el resumen del panel principal:** se utiliza para calcular la categoría predominante y el porcentaje de registros clasificados como normales.
+- **En el análisis clínico:** puede aplicarse a los valores medios de PAS y PAD recibidos por ese análisis.
 
-El código también define objetivos asociados al consenso en `src/domain/clinical/targets/guidelines/ConsensoArgentinaHTA2025Targets.ts`, con reglas para población general de 16 a 79 años, objetivos deseables si se toleran, enfermedad renal crónica, diabetes y mayores de 80 años. Un objetivo terapéutico no es lo mismo que la categoría de una medición. Los valores deben contrastarse con la publicación oficial antes de presentarlos como una transcripción validada del consenso.
+Estos resultados responden preguntas diferentes. La categoría de una medición individual no necesariamente coincide con la categoría calculada a partir de dos promedios, ni con la categoría que aparece con mayor frecuencia en el período.
 
-### 3.3 Alcance y versión
+### Objetivos terapéuticos
 
-La rama de desarrollo consultada contiene esta implementación argentina. La versión de `main` consultada previamente contiene otros clasificadores con etiquetas y umbrales distintos. Por eso, la explicación debe asociarse a una versión concreta y no extrapolarse automáticamente a todas las versiones instaladas.
+CardioSync también contiene reglas de objetivos de presión arterial asociadas al consenso, con condiciones diferenciadas para determinados grupos, como población general de 16 a 79 años, personas con enfermedad renal crónica o diabetes, y mayores de 80 años. Algunos objetivos se expresan como deseables si son tolerados.
 
-La clasificación automática no confirma por sí sola un diagnóstico, la calidad técnica de la medición ni el objetivo terapéutico individual. Ante valores inesperados, deben revisarse los valores originales, el contexto y las mediciones repetidas según el criterio profesional y las guías vigentes.
+Un objetivo terapéutico y una categoría de clasificación no son lo mismo. Los objetivos deben interpretarse en función de la situación clínica, la tolerancia y el criterio del profesional. Antes de utilizar sus valores como transcripción normativa del consenso, corresponde contrastarlos con la publicación oficial vigente.
 
-## 4. Cómo leer las estadísticas
+## 4. Cómo interpretar las estadísticas
 
-### 4.1 Selección y preparación de los datos
+Las estadísticas resumen los registros incluidos en un período seleccionado. En la configuración habitual, el período inicial es de 30 días, aunque el análisis depende del intervalo elegido por el usuario.
 
-En la rama de desarrollo, `useStatistics()` obtiene las mediciones mediante `useMeasurements()`, usa por defecto un período de 30 días y solicita el resumen a `StatisticsDomainService`. El motor aplica el filtro temporal, ordena cronológicamente una copia de los registros para calcular la tendencia y agrega las métricas.
+El sistema filtra las mediciones correspondientes al período y utiliza su orden cronológico para calcular la tendencia. Por lo tanto, las estadísticas describen los datos disponibles dentro del intervalo analizado, no necesariamente el estado clínico completo del paciente.
 
-El total corresponde a los registros que quedan después del filtro. Los resultados describen esos registros y deben leerse considerando el período, la frecuencia de medición y los datos faltantes.
+### Métricas principales
 
-### 4.2 Métricas y fórmulas encontradas
-
-| Métrica | Cálculo en el código | Precaución |
+| Métrica | Qué representa | Consideración para la lectura clínica |
 |---|---|---|
-| Promedio de PAS, PAD y frecuencia cardíaca | Suma dividida por cantidad de valores | No equivale necesariamente a un promedio diagnóstico definido por una guía. |
-| Máximos y mínimos | Mayor o menor valor de la serie | Depende de los registros disponibles y de valores atípicos. |
-| Desviación estándar | Raíz cuadrada de la media de las diferencias cuadráticas respecto de la media; divisor N | Es una medida estadística de dispersión. |
-| Variabilidad | Desviación estándar / promedio × 100 | Es el coeficiente de variación; no equivale automáticamente a un indicador clínico validado de variabilidad de PA. |
-| Carga hipertensiva | Porcentaje de registros con PAS ≥ 135 o PAD ≥ 85 | Esos son los umbrales predeterminados de este calculador; no son los umbrales de clasificación anteriores. |
-| Tiempo en objetivo | Porcentaje de registros con PAS < 135 y PAD < 85 | El código calcula proporción de mediciones, no duración temporal continua. |
-| Tendencia | Último menos primer valor sistólico en orden cronológico: > 3 = ascendente; < −3 = descendente; de lo contrario = estable | Regla simple de extremos, no regresión ni evaluación clínica validada. |
-| Distribución de categorías | Clasifica cada registro y cuenta cada categoría | La predominante es la más frecuente; no necesariamente coincide con la categoría del promedio. |
+| Promedio de PAS, PAD y frecuencia cardíaca | La suma de los valores disponibles dividida por la cantidad de valores | No equivale necesariamente a un promedio diagnóstico definido por una guía clínica. |
+| Valor máximo y mínimo | Los valores más alto y más bajo de la serie | Pueden estar influidos por valores atípicos, errores de registro o condiciones particulares de medición. |
+| Desviación estándar | Cuánto se dispersan los valores alrededor del promedio | Describe dispersión estadística; no constituye por sí sola una conclusión clínica. |
+| Variabilidad | Desviación estándar dividida por el promedio y multiplicada por 100 | Es el coeficiente de variación. No debe interpretarse automáticamente como un indicador clínico validado de variabilidad de presión arterial. |
+| Carga hipertensiva | Porcentaje de registros con PAS ≥ 135 mmHg o PAD ≥ 85 mmHg | Utiliza estos umbrales específicos del cálculo. No son los mismos umbrales de la clasificación por categorías descrita antes. |
+| Registros en objetivo | Porcentaje de registros con PAS < 135 mmHg y PAD < 85 mmHg | Es una proporción de mediciones que cumplen ambas condiciones, no una medición del tiempo real transcurrido dentro del objetivo. |
+| Tendencia sistólica | Diferencia entre el último y el primer valor de PAS del período, ordenados cronológicamente | Una diferencia superior a 3 se considera ascendente; inferior a −3, descendente; entre ambos límites, estable. Es una regla sencilla basada en los extremos, no un análisis de regresión. |
+| Distribución por categorías | Cantidad de registros asignados a cada categoría | La categoría predominante es la más frecuente y puede diferir de la categoría de un promedio. |
 
-El motor también calcula presión de pulso y presión arterial media a partir de las series calculadas por el agregador, y luego promedia esos valores. Para interpretar formalmente estas métricas debe verificarse la fórmula concreta de sus calculadores.
+El sistema también presenta cálculos de presión de pulso y presión arterial media. Esas métricas deben interpretarse junto con sus valores de origen y el contexto clínico, no como conclusiones diagnósticas independientes.
 
-Si la serie está vacía, el motor devuelve cero para varias métricas y una distribución vacía. Por eso, un cero debe leerse junto con el total de registros: no siempre significa que exista una medición de cero.
+### Cuando hay pocos datos o no hay datos
 
-### 4.3 Gráficos
+La utilidad de un resumen depende de la cantidad y distribución de las mediciones. Un período con pocos registros o con grandes intervalos sin mediciones puede no representar adecuadamente la evolución.
 
-El checkpoint de Statistics V2 documenta un gráfico temporal de PAS (mmHg), PAD (mmHg) y frecuencia cardíaca (lpm). Los datos se ordenan cronológicamente. El downsampling puede reducir los puntos dibujados por rendimiento; no modifica los registros originales y no constituye un cálculo clínico.
+Cuando no hay registros, algunas métricas se muestran como cero y la distribución de categorías queda vacía. En ese contexto, un cero no significa que se haya registrado una presión de cero: debe leerse junto con el total de mediciones disponibles.
 
-### 4.4 Interpretación
+### Cómo leer los gráficos
 
-Antes de interpretar estadísticas, revisar el período exacto, la cantidad y distribución temporal de los registros, posibles duplicados o valores atípicos y las condiciones de medición. Estas métricas describen los datos disponibles; por sí solas no demuestran causalidad ni establecen un diagnóstico.
+Los gráficos permiten observar la evolución temporal de PAS, PAD y frecuencia cardíaca cuando esta última está disponible. Los puntos se ordenan cronológicamente.
 
-## 5. Diferencia entre clasificación, estadísticas y análisis clínico
+Para mantener un rendimiento adecuado, la representación gráfica puede reducir la cantidad de puntos dibujados. Esa simplificación visual no cambia las mediciones guardadas ni debe confundirse con una reducción del historial original.
 
-| Componente | Pregunta que responde | Limitación principal |
-|---|---|---|
-| Registro | ¿Qué valores se guardaron y cuándo? | Depende de la calidad y el contexto de la medición. |
-| Clasificación | ¿Qué categoría asigna una regla a los valores evaluados? | No constituye por sí sola un diagnóstico ni una evaluación integral. |
-| Estadísticas | ¿Cómo se distribuyen o evolucionan los registros del período? | Depende del período, la cantidad y la calidad de datos. |
-| Análisis clínico | ¿Qué hallazgos produce el motor con las entradas y reglas disponibles? | Depende de las reglas efectivamente ejecutadas, el contexto y la guía utilizada. |
-| Reporte | ¿Cómo se presenta y comparte la información seleccionada? | No añade validez clínica a los datos de origen. |
+## 5. Diferencia entre medición, clasificación, estadísticas y análisis clínico
 
-En la arquitectura documentada, las estadísticas y el análisis clínico son responsabilidades diferentes. El análisis clínico puede consumir estadísticas y contexto, ejecutar reglas y producir hallazgos estructurados. Que exista una guía registrada en el software no significa que todas sus recomendaciones estén implementadas o validadas.
+- **Medición:** informa qué valores se registraron y cuándo.
+- **Clasificación:** asigna una categoría a los valores evaluados según las reglas disponibles.
+- **Estadísticas:** resumen la distribución y evolución de los registros de un período.
+- **Análisis clínico:** combina las entradas y las reglas disponibles para producir hallazgos estructurados.
+- **Reporte:** presenta la información seleccionada para facilitar su consulta o intercambio.
 
-## 6. Qué revisar al recibir un reporte de CardioSync
+Estas funciones son complementarias, pero no equivalentes. La existencia de una regla o de una guía dentro de la aplicación no significa que todas las recomendaciones de esa guía estén automatizadas, ni que los resultados hayan sido validados como sustituto del juicio clínico.
 
-Como práctica de lectura, se recomienda:
+## 6. Recomendaciones al revisar un reporte
 
-1. Confirmar la identidad del paciente por los procedimientos habituales del servicio, sin depender únicamente de la información del archivo.
-2. Revisar el intervalo temporal y las fechas de las mediciones.
-3. Comprobar la cantidad y distribución de registros y detectar posibles vacíos.
-4. Leer los valores originales de PAS/PAD y la frecuencia cardíaca cuando esté disponible.
-5. Tratar las etiquetas de color o categoría como resultados del software, no como diagnóstico definitivo.
-6. Contrastar cualquier decisión clínica con la evaluación profesional, el contexto y las guías vigentes.
-7. Si un resultado parece incoherente, confirmar qué pantalla o motor produjo la clasificación y revisar los valores originales.
+Al recibir información de CardioSync, puede ser útil:
+
+1. Confirmar la identidad del paciente mediante los procedimientos habituales del servicio; no depender únicamente de la información incluida en un archivo.
+2. Revisar las fechas y el intervalo que abarca el reporte.
+3. Comprobar el número de mediciones y su distribución en el tiempo.
+4. Examinar los valores originales de PAS y PAD, y la frecuencia cardíaca cuando esté disponible.
+5. Considerar posibles registros atípicos, duplicados o períodos sin datos.
+6. Interpretar las categorías, los colores y las estadísticas como información de apoyo, no como diagnóstico definitivo.
+7. Si un resultado parece incoherente, contrastarlo con los valores originales y el contexto en que se realizó la medición.
 
 ## 7. Seguridad y límites clínicos
 
-- No utilizar CardioSync como único criterio para diagnosticar, descartar una enfermedad, modificar medicación o decidir una conducta urgente.
-- No interpretar ausencia de alertas o hallazgos como prueba de normalidad: puede depender de datos ausentes o de reglas que no se ejecutaron.
-- No asumir que todos los motores de clasificación del repositorio aplican idénticos umbrales.
-- No inferir una fórmula estadística que no esté especificada y verificada.
-- Ante síntomas graves o una situación potencialmente urgente, la atención no debe demorarse para consultar una aplicación o generar un reporte.
+- No utilizar CardioSync como único criterio para diagnosticar o descartar una enfermedad, modificar medicación o decidir una conducta urgente.
+- La ausencia de alertas o hallazgos no demuestra que todo sea normal; puede depender de los datos disponibles y de las reglas aplicadas.
+- No asumir que todos los resúmenes responden a los mismos umbrales: una categoría individual, una estadística y un análisis clínico pueden evaluar los valores de maneras diferentes.
+- No interpretar una estadística aislada sin revisar el período, la cantidad de mediciones y la calidad de los datos.
+- Ante síntomas graves o una situación potencialmente urgente, no debe demorarse la atención para consultar la aplicación ni para generar un reporte.
 
-## 8. Trazabilidad técnica
+## Alcance de la información
 
-Esta guía se contrastó con código de la rama de desarrollo `feature/app-updates`, commit `c62b9106f7a1a720b274bb7f386111313d08403e`, especialmente:
-
-- `src/domain/clinical/guidelines/ConsensoArgentinaHTA2025.ts`
-- `src/domain/clinical/classification/BloodPressureClassifier.ts`
-- `src/domain/clinical/rules/blood-pressure/BloodPressureClassificationRule.ts`
-- `src/domain/clinical/services/ClinicalAnalysisDomainService.ts`
-- `src/domain/clinical/targets/guidelines/ConsensoArgentinaHTA2025Targets.ts`
-- `src/domain/statistics/engines/StatisticsEngine.ts`
-- `src/domain/statistics/calculators/AverageCalculator.ts`
-- `src/domain/statistics/calculators/StandardDeviationCalculator.ts`
-- `src/domain/statistics/calculators/VariabilityCalculator.ts`
-- `src/domain/statistics/calculators/HypertensionLoadCalculator.ts`
-- `src/domain/statistics/calculators/TimeInTargetCalculator.ts`
-- `src/domain/statistics/calculators/TrendCalculator.ts`
-- `src/domain/statistics/calculators/ClinicalClassificationCalculator.ts`
-- `src/features/dashboard/services/StatisticsService.ts`
-- `src/features/statistics/hooks/useStatistics.ts`
-
-La guía describe el comportamiento encontrado en el repositorio, pero no constituye una validación clínica independiente ni una certificación regulatoria. Las fórmulas estadísticas y la unificación entre rutas de clasificación requieren una revisión técnica y clínica específica antes de presentarlas como comportamiento uniforme del producto.
+Esta guía describe las funciones y reglas identificadas en la versión de CardioSync tomada como referencia. Su propósito es ayudar a leer la información que presenta la aplicación; no constituye una validación clínica independiente, una certificación regulatoria ni una recomendación de tratamiento. La interpretación final corresponde al profesional de la salud, con los datos clínicos pertinentes y las guías vigentes.
