@@ -1,17 +1,14 @@
 # Documentación de CardioSync
 
-Este directorio reúne la documentación técnica, funcional y clínica de CardioSync.
+La documentación está organizada para explicar primero el producto y sus funciones, y después su arquitectura, implementación y operación.
 
-## Por dónde empezar
+## Empezar por la aplicación
 
-1. [README del proyecto](../README.md): propósito, funcionalidades y puesta en marcha.
-2. [Contexto maestro](00_PROJECT_MASTER_CONTEXT.md): visión general del proyecto y principios.
-3. [Arquitectura](01_ARCHITECTURE.md): organización técnica y responsabilidades.
-4. [Roadmap](02_ROADMAP.md): estado y evolución prevista.
-5. [Decisiones arquitectónicas](03_DECISIONS.md): decisiones y justificaciones registradas.
-6. [Auditoría documental de octubre de 2026](00_DOCUMENTATION_AUDIT_2026-10-15.md): hallazgos, alcance y plan de saneamiento.
+- [Descripción funcional de CardioSync](00_PRODUCT_OVERVIEW.md): propósito, funcionalidades, recorrido de uso, datos y límites.
+- [README del proyecto](../README.md): resumen del producto y puesta en marcha del entorno de desarrollo.
+- [Contexto maestro](00_PROJECT_MASTER_CONTEXT.md): visión, objetivos y principios generales del proyecto.
 
-## Documentación técnica
+## Funcionalidades y dominios
 
 | Tema | Documento |
 |---|---|
@@ -20,26 +17,31 @@ Este directorio reúne la documentación técnica, funcional y clínica de Cardi
 | Análisis clínico | [06_CLINICAL_ANALYSIS.md](06_CLINICAL_ANALYSIS.md) |
 | Reportes | [07_REPORTS.md](07_REPORTS.md) |
 | Health Connect | [08_HEALTH_CONNECT.md](08_HEALTH_CONNECT.md) |
-| Base de datos | [09_DATABASE.md](09_DATABASE.md) |
-| Historial de cambios | [10_CHANGELOG.md](10_CHANGELOG.md) |
-| Módulos | [11_MODULES.md](11_MODULES.md) |
-| Estructura de carpetas | [12_FOLDER_STRUCTURE.md](12_FOLDER_STRUCTURE.md) |
-| Importación histórica | [13_IMPORTATION_SPECIFICATION.md](13_IMPORTATION_SPECIFICATION.md) |
-| Versiones, actualizaciones y distribución | [14_RELEASES_AND_UPDATES.md](14_RELEASES_AND_UPDATES.md) |
-| Normas documentales | [99_DOCUMENTATION_GUIDELINES.md](99_DOCUMENTATION_GUIDELINES.md) |
+| Base de datos, importación y persistencia | [09_DATABASE.md](09_DATABASE.md) |
+| Especificación de importación histórica | [13_IMPORTATION_SPECIFICATION.md](13_IMPORTATION_SPECIFICATION.md) |
 
-## Documentación clínica
+## Arquitectura y desarrollo
 
-La carpeta [clinical/](clinical/) contiene especificaciones del dominio clínico, reglas, glosario y material relacionado con guías. Los documentos de fuentes y extracción deben conservar su procedencia y distinguirse de las reglas efectivamente implementadas.
+- [Arquitectura](01_ARCHITECTURE.md): capas, responsabilidades y dependencias.
+- [Módulos](11_MODULES.md): mapa de funcionalidades y responsabilidades.
+- [Estructura de carpetas](12_FOLDER_STRUCTURE.md): organización del repositorio.
+- [Decisiones arquitectónicas](03_DECISIONS.md): decisiones relevantes y sus motivos.
+- [Roadmap](02_ROADMAP.md): evolución prevista y estado registrado.
 
-## Checkpoints históricos
+## Distribución y mantenimiento
 
-Los documentos con prefijos `CHECKPOINT` o ubicados en [checkpoints/](checkpoints/) registran estados puntuales del desarrollo. Son evidencia histórica y no deben interpretarse automáticamente como descripción del estado actual.
+- [Versiones, actualizaciones y distribución Android](14_RELEASES_AND_UPDATES.md): configuración, OTA, APK y procedimiento de release.
+- [Historial de cambios](10_CHANGELOG.md): cambios relevantes registrados.
+- [Normas de documentación](99_DOCUMENTATION_GUIDELINES.md): cómo mantener esta documentación.
 
-## Criterio de mantenimiento
+## Referencias clínicas e históricas
 
-- El código y la configuración vigentes describen la implementación.
-- Las especificaciones explican el comportamiento esperado y sus límites.
-- Las decisiones arquitectónicas registran el motivo de elecciones relevantes.
-- Los checkpoints conservan el contexto histórico.
-- El estado de una funcionalidad solo debe marcarse como verificado cuando exista evidencia suficiente; la presencia de archivos por sí sola no demuestra que el flujo funcione en producción.
+La carpeta [clinical/](clinical/) contiene documentación del dominio, glosario y referencias relacionadas con guías. Las fuentes clínicas deben conservar su procedencia y distinguirse de las reglas que realmente utiliza la aplicación.
+
+Los documentos con prefijo CHECKPOINT y la carpeta [checkpoints/](checkpoints/) conservan estados históricos del desarrollo. Son referencias de contexto y no necesariamente describen el estado actual.
+
+## Mantenimiento interno
+
+La revisión documental inicial está registrada en [Auditoría documental de octubre de 2026](00_DOCUMENTATION_AUDIT_2026-10-15.md). Ese informe sirve para organizar el trabajo de documentación; no es la descripción principal del producto.
+
+Los documentos deben distinguir entre diseño, código implementado y comportamiento validado. La presencia de código no demuestra por sí sola que todos los escenarios funcionen correctamente en producción.
