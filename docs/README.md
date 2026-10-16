@@ -10,6 +10,10 @@ Esta documentación explica qué hace CardioSync, cómo se utiliza, cómo está 
 - [Estructura de carpetas](12_FOLDER_STRUCTURE.md): mapa del repositorio.
 - [Desarrollo y ejecución](17_DEVELOPMENT_WORKFLOW.md): entorno de desarrollo y comprobaciones habituales.
 
+## Guías para lectores
+
+- [Guía para profesionales de la salud](20_MEDICAL_PROFESSIONAL_GUIDE.md): cómo interpretar los registros, la clasificación y las estadísticas, con sus límites conocidos.
+
 ## Funcionalidades
 
 | Área | Descripción |
