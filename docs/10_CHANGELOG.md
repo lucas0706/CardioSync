@@ -1093,3 +1093,23 @@ Checkpoint relacionado:
 - Actualizadas notas de vigencia en contexto maestro, arquitectura, roadmap, dominio clínico, reportes, Health Connect y base de datos.
 - No se modificó código funcional, dependencias ni configuración nativa como parte de esta fase.
 - Referencia: [auditoría documental inicial](00_DOCUMENTATION_AUDIT_2026-10-15.md).
+
+
+# 2026-10-15 — Documentación funcional del producto
+
+### Tipo
+
+Documentación funcional
+
+### Cambios realizados
+
+- Se incorporó una guía de uso basada en las rutas y pantallas de la aplicación.
+- Se documentaron navegación principal, registro y gestión de mediciones, perfil, estadísticas y reportes.
+- Se describieron los accesos a importación, copias manuales y programadas, Health Connect y actualizaciones.
+- Se separó la descripción del comportamiento previsto de la validación en dispositivos; no se modificó código funcional.
+
+### Documentos relacionados
+
+- `docs/00_PRODUCT_OVERVIEW.md`
+- `docs/15_USER_GUIDE.md`
+- `docs/README.md`
