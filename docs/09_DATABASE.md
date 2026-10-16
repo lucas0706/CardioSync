@@ -1,117 +1,98 @@
-# CardioSync — Database Architecture
+# CardioSync — Base de datos, importación y persistencia
 
 | Campo | Valor |
-|-------|--------|
+|---|---|
 | Documento | 09_DATABASE.md |
-| Tipo | Documentación del Modelo de Datos |
-| Estado | Activo |
-| Versión | Sincronizada con la versión del proyecto |
-| Última actualización | 2026-10-15 |
+| Tipo | Referencia de persistencia e intercambio |
+| Estado | Implementación presente; esquema completo y flujos requieren validación adicional |
+| Última revisión documental | 2026-10-15 |
+| Rama de referencia | `docs/documentation-audit`, basada en `feature/app-updates` |
 
----
+## 1. Persistencia local
 
-# Objetivo
+CardioSync utiliza SQLite para almacenar información local. El código de restauración reconoce el archivo `cardiosync.db` y valida la presencia de las tablas `blood_pressure_records` y `clinical_profile` antes de aceptar una copia como base CardioSync.
 
-Este documento describe el modelo actual de datos de CardioSync.
+Esta referencia no reemplaza la definición de esquema ni un inventario de migraciones. Los nombres anteriores se citan porque aparecen en la validación de restauración; no implican que sean las únicas tablas de la base.
 
-Su finalidad es documentar:
+Las operaciones de persistencia deben permanecer encapsuladas en la capa de base de datos y repositorios. La UI no debe ejecutar consultas SQLite directamente.
 
-- Estructura de almacenamiento.
-- Responsabilidad de entidades.
-- Evolución prevista.
-- Intercambio de datos.
+## 2. Copia y restauración
 
----
+La copia de seguridad y la restauración se documentan por separado en [Copias de seguridad y recuperación](16_BACKUP_AND_RESTORE.md).
 
-> **Alcance:** CardioSync utiliza SQLite para la persistencia local. Este documento reúne el modelo de datos y los flujos de intercambio; los detalles de esquema y migraciones deben actualizarse cuando cambie la estructura de almacenamiento.
+Aspectos importantes del comportamiento documentado en el código:
 
-# Persistencia, copias e intercambio de datos\n\nLa guía específica de [copias de seguridad y recuperación](16_BACKUP_AND_RESTORE.md) explica la copia manual, Google Drive, las copias programadas y la diferencia entre restaurar una base completa e importar mediciones.\n\n# Importación y Exportación de Datos
+- La restauración valida `PRAGMA integrity_check`.
+- Comprueba la existencia de `blood_pressure_records` y `clinical_profile`.
+- Lee la cantidad de mediciones antes de aceptar la base.
+- La restauración reemplaza la base local; no debe tratarse como una combinación de historiales.
+- Una copia de CardioSync y una importación de mediciones externas son flujos diferentes.
 
-Estado: Implementación presente; cobertura y compatibilidad pendientes de verificación
+Los escenarios de recuperación deben probarse en dispositivo antes de declarar el proceso verificado.
 
-## Objetivo
+## 3. Importación de históricos
 
-Permitir la migración de históricos de presión arterial desde otras aplicaciones, dispositivos o registros personales hacia CardioSync.
+La rama auditada contiene dos parsers de importación:
 
-También permitir la exportación de información propia del usuario.
+### CSV de CardioSync
 
----
+El parser espera las siguientes columnas con esos encabezados:
 
-# Importación de históricos
+- `Fecha`
+- `Sistólica`
+- `Diastólica`
+- `Pulso`
+- `Sitio`
+- `Posición`
+- `Nota`
 
-CardioSync contiene una implementación de importación de históricos mediante archivos externos. Los formatos aceptados, las reglas de validación, los límites y el comportamiento ante registros duplicados deben confirmarse contra los parsers, la interfaz y las pruebas de la rama que se publique.
+El parser normaliza los registros, identifica duplicados y reporta errores de registros. La compatibilidad real depende de que el archivo respete el formato esperado; no debe asumirse que cualquier CSV es compatible.
 
-Fuentes posibles:
+### Base SQLite externa
 
-- CSV.
-- Excel.
-- Exportaciones de otras aplicaciones.
-- Registros personales del usuario.
+El parser busca una tabla llamada `tranx` con estas columnas requeridas:
 
----
+- `sys`
+- `dia`
+- `pulse`
+- `siteId`
+- `positionID`
+- `note`
+- `tranxDate`
+- `tranxTime`
 
-# Flujo de importación
+La importación convierte esos campos al modelo interno y procesa duplicados. Este formato es una estructura externa concreta; no significa que cualquier archivo SQLite pueda importarse.
 
-Archivo externo
+### Formatos no confirmados
 
-↓
+No se debe anunciar compatibilidad con Excel/XLS/XLSX basándose en esta implementación. En la rama auditada se encontraron parsers CSV y SQLite, pero no un parser XLS/XLSX en este flujo.
 
-Parser
+## 4. Flujo de importación
 
-↓
+El flujo general implementado se organiza así:
 
-Validación
+Archivo seleccionado → parser específico → normalización y validación → vista previa/resultado → persistencia de mediciones.
 
-↓
+Los servicios de selección de archivos utilizan el selector del sistema y una copia temporal para procesar la base SQLite externa. La persistencia final debe revisarse junto con el servicio de importación y sus pruebas cuando se modifique este flujo.
 
-Normalización
+## 5. Exportación y reportes
 
-↓
+La generación de reportes PDF está documentada en [Reportes](07_REPORTS.md). No debe confundirse un PDF de reporte con una exportación completa de la base de datos.
 
-Mapper
+Antes de afirmar que existe un formato de exportación de datos, debe verificarse el flujo específico de exportación, su estructura y su comportamiento con datos reales. La documentación no declara Excel como formato soportado sin una implementación comprobada.
 
-↓
+## 6. Reglas para cambios futuros
 
-BloodPressureRecord
+Cuando cambie el esquema o la importación:
 
-↓
+1. Documentar las tablas, columnas, tipos, restricciones y migraciones reales.
+2. Mantener el modelo interno independiente de los formatos externos.
+3. Validar los datos antes de persistirlos.
+4. Registrar cómo se detectan y presentan los duplicados y errores.
+5. Aclarar si el flujo reemplaza, agrega o combina datos.
+6. Añadir o actualizar pruebas antes de declarar el comportamiento verificado.
+7. Actualizar esta guía y la de copias/restauración cuando corresponda.
 
-Repository
+## 7. Límites de esta referencia
 
-↓
-
-SQLite
-
----
-
-# Principios de importación
-
-- Los formatos externos no definen el modelo interno.
-- CardioSync mantiene su propio dominio.
-- Toda importación deberá validar los datos antes de almacenarlos.
-- Los errores deberán detectarse antes de confirmar la importación.
-- Los registros importados deberán conservar fecha y origen cuando sea posible.
-
----
-
-# Exportación
-
-CardioSync podrá exportar información propia del usuario.
-
-Formatos previstos:
-
-- CSV.
-- Excel.
-- PDF.
-
----
-
-# Compatibilidad futura
-
-Cuando se incorpore un nuevo formato externo, deberá crearse un adaptador específico.
-
-Los formatos externos nunca deberán modificar:
-
-- BloodPressureRecord.
-- Measurement Domain.
-- Arquitectura principal.
+Este documento se basa en una inspección estática de los parsers CSV/SQLite y del servicio de validación de restauración de la rama documental. No se ejecutaron compilaciones, pruebas automatizadas ni pruebas en dispositivo durante esta revisión. La auditoría no certifica la integridad de todos los escenarios de importación o recuperación.
