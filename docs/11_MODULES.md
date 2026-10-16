@@ -1,231 +1,120 @@
-# CardioSync — Modules Reference
+# Módulos de CardioSync
 
-| Campo | Valor |
-|-------|--------|
-| Documento | 11_MODULES.md |
-| Tipo | Inventario de módulos |
-| Estado | Activo |
-| Versión | Sincronizada con la versión del proyecto |
-| Última actualización | 2026-10-15 |
+CardioSync organiza el código por capacidades funcionales, modelos de dominio, servicios compartidos y componentes visuales. Esta separación ayuda a localizar la lógica y evita que las pantallas concentren toda la implementación.
 
----
+## Módulos funcionales
 
-> **Nota de vigencia (2026-10-15):** este inventario es una guía, no un listado exhaustivo de todos los archivos. La estructura de módulos debe contrastarse con la rama auditada y actualizarse cuando cambien responsabilidades. Los módulos con código presente no deben marcarse como funcionalmente verificados sin pruebas.
+### Measurements — mediciones
 
-# Objetivo
+Ubicación: `src/features/measurements` y `src/domain/measurements`.
 
-Este documento describe los módulos principales de CardioSync y sus responsabilidades.
+Gestiona los flujos de registro, consulta y edición de mediciones de presión arterial, además de sus modelos, validaciones, mappers y servicios de la funcionalidad.
 
-Su finalidad es mantener una organización clara del sistema y evitar que diferentes dominios mezclen responsabilidades.
+### Dashboard — inicio y resumen
 
----
+Ubicación: `src/features/dashboard` y `src/domain/dashboard`.
 
-# Principio general
+Prepara y presenta resúmenes de seguimiento y visualizaciones para la pantalla de inicio. Los componentes gráficos compartidos se encuentran en `src/components/charts`.
 
-Cada módulo deberá:
+### Statistics — estadísticas
 
-- Tener una responsabilidad definida.
-- Mantener bajo acoplamiento.
-- Evitar depender directamente de módulos no relacionados.
-- Mantener su lógica dentro de su dominio correspondiente.
+Ubicación: `src/features/statistics` y `src/domain/statistics`.
 
----
+Organiza las pantallas y servicios de estadísticas y concentra en el dominio los cálculos, filtros, modelos y utilidades que describen los datos registrados.
 
-# Módulos actuales
+### Profile — perfil
 
----
+Ubicación: `src/features/profile`.
 
-# Measurements
+Contiene las pantallas, hooks y servicios relacionados con los datos del perfil que utiliza la aplicación como información contextual.
 
-Estado:
+### Reports — reportes
 
-✅ Implementado
+Ubicación: `src/features/reports`.
 
-Responsabilidad:
+Prepara el contenido de reportes y la generación de documentos, incluidos el gráfico SVG/HTML que se incorpora al PDF y los flujos para compartir o imprimir.
 
-Gestionar mediciones de presión arterial.
+### Health Connect
 
-Incluye:
+Ubicación: `src/features/healthConnect`.
 
-- Registro de mediciones.
-- Validación.
-- Modelos relacionados.
-- Persistencia.
+Contiene la integración con Android Health Connect: configuración, permisos, lectura de registros, mapeo de datos y sincronización de mediciones propias.
 
-No incluye:
+### Backup — copias y restauración
 
-- Interpretación clínica.
-- Recomendaciones.
-- Datos externos.
+Ubicación: `src/features/backup`.
 
----
+Contiene servicios y tareas relacionados con copias de seguridad, copias programadas, acceso a Google Drive y validación/restauración de bases compatibles.
 
-# Statistics
+### Import — importación
 
-Estado:
+Ubicación: `src/features/import`.
 
-✅ Implementado
+Contiene pantallas, parsers, modelos y servicios para procesar archivos compatibles e incorporar mediciones al modelo interno.
 
-Responsabilidad:
+### App updates — actualizaciones
 
-Procesamiento matemático de mediciones.
+Ubicación: `src/features/appUpdate` y `src/features/updates`.
 
-Incluye:
+Agrupa pantallas, hooks, servicios y componentes relacionados con la comprobación y gestión de actualizaciones de la aplicación.
 
-- Promedios.
-- Tendencias.
-- Variabilidad.
-- Métricas.
+### About — información de la aplicación
 
-No incluye:
+Ubicación: `src/features/about`.
 
-- Diagnóstico.
-- Recomendaciones clínicas.
+Contiene la información de versión, datos de presentación y pantallas de información de CardioSync.
 
----
+### Splash
 
-# Dashboard
+Ubicación: `src/features/splash`.
 
-Estado:
+Contiene los componentes y pantallas asociados a la presentación inicial de la aplicación.
 
-✅ Implementado
+## Capas compartidas
 
-Responsabilidad:
+### Dominio
 
-Visualización de información.
+`src/domain` contiene modelos y lógica de negocio organizados por área, incluidos mediciones, estadísticas, dashboard y análisis clínico.
 
-Incluye:
+### Core
 
-- Gráficos.
-- Indicadores.
-- Resúmenes.
+`src/core` contiene infraestructura compartida, como la configuración de la base de datos y autenticación cuando corresponde.
 
-No incluye:
+### Componentes
 
-- Lógica de negocio.
-- Reglas clínicas.
+`src/components` contiene componentes de interfaz reutilizables, incluidos formularios, elementos UI y gráficos.
 
----
+### Servicios, hooks y estado compartido
 
-# Clinical
+- `src/services`: servicios compartidos que no están encapsulados en una feature.
+- `src/hooks`: hooks reutilizables.
+- `src/store`: estado compartido de la aplicación.
+- `src/theme`: tokens y configuración visual.
+- `src/types`: tipos compartidos.
+- `src/utils`: utilidades comunes.
 
-Estado:
+### Clinical legacy y herramientas de desarrollo
 
-📋 Planificado
+- `src/clinical` contiene una organización clínica adicional que convive con `src/domain/clinical`; al modificar lógica clínica, hay que comprobar qué implementación consume cada flujo antes de mover o duplicar código.
+- `src/devtools` reúne herramientas y escenarios de desarrollo. No debe asumirse que un escenario de desarrollo sea una fuente de datos de producción.
 
-Responsabilidad:
-
-Representar el dominio clínico.
-
-Incluye futuro:
-
-- ClinicalContext.
-- ClinicalRuleEngine.
-- ClinicalAnalysisEngine.
-
----
-
-# Reports
-
-Estado:
-
-📋 Planificado
-
-Responsabilidad:
-
-Generación de reportes.
-
-Incluye:
-
-- Reporte paciente.
-- Reporte médico.
-- Exportaciones.
-
----
-
-# Health Connect Integration
-
-Estado:
-
-📋 Planificado
-
-Responsabilidad:
-
-Obtener contexto adicional desde fuentes externas.
-
-Incluye:
-
-- SleepContext.
-- ActivityContext.
-- BodyCompositionContext.
-- VitalSignsContext.
-
-No forma parte del núcleo de mediciones.
-
----
-
-# Import / Export
-
-Estado:
-
-📋 Planificado
-
-Responsabilidad:
-
-Migración e intercambio de datos.
-
-Incluye:
-
-- CSV.
-- Excel.
-- Otros formatos externos.
-
-Utiliza:
-
-- Parser.
-- Validator.
-- Mapper.
-
----
-
-# Relaciones entre módulos
-
-Measurements
-
-↓
-
-Statistics
-
-↓
-
-Dashboard
-
-
-Measurements
-
-↓
-
-ClinicalContext
-
-↓
-
-ClinicalRuleEngine
-
-↓
-
-ClinicalAnalysisEngine
-
-↓
-
-Reports
-
----
-
-# Restricciones
-
-- Measurements no depende de Clinical.
-- Statistics no genera interpretación clínica.
-- Dashboard no contiene lógica de dominio.
-- Health Connect no modifica Measurements.
-- Importadores no modifican el modelo interno.
-
+## Cómo se relacionan
+
+```text
+Pantallas y componentes
+        ↓
+Servicios y mappers de cada feature
+        ↓
+Dominio y reglas de negocio
+        ↓
+Persistencia e integraciones externas
+```
+
+El recorrido exacto depende de la funcionalidad. No todas las features utilizan todas las capas, y las integraciones externas deben mantenerse separadas del modelo propio de mediciones.
+
+## Guías relacionadas
+
+- [Arquitectura](01_ARCHITECTURE.md)
+- [Estructura de carpetas](12_FOLDER_STRUCTURE.md)
+- [Dominio clínico](04_CLINICAL_DOMAIN.md)
+- [Base de datos e importación](09_DATABASE.md)
