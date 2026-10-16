@@ -6,9 +6,11 @@
 | Tipo | Documento Maestro del Proyecto |
 | Estado | Activo |
 | Versión | Sincronizada con la versión del proyecto |
-| Última actualización | 2026-08-22 |
+| Última actualización | 2026-10-15 |
 
 ---
+
+> **Nota de vigencia (2026-10-15):** este documento conserva decisiones y contexto histórico. La implementación debe contrastarse con la rama y el commit registrados en [la auditoría documental](00_DOCUMENTATION_AUDIT_2026-10-15.md). Los estados funcionales no se consideran verificados solo por estar descritos aquí.
 
 # 1. Propósito
 
