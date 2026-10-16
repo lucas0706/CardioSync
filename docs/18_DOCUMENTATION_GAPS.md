@@ -22,7 +22,7 @@ Cada documento debe recibir una de estas decisiones:
 - **Mantener como pendiente:** el tema requiere investigación, pruebas, decisión explícita o fuentes que todavía no se han recopilado.
 - **Retirar:** solo cuando se haya confirmado que no tiene referencias útiles, historial que preservar ni consumidores; registrar el motivo en el cambio.
 
-No completar documentos solo para que dejen de estar vacíos. No convertir una intención histórica en una decisión arquitectónica vigente sin confirmación.
+No completar documentos solo para que dejen de estar vacíos. No convertir una intención histórica en una decisión arquitectónica vigente sin confirmación. Cuando ya existe código y extracción de una guía, documentar esa evidencia y distinguirla de la validación pendiente.
 
 ## 3. Documentos vacíos: clasificación inicial
 
@@ -53,7 +53,7 @@ Los ADR deben utilizar un formato uniforme: estado (propuesto/aceptado/reemplaza
 | `docs/clinical/09_CLINICAL_GUIDELINE.md` | Completar como índice de fuentes y estado de soporte, no como guía médica nueva | Fuentes oficiales, versión, fecha de consulta y reglas realmente codificadas |
 | `docs/clinical/17_IMPLEMENTATION_ROADMAP.md` | Consolidar o sincronizar con el roadmap principal para evitar dos planes contradictorios | `docs/02_ROADMAP.md`, estado del código y decisiones aprobadas |
 | `docs/clinical/guidelines/AHA_ACC_2025.md` | Mantener pendiente de investigación documental | Documento oficial identificable, versión, publicación y secciones relevantes |
-| `docs/clinical/guidelines/ARGENTINA_2025.md` | Mantener pendiente de investigación documental | Publicación oficial del consenso, autores/organización, fecha y secciones relevantes |
+| `docs/clinical/guidelines/ARGENTINA_2025.md` | Documentar implementación existente; completar trazabilidad y validación | Fuente primaria por regla, coincidencia de umbrales, población, casos límite y pruebas |
 | `docs/clinical/guidelines/ESC_2024.md` | Mantener pendiente de investigación documental | Documento oficial, versión, recomendaciones y alcance |
 | `docs/clinical/guidelines/ISH_2020.md` | Mantener pendiente; comprobar vigencia antes de usar como referencia activa | Fuente oficial, estado de vigencia y relación con recomendaciones actuales |
 
@@ -135,3 +135,8 @@ La auditoría permanece abierta. No se considera resuelta hasta verificar los do
 Se redactó un borrador para `docs/architecture/adr/ADR-001-blood-pressure-record-is-the-core.md`. El estado es **propuesto para revisión**, no aprobado formalmente. El documento separa la decisión propuesta de la evidencia inspeccionada y explicita qué aspectos siguen sin validación integral.
 
 No se completaron automáticamente los otros ADR vacíos: cada uno requiere comprobar su afirmación específica contra el código, las pruebas y las decisiones existentes. En particular, el patrón de estrategias de guías y la construcción “inteligente” de contexto no deben documentarse como hechos hasta encontrar evidencia concreta.
+
+
+## Corrección de auditoría — guía argentina
+
+La revisión posterior confirmó que el Consenso Argentino de Hipertensión Arterial 2025 ya está referenciado en `src/domain/clinical/guidelines/ConsensoArgentinaHTA2025.ts`, implementado en el clasificador y en objetivos terapéuticos, y documentado mediante extracciones. Por eso, su estado se corrigió de «investigación pendiente» a «implementación y extracción presentes; trazabilidad y validación integral pendientes». No se afirma que toda la guía esté implementada o validada.
