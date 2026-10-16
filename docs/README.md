@@ -25,6 +25,7 @@ Este directorio reúne la documentación técnica, funcional y clínica de Cardi
 | Módulos | [11_MODULES.md](11_MODULES.md) |
 | Estructura de carpetas | [12_FOLDER_STRUCTURE.md](12_FOLDER_STRUCTURE.md) |
 | Importación histórica | [13_IMPORTATION_SPECIFICATION.md](13_IMPORTATION_SPECIFICATION.md) |
+| Versiones, actualizaciones y distribución | [14_RELEASES_AND_UPDATES.md](14_RELEASES_AND_UPDATES.md) |
 | Normas documentales | [99_DOCUMENTATION_GUIDELINES.md](99_DOCUMENTATION_GUIDELINES.md) |
 
 ## Documentación clínica
