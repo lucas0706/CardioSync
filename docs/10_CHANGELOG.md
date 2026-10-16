@@ -1265,3 +1265,27 @@ Cambios exclusivamente documentales. No se modificaron código de aplicación, d
 - [Constitución de CardioSync](00_CARDIOSYNC_CONSTITUTION.md)
 - [Introducción a la documentación clínica](clinical/00_INTRODUCTION.md)
 - [Brechas documentales](18_DOCUMENTATION_GAPS.md)
+
+
+---
+
+# 2026-10-15 — Borrador de ADR del dominio principal
+
+### Tipo
+
+Documentación arquitectónica
+
+### Cambios realizados
+
+- Redactado el ADR-001 como propuesta revisable sobre la medición de presión arterial como núcleo del dominio.
+- Incluida la evidencia inspeccionada, las alternativas, los riesgos y los límites de validación.
+- Conservados como pendientes los demás ADR que requieren comprobación específica.
+
+### Alcance y límites
+
+Cambio exclusivamente documental. El ADR-001 queda propuesto para revisión y no se considera una decisión formalmente aprobada. No se modificó código de la aplicación.
+
+### Referencias
+
+- [ADR-001](architecture/adr/ADR-001-blood-pressure-record-is-the-core.md)
+- [Brechas documentales](18_DOCUMENTATION_GAPS.md)
