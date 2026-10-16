@@ -18,7 +18,7 @@ La documentación está organizada para explicar primero el producto y sus funci
 | Análisis clínico | [06_CLINICAL_ANALYSIS.md](06_CLINICAL_ANALYSIS.md) |
 | Reportes | [07_REPORTS.md](07_REPORTS.md) |
 | Health Connect | [08_HEALTH_CONNECT.md](08_HEALTH_CONNECT.md) |
-| Base de datos, importación y persistencia | [09_DATABASE.md](09_DATABASE.md) |
+| Base de datos, importación y persistencia | [09_DATABASE.md](09_DATABASE.md) |\n| Copias de seguridad y recuperación | [16_BACKUP_AND_RESTORE.md](16_BACKUP_AND_RESTORE.md) |
 | Especificación de importación histórica | [13_IMPORTATION_SPECIFICATION.md](13_IMPORTATION_SPECIFICATION.md) |
 
 ## Arquitectura y desarrollo
