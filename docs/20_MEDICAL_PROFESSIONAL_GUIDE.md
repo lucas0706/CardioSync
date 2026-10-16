@@ -25,86 +25,75 @@ El registro observado debe distinguirse de su interpretación. La categoría que
 
 El origen de los datos importa: una medición ingresada manualmente, una importación y un dato recibido desde una integración externa pueden tener diferente contexto y metadatos. La disponibilidad de datos externos depende de las fuentes y permisos configurados.
 
-## 3. Cómo se realiza la clasificación de presión arterial
+## 3. Clasificación de presión arterial según el código de desarrollo
 
-### 3.1 Principio de evaluación
+En la rama `feature/app-updates`, el clasificador del dominio está implementado en `src/domain/clinical/classification/BloodPressureClassifier.ts`. Su comentario identifica expresamente el **Consenso Argentino de Hipertensión Arterial 2025** y dice que aplica la clasificación de presión arterial en consultorio para personas de 16 años o más.
 
-La clasificación automática compara los valores de PAS y PAD con umbrales definidos en el código. La condición que se alcanza primero determina la categoría devuelta. Cuando una condición utiliza “o”, basta con que se cumpla el umbral sistólico **o** el diastólico.
+La categoría se determina usando PAS y PAD. El código evalúa las condiciones en este orden:
 
-La clasificación de una medición individual no es lo mismo que:
-- diagnosticar hipertensión a partir de mediciones repetidas;
-- determinar control terapéutico respecto de un objetivo individual;
-- analizar el promedio de un período;
-- valorar riesgo cardiovascular global;
-- establecer una conducta urgente.
-
-### 3.2 Clasificador usado en el flujo de mediciones
-
-En el código de la interfaz de mediciones, la función `classifyBloodPressure(systolic, diastolic)` evalúa las condiciones en este orden:
-
-| Orden | Condición del código | Categoría mostrada |
+| Orden | Condición | Categoría |
 |---|---|---|
 | 1 | PAS ≥ 140 y PAD < 90 | Hipertensión sistólica aislada |
-| 2 | PAS ≥ 180 o PAD ≥ 110 | Hipertensión grado 3 |
-| 3 | PAS ≥ 160 o PAD ≥ 100 | Hipertensión grado 2 |
-| 4 | PAS ≥ 140 o PAD ≥ 90 | Hipertensión grado 1 |
-| 5 | PAS ≥ 130 o PAD ≥ 85 | Normal alta |
-| 6 | PAS ≥ 120 o PAD ≥ 80 | Normal |
-| 7 | Si no se cumple ninguna condición anterior | Óptima |
+| 2 | PAS ≥ 160 o PAD ≥ 100 | Hipertensión arterial nivel 2 |
+| 3 | PAS ≥ 140 o PAD ≥ 90 | Hipertensión arterial nivel 1 |
+| 4 | PAS ≥ 130 o PAD ≥ 80 | Presión arterial limítrofe |
+| 5 | Ninguna condición anterior | Presión arterial normal |
 
-La interfaz asigna colores a las categorías para distinguirlas visualmente. El color es una ayuda de presentación, no una medida adicional ni una recomendación terapéutica.
+La hipertensión sistólica aislada se evalúa primero. El resultado también informa qué presión determinó la categoría y agrega la advertencia `low-diastolic` si PAD < 70. Los colores solo distinguen visualmente las etiquetas.
 
-**Importante:** la primera condición se evalúa antes que las demás. Por ello, en este flujo, una PAS ≥ 140 con PAD < 90 se etiqueta como sistólica aislada antes de evaluar los demás rangos.
+### 3.1 Dónde se utiliza
 
-### 3.3 Existen rutas de clasificación distintas en el código
+En la rama de desarrollo se encontraron estos usos:
 
-El repositorio también contiene motores de clasificación por guía. Por ejemplo, el clasificador identificado como ESC 2024 aplica grado 3 con PAS ≥ 180 o PAD ≥ 110, mientras que la clase interna denominada `CardioSyncGuide` usa PAS ≥ 180 o PAD ≥ 120 para la categoría “Emergencia hipertensiva”. La función de interfaz y esos motores no tienen exactamente las mismas categorías ni los mismos umbrales.
+- `ClinicalClassificationCalculator` clasifica cada medición del período seleccionado y cuenta las categorías para obtener su distribución y la categoría predominante.
+- `StatisticsService` del dashboard clasifica cada registro para calcular la categoría predominante y el porcentaje de registros normales.
+- `BloodPressureClassificationRule` clasifica las medias sistólica y diastólica que recibe como entrada del análisis clínico.
+- `ClinicalAnalysisDomainService` usa `ConsensoArgentinaHTA2025` como guía predeterminada cuando no se proporciona otra.
 
-Por esta razón, no debe asumirse que toda pantalla, reporte o motor usa necesariamente el mismo clasificador. El contexto de la vista y la versión instalada deben verificarse cuando la categoría tenga relevancia clínica. Este documento hace explícita esa diferencia; no pretende armonizar ni validar clínicamente los umbrales.
+Estos resultados no son intercambiables: clasificar cada registro, clasificar dos promedios y elegir la categoría más frecuente son operaciones distintas.
 
-### 3.4 Cómo interpretar la etiqueta
+### 3.2 Objetivos terapéuticos
 
-La etiqueta es una clasificación automatizada basada en valores numéricos y reglas programadas. No demuestra por sí sola:
-- que la medición se haya realizado con técnica correcta;
-- que el paciente tenga o no hipertensión sostenida;
-- que el promedio domiciliario o ambulatorio sea equivalente;
-- que se haya descartado un error de medición;
-- que el paciente esté dentro o fuera de su objetivo terapéutico individual.
+El código también define objetivos asociados al consenso en `src/domain/clinical/targets/guidelines/ConsensoArgentinaHTA2025Targets.ts`, con reglas para población general de 16 a 79 años, objetivos deseables si se toleran, enfermedad renal crónica, diabetes y mayores de 80 años. Un objetivo terapéutico no es lo mismo que la categoría de una medición. Los valores deben contrastarse con la publicación oficial antes de presentarlos como una transcripción validada del consenso.
 
-Ante valores inesperados, deben revisarse el registro original, el contexto y la repetición de las mediciones de acuerdo con el criterio profesional y las guías vigentes.
+### 3.3 Alcance y versión
+
+La rama de desarrollo consultada contiene esta implementación argentina. La versión de `main` consultada previamente contiene otros clasificadores con etiquetas y umbrales distintos. Por eso, la explicación debe asociarse a una versión concreta y no extrapolarse automáticamente a todas las versiones instaladas.
+
+La clasificación automática no confirma por sí sola un diagnóstico, la calidad técnica de la medición ni el objetivo terapéutico individual. Ante valores inesperados, deben revisarse los valores originales, el contexto y las mediciones repetidas según el criterio profesional y las guías vigentes.
 
 ## 4. Cómo leer las estadísticas
 
-### 4.1 Qué resumen ofrecen
+### 4.1 Selección y preparación de los datos
 
-Las estadísticas se construyen a partir de registros reales y del período seleccionado en la aplicación. La pantalla permite seleccionar períodos, incluidos rangos personalizados, y visualizar la evolución temporal de las variables disponibles.
+En la rama de desarrollo, `useStatistics()` obtiene las mediciones mediante `useMeasurements()`, usa por defecto un período de 30 días y solicita el resumen a `StatisticsDomainService`. El motor aplica el filtro temporal, ordena cronológicamente una copia de los registros para calcular la tendencia y agrega las métricas.
 
-El gráfico documentado representa principalmente:
-- **PAS**, en mmHg;
-- **PAD**, en mmHg;
-- **frecuencia cardíaca**, en latidos por minuto (lpm).
+El total corresponde a los registros que quedan después del filtro. Los resultados describen esos registros y deben leerse considerando el período, la frecuencia de medición y los datos faltantes.
 
-Según los registros disponibles, pueden existir otros datos asociados, como peso, glucosa, saturación de oxígeno, temperatura o frecuencia respiratoria. La presencia de una serie depende de que haya datos y de que el flujo correspondiente la incluya.
+### 4.2 Métricas y fórmulas encontradas
 
-Los datos del gráfico se ordenan cronológicamente por fecha y hora. Para mantener un rendimiento adecuado, la preparación visual documentada limita el conjunto de puntos representados mediante downsampling a un máximo de 500 puntos. Esto afecta la cantidad de puntos dibujados, no debe interpretarse como una regla clínica ni como un nuevo registro medido.
+| Métrica | Cálculo en el código | Precaución |
+|---|---|---|
+| Promedio de PAS, PAD y frecuencia cardíaca | Suma dividida por cantidad de valores | No equivale necesariamente a un promedio diagnóstico definido por una guía. |
+| Máximos y mínimos | Mayor o menor valor de la serie | Depende de los registros disponibles y de valores atípicos. |
+| Desviación estándar | Raíz cuadrada de la media de las diferencias cuadráticas respecto de la media; divisor N | Es una medida estadística de dispersión. |
+| Variabilidad | Desviación estándar / promedio × 100 | Es el coeficiente de variación; no equivale automáticamente a un indicador clínico validado de variabilidad de PA. |
+| Carga hipertensiva | Porcentaje de registros con PAS ≥ 135 o PAD ≥ 85 | Esos son los umbrales predeterminados de este calculador; no son los umbrales de clasificación anteriores. |
+| Tiempo en objetivo | Porcentaje de registros con PAS < 135 y PAD < 85 | El código calcula proporción de mediciones, no duración temporal continua. |
+| Tendencia | Último menos primer valor sistólico en orden cronológico: > 3 = ascendente; < −3 = descendente; de lo contrario = estable | Regla simple de extremos, no regresión ni evaluación clínica validada. |
+| Distribución de categorías | Clasifica cada registro y cuenta cada categoría | La predominante es la más frecuente; no necesariamente coincide con la categoría del promedio. |
 
-### 4.2 Qué significan y qué no significan
+El motor también calcula presión de pulso y presión arterial media a partir de las series calculadas por el agregador, y luego promedia esos valores. Para interpretar formalmente estas métricas debe verificarse la fórmula concreta de sus calculadores.
 
-Las estadísticas describen el conjunto de registros incluidos en el período seleccionado. Debe comprobarse siempre:
-- qué fechas abarca el período;
-- cuántas mediciones están incluidas;
-- si existen días o franjas horarias sin datos;
-- si hay mediciones duplicadas o valores atípicos;
-- si el método y las condiciones de medición fueron comparables;
-- si se están comparando variables con unidades distintas.
+Si la serie está vacía, el motor devuelve cero para varias métricas y una distribución vacía. Por eso, un cero debe leerse junto con el total de registros: no siempre significa que exista una medición de cero.
 
-Una gráfica de PAS, PAD y frecuencia cardíaca permite observar patrones temporales, pero no demuestra por sí sola causalidad ni establece una relación entre las variables.
+### 4.3 Gráficos
 
-### 4.3 Fórmulas y límites de esta documentación
+El checkpoint de Statistics V2 documenta un gráfico temporal de PAS (mmHg), PAD (mmHg) y frecuencia cardíaca (lpm). Los datos se ordenan cronológicamente. El downsampling puede reducir los puntos dibujados por rendimiento; no modifica los registros originales y no constituye un cálculo clínico.
 
-El repositorio consultado confirma el filtrado por período, la ordenación cronológica y las series principales del gráfico. Sin embargo, esta guía **no certifica una fórmula clínica específica** para todos los indicadores estadísticos ni una definición universal de tendencia, variabilidad, carga hipertensiva o tiempo en rango. Esos indicadores deben documentarse y verificarse contra la implementación concreta antes de utilizarlos para una interpretación clínica.
+### 4.4 Interpretación
 
-No se debe inferir que un indicador está implementado porque aparezca en un documento conceptual o en una especificación. Del mismo modo, un promedio estadístico no equivale automáticamente a un promedio diagnóstico definido por una guía.
+Antes de interpretar estadísticas, revisar el período exacto, la cantidad y distribución temporal de los registros, posibles duplicados o valores atípicos y las condiciones de medición. Estas métricas describen los datos disponibles; por sí solas no demuestran causalidad ni establecen un diagnóstico.
 
 ## 5. Diferencia entre clasificación, estadísticas y análisis clínico
 
@@ -140,13 +129,22 @@ Como práctica de lectura, se recomienda:
 
 ## 8. Trazabilidad técnica
 
-Esta guía se elaboró contrastando los documentos del repositorio con las siguientes implementaciones localizadas en `main`:
+Esta guía se contrastó con código de la rama de desarrollo `feature/app-updates`, commit `c62b9106f7a1a720b274bb7f386111313d08403e`, especialmente:
 
-- `src/features/measurements/utils/classifyBloodPressure.ts`
-- `src/features/measurements/constants/classification.ts`
-- `src/clinical/esc2024/classification.ts`
-- `src/clinical/cardiosync/classification.ts`
-- `src/clinical/trends/TrendAnalysis.ts`
-- `docs/13_CHECKPOINT_STATISTICS_V2_2026-08-10.md`
+- `src/domain/clinical/guidelines/ConsensoArgentinaHTA2025.ts`
+- `src/domain/clinical/classification/BloodPressureClassifier.ts`
+- `src/domain/clinical/rules/blood-pressure/BloodPressureClassificationRule.ts`
+- `src/domain/clinical/services/ClinicalAnalysisDomainService.ts`
+- `src/domain/clinical/targets/guidelines/ConsensoArgentinaHTA2025Targets.ts`
+- `src/domain/statistics/engines/StatisticsEngine.ts`
+- `src/domain/statistics/calculators/AverageCalculator.ts`
+- `src/domain/statistics/calculators/StandardDeviationCalculator.ts`
+- `src/domain/statistics/calculators/VariabilityCalculator.ts`
+- `src/domain/statistics/calculators/HypertensionLoadCalculator.ts`
+- `src/domain/statistics/calculators/TimeInTargetCalculator.ts`
+- `src/domain/statistics/calculators/TrendCalculator.ts`
+- `src/domain/statistics/calculators/ClinicalClassificationCalculator.ts`
+- `src/features/dashboard/services/StatisticsService.ts`
+- `src/features/statistics/hooks/useStatistics.ts`
 
 La guía describe el comportamiento encontrado en el repositorio, pero no constituye una validación clínica independiente ni una certificación regulatoria. Las fórmulas estadísticas y la unificación entre rutas de clasificación requieren una revisión técnica y clínica específica antes de presentarlas como comportamiento uniforme del producto.
