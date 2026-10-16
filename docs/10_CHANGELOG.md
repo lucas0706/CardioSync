@@ -1442,3 +1442,5 @@ Documentación modificada en la rama `docs/documentation-audit`. No se modificó
 - Se mantiene la distinción entre código presente, validación en dispositivo y publicación; no se declaran pruebas que no se hayan ejecutado.
 
 - Corrección del roadmap: Backup/recuperación y Health Connect figuran como implementados en el repositorio y en consolidación operativa, no como funcionalidades planificadas. Configuración e integraciones se ajustaron para reflejar los módulos presentes.
+
+- Ajustado el criterio del roadmap: el estado de implementación refleja la presencia de la funcionalidad en el código. Las pruebas, la estabilidad y la compatibilidad se documentan por separado y no convierten una función implementada en trabajo planificado.
