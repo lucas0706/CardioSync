@@ -18,7 +18,7 @@ La rama auditada contiene código relacionado con el dominio clínico. La corres
 
 ---
 
-> **Nota de auditoría (2026-10-15):** no interpretar el diseño conceptual como evidencia de validación clínica. Cada regla debe tener una fuente identificable, una versión o fecha de referencia y pruebas apropiadas antes de declararse verificada.
+> **Alcance:** el motor aplica reglas explícitas sobre datos estructurados. Cada regla clínica debe mantener trazabilidad hacia su fuente y contar con pruebas apropiadas; el documento describe responsabilidades y no reemplaza esa evidencia.
 
 # Propósito
 
