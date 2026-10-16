@@ -129,3 +129,24 @@ Antes de implementar correcciones:
 4. Añadir pruebas unitarias para selección por edad, diabetes, enfermedad renal crónica, tolerancia, hipertensión sistólica aislada y límites de seguridad.
 5. Revisar cómo se comunica una evaluación omitida para que no se confunda con un resultado normal.
 6. Documentar por separado la decisión clínica, el cambio técnico y el resultado de las pruebas.
+
+
+## 8. Seguimiento del flujo de contexto y selección — 2026-10-15
+
+### Flujo inspeccionado
+
+- `ClinicalContext` permite que `age`, `diabetes` y `chronicKidneyDisease` estén ausentes.
+- `ClinicalProfileService` delega la lectura y escritura al repositorio del perfil clínico; `useClinicalProfile` consulta el perfil local mediante `LOCAL_PROFILE_ID`.
+- `ClinicalAnalysisDomainService` pasa `input.context` a las reglas y, si no se suministra otra guía, selecciona `ConsensoArgentinaHTA2025`.
+- `TherapeuticTargetRule` utiliza `input.clinicalContext` y el identificador de guía para llamar a `ClinicalTargetSelector`.
+
+### Riesgos de selección observados estáticamente
+
+1. El selector considera población `mayores_80` solo cuando `age >= 80`; todos los demás valores, incluso edad ausente y edades menores de 16, se asignan a `adultos_16_79`. La validación del rango etario no se realiza en el selector inspeccionado.
+2. Si ningún objetivo cumple todas sus condiciones, el selector devuelve el primer objetivo de la población como fallback. Esto explica el fallback al objetivo general cuando `buena_tolerancia` devuelve falso, pero necesita pruebas específicas con contextos incompletos.
+3. Los objetivos de diabetes y enfermedad renal crónica tienen condiciones de comorbilidad, pero no incluyen `buena_tolerancia` en el arreglo `conditions`, aunque sus descripciones limitan el objetivo a cuando sea tolerado. La equivalencia con la fuente primaria está pendiente.
+4. La regla de objetivo terapéutico no genera un hallazgo cuando la media PAS es <120 mmHg o PAD <70 mmHg. En esta revisión no se completó la trazabilidad de una posible regla de seguridad independiente para esos escenarios.
+
+### Estado
+
+Son riesgos y discrepancias de implementación observados en los archivos citados, no conclusiones de ausencia de cobertura en toda la aplicación ni recomendaciones clínicas nuevas. No se modificó código. Antes de corregir se debe revisar el formulario y repositorio del perfil, todos los consumidores del análisis, las reglas de seguridad y la fuente primaria, y agregar pruebas automatizadas para las condiciones y los casos límite.
