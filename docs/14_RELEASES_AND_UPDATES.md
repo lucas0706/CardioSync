@@ -18,7 +18,9 @@ La configuración de la rama de referencia se inspeccionó en `app.json`, `packa
 - Los perfiles `production` y `production-apk` utilizan el canal `production` y establecen `CARDIOSYNC_ROUTER_ROOT=app-production`.
 - El perfil `production-apk` declara `android.buildType=apk`.
 - El perfil `development` usa el canal `development` y la raíz de rutas `app`; `preview` usa el canal `beta`.
-- `app.config.js` agrega el plugin `./plugins/withCardioSyncUpdateInstaller` y configura las arquitecturas de compilación según el perfil.
+- `app.config.js` agrega los plugins `./plugins/withCardioSyncUpdateInstaller` y `./plugins/withCardioSyncAlarm`, además de `expo-notifications`, y configura las arquitecturas de compilación según el perfil.
+- `app.config.js` establece `updates.checkAutomatically: 'NEVER'`.
+- La configuración Android efectiva de runtime en `app.config.js` declara `runtimeVersion.policy: 'fingerprint'`; existe también una política `appVersion` en el nivel Expo general. Para publicar, debe confirmarse el valor efectivo de la configuración Android y el runtime del build, no asumir un valor fijo como `1.0.0`.
 
 ## 2. Discrepancia de metadatos visibles
 
