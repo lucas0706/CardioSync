@@ -1289,3 +1289,28 @@ Cambio exclusivamente documental. El ADR-001 queda propuesto para revisión y no
 
 - [ADR-001](architecture/adr/ADR-001-blood-pressure-record-is-the-core.md)
 - [Brechas documentales](18_DOCUMENTATION_GAPS.md)
+
+
+---
+
+# 2026-10-15 — Corrección del estado del Consenso Argentino 2025
+
+### Tipo
+
+Auditoría documental clínica
+
+### Cambios realizados
+
+- Revisados el clasificador, el modelo de guía, la regla de clasificación, los objetivos terapéuticos y la extracción de definición y clasificación.
+- Actualizada la ficha `ARGENTINA_2025.md` para reflejar que existe implementación y documentación de extracción.
+- Corregido el registro general de guías para separar implementación existente de validación pendiente.
+
+### Alcance y límites
+
+Cambio exclusivamente documental. No se modificaron reglas, umbrales, código de aplicación ni pruebas. La revisión estática no equivale a validación clínica integral.
+
+### Referencias
+
+- [Consenso Argentino 2025](clinical/guidelines/ARGENTINA_2025.md)
+- [Registro de fuentes clínicas](clinical/09_CLINICAL_GUIDELINE.md)
+- [Clasificación de presión arterial](../src/domain/clinical/classification/BloodPressureClassifier.ts)
