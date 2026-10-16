@@ -1,274 +1,90 @@
-# CardioSync — Clinical Analysis Engine
+# Análisis clínico
 
-| Campo | Valor |
-|-------|--------|
-| Documento | 06_CLINICAL_ANALYSIS.md |
-| Tipo | Diseño Conceptual |
-| Estado | Diseño de referencia; implementación y cobertura pendientes de verificación |
-| Versión | Sincronizada con la versión del proyecto |
-| Última actualización | 2026-10-15 |
+El análisis clínico de CardioSync coordina reglas clínicas y reúne sus resultados en una evaluación estructurada. Se encuentra en el dominio clínico y no depende de componentes visuales ni realiza por sí mismo los cálculos estadísticos de las mediciones.
 
----
+## Cómo funciona
 
-# Objetivo
+La implementación principal es `ClinicalAnalysisDomainService`, en `src/domain/clinical/services/ClinicalAnalysisDomainService.ts`.
 
-Este documento define el diseño y las responsabilidades esperadas del Clinical Analysis Engine de CardioSync.
+El servicio recibe un `ClinicalAnalysisInput`, que aporta el contexto clínico, estadísticas y, opcionalmente, una guía. Si no se proporciona una guía, utiliza `ConsensoArgentinaHTA2025`.
 
-La rama auditada contiene componentes relacionados con contexto y análisis de salud. La correspondencia completa entre el diseño, la implementación y las pruebas debe verificarse antes de considerar la funcionalidad validada.
+El flujo es:
 
----
+1. Recibe el contexto clínico y las estadísticas disponibles.
+2. Construye un `ClinicalRuleContext` con la guía, el contexto y la fecha de evaluación.
+3. Ejecuta las reglas configuradas.
+4. Reúne los hallazgos producidos por las reglas.
+5. Usa `buildClinicalAnalysisResult` para construir el resultado general.
+6. Devuelve un `ClinicalAnalysis` con identificador, paciente, fecha, guía, estadísticas, hallazgos, resultado y resumen.
 
-> **Alcance:** el análisis organiza e integra resultados de los módulos clínicos para que otras funciones puedan presentarlos. Su comportamiento concreto depende de las reglas y los contextos disponibles en la versión instalada.
+## Reglas coordinadas
 
-# Propósito
+La composición actual del servicio incluye:
 
-El Clinical Analysis Engine será responsable de combinar la información disponible dentro del ClinicalContext.
+- `HomeBloodPressureControlRule`: control de presión arterial domiciliaria.
+- `TrendRule`: tendencia de las mediciones.
+- `HypertensionLoadRule`: carga de presión arterial elevada.
+- `TimeInTargetRule`: tiempo dentro del objetivo.
+- `VariabilityRule`: variabilidad.
+- `TherapeuticTargetRule`: comparación con objetivos terapéuticos.
+- `CardiovascularRiskRule`: evaluación de riesgo cardiovascular.
+- `BloodPressureSafetyRule`: advertencias de seguridad.
+- `BloodPressureClassificationRule`: clasificación de presión arterial.
 
-Su objetivo será transformar múltiples fuentes clínicas en una evaluación estructurada.
+Las reglas no reciben todas exactamente los mismos datos. El servicio pasa estadísticas a las reglas de seguridad y clasificación; estadísticas junto con contexto a riesgo cardiovascular y objetivos terapéuticos; y estadísticas a las demás reglas. Las reglas que necesitan estadísticas no se ejecutan cuando estas faltan.
 
-No reemplaza al Clinical Rule Engine.
+## Estadísticas y análisis clínico
 
-El Rule Engine define reglas.
+El cálculo estadístico se mantiene separado de la interpretación clínica. Las estadísticas resumen las mediciones del período seleccionado; el análisis clínico utiliza esos resultados y el contexto del paciente para generar hallazgos.
 
-El Analysis Engine coordina e integra resultados.
+Por esta razón, la selección del período y la preparación de estadísticas corresponden al flujo que invoca el servicio, no a `ClinicalAnalysisDomainService`.
 
----
+## Resultado
 
-# Responsabilidades
+El objeto de análisis incluye:
 
-El Clinical Analysis Engine será responsable de:
+- `id`: identificador de la evaluación.
+- `patientId`: identificador del paciente asociado al contexto.
+- `createdAt`: fecha y hora de creación.
+- `guideline`: guía utilizada.
+- `statistics`: estadísticas recibidas.
+- `findings`: hallazgos devueltos por las reglas.
+- `result`: resultado agregado construido por `buildClinicalAnalysisResult`.
+- `summary`: resumen textual de si se generaron hallazgos.
 
-- Construir una evaluación clínica integral.
-- Integrar resultados provenientes de reglas clínicas.
-- Priorizar información relevante.
-- Organizar hallazgos.
-- Preparar información para reportes clínicos.
+El resumen técnico actual está en inglés: `Clinical findings generated.` o `No clinical findings detected.`.
 
----
+## Relación con otros módulos
 
-# No responsabilidades
+```text
+Mediciones del período
+        ↓
+Estadísticas
+        ↓
+ClinicalAnalysisInput
+        ↓
+ClinicalAnalysisDomainService
+        ↓
+Reglas clínicas
+        ↓
+Hallazgos y resultado agregado
+        ↓
+Consumidores de la evaluación
+```
 
-El Clinical Analysis Engine no deberá:
+El servicio no consulta SQLite directamente, no presenta interfaz y no reemplaza a las reglas individuales. La composición de reglas y sus condiciones de ejecución se mantienen centralizadas para que el análisis tenga un punto de entrada común.
 
-- Modificar mediciones.
-- Acceder directamente a SQLite.
-- Leer datos externos directamente.
-- Implementar componentes visuales.
-- Crear reglas clínicas sin documentación.
-- Reemplazar guías clínicas.
+## Archivos relacionados
 
----
+- `src/domain/clinical/services/ClinicalAnalysisDomainService.ts`
+- `src/domain/clinical/services/ClinicalAnalysisService.ts`
+- `src/domain/clinical/services/ClinicalAnalysisResultBuilder.ts`
+- `src/domain/clinical/rules/ClinicalRule.ts`
+- `src/domain/clinical/rules/ClinicalRuleContext.ts`
+- [Dominio clínico](04_CLINICAL_DOMAIN.md)
+- [Motor de reglas clínicas](05_CLINICAL_RULE_ENGINE.md)
+- [Reportes](07_REPORTS.md)
 
-# Entradas
+## Consideraciones de uso
 
-La entrada principal será:
-
-## ClinicalContext
-
-Compuesto por:
-
-- MeasurementContext.
-- StatisticsContext.
-- PatientContext.
-- HistoryContext.
-- Contextos externos disponibles.
-
----
-
-# Flujo conceptual
-
-ClinicalContext
-
-↓
-
-Clinical Rule Engine
-
-↓
-
-Resultados clínicos
-
-↓
-
-Clinical Analysis Engine
-
-↓
-
-Evaluación integrada
-
-↓
-
-Reportes / Dashboard / Visualización
-
----
-
-# Integración con Clinical Rule Engine
-
-El Clinical Analysis Engine utilizará los resultados generados por el Rule Engine.
-
-Ejemplo:
-
-MeasurementContext
-
-↓
-
-Regla clínica de clasificación
-
-↓
-
-Resultado:
-
-- Categoría.
-- Hallazgo.
-- Recomendación.
-
-↓
-
-Clinical Analysis Engine
-
-↓
-
-Evaluación final.
-
----
-
-# Priorización clínica
-
-El motor deberá priorizar información según:
-
-- Severidad clínica.
-- Persistencia del hallazgo.
-- Relevancia según guía clínica.
-- Disponibilidad de información.
-
----
-
-# Manejo de información faltante
-
-La ausencia de información no deberá generar errores del sistema.
-
-Ejemplos:
-
-Sin SleepContext:
-
-- Continúa evaluación de presión arterial.
-
-Sin ActivityContext:
-
-- No se generan análisis relacionados con actividad.
-
-Sin BodyCompositionContext:
-
-- No se evalúan parámetros corporales.
-
-La evaluación deberá indicar qué información estuvo disponible.
-
----
-
-# Relación con fuentes externas
-
-Health Connect y otras fuentes externas alimentarán únicamente contextos especializados.
-
-Ejemplo:
-
-Health Connect
-
-↓
-
-SleepContext
-
-↓
-
-ClinicalContext
-
-↓
-
-Clinical Analysis Engine
-
-Las fuentes externas no participan directamente en la lógica de análisis.
-
----
-
-# Salidas esperadas
-
-El Clinical Analysis Engine podrá generar:
-
-## Resumen clínico
-
-Información estructurada del estado actual.
-
----
-
-## Hallazgos
-
-Resultados relevantes derivados de reglas clínicas.
-
----
-
-## Recomendaciones
-
-Basadas en reglas clínicas documentadas.
-
----
-
-## Información disponible
-
-Debe indicar qué contextos fueron utilizados.
-
----
-
-# Restricciones
-
-- Basado en evidencia científica.
-- Dependiente de reglas documentadas.
-- Independiente de la interfaz.
-- Independiente de la persistencia.
-- Compatible con contextos opcionales.
-
----
-
-# Evolución prevista
-
-La implementación comenzará después de:
-
-1. Finalizar refactorización del dominio.
-2. Implementar Clinical Domain.
-3. Implementar Clinical Rule Engine.
-
-
----
-
-## Validación posterior a la consolidación
-
-Después de retirar `ClinicalClassificationRule` de la composición activa, la validación histórica continuó produciendo los cuatro findings esperados:
-
-- tendencia ascendente de presión arterial domiciliaria;
-- carga elevada de mediciones de presión arterial;
-- presión arterial por encima del objetivo terapéutico;
-- presión arterial elevada.
-
-La clasificación quedó representada por un único finding `blood-pressure-classification`.
-
----
-
-
----
-
-## Integración con Statistics
-
-Clinical Analysis V1 está diseñado para consumir el `StatisticsSummary` correspondiente al período analizado.
-
-La selección del período no pertenece al Clinical Engine.
-
-Statistics determina:
-
-- registros filtrados;
-- estadísticas correspondientes al período.
-
-Clinical Analysis interpreta esos datos.
-
-La integración de producción permanece pendiente porque todavía no existe una fuente persistente/runtime de `ClinicalContext`.
-
-Los escenarios de `src/devtools/clinical/` no deben utilizarse como fuente de contexto para la aplicación.
-
----
-
+La evaluación depende de los datos que recibe y de las reglas configuradas en la versión de la aplicación. Un hallazgo automatizado es información de seguimiento y no constituye, por sí solo, un diagnóstico médico.
