@@ -40,7 +40,7 @@ Los reportes no deberán:
 
 # Tipos de reportes
 
-CardioSync tendrá dos tipos principales de reportes:
+El diseño contempla dos tipos de reportes:
 
 1. Reporte del Paciente.
 2. Reporte Médico.
@@ -51,11 +51,13 @@ Cada uno tendrá objetivos y niveles de detalle diferentes.
 
 # Reporte del Paciente
 
-Estado: 🔄 EN IMPLEMENTACIÓN
+Estado: **Implementación presente; validación funcional integral pendiente.**
 
 ## Objetivo
 
 Proporcionar al usuario una visión clara y comprensible de su seguimiento de presión arterial.
+
+La implementación actual contiene un servicio que construye el reporte a partir de las mediciones filtradas y el perfil local, además de un servicio PDF basado en HTML, impresión y opciones para compartir. La cobertura de los flujos debe validarse en dispositivo.
 
 Debe priorizar comprensión y seguimiento personal.
 
