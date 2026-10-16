@@ -496,59 +496,68 @@ Consolidar la implementación actual y mantener toda la documentación oficial s
 
 ## 1. Configuración e Integraciones
 
-**Estado:** 🚧 EN DESARROLLO
+**Estado:** 🚧 EN CONSOLIDACIÓN
 
-### Implementado
+### Implementado en el repositorio
 
-- Importar registros.
-- Exportar registros.
-- Gestión de datos desde Configuración.
-- Estructura de Configuración dentro de la navegación V2.
+- Pantallas y navegación de Configuración.
+- Importación de registros mediante CSV y SQLite.
+- Servicios de gestión de integraciones.
+- Integración de Health Connect con servicios de permisos, lectura y sincronización para los tipos de datos implementados.
 
-### Pendiente
+### En consolidación
 
-- Consolidación final de Configuración.
-- Health Connect.
-- Gestión de integraciones externas.
+- Validar en dispositivos los flujos de permisos y los distintos estados de Health Connect.
+- Comprobar la experiencia de configuración ante permisos denegados, ausencia de datos o desconexión.
+- Mantener alineados los controles visibles con el estado real de cada integración.
+
+La existencia del código de integración no garantiza que todos los permisos, fuentes de datos y escenarios estén validados en cada dispositivo.
 
 ---
 
 ## 2. Backup y recuperación
 
-**Estado:** 📋 PLANIFICADO
+**Estado:** 🚧 EN CONSOLIDACIÓN
 
-### Objetivo
+### Implementado en el repositorio
 
-Implementar mecanismos seguros para preservar y recuperar los datos de CardioSync.
+- Copia manual de la base SQLite.
+- Servicios para copias locales.
+- Integración con Google Drive.
+- Servicios de copia programada y coordinación de ejecuciones.
+- Programación mediante alarmas y tareas relacionadas.
+- Restauración con validaciones de integridad de la base de datos.
 
-### Alcance previsto
+### En consolidación
 
-- Backup local.
-- Backup en nube.
-- Google Drive.
-- Recuperación de datos.
-- Política de retención.
-- Control de copias para evitar acumulación innecesaria.
+- Validar las ejecuciones programadas bajo las restricciones de Android y los distintos estados de permisos.
+- Probar escenarios de error, falta de red, almacenamiento insuficiente y restauración de archivos inválidos.
+- Confirmar el comportamiento de retención y sustitución de copias remotas.
+- Verificar en dispositivo que cada ejecución termina y deja un resultado identificable.
 
-La estrategia definitiva se establecerá después de evaluar las capacidades actuales de Expo, SQLite y las integraciones externas necesarias.
+La implementación está presente en el código. La consolidación pendiente se refiere a comprobar su comportamiento operativo en escenarios reales, no a que el módulo esté por desarrollarse.
 
 ---
 
 ## 3. Health Connect
 
-**Estado:** 📋 PLANIFICADO
+**Estado:** 🚧 EN CONSOLIDACIÓN
 
-### Objetivo
+### Implementado en el repositorio
 
-Integrar CardioSync con Health Connect para permitir el intercambio de datos compatibles con el ecosistema de salud de Android.
+- Servicios para consultar y gestionar permisos.
+- Coordinación y paginación de lecturas.
+- Servicios de sincronización para los tipos de datos contemplados en el módulo.
+- Mappers para actividad física, frecuencia cardíaca, sueño, pasos y peso.
+- Servicios para construir resúmenes de salud y gestionar la configuración de la integración.
 
-### Alcance previsto
+### En consolidación
 
-- Gestión de permisos.
-- Lectura de datos compatibles.
-- Escritura de mediciones cuando corresponda.
-- Sincronización.
-- Recuperación de información compatible ante determinados escenarios de pérdida local.
+- Verificar los flujos de permisos y lectura en dispositivos compatibles.
+- Comprobar resultados con permisos parciales, fuentes sin datos y cambios en permisos.
+- Documentar con precisión qué tipos de registros se leen o escriben en la versión publicada.
+
+La disponibilidad depende de la versión de Android, Health Connect, los permisos concedidos y los datos de las fuentes conectadas. No debe interpretarse la ausencia de registros como un valor igual a cero.
 
 La administración de Health Connect pertenece a:
 
@@ -674,15 +683,15 @@ Visual Redesign V2
 
 ↓
 
-🚧 Configuración e Integraciones
+🚧 Consolidación de Configuración e Integraciones
 
 ↓
 
-📋 Health Connect
+🚧 Consolidación operativa de Health Connect
 
 ↓
 
-📋 Backup y recuperación
+🚧 Consolidación operativa de Backup y recuperación
 
 ↓
 
