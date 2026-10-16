@@ -1430,3 +1430,13 @@ Cambios documentales en la rama `docs/documentation-audit`. No se modificó cód
 ### Alcance
 
 Documentación modificada en la rama `docs/documentation-audit`. No se modificó código de la aplicación ni configuración nativa.
+
+
+---
+
+# 2026-10-15 — Revisión de roadmap, decisiones y recuperación
+
+- Actualizado `02_ROADMAP.md` para orientar al lector sobre la evolución del producto y separar el trabajo actual de las líneas futuras.
+- Reorganizada la introducción de `03_DECISIONS.md` para presentar las decisiones como ADR de arquitectura y facilitar su lectura.
+- Simplificada la introducción de `16_BACKUP_AND_RESTORE.md` para comenzar por las operaciones de copia y recuperación que ofrece CardioSync.
+- Se mantiene la distinción entre código presente, validación en dispositivo y publicación; no se declaran pruebas que no se hayan ejecutado.
