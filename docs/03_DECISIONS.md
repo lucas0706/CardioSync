@@ -1,76 +1,18 @@
-# CardioSync — Architecture Decision Records (ADR)
+# Decisiones arquitectónicas de CardioSync
 
-| Campo | Valor |
-|-------|--------|
-| Documento | 03_DECISIONS.md |
-| Tipo | Architecture Decision Records |
-| Estado | Activo |
-| Versión | Sincronizada con la versión del proyecto |
-| Última actualización | 2026-08-22 |
+Este documento conserva las decisiones de diseño que explican por qué CardioSync está organizado de determinada manera. Cada decisión registra el contexto, las alternativas consideradas, la solución elegida y sus consecuencias para el mantenimiento futuro.
 
----
+## Cómo leer las decisiones
 
-# Objetivo
+- **Activa:** la decisión sigue siendo la referencia para el diseño.
+- **Reemplazada:** una decisión posterior la sustituyó.
+- **Obsoleta:** ya no debe utilizarse como criterio actual.
 
-Este documento registra todas las decisiones arquitectónicas relevantes tomadas durante la evolución de CardioSync.
+Las decisiones se identifican mediante ADR y se enlazan con los documentos técnicos relacionados. Cuando el código evoluciona, conviene revisar el ADR antes de introducir una excepción o una refactorización que afecte a la misma responsabilidad.
 
-Su finalidad es:
+## Índice
 
-- Preservar el conocimiento del proyecto.
-- Evitar volver a discutir decisiones ya tomadas.
-- Comprender el motivo de cada decisión.
-- Facilitar futuras refactorizaciones.
-- Ayudar a diagnosticar errores arquitectónicos.
-- Identificar rápidamente el origen de posibles problemas.
-
----
-
-# Cómo utilizar este documento
-
-Cada decisión se registra mediante un Architecture Decision Record (ADR).
-
-Cada ADR deberá contener como mínimo:
-
-- ID
-- Fecha
-- Estado
-- Contexto
-- Problema
-- Decisión
-- Justificación
-- Alternativas descartadas
-- Consecuencias
-- Qué puede romper esta decisión
-- Síntomas
-- Cómo diagnosticar el problema
-- Archivos afectados
-- Documentos relacionados
-
----
-
-# Estados
-
-| Estado | Significado |
-|---------|-------------|
-| Activa | La decisión continúa vigente. |
-| Reemplazada | Existe una decisión más reciente. |
-| Obsoleta | Ya no aplica al proyecto. |
-
----
-
-# Índice de decisiones
-
-Las decisiones se documentarán utilizando el siguiente formato:
-
-- ADR-001
-- ADR-002
-- ADR-003
-- ADR-004
-- ...
-
-Cada nueva decisión deberá agregarse al final del documento respetando la numeración correlativa.
-
-
+Las decisiones incluidas en este documento cubren, entre otros temas, la adaptación de formatos externos, la separación entre mediciones y contexto clínico, la clasificación de presión arterial, la independencia de períodos y la integración entre estadísticas y análisis clínico.
 
 ---
 
