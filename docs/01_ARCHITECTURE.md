@@ -6,9 +6,11 @@
 | Tipo | Especificación de Arquitectura |
 | Estado | Activo |
 | Versión | Sincronizada con la versión del proyecto |
-| Última actualización | 2026-08-03 |
+| Última actualización | 2026-10-15 |
 
 ---
+
+> **Estado de vigencia (2026-10-15):** la arquitectura descrita aquí es una referencia que debe mantenerse alineada con el código. La rama auditada contiene, entre otros, `src/core`, `src/domain`, `src/features`, `src/components`, `src/clinical`, `src/services`, `src/store`, `src/hooks`, `src/theme` y `src/utils`. Esta lista describe directorios presentes; no implica que todos tengan el mismo nivel arquitectónico ni que deban fusionarse. Consultar [la auditoría documental](00_DOCUMENTATION_AUDIT_2026-10-15.md) para el alcance revisado.
 
 # 1. Objetivo
 
