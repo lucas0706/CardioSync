@@ -11,7 +11,7 @@
 
 ---
 
-> **Actualización de mantenimiento (2026-10-15):** actualizar solo los documentos afectados por un cambio. No exigir cambios de fecha en todos los documentos en cada fase. Distinguir siempre código presente, pruebas realizadas y funcionalidad verificada.
+> Mantener la documentación orientada a quienes usan y desarrollan CardioSync. Actualizar solo los documentos afectados por un cambio y no exigir cambios de fecha en todos los documentos en cada fase.
 
 # Objetivo
 
@@ -25,12 +25,12 @@ La documentación forma parte del proyecto y debe evolucionar junto con el códi
 
 Código y documentación deben mantenerse sincronizados.
 
-Una funcionalidad no se considera finalizada hasta que:
+El estado de implementación de una funcionalidad se determina por el código:
 
-- El código esté implementado.
-- Las pruebas correspondientes estén realizadas.
-- La arquitectura esté actualizada.
-- La documentación esté revisada.
+- **Implementada:** existe en el código.
+- **Planificada:** todavía no existe en el código y está prevista para una etapa futura.
+
+Las pruebas, la compatibilidad, la estabilidad y la documentación se registran por separado. Una tarea de validación pendiente no convierte una funcionalidad implementada en una funcionalidad no implementada.
 
 ---
 
