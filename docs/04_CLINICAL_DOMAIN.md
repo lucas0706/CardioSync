@@ -4,21 +4,21 @@
 |-------|--------|
 | Documento | 04_CLINICAL_DOMAIN.md |
 | Tipo | Diseño del Dominio Clínico |
-| Estado | Planificado |
+| Estado | Diseño conceptual con implementación presente; validación pendiente |
 | Versión | Sincronizada con la versión del proyecto |
-| Última actualización | 2026-08-03 |
+| Última actualización | 2026-10-15 |
 
 ---
 
 # Objetivo
 
-Este documento define el diseño conceptual del dominio clínico de CardioSync.
+Este documento describe el diseño conceptual del dominio clínico de CardioSync y sirve como referencia para contrastar el diseño con el código vigente.
 
-No contiene implementación.
-
-Su finalidad es establecer la estructura del dominio clínico antes del desarrollo del Clinical Rule Engine y Clinical Analysis Engine.
+La rama auditada contiene código de dominio clínico; este documento no sustituye la revisión de su implementación ni certifica su comportamiento. La validación funcional y clínica queda pendiente.
 
 ---
+
+> **Nota de auditoría (2026-10-15):** el estado anterior de «Planificado» estaba desactualizado. La presencia de modelos o servicios no demuestra por sí sola que todas las reglas clínicas estén completas, validadas o cubiertas por pruebas. Mantener la trazabilidad entre cada regla, su fuente y su implementación.
 
 # Principios del dominio clínico
 
