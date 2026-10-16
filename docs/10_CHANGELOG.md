@@ -39,6 +39,31 @@ Cada entrada deberá incluir:
 
 ---
 
+# 2026-10-15 — Flujo de desarrollo y validación
+
+### Tipo
+
+Documentación operativa
+
+### Cambios realizados
+
+- Añadida la guía `docs/17_DEVELOPMENT_WORKFLOW.md`.
+- Documentado el flujo de inspección inicial, validación TypeScript, formato, pruebas en Development Build y cierre de checkpoints.
+- Reforzada la separación entre implementación, validación técnica, pruebas en dispositivo y publicación.
+- Corregido el formato de la tabla del índice documental y agregado el enlace a la nueva guía.
+
+### Alcance
+
+Cambios exclusivamente documentales. No se modificó código de la aplicación, dependencias, configuración nativa ni perfiles de compilación.
+
+### Referencias
+
+- [Flujo de desarrollo y validación](17_DEVELOPMENT_WORKFLOW.md)
+- [Índice documental](README.md)
+
+
+---
+
 # 2026-08-03
 
 ## Documentación arquitectónica inicial
