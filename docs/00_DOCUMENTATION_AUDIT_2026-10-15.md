@@ -99,6 +99,10 @@ No se eliminan automáticamente. Cada uno debe evaluarse para decidir si se comp
 - No presentar una funcionalidad como verificada sin evidencia de pruebas.
 - Mantener los cambios en una rama documental separada hasta su revisión.
 
-## 6. Estado de esta auditoría
+## 6. Cambios documentales realizados en la rama de auditoría
+
+Después del inventario inicial, se añadieron el índice documental y una guía de versiones/actualizaciones, y se actualizaron notas de vigencia en los documentos maestro, arquitectura, roadmap, dominio clínico, reportes, Health Connect, base de datos, módulos, estructura y normas documentales. El changelog registra estos cambios documentales. Estos cambios no alteran la implementación de la aplicación.
+
+## 7. Estado de esta auditoría
 
 Este documento es un registro de hallazgos iniciales, no una certificación de calidad ni una auditoría clínica o de seguridad completa. La rama inspeccionada y el commit quedan registrados arriba para que el alcance sea reproducible.
