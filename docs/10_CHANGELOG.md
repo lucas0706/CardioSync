@@ -1338,3 +1338,29 @@ Solo documentación y auditoría estática. No se modificó código ni se altera
 ### Referencia
 
 - [Consenso Argentino 2025 — objetivos y hallazgos](clinical/guidelines/ARGENTINA_2025.md)
+
+
+---
+
+# 2026-10-15 — Seguimiento del contexto clínico y selección de objetivos
+
+### Tipo
+
+Auditoría estática de arquitectura clínica
+
+### Cambios realizados
+
+- Trazado el flujo desde `ClinicalContext` y el perfil local hasta `ClinicalAnalysisDomainService` y `TherapeuticTargetRule`.
+- Documentado que el selector asigna al grupo de 16–79 años los contextos con edad ausente o fuera del umbral de 80 años, sin validar el límite inferior en el selector.
+- Documentado el fallback al primer objetivo de la población cuando ninguna condición coincide.
+- Registrada la necesidad de revisar las condiciones de tolerancia de objetivos de diabetes y enfermedad renal crónica y la cobertura independiente de valores bajos.
+- Definidos los próximos pasos de auditoría antes de proponer cambios de código.
+
+### Alcance y límites
+
+Solo documentación. La revisión fue estática en la rama `docs/documentation-audit`; no se ejecutaron pruebas ni se inspeccionó todavía cada consumidor de análisis, formulario de perfil o regla de seguridad. No se modificó código funcional ni se alteraron objetivos clínicos.
+
+### Documentos relacionados
+
+- `docs/18_DOCUMENTATION_GAPS.md`
+- `docs/clinical/guidelines/ARGENTINA_2025.md`
