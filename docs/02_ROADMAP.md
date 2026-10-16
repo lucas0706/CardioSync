@@ -10,7 +10,7 @@
 
 ---
 
-> **Nota de vigencia (2026-10-15):** las fases y estados históricos de este roadmap no se consideran automáticamente actuales. Revisar cada elemento contra la rama y el commit de referencia; separar implementación, validación, publicación y trabajo pendiente. El inventario de discrepancias se encuentra en [la auditoría documental](00_DOCUMENTATION_AUDIT_2026-10-15.md).
+> Este roadmap resume la evolución del producto y distingue entre funcionalidades presentes, trabajo de consolidación y líneas futuras. Las guías funcionales describen cómo funciona cada capacidad; los registros de auditoría se conservan por separado.
 
 # Objetivo
 
