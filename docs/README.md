@@ -35,6 +35,7 @@ La documentación está organizada para explicar primero el producto y sus funci
 - [Versiones, actualizaciones y distribución Android](14_RELEASES_AND_UPDATES.md): configuración, OTA, APK y procedimiento de release.
 - [Historial de cambios](10_CHANGELOG.md): cambios relevantes registrados.
 - [Normas de documentación](99_DOCUMENTATION_GUIDELINES.md): cómo mantener esta documentación.
+- [Brechas documentales y plan de resolución](18_DOCUMENTATION_GAPS.md): inventario de documentos vacíos, discrepancias y orden de resolución.
 
 ## Referencias clínicas e históricas
 
