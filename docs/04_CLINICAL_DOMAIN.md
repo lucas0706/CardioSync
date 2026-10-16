@@ -1,266 +1,76 @@
-# CardioSync — Clinical Domain
+# Dominio clínico de CardioSync
 
-| Campo | Valor |
-|-------|--------|
-| Documento | 04_CLINICAL_DOMAIN.md |
-| Tipo | Diseño del Dominio Clínico |
-| Estado | Diseño conceptual con implementación presente; validación pendiente |
-| Versión | Sincronizada con la versión del proyecto |
-| Última actualización | 2026-10-15 |
+El dominio clínico reúne los modelos y reglas que permiten interpretar las mediciones y sus estadísticas en función de la información clínica disponible. Está separado de la presentación y de la persistencia: las pantallas muestran los resultados, mientras que los servicios de dominio coordinan la evaluación.
 
----
+## 1. Componentes principales
 
-# Objetivo
+El código clínico se encuentra en `src/domain/clinical` y se organiza en:
 
-Este documento describe el diseño conceptual del dominio clínico de CardioSync y sirve como referencia para contrastar el diseño con el código vigente.
+| Área | Responsabilidad |
+|---|---|
+| `models` | Contexto del paciente, guía clínica, análisis y hallazgos. |
+| `classification` | Clasificación de presión arterial. |
+| `guidelines` | Metadatos de las guías incorporadas. |
+| `rules` | Reglas de clasificación, seguridad, hipertensión y riesgo cardiovascular. |
+| `targets` | Objetivos terapéuticos y selección según guía y contexto. |
+| `services` | Coordinación del análisis y construcción de resultados. |
+| `warnings` | Reglas y definiciones de advertencias clínicas. |
 
-La rama auditada contiene código de dominio clínico; este documento no sustituye la revisión de su implementación ni certifica su comportamiento. La validación funcional y clínica queda pendiente.
+## 2. Contexto clínico del paciente
 
----
+`ClinicalContext` representa información del paciente que puede influir en la interpretación, pero que no pertenece a una medición individual. Se mantiene separado de `BloodPressureRecord`.
 
-> **Alcance:** este documento explica los conceptos y responsabilidades del dominio clínico. Las reglas activas, sus fuentes y su comportamiento deben mantenerse alineados con el código y con las pruebas clínicas disponibles.
+El modelo actual admite los siguientes campos:
 
-# Principios del dominio clínico
+| Grupo | Campos |
+|---|---|
+| Identidad | `patientId`, `name` |
+| Demografía | `age`, `sex` |
+| Antropometría | `height`, `weight`, `bmi` |
+| Factores de riesgo | `smoking`, `diabetes`, `dyslipidemia` |
+| Antecedentes cardiovasculares | `cardiovascularDisease`, `heartFailure`, `strokeHistory`, `peripheralVascularDisease` |
+| Antecedente renal | `chronicKidneyDisease` |
 
-El dominio clínico deberá mantenerse independiente de:
+Salvo `patientId`, los campos del perfil son opcionales. La ausencia de un dato no equivale a que la condición sea falsa y las reglas deben tratar los valores desconocidos de forma explícita.
 
-- React.
-- React Native.
-- Expo.
-- SQLite.
-- Componentes visuales.
-- Fuentes externas de datos.
+En la versión actual, el perfil V1 almacena información ingresada manualmente. Los datos provenientes de Health Connect se gestionan por separado y no se incorporan automáticamente a este modelo.
 
-Su responsabilidad será representar información clínica disponible y permitir su evaluación mediante reglas basadas en guías clínicas.
+## 3. Mediciones y estadísticas
 
----
+La medición de presión arterial es el dato registrado. Las estadísticas son valores derivados de un conjunto de mediciones, como los promedios sistólico y diastólico, tendencias y variabilidad.
 
-# Principio fundamental
+El dominio clínico consume esos resultados para producir hallazgos; no reemplaza el registro original ni es responsable de calcular las estadísticas. Esta separación permite utilizar los mismos datos estadísticos en distintas vistas sin duplicar la interpretación clínica.
 
-CardioSync continúa siendo una aplicación especializada en seguimiento de presión arterial.
+## 4. Guías clínicas
 
-Los datos externos no modifican el propósito principal del sistema.
+Las guías se representan mediante metadatos de `ClinicalGuideline`. La guía argentina de hipertensión de 2025 se registra en `ConsensoArgentinaHTA2025` y es la guía predeterminada del servicio de análisis cuando no se proporciona otra.
 
-Health Connect y otras fuentes externas únicamente proporcionan contexto adicional cuando esté disponible.
+Los objetivos terapéuticos están definidos por guía y se consultan a través de `ClinicalTargetRepository`. La selección utiliza el contexto del paciente, la población definida para cada objetivo, sus condiciones y su prioridad.
 
-No son una dependencia obligatoria del funcionamiento principal.
+La ficha de [Consenso Argentino de Hipertensión Arterial 2025](clinical/guidelines/ARGENTINA_2025.md) describe la fuente y las reglas relacionadas. No todas las recomendaciones de una guía deben considerarse implementadas por el hecho de que la guía esté registrada.
 
----
+## 5. Reglas y hallazgos
 
-# ClinicalContext
+Las reglas reciben datos específicos y un `ClinicalRuleContext`, y devuelven una lista de `ClinicalFinding`. Un hallazgo contiene información como tipo, título, descripción, severidad, identificador de guía y fecha de creación.
 
-Estado: 📋 PLANIFICADO
+Una regla puede devolver cero hallazgos si no dispone de los datos requeridos o si el escenario no corresponde a su evaluación. Por eso, una lista vacía no debe interpretarse automáticamente como confirmación de que todo está normal.
 
-ClinicalContext será el contenedor conceptual que reúne la información disponible para una evaluación clínica.
+Las reglas no deben modificar mediciones ni realizar operaciones de persistencia. Su función es interpretar la información recibida y comunicar el resultado mediante hallazgos estructurados.
 
-Su construcción será dinámica.
+## 6. Servicio de análisis
 
-No todos los contextos estarán siempre presentes.
+`ClinicalAnalysisDomainService` coordina el proceso:
 
----
+1. Recibe el contexto clínico y las estadísticas disponibles.
+2. Selecciona la guía indicada o usa la guía argentina predeterminada.
+3. Ejecuta las reglas registradas en el servicio.
+4. Reúne los hallazgos generados.
+5. Construye el resultado agrupado y devuelve un `ClinicalAnalysis`.
 
-# Contextos obligatorios
+El análisis conserva el identificador del paciente, la fecha de creación, la guía, las estadísticas disponibles, los hallazgos y un resultado estructurado.
 
-## MeasurementContext
+## 7. Límites del dominio
 
-Estado: 📋 PLANIFICADO
+El dominio clínico no sustituye una evaluación profesional ni convierte un resultado automático en un diagnóstico. La interpretación depende de los datos disponibles y de las reglas incorporadas en la versión de la aplicación.
 
-Responsabilidad:
-
-Representar la medición principal de presión arterial.
-
-Este contexto constituye el núcleo de CardioSync.
-
-Debe existir para realizar cualquier evaluación.
-
-Incluye información relacionada con:
-
-- Presión sistólica.
-- Presión diastólica.
-- Fecha y hora.
-- Datos propios de la medición.
-
----
-
-# Contextos opcionales
-
-Los siguientes contextos podrán existir únicamente cuando exista información disponible.
-
-La ausencia de estos datos no debe impedir el funcionamiento principal de CardioSync.
-
----
-
-## StatisticsContext
-
-Responsabilidad:
-
-Representar resultados estadísticos derivados de las mediciones.
-
-Ejemplos:
-
-- Tendencias.
-- Promedios.
-- Variabilidad.
-- Evolución temporal.
-
-No realiza cálculos.
-
-Consume resultados generados por Statistics.
-
----
-
-## PatientContext
-
-Responsabilidad:
-
-Representar información estable del paciente.
-
----
-
-## HistoryContext
-
-Responsabilidad:
-
-Representar información histórica necesaria para evaluaciones clínicas.
-
----
-
-## SleepContext
-
-Responsabilidad:
-
-Representar información del sueño proveniente de fuentes externas como Health Connect.
-
-Puede no existir.
-
-Su ausencia no afecta el funcionamiento principal.
-
----
-
-## ActivityContext
-
-Responsabilidad:
-
-Representar actividad física proveniente de fuentes externas.
-
-Puede no existir.
-
----
-
-## BodyCompositionContext
-
-Responsabilidad:
-
-Representar información corporal externa.
-
-Ejemplos:
-
-- Peso.
-- Composición corporal.
-- Masa muscular.
-- Grasa corporal.
-
-Puede no existir.
-
----
-
-## VitalSignsContext
-
-Responsabilidad:
-
-Representar signos vitales adicionales.
-
-Ejemplos:
-
-- Frecuencia cardíaca.
-- SpO2.
-- Temperatura.
-- Frecuencia respiratoria.
-
-Puede no existir.
-
----
-
-# Arquitectura conceptual
-
-ClinicalContext
-
-├── MeasurementContext (obligatorio)
-
-├── StatisticsContext (opcional)
-
-├── PatientContext (opcional)
-
-├── HistoryContext (opcional)
-
-├── SleepContext (opcional)
-
-├── ActivityContext (opcional)
-
-├── BodyCompositionContext (opcional)
-
-└── VitalSignsContext (opcional)
-
----
-
-# Relación con Health Connect
-
-Health Connect no forma parte del dominio principal.
-
-Su responsabilidad será únicamente alimentar contextos externos cuando exista información disponible.
-
-Ejemplo:
-
-Health Connect
-
-↓
-
-SleepContext
-
-↓
-
-ClinicalContext
-
-↓
-
-Clinical Analysis Engine
-
----
-
-# Restricciones
-
-- BloodPressureRecord no almacenará datos externos.
-- Health Connect no modificará BloodPressureRecord.
-- La ausencia de datos externos no debe bloquear una evaluación.
-- Los contextos externos no reemplazan MeasurementContext.
-- Cada contexto deberá mantener una responsabilidad única.
-
----
-
-# Evolución prevista
-
-La implementación del dominio clínico comenzará luego de completar la refactorización del dominio actual.
-
-Orden previsto:
-
-1. Finalizar refactorización de BloodPressureRecord.
-2. Diseñar modelos clínicos definitivos.
-3. Implementar ClinicalContext.
-4. Implementar ClinicalRuleEngine.
-5. Implementar ClinicalAnalysisEngine.
-
-
----
-
-## Consolidación de clasificación
-
-Clinical Analysis V1 utiliza una única regla activa para producir el finding `blood-pressure-classification`:
-
-`BloodPressureClassificationRule`.
-
-La antigua `ClinicalClassificationRule`, que adaptaba `ClinicalResult` proveniente del árbol histórico `src/clinical/engine`, fue retirada del dominio activo para evitar dos fuentes de verdad.
-
-El árbol histórico `src/clinical/` permanece intacto por ahora.
-
----
-
+La fuente clínica, la regla implementada y los escenarios cubiertos por pruebas son aspectos distintos. Las fuentes y el alcance de cada guía se documentan en [Guías clínicas](clinical/09_CLINICAL_GUIDELINE.md).
