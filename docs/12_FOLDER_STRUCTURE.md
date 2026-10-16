@@ -1,261 +1,92 @@
+# Estructura de carpetas
 
-# CardioSync — Folder Structure
+Este documento explica dónde se encuentra cada tipo de código dentro del repositorio CardioSync y cómo navegarlo al desarrollar o mantener una funcionalidad.
 
-| Campo | Valor |
-|-------|--------|
-| Documento | 12_FOLDER_STRUCTURE.md |
-| Tipo | Organización del repositorio |
-| Estado | Activo |
-| Versión | Sincronizada con la versión del proyecto |
-| Última actualización | 2026-10-15 |
+## Raíz del repositorio
 
----
+- `app/`: rutas y pantallas de navegación utilizadas por la configuración de desarrollo.
+- `app-production/`: rutas de producción separadas para la configuración de compilación que utiliza esa raíz.
+- `src/`: implementación modular de la aplicación.
+- `docs/`: documentación funcional y técnica.
+- `assets/`: recursos gráficos y otros recursos estáticos.
+- `plugins/`: plugins de configuración nativa de Expo.
+- `package.json`, `app.json`, `app.config.js`, `eas.json`: dependencias y configuración de Expo/EAS.
 
-> **Nota de vigencia (2026-10-15):** la estructura documentada debe representar el árbol real de la rama revisada. En `src/` existen, además de `core`, `domain`, `features` y `components`, directorios como `clinical`, `services`, `store`, `hooks`, `theme`, `types`, `utils` y `devtools`. Esta nota registra su presencia sin proponer una reorganización automática.
+Las raíces de rutas y el perfil de build activo dependen de la configuración de Expo/EAS de la rama y del perfil utilizado.
 
-# Objetivo
+## Directorios principales de `src/`
 
-Este documento define la estructura oficial del repositorio CardioSync.
+### `src/core`
 
-Su finalidad es:
+Infraestructura central compartida. Incluye, entre otros, el acceso y la configuración de la base de datos y los módulos de autenticación.
 
-- Mantener una organización consistente.
-- Evitar duplicación de responsabilidades.
-- Facilitar mantenimiento.
-- Mantener una arquitectura escalable.
+### `src/domain`
 
----
+Modelos, tipos y reglas del dominio, organizados por área:
 
-# Estructura general
+- `clinical/`: contexto, modelos, guías, reglas y servicios de análisis clínico.
+- `measurements/`: entidades y tipos de mediciones.
+- `statistics/`: cálculos, filtros, modelos y servicios estadísticos.
+- `dashboard/` y `health/`: modelos relacionados con esas áreas.
 
-CardioSync/
+### `src/features`
 
-- src/
-- docs/
-- assets/
-- package.json
-- tsconfig.json
+Funcionalidades organizadas por capacidad. Entre los directorios principales se encuentran:
 
----
+- `about/`
+- `appUpdate/` y `updates/`
+- `backup/`
+- `dashboard/`
+- `healthConnect/`
+- `import/`
+- `measurements/`
+- `profile/`
+- `reports/`
+- `splash/`
+- `statistics/`
 
-# Directorio src
+Cada feature puede contener pantallas, componentes, hooks, modelos, parsers, mappers, servicios, tipos y validaciones según sus necesidades.
 
-El código fuente principal se encuentra dentro de:
+### `src/components`
 
-src/
+Componentes visuales compartidos. Incluye componentes UI, formularios y gráficos reutilizables. Los gráficos clínicos se organizan en `src/components/charts`.
 
-La estructura interna deberá respetar separación por responsabilidades.
+### Otros directorios de `src/`
 
----
+- `src/hooks`: hooks reutilizables.
+- `src/services`: servicios compartidos.
+- `src/store`: estado compartido.
+- `src/theme`: configuración y tokens visuales.
+- `src/types`: tipos compartidos.
+- `src/utils`: funciones auxiliares.
+- `src/clinical`: estructura clínica adicional que convive con el dominio clínico; antes de modificarla, identificar qué código la consume.
+- `src/devtools`: herramientas y escenarios de desarrollo, incluidos recursos para gráficos, clínica, Health Connect, reportes y estadísticas.
 
-# Estructura principal
+## Cómo localizar una funcionalidad
 
-src/
+| Si necesitás cambiar… | Empezá por… |
+|---|---|
+| Registro o edición de mediciones | `src/features/measurements` |
+| Entidad o reglas de medición | `src/domain/measurements` |
+| Inicio y resumen | `src/features/dashboard` |
+| Cálculos estadísticos | `src/domain/statistics` |
+| Pantallas de estadísticas | `src/features/statistics` |
+| Reglas o modelos clínicos | `src/domain/clinical` y sus consumidores |
+| Reportes PDF | `src/features/reports` |
+| Health Connect | `src/features/healthConnect` |
+| Copias y restauración | `src/features/backup` |
+| Importación de archivos | `src/features/import` |
+| Perfil | `src/features/profile` |
+| Actualizaciones | `src/features/appUpdate` y `src/features/updates` |
+| Componentes de interfaz compartidos | `src/components` |
+| Configuración de base de datos | `src/core/database` |
 
-- components/
-- features/
-- domain/
-- services/
-- hooks/
-- store/
-- theme/
-- utils/
-- types/
+## Principios para mantener la estructura
 
----
+1. Ubicar cada cambio junto a la responsabilidad que modifica.
+2. Mantener modelos y reglas del negocio fuera de los componentes visuales.
+3. Evitar que la UI ejecute consultas SQLite directamente.
+4. Mantener las integraciones externas dentro de su módulo y mapear sus datos antes de utilizarlos en el dominio.
+5. Si una funcionalidad cruza varias capas, documentar el flujo y actualizar [Arquitectura](01_ARCHITECTURE.md).
 
-# components
-
-Responsabilidad:
-
-Componentes reutilizables de interfaz.
-
-Incluye:
-
-- Botones.
-- Inputs.
-- Cards.
-- Elementos visuales comunes.
-
-No incluye:
-
-- Lógica clínica.
-- Lógica de negocio.
-- Acceso directo a datos.
-
----
-
-# features
-
-Responsabilidad:
-
-Módulos funcionales de la aplicación.
-
-Ejemplo:
-
-features/
-
-- measurements/
-- statistics/
-- dashboard/
-- clinical/
-
-Cada feature debe mantener sus responsabilidades dentro de su propio dominio.
-
-
-
----
-
-# domain
-
-Responsabilidad:
-
-Modelos principales del negocio.
-
-Incluye:
-
-- Entidades.
-- Interfaces.
-- Tipos propios del dominio.
-
-No depende de:
-
-- React.
-- Componentes visuales.
-- SQLite.
-- Servicios externos.
-
----
-
-# services
-
-Responsabilidad:
-
-Integraciones y servicios compartidos.
-
-Ejemplos futuros:
-
-- Health Connect.
-- Importación de datos.
-- Exportación.
-- Servicios externos.
-
----
-
-# hooks
-
-Responsabilidad:
-
-Lógica reutilizable relacionada con comportamiento de interfaz.
-
-No contiene:
-
-- Reglas clínicas.
-- Modelos de negocio.
-- Persistencia directa.
-
----
-
-# store
-
-Responsabilidad:
-
-Gestionar estado global de la aplicación cuando sea necesario.
-
-Debe evitar almacenar lógica de dominio.
-
----
-
-# theme
-
-Responsabilidad:
-
-Sistema visual centralizado.
-
-Incluye:
-
-- Colores.
-- Tipografía.
-- Espaciados.
-- Tokens visuales.
-
----
-
-# utils
-
-Responsabilidad:
-
-Funciones auxiliares reutilizables.
-
-No contiene:
-
-- Lógica clínica.
-- Reglas de negocio.
-- Acceso a datos.
-
----
-
-# types
-
-Responsabilidad:
-
-Tipos compartidos utilizados por distintos módulos.
-
----
-
-# docs
-
-Responsabilidad:
-
-Documentación oficial del proyecto.
-
-Archivos principales:
-
-- 00_PROJECT_MASTER_CONTEXT.md
-- 01_ARCHITECTURE.md
-- 02_ROADMAP.md
-- 03_DECISIONS.md
-- 04_CLINICAL_DOMAIN.md
-- 05_CLINICAL_RULE_ENGINE.md
-- 06_CLINICAL_ANALYSIS.md
-- 07_REPORTS.md
-- 08_HEALTH_CONNECT.md
-- 09_DATABASE.md
-- 10_CHANGELOG.md
-- 11_MODULES.md
-- 12_FOLDER_STRUCTURE.md
-
----
-
-# Reglas para nuevos archivos
-
-Antes de crear un archivo nuevo:
-
-1. Identificar la responsabilidad.
-2. Ubicarlo dentro del módulo correcto.
-3. Evitar duplicación de funcionalidades.
-4. Mantener separación entre capas.
-5. Actualizar documentación si cambia la arquitectura.
-
----
-
-# Restricciones
-
-No crear:
-
-- Lógica clínica dentro de components.
-- Acceso a SQLite dentro de UI.
-- Modelos de dominio dentro de componentes visuales.
-- Datos externos dentro de entidades principales.
-- Reglas clínicas dentro de Statistics.
-
----
-
-# Evolución de estructura
-
-La estructura del repositorio podrá evolucionar, pero cualquier cambio arquitectónico deberá registrarse en:
-
-- 01_ARCHITECTURE.md
-- 03_DECISIONS.md
-- 10_CHANGELOG.md
-
+La estructura evoluciona con el proyecto; al agregar o mover módulos, actualizar esta guía y la referencia de [módulos](11_MODULES.md).
