@@ -1414,3 +1414,19 @@ Los documentos explican qué hace cada módulo, dónde vive su implementación y
 ### Alcance
 
 Cambios documentales en la rama `docs/documentation-audit`. No se modificó código de la aplicación, dependencias ni configuración nativa.
+
+
+---
+
+# 2026-10-15 — Guías técnicas de funcionalidades y contexto del proyecto
+
+### Cambios realizados
+
+- Actualizado `00_PROJECT_MASTER_CONTEXT.md` para resumir el producto, las funcionalidades presentes, la arquitectura, los principios de desarrollo y los documentos de referencia.
+- Reescritos `06_CLINICAL_ANALYSIS.md`, `07_REPORTS.md`, `08_HEALTH_CONNECT.md`, `09_DATABASE.md`, `11_MODULES.md` y `12_FOLDER_STRUCTURE.md` con un enfoque funcional y técnico.
+- Reescrito `14_RELEASES_AND_UPDATES.md` como guía de distribución Android y diferencias entre APK y OTA.
+- Conservadas las precauciones necesarias para interpretación clínica, protección de datos, permisos y publicación.
+
+### Alcance
+
+Documentación modificada en la rama `docs/documentation-audit`. No se modificó código de la aplicación ni configuración nativa.
