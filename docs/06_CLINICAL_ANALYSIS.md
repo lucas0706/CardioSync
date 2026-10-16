@@ -18,7 +18,7 @@ La rama auditada contiene componentes relacionados con contexto y análisis de s
 
 ---
 
-> **Nota de auditoría (2026-10-15):** este documento describe el comportamiento esperado, no constituye una certificación clínica. Registrar explícitamente cualquier diferencia entre el diseño, el código y las pruebas disponibles.
+> **Alcance:** el análisis organiza e integra resultados de los módulos clínicos para que otras funciones puedan presentarlos. Su comportamiento concreto depende de las reglas y los contextos disponibles en la versión instalada.
 
 # Propósito
 
