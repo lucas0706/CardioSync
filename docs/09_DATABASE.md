@@ -23,7 +23,7 @@ Su finalidad es documentar:
 
 ---
 
-> **Nota de auditoría (2026-10-15):** la base de datos usa SQLite y el código auditado incluye servicios de importación y backup/restauración. Este documento requiere una revisión del esquema completo, inicialización, migraciones, integridad, compatibilidad entre versiones y recuperación antes de considerarse una referencia exhaustiva.
+> **Alcance:** CardioSync utiliza SQLite para la persistencia local. Este documento reúne el modelo de datos y los flujos de intercambio; los detalles de esquema y migraciones deben actualizarse cuando cambie la estructura de almacenamiento.
 
 # Importación y Exportación de Datos
 
