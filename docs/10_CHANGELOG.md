@@ -1190,3 +1190,29 @@ Solo documentación. No se modificaron código de aplicación, dependencias, con
 
 - `docs/18_DOCUMENTATION_GAPS.md`
 
+---
+
+# 2026-10-15 — Revisión de arquitectura, reportes e importación
+
+### Tipo
+
+Auditoría y actualización documental
+
+### Cambios realizados
+
+- Actualizado el estado del dominio clínico para distinguir código presente de validación funcional integral.
+- Corregido el estado del reporte del paciente para no describir como «en implementación» una funcionalidad que ya tiene servicios de construcción y generación PDF.
+- Reescrita la referencia de base de datos para describir los formatos de importación que aparecen en los parsers inspeccionados: CSV con encabezados CardioSync y SQLite externa con tabla `tranx`.
+- Retiradas afirmaciones no respaldadas por esos parsers sobre compatibilidad con Excel/XLS/XLSX.
+- Corregida la estructura de la sección de persistencia, copias e intercambio en la documentación de base de datos.
+
+### Alcance y límites
+
+Cambios solo documentales. Se inspeccionaron archivos fuente de servicios y parsers en la rama documental; no se ejecutaron compilaciones, pruebas automatizadas ni pruebas en dispositivo. La presencia de código no se considera prueba de validación completa.
+
+### Documentos relacionados
+
+- `docs/01_ARCHITECTURE.md`
+- `docs/07_REPORTS.md`
+- `docs/09_DATABASE.md`
+
