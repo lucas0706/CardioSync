@@ -1241,3 +1241,27 @@ Solo documentación. La revisión fue estática sobre la rama documental; no se 
 - `docs/08_HEALTH_CONNECT.md`
 - `docs/16_BACKUP_AND_RESTORE.md`
 
+
+---
+
+# 2026-10-15 — Fundamentos documentales y alcance clínico
+
+### Tipo
+
+Documentación de arquitectura y dominio clínico
+
+### Cambios realizados
+
+- Añadida una constitución propuesta con principios de arquitectura, calidad, manejo de datos y trazabilidad.
+- Añadida una introducción a la documentación clínica que separa fuentes publicadas, interpretación del proyecto, reglas implementadas y evidencia de validación.
+- Actualizado el plan de brechas para registrar estos avances y el orden de trabajo siguiente.
+
+### Alcance y límites
+
+Cambios exclusivamente documentales. No se modificaron código de aplicación, dependencias, configuración nativa ni reglas clínicas. La constitución requiere revisión y aprobación; no se declara validación clínica ni cumplimiento normativo.
+
+### Referencias
+
+- [Constitución de CardioSync](00_CARDIOSYNC_CONSTITUTION.md)
+- [Introducción a la documentación clínica](clinical/00_INTRODUCTION.md)
+- [Brechas documentales](18_DOCUMENTATION_GAPS.md)
