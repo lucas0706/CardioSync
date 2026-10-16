@@ -90,3 +90,42 @@ Cualquier cambio clínico relacionado con este consenso debe incluir:
 - estado de validación técnica y clínica por separado.
 
 No utilizar este documento como consejo médico ni como sustituto de evaluación profesional.
+
+## 6. Hallazgos de auditoría: objetivos terapéuticos
+
+La comparación estática de `ConsensoArgentinaHTA2025Targets.ts`, `ClinicalTargetSelector.ts`, `ClinicalTargetMatcher.ts`, `TherapeuticTargetRule.ts` y la extracción `004_objetivos_terapeuticos_poblaciones.md` encontró diferencias que requieren resolver antes de afirmar cobertura completa.
+
+### 6.1 Objetivo deseable condicionado a tolerancia
+
+La lista de objetivos contiene `arg-hta-2025-adults-16-79-desirable`, condicionado por `buena_tolerancia`. Sin embargo, `ClinicalTargetMatcher.evaluateCondition()` devuelve actualmente `false` para esa condición en todos los casos. Por ello, el selector no puede elegir ese objetivo deseable mediante el flujo actual; cuando no encuentra un objetivo aplicable, devuelve el objetivo base de la población.
+
+**Estado:** discrepancia de implementación identificada; requiere una decisión explícita sobre cómo se representa y obtiene la tolerancia del paciente. No debe asumirse buena tolerancia por defecto.
+
+### 6.2 Hipertensión sistólica aislada en personas de 65 a 79 años
+
+La extracción clínica documenta un objetivo específico que puede considerarse para pacientes de 65 a 79 años con hipertensión sistólica aislada, sujeto a tolerancia y precaución por PAD baja. En el arreglo de objetivos inspeccionado no se encontró un objetivo con esas condiciones y ese rango de edad.
+
+**Estado:** cobertura no localizada en el arreglo revisado; comprobar si existe otra implementación antes de concluir que está ausente de toda la aplicación.
+
+### 6.3 Fragilidad y decisiones individualizadas
+
+La extracción documenta que los objetivos deben individualizarse en pacientes frágiles y menciona escenarios de desprescripción en mayores de 80 años. En el selector y el matcher revisados no aparece una condición de fragilidad. La selección actual divide la población principalmente por edad (80 años o más frente a menores de 80) y por diabetes, enfermedad renal crónica y tolerancia.
+
+**Estado:** brecha potencial de representación del contexto y de cobertura de reglas. Requiere revisar el modelo de contexto y decidir alcance antes de implementar.
+
+### 6.4 Protección ante valores bajos
+
+`TherapeuticTargetRule` no genera un hallazgo de objetivo terapéutico cuando la media sistólica es menor de 120 mmHg o la diastólica menor de 70 mmHg. Este comportamiento evita evaluar el objetivo en ese escenario, pero no genera por sí mismo una explicación o alerta específica dentro de esta regla. La extracción argentina menciona precaución con PAD <70 mmHg y otros escenarios de presión baja; verificar qué regla de seguridad independiente cubre esos casos y si sus pruebas lo demuestran.
+
+## 7. Decisión de auditoría y siguiente paso
+
+Estos puntos son hallazgos estáticos, no una afirmación de error clínico confirmado. No se cambió código ni se modificaron umbrales durante esta auditoría documental.
+
+Antes de implementar correcciones:
+
+1. Contrastar cada caso con las tablas y secciones correspondientes del PDF primario.
+2. Inspeccionar el modelo completo de `ClinicalContext` y el flujo que lo construye.
+3. Definir cómo se representa la tolerancia y la fragilidad sin inferirlas de datos ausentes.
+4. Añadir pruebas unitarias para selección por edad, diabetes, enfermedad renal crónica, tolerancia, hipertensión sistólica aislada y límites de seguridad.
+5. Revisar cómo se comunica una evaluación omitida para que no se confunda con un resultado normal.
+6. Documentar por separado la decisión clínica, el cambio técnico y el resultado de las pruebas.
