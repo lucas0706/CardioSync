@@ -6,7 +6,7 @@
 | Tipo | Historial de cambios del proyecto |
 | Estado | Activo |
 | Versión | Sincronizada con la versión del proyecto |
-| Última actualización | 2026-08-22 |
+| Última actualización | 2026-10-15 |
 
 ---
 
@@ -1079,3 +1079,17 @@ Checkpoint relacionado:
 
 `17_CHECKPOINT_OTA_AND_GOOGLE_SERVICES_2026-09-05.md`
 
+
+
+---
+
+# 2026-10-15
+
+## Auditoría y organización documental
+
+- Creada una rama de trabajo independiente para la revisión documental.
+- Añadido un índice documental y enlazado desde el README principal.
+- Registradas discrepancias entre documentos y el código de la rama auditada.
+- Actualizadas notas de vigencia en contexto maestro, arquitectura, roadmap, dominio clínico, reportes, Health Connect y base de datos.
+- No se modificó código funcional, dependencias ni configuración nativa como parte de esta fase.
+- Referencia: [auditoría documental inicial](00_DOCUMENTATION_AUDIT_2026-10-15.md).
