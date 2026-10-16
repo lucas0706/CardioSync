@@ -1,40 +1,35 @@
 # Versiones, actualizaciones y distribución Android
 
-| Campo | Valor |
-|---|---|
-| Tipo | Referencia operativa de configuración |
-| Fecha de revisión | 2026-10-15 |
-| Rama de referencia | `feature/app-updates` |
-| Commit de referencia | `c62b9106f7a1a720b274bb7f386111313d08403e` |
-| Estado | Configuración inspeccionada; flujos operativos pendientes de prueba |
+Esta guía explica cómo se distribuye CardioSync para Android, qué diferencia hay entre una APK y una actualización OTA y qué configuración debe revisarse antes de publicar una versión.
 
-## 1. Fuentes de configuración inspeccionadas
+## Versiones y perfiles de compilación
 
-La configuración de la rama de referencia se inspeccionó en `app.json`, `package.json`, `app.config.js` y `eas.json`. Esta sección describe esos archivos en el commit indicado; no garantiza que otra rama o un build remoto tenga exactamente la misma configuración.
+La configuración de Expo y EAS se define principalmente en:
 
-- `app.json` declara la versión de aplicación `1.2.0`.
-- `package.json` declara la versión `1.2.0`, Expo `~57.0.26` y React Native `0.86.3`.
-- `eas.json` define los perfiles `development`, `preview`, `production` y `production-apk`.
-- Los perfiles `production` y `production-apk` utilizan el canal `production` y establecen `CARDIOSYNC_ROUTER_ROOT=app-production`.
-- El perfil `production-apk` declara `android.buildType=apk`.
-- El perfil `development` usa el canal `development` y la raíz de rutas `app`; `preview` usa el canal `beta`.
-- `app.config.js` agrega los plugins `./plugins/withCardioSyncUpdateInstaller` y `./plugins/withCardioSyncAlarm`, además de `expo-notifications`, y configura las arquitecturas de compilación según el perfil.
-- `app.config.js` establece `updates.checkAutomatically: 'NEVER'`.
-- La configuración Android efectiva de runtime en `app.config.js` declara `runtimeVersion.policy: 'fingerprint'`; existe también una política `appVersion` en el nivel Expo general. Para publicar, debe confirmarse el valor efectivo de la configuración Android y el runtime del build, no asumir un valor fijo como `1.0.0`.
+- `app.json`
+- `app.config.js`
+- `package.json`
+- `eas.json`
 
-## 2. Discrepancia de metadatos visibles
+En la referencia documental de `feature/app-updates`, la versión declarada en `app.json` y `package.json` es `1.2.0`, con Expo `~57.0.26` y React Native `0.86.3`. Los metadatos de versión visibles dentro de la app de esa referencia declaran `1.1.0` y React Native `0.86.2`; por eso, antes de una publicación debe confirmarse cuál es la versión que corresponde mostrar al usuario y actualizar las fuentes de forma coherente.
 
-En el mismo commit, `src/features/about/config/version-info.ts` y `src/features/about/config/appInfo.ts` declaran la versión `1.1.0` y React Native `0.86.2`. Estos valores no coinciden con `app.json` y `package.json`.
+Los perfiles de EAS incluyen `development`, `preview`, `production` y `production-apk`. El perfil `production-apk` está configurado para generar una APK instalable. La configuración activa de rutas, runtime y canal depende del perfil y de la configuración efectiva de Expo.
 
-Esta documentación registra la discrepancia, no la resuelve. Antes de cambiar esos archivos hay que decidir una única fuente de verdad y confirmar qué información se muestra en la aplicación instalada.
+## APK de producción
 
-## 3. OTA y APK no son intercambiables
+Una APK es un paquete instalable de Android. Se utiliza para distribuir una nueva versión que incluya los cambios nativos y JavaScript/TypeScript que se compilaron en esa build.
 
-Las actualizaciones OTA solo deben utilizarse cuando el cambio sea compatible con el runtime nativo ya instalado. Los cambios en dependencias nativas, plugins/configuración nativa, Expo SDK, runtime o código nativo requieren evaluar una nueva build, no una publicación OTA.
+Antes de generar una APK, revisar rama, commit, estado de Git, versión y runtime efectivo. Después de compilar, verificar el artefacto y probar instalación y apertura en un dispositivo compatible. La existencia de una build no significa que el archivo se haya subido a GitHub Releases.
 
-Antes de publicar OTA, verificar el estado de Git, el commit, la configuración efectiva de runtime y canal, y que el diff no incluya cambios nativos. La configuración de runtime debe leerse de la configuración efectiva de la rama y del build, no asumirse a partir de documentación antigua.
+## Actualizaciones OTA
 
-Comando de publicación OTA — utilizar solo después de completar esas verificaciones:
+Las actualizaciones OTA entregan cambios compatibles de JavaScript/TypeScript sin sustituir el runtime nativo instalado. Son apropiadas para cambios de pantallas, navegación, componentes, textos, estilos y lógica JavaScript/TypeScript cuando no requieren modificaciones nativas.
+
+No se debe publicar una OTA para cambios que afecten dependencias nativas, plugins o configuración nativa, Expo SDK, runtime o código Kotlin/Java. En esos casos corresponde evaluar y generar una nueva build.
+
+La configuración de la rama de referencia establece `updates.checkAutomatically: 'NEVER'`; el comportamiento de comprobación debe coordinarse con el flujo de actualización de la aplicación. No asumir que el cliente descargará o instalará automáticamente una OTA sin revisar la implementación y la configuración efectivas.
+
+Comando de publicación OTA para Android, únicamente después de completar las comprobaciones previas:
 
 ```bash
 eas update \
@@ -43,22 +38,37 @@ eas update \
   --message "descripción del cambio"
 ```
 
-Para una nueva versión de producción, el perfil destinado a generar APK es `production-apk`. Antes de compilar, confirmar estado de Git, commit, versión y runtime efectivo. No asumir que el archivo APK resultante se publicó en GitHub Releases hasta comprobarlo.
+## Comprobaciones antes de publicar
 
-## 4. Checklist de verificación previa a una release
+### Para cualquier publicación
 
-- [ ] Confirmar rama y commit exactos.
+- [ ] Confirmar la rama y el commit exactos.
 - [ ] Confirmar que el estado de Git es limpio.
-- [ ] Verificar versión de `app.json`, `package.json` y metadatos visibles en la app.
-- [ ] Verificar Expo SDK y React Native en la misma referencia.
-- [ ] Revisar `app.config.js`, plugins y configuración nativa.
-- [ ] Confirmar runtime efectivo y canal en el build objetivo.
-- [ ] Para OTA, revisar el diff y descartar cambios incompatibles con el runtime.
-- [ ] Para cambios nativos, generar y probar una APK de producción.
-- [ ] Probar actualización, instalación y apertura en un dispositivo compatible.
-- [ ] Registrar el commit, el artefacto publicado y el resultado de las pruebas.
-- [ ] Verificar la release y el artefacto en GitHub antes de anunciar la publicación.
+- [ ] Verificar versión de la aplicación y metadatos visibles.
+- [ ] Verificar Expo SDK, dependencias y configuración efectiva.
+- [ ] Registrar qué artefacto o actualización se publicó.
 
-## 5. Limitaciones de esta referencia
+### Antes de una OTA
 
-La revisión fue estática. No se ejecutó una build ni se validó un flujo OTA en un dispositivo. No se confirma aquí el runtime efectivo de un APK publicado, el commit instalado por los usuarios ni el éxito de una release concreta. Registrar esa información con evidencia de cada publicación.
+- [ ] Revisar el diff completo.
+- [ ] Confirmar que no hay cambios nativos ni de configuración incompatible.
+- [ ] Verificar runtime y canal efectivos para Android.
+- [ ] Publicar solo cambios compatibles con el runtime instalado.
+- [ ] Registrar el Update Group ID, el commit publicado, runtime y canal.
+
+### Antes de una APK
+
+- [ ] Confirmar versión, runtime y perfil `production-apk`.
+- [ ] Generar la APK de producción.
+- [ ] Instalar y probar el artefacto.
+- [ ] Verificar el archivo subido a la release correspondiente.
+
+## Fuentes de configuración
+
+- `app.json`: versión y configuración Expo.
+- `app.config.js`: configuración dinámica, plugins y opciones efectivas.
+- `package.json`: versiones de dependencias.
+- `eas.json`: perfiles de build y opciones de distribución.
+- `src/features/appUpdate` y `src/features/updates`: funcionalidades de actualización en la app.
+
+Los valores de configuración pueden cambiar entre ramas y commits. Antes de utilizar esta guía para una publicación real, tomar los valores de la revisión exacta que se va a distribuir.
