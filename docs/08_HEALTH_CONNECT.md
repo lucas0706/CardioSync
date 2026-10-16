@@ -3,26 +3,26 @@
 | Campo | Valor |
 |-------|--------|
 | Documento | 08_HEALTH_CONNECT.md |
-| Tipo | Diseño Conceptual de Integración |
-| Estado | Planificado |
+| Tipo | Integración: diseño y referencia de implementación |
+| Estado | Implementación presente; validación funcional y de permisos pendiente |
 | Versión | Sincronizada con la versión del proyecto |
-| Última actualización | 2026-08-03 |
+| Última actualización | 2026-10-15 |
 
 ---
 
 # Objetivo
 
-Este documento define el diseño conceptual de la integración futura con Health Connect.
+Este documento describe los límites y el diseño de la integración con Health Connect.
 
-No contiene implementación.
-
-Su finalidad es establecer qué información podrá ser incorporada, cómo será transformada y qué módulos podrán consumirla.
+La rama auditada contiene servicios para inicialización, permisos, sincronización y lectura de presión arterial y otros registros de salud, incluyendo pasos, frecuencia cardíaca, sueño, ejercicio y peso. La disponibilidad real depende de los permisos otorgados, los datos presentes en Health Connect, la versión del dispositivo y las pruebas funcionales.
 
 ---
 
+> **Nota de auditoría (2026-10-15):** el documento anteriormente figuraba como planificado. La presencia de servicios no prueba que todos los tipos de registros, permisos, escenarios de ausencia de datos ni dispositivos estén validados. No asumir que conceder permisos equivale a disponer de datos.
+
 # Principio fundamental
 
-Health Connect será una fuente externa de contexto.
+Health Connect es una fuente externa de datos de salud y contexto.
 
 No será parte del núcleo de CardioSync.
 
