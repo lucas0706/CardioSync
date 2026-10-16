@@ -1,309 +1,96 @@
-# CardioSync — Architecture
+# Arquitectura de CardioSync
 
-| Campo | Valor |
-|-------|--------|
-| Documento | 01_ARCHITECTURE.md |
-| Tipo | Especificación de Arquitectura |
-| Estado | Activo |
-| Versión | Sincronizada con la versión del proyecto |
-| Última actualización | 2026-10-15 |
+CardioSync es una aplicación Android construida con Expo y React Native, organizada en módulos de funcionalidades y capas compartidas. La arquitectura busca separar la interfaz, las reglas del dominio y los servicios de infraestructura para que cada parte pueda evolucionar sin concentrar toda la lógica en las pantallas.
 
----
+## 1. Vista general
 
-> **Estado de vigencia (2026-10-15):** la arquitectura descrita aquí es una referencia que debe mantenerse alineada con el código. La rama auditada contiene, entre otros, `src/core`, `src/domain`, `src/features`, `src/components`, `src/clinical`, `src/services`, `src/store`, `src/hooks`, `src/theme` y `src/utils`. Esta lista describe directorios presentes; no implica que todos tengan el mismo nivel arquitectónico ni que deban fusionarse. Consultar [la auditoría documental](00_DOCUMENTATION_AUDIT_2026-10-15.md) para el alcance revisado.
+El código se organiza principalmente en estas áreas:
 
-# 1. Objetivo
+| Directorio | Responsabilidad |
+|---|---|
+| `src/features` | Pantallas, hooks y servicios que coordinan funcionalidades visibles, como perfil, reportes y Health Connect. |
+| `src/domain` | Modelos y lógica del dominio: mediciones, estadísticas y análisis clínico. |
+| `src/core` | Infraestructura compartida, persistencia y acceso a servicios del sistema. |
+| `src/components` | Componentes de presentación reutilizables. |
 
-Este documento describe la arquitectura técnica de CardioSync.
+El repositorio también contiene módulos heredados y utilidades compartidas. Su presencia no implica que todos tengan el mismo papel arquitectónico; cuando una funcionalidad se modifica, se debe seguir el flujo real de imports y consumidores del módulo involucrado.
 
-Su finalidad es documentar la organización del sistema, las responsabilidades de cada módulo y las relaciones entre ellos.
+## 2. Cómo fluye la información
 
-No describe funcionalidades de usuario.
+Un flujo típico de registro y análisis sigue este recorrido:
 
-No reemplaza al código fuente.
+1. Una pantalla de una feature recoge la acción y los datos ingresados.
+2. La feature delega la operación al servicio correspondiente.
+3. Los servicios de persistencia acceden a SQLite mediante repositorios.
+4. El dominio procesa los registros y, cuando corresponde, calcula estadísticas o interpreta resultados clínicos.
+5. La feature presenta los datos y resultados en la interfaz.
 
-Describe la arquitectura que gobierna el proyecto.
+La dirección exacta depende de la operación. La interfaz no debe convertirse en el lugar donde se implementan reglas de negocio o consultas directas a la base de datos.
 
----
+## 3. Capas y responsabilidades
 
-# 2. Principios arquitectónicos
+### Features
 
-La arquitectura de CardioSync se basa en los siguientes principios:
+Cada feature agrupa el código que coordina una función de la aplicación: pantallas, hooks, servicios y modelos propios de presentación cuando corresponda. Por ejemplo, el perfil administra el contexto personal y reportes coordina la selección del período y la generación del documento.
 
-- Separación de responsabilidades.
-- Bajo acoplamiento.
-- Alta cohesión.
-- Arquitectura modular.
-- Reutilización.
-- Escalabilidad.
-- Evolución incremental.
-- Dominio independiente de la interfaz.
-- Persistencia encapsulada.
-- Documentación sincronizada con el código.
+Las features pueden consumir servicios del dominio y de infraestructura, pero no deben duplicar sus reglas.
 
----
+### Domain
 
-# 3. Arquitectura general
+El dominio representa conceptos y comportamientos propios de CardioSync, sin depender de componentes visuales. Entre sus áreas se encuentran:
 
-La arquitectura del proyecto se organiza mediante capas claramente diferenciadas.
+- **Measurements:** registros de presión arterial y sus datos asociados.
+- **Statistics:** cálculos derivados de los registros.
+- **Clinical:** reglas y hallazgos que interpretan información disponible según la guía configurada.
+- **Guidelines y targets:** metadatos de guías clínicas y objetivos terapéuticos usados por las reglas.
 
-Presentación
+Los cálculos estadísticos y la interpretación clínica tienen responsabilidades diferentes: las estadísticas describen los registros; las reglas clínicas evalúan esa información en un contexto determinado.
 
-↓
+### Core
 
-Features
+`src/core` concentra infraestructura reutilizable, incluyendo acceso a persistencia y servicios compartidos. El acceso a SQLite debe realizarse a través de los repositorios y adaptadores definidos por el proyecto, en lugar de abrir conexiones desde componentes de interfaz.
 
-↓
+### Components
 
-Domain
+`src/components` contiene elementos visuales reutilizables. Los componentes reciben datos y callbacks y no deben convertirse en propietarios de reglas clínicas, lógica de persistencia ni coordinación de integraciones externas.
 
-↓
+## 4. Dominio clínico
 
-Core
+El análisis clínico se organiza mediante modelos, reglas y servicios:
 
-La capa Clinical consume información del dominio sin acoplarse a la interfaz.
+- `ClinicalContext` representa información del perfil que puede influir en la interpretación.
+- `ClinicalRuleContext` aporta la guía seleccionada y la fecha de evaluación a las reglas.
+- Cada regla implementa el contrato `ClinicalRule` y devuelve cero o más `ClinicalFinding`.
+- `ClinicalAnalysisDomainService` compone las reglas y reúne los hallazgos en un `ClinicalAnalysis`.
+- `ClinicalTargetSelector` selecciona objetivos terapéuticos definidos para una guía.
 
-Toda comunicación entre módulos deberá respetar esta organización.
+La implementación actual incluye clasificación de presión arterial, advertencias de seguridad, tendencias, carga de hipertensión, tiempo en objetivo, variabilidad, control domiciliario, objetivos terapéuticos y factores asociados al riesgo cardiovascular. La descripción de cada regla y su fuente se mantiene en la documentación clínica específica.
 
----
+## 5. Persistencia y fuentes externas
 
-# 4. Capas principales
+Los registros de CardioSync se guardan localmente mediante SQLite y repositorios. Las integraciones externas se coordinan desde sus servicios específicos; por ejemplo, Health Connect tiene su propio flujo de permisos y acceso a datos.
 
-## Core
+Las fuentes externas no deben acoplarse directamente a los modelos de medición propios ni obligar a que el flujo principal de registro dependa de una integración opcional.
 
-Responsabilidad:
+Las copias de seguridad, la restauración y la importación son operaciones diferentes y se documentan por separado en [Base de datos e importación](09_DATABASE.md) y [Copias y recuperación](16_BACKUP_AND_RESTORE.md).
 
-Infraestructura compartida.
+## 6. Reglas de diseño
 
-Incluye persistencia, configuración y servicios comunes.
+- Mantener las responsabilidades de UI, dominio e infraestructura separadas.
+- Evitar consultas SQL directas desde pantallas y componentes.
+- Reutilizar servicios existentes antes de crear otra vía para la misma operación.
+- Mantener la lógica clínica separada de los cálculos estadísticos.
+- No inferir datos clínicos que no estén disponibles en el contexto.
+- Mantener la trazabilidad entre una regla clínica y su guía de referencia.
+- Evitar dependencias nuevas sin justificar su necesidad y compatibilidad con la versión de Expo usada por el proyecto.
+- Mantener TypeScript en modo estricto y respetar la estructura modular existente.
 
----
+## 7. Dónde encontrar más información
 
-## Domain
-
-Responsabilidad:
-
-Modelar el dominio del negocio.
-
-Contiene entidades, modelos y lógica independiente de la interfaz.
-
----
-
-## Features
-
-Responsabilidad:
-
-Implementar funcionalidades organizadas por módulos.
-
-Cada feature deberá ser autocontenida siempre que sea posible.
-
----
-
-## Clinical
-
-Responsabilidad:
-
-Implementar la lógica clínica basada en guías clínicas.
-
-No implementa componentes de interfaz.
-
-No realiza persistencia.
-
----
-
-## Components
-
-Responsabilidad:
-
-Componentes reutilizables de presentación.
-
-No contienen lógica de negocio.
-
-
-
----
-
-# 13. Dominio de Measurements
-
-## Estado
-
-✅ IMPLEMENTADO
-
-El dominio Measurements constituye el núcleo funcional del proyecto.
-
-Responsabilidades:
-
-- Registrar mediciones.
-- Validar datos.
-- Gestionar el historial.
-- Persistir información.
-
-No implementa interpretación clínica.
-
----
-
-# 14. Dominio Statistics
-
-## Estado
-
-✅ IMPLEMENTADO
-
-El motor Statistics procesa matemáticamente las mediciones registradas.
-
-Responsabilidades:
-
-- Estadísticas descriptivas.
-- Tendencias.
-- Promedios.
-- Variabilidad.
-- Indicadores.
-
-No interpreta resultados clínicos.
-
-No genera recomendaciones.
-
----
-
-# 15. Dominio Clinical
-
-## Estado
-
-**Implementación presente; validación funcional integral pendiente.**
-
-La rama auditada contiene modelos y servicios para análisis clínico, construcción de resultados y selección de objetivos. La existencia de estos componentes confirma implementación de código, pero no demuestra que todas las reglas, perfiles clínicos ni escenarios estén validados en producción.
-
-Responsabilidades documentadas:
-
-- Evaluar mediciones dentro del contexto clínico disponible.
-- Aplicar reglas clínicas implementadas.
-- Construir hallazgos y resultados de análisis.
-- Mantener la lógica clínica desacoplada de la interfaz.
-
-El estado de cada regla y su trazabilidad deben verificarse en los documentos clínicos y en las pruebas correspondientes.
-
----
-
-# 16. Persistencia
-
-## Estado
-
-✅ IMPLEMENTADO
-
-La persistencia del proyecto utiliza SQLite.
-
-Toda operación sobre la base de datos deberá realizarse mediante la capa Repository.
-
-La arquitectura prohíbe el acceso directo a SQLite desde la interfaz.
-
----
-
-# 17. Escalabilidad
-
-La arquitectura ha sido diseñada para permitir la incorporación de nuevos módulos sin modificar la estructura principal del sistema.
-
-Las futuras funcionalidades deberán integrarse respetando la separación entre:
-
-- Presentación.
-- Dominio.
-- Persistencia.
-- Interpretación clínica.
-
-
-
----
-
-# 18. Restricciones arquitectónicas
-
-Las siguientes restricciones constituyen reglas obligatorias del proyecto.
-
-## Separación de responsabilidades
-
-- La UI no implementa lógica de negocio.
-- El dominio no depende de React.
-- Clinical no depende de la interfaz.
-- Statistics no implementa reglas clínicas.
-- Dashboard únicamente presenta información.
-
----
-
-## Persistencia
-
-- Todo acceso a SQLite deberá realizarse mediante Repository.
-- Ningún componente React accederá directamente a la base de datos.
-
----
-
-## Dominio
-
-- Cada entidad deberá representar una única responsabilidad.
-- El dominio deberá permanecer independiente de la infraestructura.
-
----
-
-## Clinical
-
-- Toda interpretación clínica deberá derivarse exclusivamente de guías clínicas oficialmente soportadas.
-- Toda regla deberá ser trazable hasta su fuente.
-- No existirán recomendaciones sin respaldo documental.
-
----
-
-# 19. Evolución arquitectónica
-
-La evolución del proyecto seguirá el siguiente orden:
-
-Arquitectura Base
-
-↓
-
-Measurements
-
-↓
-
-Statistics
-
-↓
-
-Dashboard
-
-↓
-
-Clinical Foundation
-
-↓
-
-Clinical Domain
-
-↓
-
-Clinical Rule Engine
-
-↓
-
-Clinical Analysis Engine
-
-↓
-
-Health Connect
-
-↓
-
-Clinical Reports
-
-Cada nueva fase deberá preservar la compatibilidad con la arquitectura existente.
-
----
-
-# 20. Conclusión
-
-La arquitectura de CardioSync prioriza:
-
-- Mantenibilidad.
-- Modularidad.
-- Escalabilidad.
-- Bajo acoplamiento.
-- Alta cohesión.
-- Separación estricta de responsabilidades.
-
-Toda evolución futura deberá respetar estos principios para garantizar la estabilidad y el crecimiento sostenido del proyecto.
-
+- [Mapa de módulos](11_MODULES.md)
+- [Estructura de carpetas](12_FOLDER_STRUCTURE.md)
+- [Dominio clínico](04_CLINICAL_DOMAIN.md)
+- [Motor de reglas clínicas](05_CLINICAL_RULE_ENGINE.md)
+- [Análisis clínico](06_CLINICAL_ANALYSIS.md)
+- [Base de datos e importación](09_DATABASE.md)
+- [Flujo de desarrollo](17_DEVELOPMENT_WORKFLOW.md)
