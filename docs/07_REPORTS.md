@@ -18,7 +18,7 @@ La rama auditada contiene servicios para construir reportes y generar, compartir
 
 ---
 
-> **Nota de auditoría (2026-10-15):** el estado anterior no distinguía diseño de implementación. Verificar filtros, rangos de fechas, datos incluidos, tratamiento de archivos temporales y flujos de compartir/imprimir antes de declarar el sistema completamente validado.
+> **Alcance funcional:** la aplicación incluye generación de reportes PDF y flujos para compartir o imprimir. El reporte del paciente y el reporte médico no deben considerarse equivalentes: el primero tiene una orientación de seguimiento personal y el segundo permanece como evolución prevista.
 
 # Principios generales
 
