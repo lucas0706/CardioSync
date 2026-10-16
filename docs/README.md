@@ -26,6 +26,7 @@ La documentación está organizada para explicar primero el producto y sus funci
 - [Arquitectura](01_ARCHITECTURE.md): capas, responsabilidades y dependencias.
 - [Módulos](11_MODULES.md): mapa de funcionalidades y responsabilidades.
 - [Estructura de carpetas](12_FOLDER_STRUCTURE.md): organización del repositorio.
+- [Flujo de desarrollo y validación](17_DEVELOPMENT_WORKFLOW.md): pasos de trabajo, comprobaciones, pruebas y cierre de tareas.
 - [Decisiones arquitectónicas](03_DECISIONS.md): decisiones relevantes y sus motivos.
 - [Roadmap](02_ROADMAP.md): evolución prevista y estado registrado.
 
