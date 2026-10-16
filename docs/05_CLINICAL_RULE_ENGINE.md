@@ -4,21 +4,21 @@
 |-------|--------|
 | Documento | 05_CLINICAL_RULE_ENGINE.md |
 | Tipo | Diseño Conceptual |
-| Estado | Planificado |
+| Estado | Diseño de referencia; implementación y cobertura pendientes de verificación |
 | Versión | Sincronizada con la versión del proyecto |
-| Última actualización | 2026-08-03 |
+| Última actualización | 2026-10-15 |
 
 ---
 
 # Objetivo
 
-Este documento define el diseño conceptual del Clinical Rule Engine de CardioSync.
+Este documento define las responsabilidades, límites y comportamiento esperado del Clinical Rule Engine de CardioSync.
 
-No contiene implementación.
-
-Su finalidad es establecer las responsabilidades, límites y funcionamiento esperado del motor de reglas clínicas antes de su desarrollo.
+La rama auditada contiene código relacionado con el dominio clínico. La correspondencia exacta entre este diseño, las reglas implementadas, sus fuentes clínicas y sus pruebas todavía debe verificarse.
 
 ---
+
+> **Nota de auditoría (2026-10-15):** no interpretar el diseño conceptual como evidencia de validación clínica. Cada regla debe tener una fuente identificable, una versión o fecha de referencia y pruebas apropiadas antes de declararse verificada.
 
 # Propósito
 
