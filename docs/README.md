@@ -5,6 +5,7 @@ La documentación está organizada para explicar primero el producto y sus funci
 ## Empezar por la aplicación
 
 - [Descripción funcional de CardioSync](00_PRODUCT_OVERVIEW.md): propósito, funcionalidades, recorrido de uso, datos y límites.
+- [Guía de uso](15_USER_GUIDE.md): navegación, registro y edición de mediciones, reportes, perfil, copias, Health Connect y actualizaciones.
 - [README del proyecto](../README.md): resumen del producto y puesta en marcha del entorno de desarrollo.
 - [Contexto maestro](00_PROJECT_MASTER_CONTEXT.md): visión, objetivos y principios generales del proyecto.
 
