@@ -1,318 +1,80 @@
-# CardioSync — Health Connect Integration
+# Integración con Health Connect
 
-| Campo | Valor |
-|-------|--------|
-| Documento | 08_HEALTH_CONNECT.md |
-| Tipo | Integración: diseño y referencia de implementación |
-| Estado | Implementación presente; validación funcional y de permisos pendiente |
-| Versión | Sincronizada con la versión del proyecto |
-| Última actualización | 2026-10-15 |
+CardioSync integra Android Health Connect para acceder a datos de salud disponibles en el dispositivo y, en el caso de las mediciones de presión arterial, gestionar la exportación de registros de CardioSync. La integración está organizada en `src/features/healthConnect`.
 
----
+## Qué aporta Health Connect
 
-# Objetivo
+Health Connect funciona como una plataforma común de intercambio de datos de salud entre aplicaciones compatibles. CardioSync puede consultar los tipos de registros para los que solicita permisos y que realmente estén disponibles en Health Connect.
 
-Este documento describe los límites y el diseño de la integración con Health Connect.
+La integración documentada contempla estas categorías:
 
-La rama auditada contiene servicios para inicialización, permisos, sincronización y lectura de presión arterial y otros registros de salud, incluyendo pasos, frecuencia cardíaca, sueño, ejercicio y peso. La disponibilidad real depende de los permisos otorgados, los datos presentes en Health Connect, la versión del dispositivo y las pruebas funcionales.
-
----
-
-> **Alcance funcional:** CardioSync consulta los tipos de registros implementados y autorizados en Health Connect. Los datos disponibles dependen de las fuentes conectadas y los permisos; un permiso concedido no garantiza que exista información para ese tipo de registro.
-
-# Principio fundamental
-
-Health Connect es una fuente externa de datos de salud y contexto.
-
-No será parte del núcleo de CardioSync.
-
-CardioSync seguirá siendo una aplicación especializada en seguimiento de presión arterial.
-
-La integración con Health Connect tendrá como objetivo enriquecer la evaluación clínica cuando exista información disponible.
-
----
-
-# Restricción principal
-
-Health Connect nunca modificará:
-
-- BloodPressureRecord.
-- Measurement Domain.
-- Datos originales de mediciones.
-
-Los datos externos serán transformados en contextos especializados.
-
----
-
-# Datos potencialmente disponibles
-
-## Sleep
-
-SleepContext
-
-Datos posibles:
-
-- Duración del sueño.
-- Horarios.
-- Calidad del sueño si está disponible.
-- Periodos de descanso.
-
----
-
-## Actividad física
-
-ActivityContext
-
-Datos posibles:
-
-- Pasos.
-- Distancia.
-- Calorías.
-- Tiempo activo.
-- Intensidad de actividad.
-
----
-
-## Composición corporal
-
-BodyCompositionContext
-
-Datos posibles:
-
-- Peso.
-- Altura.
-- Body Fat.
-- Lean Mass.
-
----
-
-## Signos vitales
-
-VitalSignsContext
-
-Datos posibles:
-
+- Presión arterial.
 - Frecuencia cardíaca.
-- Frecuencia cardíaca en reposo.
-- HRV si está disponible.
-- VO₂ Max si está disponible.
-- SpO₂.
-- Frecuencia respiratoria.
-- Temperatura.
+- Pasos.
+- Sueño.
+- Ejercicio.
+- Peso.
+- Otros tipos de registros según la implementación y los permisos configurados.
 
----
+La lista de tipos consultables o exportables depende del código de la versión instalada. Que una aplicación tenga permiso para leer un tipo de registro no significa que existan datos de ese tipo.
 
-## Otros datos
+## Configuración y permisos
 
-Podrán incorporarse nuevos tipos de información en el futuro siempre que:
+La pantalla de Health Connect permite administrar la conexión y las operaciones relacionadas con la exportación de mediciones. El usuario debe conceder los permisos en Android; CardioSync no puede garantizar que todos sean aceptados.
 
-- Tengan relación clínica.
-- Estén disponibles mediante una fuente autorizada.
-- Mantengan la arquitectura de contextos.
+El estado guardado por CardioSync —por ejemplo, si la integración está habilitada o cuándo se registró una actualización— es información de configuración local. No demuestra por sí solo que los permisos sigan vigentes ni que una sincronización haya terminado correctamente.
 
----
+## Componentes principales
 
-# Flujo de integración
-
-Health Connect
-
-↓
-
-Adaptador de integración
-
-↓
-
-Contextos especializados
-
-↓
-
-ClinicalContext
-
-↓
-
-Clinical Rule Engine
-
-↓
-
-Clinical Analysis Engine
-
----
-
-# Mapeo de información
-
-## Sleep
-
-Health Connect
-
-↓
-
-SleepContext
-
-↓
-
-ClinicalContext
-
----
-
-## Actividad
-
-Health Connect
-
-↓
-
-ActivityContext
-
-↓
-
-ClinicalContext
-
----
-
-## Composición corporal
-
-Health Connect
-
-↓
-
-BodyCompositionContext
-
-↓
-
-ClinicalContext
-
----
-
-## Signos vitales
-
-Health Connect
-
-↓
-
-VitalSignsContext
-
-↓
-
-ClinicalContext
-
----
-
-# Módulos consumidores
-
-Los datos provenientes de Health Connect podrán ser utilizados por:
-
-## ClinicalContextBuilder
-
-Responsabilidad:
-
-Construir el contexto clínico completo con la información disponible.
-
----
-
-## ClinicalRuleEngine
-
-Responsabilidad:
-
-Aplicar reglas clínicas cuando exista información suficiente.
-
----
-
-## ClinicalAnalysisEngine
-
-Responsabilidad:
-
-Integrar los resultados clínicos.
-
----
-
-## ClinicalReports
-
-Responsabilidad:
-
-Incorporar información adicional en reportes cuando corresponda.
-
----
-
-## Dashboard dinámico
-
-Responsabilidad:
-
-Mostrar información adicional cuando exista.
-
----
-
-# Implementación inspeccionada
-
-La rama auditada contiene estos servicios principales:
-
-| Componente | Responsabilidad observada en el código |
+| Componente | Función |
 |---|---|
-| `HealthConnectService` | Inicializa Health Connect y solicita permisos de lectura/escritura para determinados tipos de registros. |
-| `HealthConnectCoordinator` | Coordina lecturas recientes de frecuencia cardíaca, pasos, sueño, ejercicio y peso. |
-| `HealthConnectSettingsService` | Guarda en SQLite si la integración está habilitada y marcas temporales de configuración/actualización. |
-| `HealthConnectSyncService` | Exporta mediciones de presión arterial de CardioSync hacia Health Connect y contiene una operación para borrar registros asociados a CardioSync. |
-| `HealthConnectPagination` | Lee páginas sucesivas de registros hasta que no queda un token de página. |
-| `HealthAggregateService` | Consulta agregados de pasos del día y promedio de frecuencia cardíaca. |
+| `HealthConnectService` | Inicializa Health Connect y gestiona la solicitud de permisos para los tipos configurados. |
+| `HealthConnectCoordinator` | Coordina lecturas de datos recientes disponibles en Health Connect. |
+| `HealthConnectSettingsService` | Persiste la configuración local de la integración. |
+| `HealthConnectSyncService` | Gestiona la exportación de mediciones de presión arterial de CardioSync y operaciones relacionadas con esos registros exportados. |
+| `HealthConnectPagination` | Permite recorrer resultados paginados. |
+| `HealthAggregateService` | Consulta datos agregados, como pasos del día y promedio de frecuencia cardíaca. |
 
-Los servicios de lectura consultados usan una ventana reciente de 30 días para frecuencia cardíaca, pasos, sueño, ejercicio y peso. Este detalle debe actualizarse si cambia el rango en el código.
+Las lecturas descritas para frecuencia cardíaca, pasos, sueño, ejercicio y peso utilizan una ventana reciente de 30 días en la implementación documentada. El rango debe mantenerse sincronizado con el código si cambia.
 
-## Permisos y límites
+## Flujo general
 
-El servicio inspeccionado solicita permisos para:
-- Presión arterial: lectura y escritura.
-- Frecuencia cardíaca, pasos, sueño y ejercicio: lectura.
-- Peso: lectura y escritura.
-- Saturación de oxígeno: lectura y escritura.
+```text
+Configuración de Health Connect
+          ↓
+Disponibilidad e inicialización
+          ↓
+Solicitud de permisos
+          ↓
+Lectura de registros autorizados
+          ↓
+Normalización y coordinación
+          ↓
+Datos disponibles para las funciones que los consumen
+```
 
-Esta lista describe lo que solicita el código, no una garantía de que el usuario conceda todos los permisos ni de que cada tipo de registro esté disponible en el dispositivo. La implementación de solicitud de permisos devuelve un indicador booleano; la aceptación parcial o el estado efectivo de cada permiso deben verificarse en la integración y en la UI antes de asumir acceso completo.
+Para exportar presión arterial, el flujo es inverso: CardioSync toma sus propias mediciones y utiliza el servicio de sincronización para escribirlas en Health Connect según los permisos concedidos.
 
-La presencia de una función de exportación no demuestra que todas las mediciones se hayan sincronizado. Deben comprobarse los resultados, errores, duplicados y permisos reales en pruebas de dispositivo.
+## Datos propios y externos
 
-## Riesgo operativo a revisar
+Las mediciones guardadas en CardioSync y los registros que provienen de otras aplicaciones son fuentes distintas. La integración externa complementa el seguimiento; no debe interpretarse como sustituto del historial propio de CardioSync.
 
-El servicio `HealthConnectSyncService` incluye una operación que busca registros de presión arterial con identificadores de cliente y solicita su eliminación en Health Connect. Antes de ejecutar o ampliar ese flujo, validar en dispositivo que los identificadores y el alcance de borrado correspondan exclusivamente a los registros de CardioSync. No interpretar esta función como un borrado general de Health Connect.
+Las funciones de eliminación relacionadas con la sincronización deben utilizarse con cuidado: se refieren a registros asociados a la exportación de CardioSync y no equivalen a borrar todo el contenido de Health Connect. Antes de modificar este flujo, comprobar cómo se identifican los registros que pertenecen a CardioSync.
 
-# Manejo de datos ausentes
+## Ausencia de datos
 
-Los datos de Health Connect son opcionales. La disponibilidad depende de permisos concedidos, fuentes que escriben datos en Health Connect, tipos de registros presentes y compatibilidad del dispositivo. La ausencia de datos no debe convertirse automáticamente en un valor clínico de cero.
+Si Health Connect no tiene registros de un tipo, o si el usuario no concede el permiso correspondiente, ese dato no está disponible para CardioSync. La ausencia de un registro no debe convertirse automáticamente en un valor de cero ni impedir el uso de las funciones que trabajan con mediciones propias.
 
-La configuración local de CardioSync (`enabled`, `connectedAt` y `updatedAt`) describe el estado guardado por la aplicación; no debe confundirse con una prueba independiente de que los permisos sigan vigentes o de que haya ocurrido una sincronización exitosa.
+## Archivos relacionados
 
-Ejemplos:
+- `src/features/healthConnect/`
+- `src/features/healthConnect/services/`
+- `src/features/healthConnect/mappers/`
+- `src/features/healthConnect/types/`
+- [Guía de uso](15_USER_GUIDE.md)
+- [Dominio clínico](04_CLINICAL_DOMAIN.md)
+- [Base de datos e importación](09_DATABASE.md)
 
-Sin datos de sueño:
+## Uso responsable
 
-SleepContext no disponible.
-
-El sistema continúa funcionando.
-
-Sin datos de actividad:
-
-ActivityContext no disponible.
-
-El sistema continúa funcionando.
-
-Sin Health Connect:
-
-CardioSync funciona únicamente con sus datos propios.
-
----
-
-# Restricciones
-
-- Health Connect no modifica BloodPressureRecord.
-- Health Connect no define reglas clínicas.
-- Health Connect no reemplaza las mediciones propias.
-- La ausencia de datos externos no genera errores.
-- Los datos externos solo agregan contexto.
-
----
-
-# Evolución prevista
-
-La integración comenzará después de:
-
-1. Finalizar refactorización del dominio.
-2. Implementar Clinical Domain.
-3. Implementar Clinical Rule Engine.
-4. Implementar Clinical Analysis Engine.
-
+Health Connect facilita el intercambio de datos, pero no garantiza que estén completos, actualizados o disponibles en todos los dispositivos. Las interpretaciones clínicas deben basarse en datos identificables y en reglas clínicas documentadas.
