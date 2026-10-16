@@ -1216,3 +1216,28 @@ Cambios solo documentales. Se inspeccionaron archivos fuente de servicios y pars
 - `docs/07_REPORTS.md`
 - `docs/09_DATABASE.md`
 
+---
+
+# 2026-10-15 — Health Connect y confiabilidad de copias programadas
+
+### Tipo
+
+Auditoría documental de integraciones
+
+### Cambios realizados
+
+- Documentados los servicios de Health Connect encontrados en la rama: inicialización/permisos, coordinación de lecturas recientes, ajustes locales, paginación, agregados y exportación de presión arterial.
+- Aclarado que los permisos solicitados por el código no prueban que el usuario los haya concedido ni que existan datos disponibles.
+- Añadida una advertencia para validar el alcance de la operación que elimina registros de presión arterial asociados a CardioSync.
+- Documentada la dependencia de las copias programadas respecto del módulo nativo Android de alarmas, permisos del sistema y conexión de Google Drive.
+- Aclarado que la configuración de una programación no garantiza una ejecución exitosa ni sustituye la comprobación del archivo remoto.
+
+### Alcance y límites
+
+Solo documentación. La revisión fue estática sobre la rama documental; no se probaron permisos, alarmas, sincronización, eliminación de registros ni restauraciones en un dispositivo. No se modificó código nativo ni configuración de compilación.
+
+### Documentos relacionados
+
+- `docs/08_HEALTH_CONNECT.md`
+- `docs/16_BACKUP_AND_RESTORE.md`
+
