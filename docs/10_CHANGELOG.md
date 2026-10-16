@@ -1440,3 +1440,5 @@ Documentación modificada en la rama `docs/documentation-audit`. No se modificó
 - Reorganizada la introducción de `03_DECISIONS.md` para presentar las decisiones como ADR de arquitectura y facilitar su lectura.
 - Simplificada la introducción de `16_BACKUP_AND_RESTORE.md` para comenzar por las operaciones de copia y recuperación que ofrece CardioSync.
 - Se mantiene la distinción entre código presente, validación en dispositivo y publicación; no se declaran pruebas que no se hayan ejecutado.
+
+- Corrección del roadmap: Backup/recuperación y Health Connect figuran como implementados en el repositorio y en consolidación operativa, no como funcionalidades planificadas. Configuración e integraciones se ajustaron para reflejar los módulos presentes.
