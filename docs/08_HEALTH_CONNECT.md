@@ -240,9 +240,42 @@ Mostrar información adicional cuando exista.
 
 ---
 
+# Implementación inspeccionada
+
+La rama auditada contiene estos servicios principales:
+
+| Componente | Responsabilidad observada en el código |
+|---|---|
+| `HealthConnectService` | Inicializa Health Connect y solicita permisos de lectura/escritura para determinados tipos de registros. |
+| `HealthConnectCoordinator` | Coordina lecturas recientes de frecuencia cardíaca, pasos, sueño, ejercicio y peso. |
+| `HealthConnectSettingsService` | Guarda en SQLite si la integración está habilitada y marcas temporales de configuración/actualización. |
+| `HealthConnectSyncService` | Exporta mediciones de presión arterial de CardioSync hacia Health Connect y contiene una operación para borrar registros asociados a CardioSync. |
+| `HealthConnectPagination` | Lee páginas sucesivas de registros hasta que no queda un token de página. |
+| `HealthAggregateService` | Consulta agregados de pasos del día y promedio de frecuencia cardíaca. |
+
+Los servicios de lectura consultados usan una ventana reciente de 30 días para frecuencia cardíaca, pasos, sueño, ejercicio y peso. Este detalle debe actualizarse si cambia el rango en el código.
+
+## Permisos y límites
+
+El servicio inspeccionado solicita permisos para:
+- Presión arterial: lectura y escritura.
+- Frecuencia cardíaca, pasos, sueño y ejercicio: lectura.
+- Peso: lectura y escritura.
+- Saturación de oxígeno: lectura y escritura.
+
+Esta lista describe lo que solicita el código, no una garantía de que el usuario conceda todos los permisos ni de que cada tipo de registro esté disponible en el dispositivo. La implementación de solicitud de permisos devuelve un indicador booleano; la aceptación parcial o el estado efectivo de cada permiso deben verificarse en la integración y en la UI antes de asumir acceso completo.
+
+La presencia de una función de exportación no demuestra que todas las mediciones se hayan sincronizado. Deben comprobarse los resultados, errores, duplicados y permisos reales en pruebas de dispositivo.
+
+## Riesgo operativo a revisar
+
+El servicio `HealthConnectSyncService` incluye una operación que busca registros de presión arterial con identificadores de cliente y solicita su eliminación en Health Connect. Antes de ejecutar o ampliar ese flujo, validar en dispositivo que los identificadores y el alcance de borrado correspondan exclusivamente a los registros de CardioSync. No interpretar esta función como un borrado general de Health Connect.
+
 # Manejo de datos ausentes
 
-Los datos de Health Connect son opcionales.
+Los datos de Health Connect son opcionales. La disponibilidad depende de permisos concedidos, fuentes que escriben datos en Health Connect, tipos de registros presentes y compatibilidad del dispositivo. La ausencia de datos no debe convertirse automáticamente en un valor clínico de cero.
+
+La configuración local de CardioSync (`enabled`, `connectedAt` y `updatedAt`) describe el estado guardado por la aplicación; no debe confundirse con una prueba independiente de que los permisos sigan vigentes o de que haya ocurrido una sincronización exitosa.
 
 Ejemplos:
 
