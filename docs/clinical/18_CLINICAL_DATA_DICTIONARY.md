@@ -1,280 +1,59 @@
-# Clinical Data Dictionary
+# Diccionario de datos clínicos
 
-Version: 1.0
-Status: Draft
-Phase: Clinical Knowledge Base
+**Estado:** contrastado con los modelos y servicios de `feature/app-updates` el 17-10-2026.
 
----
+Este diccionario describe los campos presentes en los contratos actuales. No implica que todos sean utilizados por el motor clínico.
 
-# 1. Objetivo
+## 1. BloodPressureRecord
 
-Definir el diccionario conceptual de datos clínicos utilizados por CardioSync.
+| Campo | Tipo/Unidad | Uso actual |
+|---|---|---|
+| `id` | string | Identidad del registro |
+| `dateTime` | string | Fecha/hora de la medición |
+| `systolic`, `diastolic` | number, mmHg | PAS y PAD obligatorias |
+| `heartRate` | number opcional, lpm | Frecuencia cardíaca; puede entrar en estadísticas |
+| `arm` | `Arm` opcional | Brazo de medición |
+| `position` | `Position` opcional | Posición |
+| `origin` | `MeasurementOrigin` opcional | Procedencia |
+| `notes` | string opcional | Nota del registro |
+| `weight`, `height`, `bmi` | number opcional | Campos heredados/reservados |
+| `glucose`, `spo2`, `temperature`, `respiratoryRate`, `pain` | number opcional | Campos heredados/reservados |
+| `guideline` | string opcional | Campo reservado |
 
-Este documento establece:
+También contiene `createdAt` y `updatedAt` obligatorios.
 
-- significado clínico;
-- ubicación dentro del dominio;
-- unidad esperada;
-- origen posible;
-- relación con otros módulos.
+## 2. ClinicalContext
 
-No define todavía el esquema final de base de datos.
+El perfil clínico local utiliza:
 
----
+- Identidad: `patientId`, `name`.
+- Demografía: `age`, `sex`.
+- Antropometría: `height`, `weight`, `bmi`.
+- Factores: `smoking`, `diabetes`, `dyslipidemia`.
+- Antecedentes: `cardiovascularDisease`, `heartFailure`, `strokeHistory`, `peripheralVascularDisease`, `chronicKidneyDisease`.
 
-# 2. Principio fundamental
+Los campos son opcionales salvo `patientId`. El perfil se guarda en SQLite por medio de `ClinicalProfileRepository`.
 
-Los datos clínicos deben tener:
+## 3. StatisticsSummary
 
-- significado explícito;
-- unidad definida;
-- origen trazable;
-- contexto temporal;
-- responsabilidad clara.
+Incluye total de mediciones; promedios, máximos y mínimos de PAS/PAD; media de FC opcional; registros máximo/mínimo; presión de pulso media; presión arterial media; desviaciones estándar; variabilidad; carga hipertensiva; tiempo en objetivo; adherencia; tendencia; clasificación predominante y distribución.
 
----
+La carga y el tiempo en objetivo usan umbrales predeterminados de 135/85 mmHg en sus calculadores actuales.
 
-# 3. BloodPressureRecord
+## 4. ClinicalAnalysis y ClinicalFinding
 
-## systolic
+`ClinicalAnalysis` agrupa identificador, paciente, fecha de creación, guía opcional, estadísticas opcionales, hallazgos, resultado estructurado, resumen y metadata opcional.
 
-Nombre:
+Cada `ClinicalFinding` contiene identificador, tipo, título, descripción opcional, severidad opcional, `guidelineId` opcional y fecha de creación.
 
-Presión arterial sistólica.
+## 5. Valores derivados
 
-Unidad:
+El IMC del perfil se calcula como peso en kg dividido por altura en metros al cuadrado, redondeado a un decimal. No es un valor introducido manualmente en la pantalla actual.
 
-mmHg.
+## 6. Campos y modelos no implementados como se describían
 
-Responsabilidad:
+No existen modelos independientes actuales para `Anthropometry`, `VitalSigns`, `MeasurementContext`, `LifestyleContext` o `CardiovascularSymptoms` dentro de `src/domain/clinical/models`. Tampoco hay un `ClinicalValue` genérico con unidad, fuente, instante y confianza.
 
-Medición principal.
+## 7. Reglas de calidad
 
-
----
-
-## diastolic
-
-Nombre:
-
-Presión arterial diastólica.
-
-Unidad:
-
-mmHg.
-
-Responsabilidad:
-
-Medición principal.
-
-
----
-
-## heartRate
-
-Nombre:
-
-Frecuencia cardíaca.
-
-Unidad:
-
-lpm.
-
-Ubicación futura:
-
-VitalSigns.
-
----
-
-# 4. Anthropometry
-
-## weight
-
-Nombre:
-
-Peso corporal.
-
-Unidad:
-
-kg.
-
-Fuentes:
-
-- manual;
-- Health Connect;
-- importación.
-
-
----
-
-## height
-
-Nombre:
-
-Talla corporal.
-
-Unidad:
-
-cm o m.
-
----
-
-## BMI
-
-Nombre:
-
-Índice de masa corporal.
-
-Tipo:
-
-Valor derivado.
-
-Cálculo:
-
-peso + talla.
-
-
----
-
-# 5. VitalSigns
-
-## oxygenSaturation
-
-Nombre:
-
-Saturación periférica de oxígeno.
-
-Unidad:
-
-%.
-
-
----
-
-## respiratoryRate
-
-Nombre:
-
-Frecuencia respiratoria.
-
-Unidad:
-
-respiraciones/minuto.
-
-
----
-
-# 6. LifestyleContext
-
-## sleep
-
-Nombre:
-
-Información de sueño reciente.
-
-Fuentes:
-
-- manual;
-- Health Connect.
-
-
----
-
-## physicalActivity
-
-Nombre:
-
-Actividad física reciente.
-
-Fuentes:
-
-- manual;
-- Health Connect;
-- wearable.
-
-
----
-
-# 7. CardiovascularSymptoms
-
-## chestPain
-
-Dolor torácico asociado temporalmente.
-
-
----
-
-## dyspnea
-
-Disnea asociada temporalmente.
-
-
----
-
-## palpitations
-
-Palpitaciones asociadas temporalmente.
-
-
----
-
-# 8. Metadata común
-
-Los valores clínicos pueden requerir:
-
-## source
-
-Origen:
-
-- manual;
-- health_connect;
-- import;
-- future_provider.
-
-
----
-
-## measuredAt
-
-Fecha y hora del dato.
-
-
----
-
-## confidence
-
-Nivel de confianza del dato.
-
-
----
-
-# 9. Interoperabilidad futura
-
-El modelo deberá permitir integración futura con:
-
-- Health Connect;
-- FHIR;
-- LOINC;
-- otros estándares clínicos.
-
----
-
-# 10. Reglas
-
-No almacenar:
-
-- datos sin unidad;
-- datos sin origen cuando sea relevante;
-- valores derivados inconsistentes.
-
----
-
-# 11. Estado
-
-Draft.
-
-Pendiente:
-
-- mapeo completo FHIR;
-- mapeo LOINC;
-- validación final del dominio.
+Conservar unidades y procedencia cuando estén disponibles. Distinguir campos ausentes de ceros. No inferir que un campo opcional está validado, sincronizado o usado por reglas solo porque exista en una interfaz TypeScript.
