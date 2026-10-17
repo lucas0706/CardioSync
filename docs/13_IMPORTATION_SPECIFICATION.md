@@ -5,7 +5,7 @@
 | Documento | 13_IMPORTATION_SPECIFICATION.md |
 | Tipo | Especificación funcional y técnica |
 | Estado | Implementación SQLite validada |
-| Fecha | 2026-08-12 |
+| Última revisión documental | 2026-10-17 |
 | Fuente real analizada | BPTracker |
 | Registros analizados | 2.030 |
 
