@@ -4,7 +4,7 @@
 |-------|--------|
 | Documento | 08_HEALTH_CONNECT.md |
 | Tipo | Diseño Conceptual de Integración |
-| Estado | Planificado |
+| Estado | Parcialmente implementado |
 | Versión | Sincronizada con la versión del proyecto |
 | Última actualización | 2026-08-03 |
 
@@ -283,3 +283,29 @@ La integración comenzará después de:
 3. Implementar Clinical Rule Engine.
 4. Implementar Clinical Analysis Engine.
 
+---
+
+# Estado de implementación — 2026-10-17
+
+El estado general de esta integración ya no corresponde a **Planificado**: el repositorio contiene una feature `src/features/healthConnect/` con servicio de conexión, coordinador, servicios de sincronización, mappers y construcción de resúmenes.
+
+## Capacidades identificadas en el código
+
+- Servicio y coordinación de Health Connect.
+- Sincronización de pasos, sueño, frecuencia cardíaca, ejercicio y peso mediante servicios dedicados.
+- Mappers para transformar datos externos en estructuras internas.
+- Construcción de agregados y resúmenes para consumo de la aplicación.
+- Servicios de configuración y estado de la integración.
+
+## Límites que deben mantenerse explícitos
+
+- La presencia de servicios y mappers no demuestra que cada permiso, lectura, paginación, sincronización incremental o escenario de revocación se haya validado en dispositivos reales.
+- No asumir que todas las categorías enumeradas en la sección conceptual están implementadas: la lista anterior se limita a los módulos identificados en el árbol de código.
+- Health Connect sigue siendo una fuente externa. No debe modificar los valores originales de `BloodPressureRecord` ni sustituir las mediciones registradas en CardioSync.
+- Los datos externos deben conservar su origen y disponibilidad opcional; la ausencia de permisos o de datos no debe convertirse en una afirmación clínica.
+
+## Próxima validación recomendada
+
+Verificar en un dispositivo Android compatible los permisos concedidos y revocados, la lectura por categoría, la sincronización repetida sin duplicados, los períodos sin datos y los errores de conexión. Hasta completar estas pruebas, documentar el estado como **implementado en código / validación de dispositivo pendiente**, no como integración plenamente validada.
+
+Esta actualización se basa en la estructura de archivos de la feature en la rama de referencia; no se ejecutaron pruebas de Health Connect durante esta revisión.
