@@ -4,11 +4,22 @@
 |-------|--------|
 | Documento | 04_CLINICAL_DOMAIN.md |
 | Tipo | Diseño del Dominio Clínico |
-| Estado | Planificado |
+| Estado | Diseño conceptual con implementación parcial |
 | Versión | Sincronizada con la versión del proyecto |
-| Última actualización | 2026-08-03 |
+| Última actualización | 2026-10-17 |
 
 ---
+
+# Estado de implementación — 2026-10-17
+
+Este archivo conserva el diseño conceptual original; no debe interpretarse como descripción completa del código actual. La implementación observada incluye el contrato `ClinicalContext` para el perfil clínico opcional, reglas en `src/domain/clinical/rules/` y orquestación en `ClinicalAnalysisDomainService`. No existe todavía un agregado de contexto clínico completo que consolide automáticamente todos los contextos opcionales enumerados más abajo. Las secciones que describen contextos futuros siguen siendo propuestas de diseño.
+
+## Alcance confirmado
+
+- El registro de presión arterial permanece como entidad central.
+- El perfil clínico opcional está persistido localmente.
+- Las reglas activas producen hallazgos concretos; no equivalen a motores autónomos completos de recomendaciones y alertas.
+- No se debe inferir integración clínica completa de sueño, actividad, composición corporal o signos vitales solo porque estos conceptos aparezcan en el diseño.
 
 # Objetivo
 
