@@ -1079,3 +1079,32 @@ Checkpoint relacionado:
 
 `17_CHECKPOINT_OTA_AND_GOOGLE_SERVICES_2026-09-05.md`
 
+---
+
+# 2026-10-17 — Actualización de documentación principal
+
+### Tipo
+
+Documentación / Arquitectura
+
+### Cambios realizados
+
+- Se actualizó el Project Master Context para reflejar la arquitectura y el estado conocido del proyecto.
+- Se actualizó la documentación de arquitectura para describir la estructura observada del repositorio.
+- Se preparó una revisión del roadmap que separa código presente, validación pendiente y trabajo planificado.
+- Se identificó la necesidad de mantener diferenciados los servicios presentes y los flujos validados en dispositivo.
+- Se documentan como implementados en código los mecanismos de OTA, actualización de APK y backup; la validación integral de escenarios nativos, restauración y retención sigue pendiente cuando corresponda.
+- Health Connect dispone de servicio de inicialización y solicitud de permisos; no se considera completa la integración de lectura/escritura y sincronización.
+
+### Validación
+
+Los cambios documentales se contrastan con archivos de código disponibles en GitHub. No se atribuyen pruebas de TypeScript, build o dispositivo a una actualización exclusivamente documental si esas pruebas no fueron ejecutadas.
+
+### Documentos relacionados
+
+- 00_PROJECT_MASTER_CONTEXT.md
+- 01_ARCHITECTURE.md
+- 02_ROADMAP.md
+- 03_DECISIONS.md
+- 08_HEALTH_CONNECT.md
+- 09_DATABASE.md
