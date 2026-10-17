@@ -1,82 +1,33 @@
-# Clinical Rule 002 — Home Blood Pressure Trend
+# Regla clínica 002 — Tendencia de presión arterial domiciliaria
 
-## Purpose
+## Estado
 
-Evaluate the temporal evolution of home blood pressure measurements.
+Implementada en `TrendRule`. La tendencia se calcula antes, mediante `TrendCalculator`, dentro del motor estadístico.
 
-This rule interprets an existing statistical trend.
+## Entrada y lógica
 
-It does not calculate trends.
+La regla recibe `StatisticsSummary.trend`:
 
----
+- `up`: genera un hallazgo.
+- `stable`: no genera hallazgo.
+- `down`: no genera hallazgo.
 
-## Input
+La regla interpreta el valor recibido; no calcula la tendencia ni vuelve a analizar las mediciones individuales.
 
-StatisticsSummary:
+## Salida
 
-- trend
+- Tipo: `home-blood-pressure-trend`.
+- Título: “Tendencia ascendente de presión arterial domiciliaria”.
+- Severidad: `moderate`.
+- Guía asociada: ID de la guía del contexto, si existe.
 
-Possible values:
+## Límites y trazabilidad
 
-- up
-- down
-- stable
+La regla no define un umbral clínico numérico ni establece diagnóstico. El resultado depende del algoritmo de `TrendCalculator` y de la cantidad/calidad de mediciones utilizadas por el motor estadístico.
 
----
+La implementación no demuestra que esta interpretación sea una recomendación específica del Consenso Argentino 2025. La fuente clínica, si corresponde, debe documentarse por separado de la especificación técnica del algoritmo.
 
-## Logic
+## Código de referencia
 
-When:
-
-trend = up
-
-Generate a clinical finding indicating increasing
-home blood pressure pattern.
-
-When:
-
-trend = stable
-
-No finding is generated.
-
-When:
-
-trend = down
-
-No finding is generated.
-
----
-
-## Output
-
-ClinicalFinding:
-
-Type:
-
-home-blood-pressure-trend
-
-Example:
-
-"Tendencia ascendente de presión arterial domiciliaria"
-
----
-
-## Limitations
-
-This rule:
-
-- does not establish hypertension diagnosis;
-- does not replace clinical evaluation;
-- depends on the quality and quantity of measurements.
-
----
-
-## Traceability
-
-Source:
-
-ClinicalAnalysis specification
-
-Related:
-
-Consenso Argentino de Hipertensión Arterial 2025
+- `src/domain/clinical/rules/hypertension/TrendRule.ts`
+- `src/domain/statistics/calculators/TrendCalculator.ts`
