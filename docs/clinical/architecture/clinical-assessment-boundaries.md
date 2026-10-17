@@ -1,106 +1,64 @@
-# Clinical Assessment Boundaries
+# Límites de la evaluación clínica
 
-## Objective
+## Propósito
 
-Define the separation between patient context, guideline targets and clinical interpretation.
+Describir los límites entre el contexto declarado por la persona, las guías clínicas disponibles, las estadísticas calculadas y los hallazgos producidos por CardioSync.
 
-## Principles
+## Límites funcionales
 
-CardioSync does not perform medical diagnosis.
+- CardioSync ofrece seguimiento e interpretación de mediciones; no confirma diagnósticos médicos.
+- `ClinicalContext` representa información declarada o conocida, no diagnósticos inferidos por la aplicación.
+- `StatisticsEngine` calcula indicadores a partir de registros de presión arterial.
+- `ClinicalAnalysisDomainService` coordina reglas clínicas y genera `ClinicalFinding[]` a partir de las estadísticas y el contexto.
+- Si no se especifica una guía, el servicio selecciona `ConsensoArgentinaHTA2025` como guía predeterminada.
+- `ClinicalTargetSelector` se usa en `TherapeuticTargetRule` para elegir objetivos terapéuticos registrados para una guía y población.
+- La clasificación de presión arterial se realiza mediante `BloodPressureClassifier`. En el estado actual, sus umbrales están codificados en la implementación y no se seleccionan dinámicamente según `context.guideline`.
 
-The system does not determine that a patient has a disease based only on measurements.
+## Flujo implementado
 
-## Domain separation
-
-### ClinicalContext
-
-Contains clinical information already known or declared.
-
-Examples:
-
-- Diabetes history
-- Chronic kidney disease history
-- Cardiovascular disease history
-- Age
-- Lifestyle factors
-
-ClinicalContext does not diagnose conditions.
-
----
-
-### ClinicalTarget
-
-Contains therapeutic objectives extracted from clinical guidelines.
-
-Examples:
-
-- Blood pressure target <140/90 mmHg
-- Desirable target <130/80 mmHg
-- Age-specific objectives
-
-Targets represent guideline recommendations.
-
----
-
-### ClinicalAssessment
-
-Contains interpretation of measurements against configured targets.
-
-Examples:
-
-Valid:
-
-"Measurement is above the configured therapeutic target."
-
-Invalid:
-
-"Patient has uncontrolled hypertension."
-
----
-
-### ClinicalWarning
-
-Contains safety considerations.
-
-Examples:
-
-- Avoid BP reduction below 120/70 mmHg
-- Caution with diastolic pressure below 70 mmHg
-- Individualize targets in frail patients
-
----
-
-## Clinical flow
-
-BloodPressureRecord
-
+```text
+BloodPressureRecord[]
         |
-
         v
-
-ClinicalContext
-
+StatisticsEngine
         |
-
         v
-
-ClinicalTargetSelector
-
+StatisticsSummary
         |
+        +--------------------------+
+        |                          |
+        v                          v
+ClinicalContext             ClinicalGuideline
+        |                          |
+        +-------------+------------+
+                      v
+       ClinicalAnalysisDomainService
+                      |
+                      v
+              ClinicalRule[]
+                      |
+                      v
+            ClinicalFinding[]
+                      |
+                      v
+        ClinicalAnalysisResultBuilder
+```
 
-        v
+El servicio de análisis recibe estadísticas ya calculadas; no calcula las estadísticas ni recibe directamente la lista de mediciones para ejecutar las reglas.
 
-ClinicalAssessment
+## Guías y objetivos
 
-        |
+Actualmente, el repositorio de objetivos terapéuticos devuelve objetivos únicamente para el identificador `consenso-hta-argentina-2025`. La presencia de un identificador o un documento bibliográfico no implica que exista una implementación ejecutable de esa guía.
 
-        v
+Los objetivos y umbrales deben distinguirse de los valores fijos que usan algunos calculadores o reglas. En particular, carga de hipertensión y tiempo en objetivo utilizan actualmente umbrales predeterminados de 135/85 mmHg; no consumen los objetivos elegidos por `ClinicalTargetSelector`.
 
-ClinicalWarning evaluation
+## Advertencias y limitaciones
 
+- La regla de seguridad actualmente genera un hallazgo si la presión diastólica promedio es inferior a 70 mmHg.
+- La regla de objetivo terapéutico omite su hallazgo si la presión sistólica promedio es inferior a 120 mmHg o la diastólica inferior a 70 mmHg.
+- Los hallazgos son indicadores para seguimiento y no deben presentarse como diagnósticos.
+- Las reglas y sus umbrales requieren trazabilidad verificable hacia una fuente clínica primaria antes de atribuirles una recomendación concreta.
 
-## Current scope
+## Alcance
 
-CardioSync provides monitoring and interpretation support.
-
-It does not replace clinical diagnosis or medical evaluation.
+Esta documentación describe el comportamiento implementado en la rama auditada; no sustituye la revisión clínica profesional ni acredita por sí sola la validación médica de los umbrales.
