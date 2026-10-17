@@ -30,7 +30,7 @@ Las reglas que requieren estadísticas se omiten cuando `statistics` no está pr
 - `grade-2`: PAS ≥160 o PAD ≥100, excepto la condición sistólica aislada evaluada antes.
 - `isolated-systolic`: PAS ≥140 y PAD <90.
 
-El orden de evaluación importa. El clasificador también añade la advertencia `low-diastolic` si la PAD evaluada es inferior a 70; la regla de seguridad del análisis genera un hallazgo separado usando la PAD media.
+El orden de evaluación importa. El clasificador añade la advertencia `low-diastolic` si la PAD evaluada es inferior a 60 mmHg; la regla de seguridad del análisis genera un hallazgo independiente cuando la PAD media es inferior a 70 mmHg.
 
 ## Objetivos terapéuticos
 
