@@ -1,240 +1,43 @@
-# Clinical Domain Mapping Specification
+# Mapeo del dominio clínico
 
-## Objetivo
+**Estado:** mapeo contrastado con `feature/app-updates` el 17-10-2026.
 
-Definir la relación entre conceptos clínicos documentados en la
-Clinical Knowledge Base y los modelos existentes de CardioSync.
+## 1. Modelos implementados
 
-Este documento establece qué información pertenece al dominio de datos,
-qué información pertenece a interpretación clínica y qué información
-corresponde a reglas futuras.
+| Concepto | Ubicación actual | Estado real |
+|---|---|---|
+| Registro de presión arterial | `src/domain/measurements/BloodPressureRecord.ts` | Implementado; conserva campos opcionales/reservados heredados |
+| Perfil/contexto clínico | `src/domain/clinical/models/ClinicalContext.ts` | Implementado como perfil a nivel de paciente |
+| Guía clínica | `src/domain/clinical/models/ClinicalGuideline.ts` | Implementado como metadata de fuente |
+| Hallazgo clínico | `src/domain/clinical/models/ClinicalFinding.ts` | Implementado |
+| Análisis clínico | `src/domain/clinical/models/ClinicalAnalysis.ts` | Implementado como resultado en memoria |
+| Resultado estructurado | `src/domain/clinical/models/ClinicalAnalysisResult.ts` | Implementado; organiza hallazgos por tipo |
+| Regla clínica | `src/domain/clinical/rules/` | Implementado mediante reglas concretas |
+| Objetivos terapéuticos | `src/domain/clinical/targets/` | Implementados para la guía argentina 2025 |
+| Estadísticas | `src/domain/statistics/` | Implementadas para métricas longitudinales |
 
----
+## 2. Campos que siguen en BloodPressureRecord
 
-# Principio arquitectónico
+Además de PAS, PAD, fecha/hora, FC, brazo, posición, origen y notas, el contrato conserva peso, talla, IMC, glucosa, SpO₂, temperatura, frecuencia respiratoria, dolor y una guía como campos opcionales reservados. Su presencia no demuestra que exista una separación de dominio completa.
 
-CardioSync debe separar:
+## 3. Perfil clínico
 
-## Datos observados
+El perfil local se guarda en SQLite en `clinical_profile`. Contiene nombre, edad, sexo, altura, peso, IMC, tabaquismo, diabetes, dislipidemia y antecedentes cardiovasculares/renales. El IMC se calcula en la pantalla del perfil a partir de altura y peso.
 
-Ejemplo:
+No contiene actualmente síntomas, sueño, actividad física ni signos vitales. Los servicios de Health Connect se mantienen en su feature y no hay un constructor general que los combine automáticamente con el perfil para el análisis clínico.
 
-- presión sistólica;
-- presión diastólica;
-- frecuencia cardíaca;
-- peso.
+## 4. Flujo real de estadísticas y análisis
 
-Representan mediciones realizadas.
+`BloodPressureRecord[]` → `StatisticsDomainService` → `StatisticsEngine` → `StatisticsSummary` → `ClinicalAnalysisDomainService` → reglas → `ClinicalFinding[]` y `ClinicalAnalysisResult`.
 
----
+La interfaz de entrada del análisis incluye `measurements`, pero el servicio de dominio auditado no las consulta directamente al ejecutar las reglas. La interpretación se basa en el resumen estadístico, el contexto y la guía.
 
-## Contexto clínico
+## 5. Reglas y guía
 
-Ejemplo:
+Las reglas actuales incluyen clasificación, seguridad, control domiciliario, tendencia, carga, tiempo en objetivo, variabilidad, objetivo terapéutico y factores asociados al riesgo. El identificador de guía se propaga a los hallazgos cuando está disponible.
 
-- posición;
-- brazo;
-- dispositivo;
-- antecedentes;
-- factores de riesgo;
-- estilo de vida.
+La guía argentina 2025 es la predeterminada y la única con objetivos registrados en `ClinicalTargetRepository`. No asumir ejecución equivalente de AHA/ACC, ESC o ISH.
 
-Representan circunstancias del paciente y la medición.
+## 6. Conceptos futuros
 
----
-
-## Interpretación clínica
-
-Ejemplo:
-
-- hipertensión sostenida;
-- hipertensión oculta;
-- riesgo cardiovascular;
-- cumplimiento de objetivos.
-
-Representan conocimiento aplicado.
-
----
-
-# Mapeo principal
-
-## BloodPressureRecord
-
-Responsabilidad:
-
-Representar una medición individual.
-
-Incluye:
-
-- PAS;
-- PAD;
-- frecuencia cardíaca;
-- fecha/hora;
-- datos asociados a la medición.
-
-No debe contener:
-
-- diagnóstico;
-- riesgo;
-- recomendaciones.
-
----
-
-## MeasurementContext
-
-Responsabilidad:
-
-Representar las condiciones bajo las cuales fue realizada una medición.
-
-Conceptos relacionados:
-
-- método de medición;
-- brazo;
-- posición;
-- dispositivo;
-- tamaño de brazalete;
-- origen del registro.
-
----
-
-## ClinicalContext
-
-Responsabilidad:
-
-Representar características clínicas del paciente.
-
-Incluye:
-
-- antecedentes;
-- enfermedades asociadas;
-- factores de riesgo;
-- poblaciones especiales.
-
----
-
-## ClinicalGuideline
-
-Responsabilidad:
-
-Representar conocimiento externo basado en guías clínicas.
-
-Debe incluir:
-
-- fuente;
-- organización;
-- versión;
-- población aplicable;
-- recomendaciones.
-
-Ejemplo:
-
-Consenso Argentino de Hipertensión Arterial 2025.
-
----
-
-## ClinicalAnalysis
-
-Responsabilidad:
-
-Interpretar datos combinando:
-
-- mediciones;
-- contexto;
-- guías clínicas.
-
-Ejemplos:
-
-- clasificación del fenotipo hipertensivo;
-- evaluación del control;
-- identificación de patrones.
-
----
-
-# Relación con motores futuros
-
-## RiskEngine
-
-Entrada:
-
-- BloodPressureRecord;
-- ClinicalContext;
-- factores de riesgo.
-
-Salida:
-
-- estimación de riesgo.
-
----
-
-## RecommendationEngine
-
-Entrada:
-
-- ClinicalAnalysis;
-- ClinicalGuideline.
-
-Salida:
-
-- recomendaciones personalizadas.
-
----
-
-## AlertEngine
-
-Entrada:
-
-- valores;
-- tendencias;
-- reglas clínicas.
-
-Salida:
-
-- alertas.
-
----
-
-# Conceptos del Consenso HTA 2025 mapeados
-
-| Concepto | Modelo |
-|---|---|
-| Presión arterial | BloodPressureRecord |
-| Técnica de medición | MeasurementContext |
-| MDPA | MeasurementContext + serie temporal |
-| MAPA | futuro modelo específico |
-| Fenotipos HTA | ClinicalAnalysis |
-| Riesgo cardiovascular | RiskEngine |
-| Objetivos terapéuticos | ClinicalGuideline |
-| Estilo de vida | ClinicalContext |
-| Poblaciones especiales | ClinicalContext |
-
----
-
-# Decisión arquitectónica
-
-Los documentos clínicos no deben convertirse directamente en código.
-
-Flujo correcto:
-
-Documento clínico
-
-↓
-
-Knowledge Base
-
-↓
-
-Especificación
-
-↓
-
-Modelo de dominio
-
-↓
-
-Implementación
-
----
-
-Estado:
-
-Documento de mapeo clínico creado.
+No se encuentran modelos independientes de `MeasurementContext`, `Anthropometry`, `VitalSigns`, `LifestyleContext` o `CardiovascularSymptoms`, ni motores completos de recomendaciones y alertas. Su incorporación requiere diseño, persistencia, migraciones, pruebas y actualización documental.
