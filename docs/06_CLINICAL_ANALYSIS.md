@@ -4,11 +4,23 @@
 |-------|--------|
 | Documento | 06_CLINICAL_ANALYSIS.md |
 | Tipo | Diseño Conceptual |
-| Estado | Planificado |
+| Estado | Implementación parcial; integración completa pendiente |
 | Versión | Sincronizada con la versión del proyecto |
-| Última actualización | 2026-08-03 |
+| Última actualización | 2026-10-17 |
 
 ---
+
+# Estado de implementación — 2026-10-17
+
+La implementación actual incluye `ClinicalAnalysisDomainService`, que coordina las reglas clínicas disponibles y produce hallazgos. La integración descrita en este documento como análisis integral de un `ClinicalContext` compuesto sigue siendo diseño objetivo: no debe asumirse que todos los contextos enumerados se construyen y consumen en producción.
+
+## Alcance confirmado
+
+- El servicio de dominio coordina reglas clínicas activas y consume resultados estadísticos para el período analizado.
+- La selección del período pertenece a la capa de estadísticas, no al motor clínico.
+- El perfil clínico opcional existe, pero no representa una historia clínica completa.
+- La integración de producción de un contexto clínico integral permanece pendiente; escenarios de desarrollo no son fuente de contexto de producción.
+- Los hallazgos no equivalen a diagnóstico ni a prescripción médica.
 
 # Objetivo
 
