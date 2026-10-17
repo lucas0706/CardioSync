@@ -1,91 +1,45 @@
-# Clinical Historical Validation V2
+# Validación histórica del motor clínico V2
 
-## Objetivo
+**Tipo de evidencia:** escenario de desarrollo con datos simulados. Revisión del código y del registro documental: 17-10-2026.
 
-Validar Clinical Analysis usando múltiples registros históricos.
+## 1. Objetivo
 
-No se utilizó un valor manual.
+Comprobar el flujo estadístico y de reglas clínicas sobre una serie histórica simulada. Este escenario no utiliza un valor manual aislado y no constituye por sí mismo una prueba clínica validada ni una suite automatizada ejecutada en CI.
 
-## Escenario
+## 2. Escenario reproducible en código
 
-Entrada:
+`src/devtools/clinical/ClinicalHistoricalScenario.ts` construye 30 registros sintéticos de PAS/PAD distribuidos en fechas relativas a la ejecución. Calcula el resumen con `StatisticsDomainService.getSummary(records)` y pasa el resultado y el contexto a `ClinicalAnalysisDomainService.analyze()`.
 
-30 BloodPressureRecord simulados
+Las medias derivadas de los 30 pares definidos en el escenario son:
 
-Flujo:
+- PAS media: aproximadamente **134,97 mmHg**.
+- PAD media: aproximadamente **82,67 mmHg**.
 
-BloodPressureRecord[]
-        |
-        v
-StatisticsDomainService
-        |
-        v
-StatisticsSummary
-        |
-        v
-ClinicalAnalysisDomainService
-        |
-        v
-Clinical Findings
+El escenario imprime estadísticas, hallazgos y resultado estructurado en la consola.
 
+## 3. Hallazgos registrados históricamente
 
-## Resultado
+La versión previa de este documento registró hallazgos de tendencia ascendente, carga hipertensiva, objetivo terapéutico y clasificación. Esos resultados describen una ejecución histórica del escenario; no garantizan que cualquier versión futura del código siga produciendo exactamente los mismos resultados.
 
-Statistics:
+La carga hipertensiva calculada por el motor usa los umbrales por defecto de PAS 135/PAD 85 mmHg. La tendencia usa la diferencia entre primer y último valor sistólico tras ordenar los registros por fecha.
 
-Average systolic:
-134.96
+## 4. Validación contextual registrada
 
-Average diastolic:
-82.66
+El documento original registró cuatro escenarios:
 
-Trend:
-up
+| Escenario | Contexto | Objetivo esperado registrado |
+|---|---|---|
+| GENERAL | Edad 60 | Objetivo general para 16–79 |
+| DIABETES | Edad 60, diabetes | Objetivo de diabetes |
+| CKD | Edad 60, enfermedad renal crónica | Objetivo renal |
+| ELDERLY | Edad 85 | Objetivo de mayores de 80 |
 
-Hypertension load:
-50
+Estos escenarios corresponden al selector de objetivos implementado para el Consenso Argentino 2025. Deben volver a ejecutarse si cambian el selector, los objetivos o las reglas. La selección de objetivos tiene limitaciones documentadas en `21_CLINICAL_GUIDELINE_SPECIFICATION.md`.
 
+## 5. Clasificación
 
-## Findings generados
+El clasificador actual devuelve cinco categorías: `normal`, `borderline`, `grade-1`, `grade-2` e `isolated-systolic`. La versión anterior registró ejemplos de límites con resultado PASS, pero no se encontró evidencia en este escenario de que esos ejemplos se ejecuten automáticamente como pruebas unitarias.
 
-- Tendencia ascendente de presión arterial domiciliaria
-- Carga elevada de mediciones de presión arterial
-- Presión arterial por encima del objetivo terapéutico
-- Presión arterial elevada
+## 6. Qué demuestra y qué no
 
-
-## Conclusión
-
-Clinical Engine validado con flujo histórico.
-
-Próximas evoluciones:
-
-- filtro temporal
-- reportes
-- integración futura con Health Connect
-
-
----
-
-## Validación contextual V2
-
-Se validaron cuatro escenarios: GENERAL, DIABETES, CKD y ELDERLY.
-
-GENERAL → arg-hta-2025-adults-16-79 → dentro del objetivo terapéutico.
-
-DIABETES → arg-hta-2025-diabetes → por encima del objetivo terapéutico.
-
-CKD → arg-hta-2025-ckd → por encima del objetivo terapéutico.
-
-ELDERLY → arg-hta-2025-elderly-80 → por encima del objetivo terapéutico.
-
-La selección contextual de ClinicalTarget fue validada en runtime.
-
-
-## Clasificación clínica V2
-
-Categorías activas: normal, borderline, grade-1, grade-2, isolated-systolic.
-
-Prueba funcional: 129/79 → normal; 130/80 → borderline; 139/89 → borderline; 140/89 → isolated-systolic; 140/90 → grade-1; 159/99 → grade-1; 160/100 → grade-2; 180/80 → isolated-systolic; 120/69 → normal.
-
-Resultado: CLASSIFICATION TEST: PASS.
+Este escenario demuestra que existe un flujo de desarrollo para calcular estadísticas y generar hallazgos sobre datos simulados. No demuestra validez clínica, no sustituye revisión profesional, no prueba datos reales y no acredita por sí solo una suite automatizada. Para una garantía de regresión deben existir pruebas automatizadas versionadas y ejecutadas en el pipeline.
