@@ -1088,3 +1088,40 @@ Las futuras funcionalidades de Health Connect deberán mantener su configuració
 - `14_VISUAL_REDESIGN_V2.md`
 - `04_CLINICAL_DOMAIN.md`
 - documentación de Health Connect
+
+---
+
+# ADR-008 — Estado y límites de las integraciones actuales
+
+**Fecha:** 2026-10-17  
+**Estado:** Activa
+
+## Contexto
+
+La implementación de actualizaciones, backups y Health Connect ha evolucionado desde los diseños iniciales. La presencia de servicios no demuestra que todos los escenarios estén validados en dispositivos reales.
+
+## Decisión
+
+- La preferencia OTA se persiste localmente y condiciona la comprobación/descarga automática. La aplicación de la actualización se mantiene como una acción separada.
+- La actualización por APK consulta GitHub Releases y realiza validaciones antes de abrir el instalador Android. No se promete instalación silenciosa.
+- Las copias SQLite deben comprobar integridad antes de exportarse. La existencia de backup manual, Google Drive y programación no equivale a disponer de restauración validada ni política de retención.
+- Health Connect debe considerarse una integración incompleta mientras no estén implementadas y verificadas las operaciones de lectura/escritura, sincronización y tratamiento de permisos.
+- Las publicaciones OTA solo se permiten después de verificar commit, árbol Git, runtime efectivo, canal y ausencia de cambios nativos incompatibles. Los cambios nativos requieren una nueva APK de producción.
+
+## Justificación
+
+Estas distinciones reducen el riesgo de presentar infraestructura parcial como funcionalidad completa y evitan distribuir una actualización con runtime incompatible.
+
+## Consecuencias
+
+- Cada integración tendrá estados de implementación y validación diferenciados.
+- Los flujos nativos requieren comprobación en dispositivos Android.
+- La documentación debe identificar explícitamente validaciones no realizadas.
+
+## Documentos relacionados
+
+- 01_ARCHITECTURE.md
+- 02_ROADMAP.md
+- 08_HEALTH_CONNECT.md
+- 09_DATABASE.md
+- 10_CHANGELOG.md
