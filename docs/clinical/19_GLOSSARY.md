@@ -1,276 +1,48 @@
-# Glossary
+# Glosario clínico de CardioSync
 
-Version: 1.0
-Status: Draft
-Phase: Clinical Knowledge Base
+**Estado:** alineado con los modelos y servicios de `feature/app-updates` el 17-10-2026.
 
----
+## BloodPressureRecord
+Contrato de una medición individual con PAS, PAD, fecha/hora y metadata. También conserva campos opcionales y reservados heredados. No es un diagnóstico ni un análisis.
 
-# 1. Objetivo
+## ClinicalContext
+Perfil clínico opcional a nivel de paciente. Incluye datos demográficos, antropométricos y determinados factores/antecedentes. No representa una historia clínica completa ni un contexto por medición.
 
-Definir la terminología oficial utilizada por CardioSync en el dominio clínico.
+## ClinicalGuideline
+Metadatos de una fuente clínica: identificador, nombre, organización, versión, año y referencias opcionales. El modelo no ejecuta reglas por sí solo.
 
-Este documento evita inconsistencias entre:
+## ClinicalAnalysis
+Resultado de la orquestación de reglas clínicas sobre estadísticas y contexto. Contiene hallazgos, guía opcional y resumen.
 
-- documentación;
-- arquitectura;
-- código;
-- interfaz;
-- análisis clínico.
+## ClinicalAnalysisDomainService
+Servicio que compone las reglas clínicas. Usa el Consenso Argentino 2025 por defecto cuando no se proporciona guía. No calcula las estadísticas.
 
----
+## ClinicalFinding
+Hallazgo generado por una regla. Puede incluir tipo, título, descripción, severidad e identificador de guía.
 
-# 2. BloodPressureRecord
+## ClinicalRule / ClinicalRuleContext
+Contrato de ejecución de una regla y contexto común con guía, contexto clínico y fecha de evaluación.
 
-Definición:
+## ClinicalTarget
+Definición de rango objetivo asociada a guía, población y condiciones. Actualmente hay objetivos definidos para el Consenso Argentino 2025.
 
-Entidad principal que representa una medición de presión arterial registrada
-en CardioSync.
+## ClinicalTargetSelector
+Selecciona un objetivo por guía, edad y condiciones del contexto. La implementación actual divide por edad en menor/mayor de 80 años y tiene límites de selección que deben tenerse en cuenta; no valida por sí sola toda la elegibilidad clínica.
 
-Responsabilidad:
+## StatisticsSummary
+Resumen derivado de múltiples mediciones: promedios, extremos, variabilidad, tendencia, carga, tiempo en objetivo y otras métricas.
 
-Almacenar el evento de medición.
+## StatisticsEngine / StatisticsDomainService
+El motor calcula métricas; el servicio aplica filtros y expone el resumen.
 
-No incluye:
+## ClinicalProfileService / ClinicalProfileRepository
+Servicios de feature y repositorio SQLite que leen, guardan, eliminan y comprueban la existencia del perfil local.
 
-- interpretación clínica;
-- clasificación;
-- recomendaciones.
+## ClinicalAlert
+Interfaz de datos en `src/clinical/alerts/ClinicalAlert.ts`. Su existencia no equivale a un motor completo de alertas.
 
----
+## Conceptos todavía no implementados como modelos independientes
+`MeasurementContext`, `Anthropometry`, `VitalSigns`, `LifestyleContext`, `CardiovascularSymptoms`, `ClinicalContextBuilder`, `ClinicalDataProvider`, `ContextQualityEngine`, `RecommendationEngine` y `RiskEngine` no deben describirse como componentes completos del dominio actual. Existen conceptos parciales relacionados, como la regla `CardiovascularRiskRule`.
 
-# 3. ClinicalContext
-
-Definición:
-
-Conjunto de información clínica adicional asociada a una medición específica.
-
-Responsabilidad:
-
-Aportar contexto para interpretación posterior.
-
-No representa:
-
-- paciente completo;
-- historia clínica;
-- diagnóstico.
-
----
-
-# 4. MeasurementContext
-
-Definición:
-
-Información relacionada con la forma y condiciones en que fue obtenida una
-medición.
-
-Ejemplos:
-
-- posición;
-- brazo;
-- tipo de medición.
-
----
-
-# 5. Anthropometry
-
-Definición:
-
-Información relacionada con características corporales.
-
-Incluye:
-
-- peso;
-- talla;
-- IMC derivado.
-
----
-
-# 6. VitalSigns
-
-Definición:
-
-Parámetros fisiológicos adicionales asociados temporalmente a una medición.
-
-Incluye:
-
-- frecuencia cardíaca;
-- SpO2;
-- frecuencia respiratoria.
-
----
-
-# 7. LifestyleContext
-
-Definición:
-
-Factores recientes del estilo de vida que pueden aportar contexto.
-
-Incluye:
-
-- sueño;
-- actividad física;
-- ejercicio reciente.
-
----
-
-# 8. CardiovascularSymptoms
-
-Definición:
-
-Síntomas cardiovasculares asociados temporalmente a una medición.
-
-Incluye:
-
-- dolor torácico;
-- disnea;
-- palpitaciones.
-
----
-
-# 9. ClinicalGuideline
-
-Definición:
-
-Representación de una guía clínica seleccionable utilizada para interpretar
-mediciones.
-
-Incluye:
-
-- organización;
-- versión;
-- reglas;
-- referencia bibliográfica.
-
----
-
-# 10. ClinicalAnalysis
-
-Definición:
-
-Resultado de aplicar una guía clínica sobre una medición y su contexto.
-
-No modifica los datos originales.
-
----
-
-# 11. RecommendationEngine
-
-Definición:
-
-Componente encargado de generar recomendaciones derivadas de análisis
-clínicos disponibles.
-
-No prescribe tratamientos.
-
----
-
-# 12. AlertEngine
-
-Definición:
-
-Componente encargado de comunicar situaciones relevantes mediante alertas.
-
-No realiza diagnósticos.
-
----
-
-# 13. RiskEngine
-
-Definición:
-
-Componente encargado de evaluar información relacionada con riesgo utilizando
-datos clínicos disponibles y reglas definidas.
-
----
-
-# 14. ClinicalContextBuilder
-
-Definición:
-
-Componente responsable de construir ClinicalContext combinando diferentes
-fuentes de información.
-
----
-
-# 15. ClinicalDataProvider
-
-Definición:
-
-Abstracción que permite obtener datos clínicos desde diferentes fuentes.
-
-Ejemplos:
-
-- manual;
-- Health Connect;
-- importación.
-
----
-
-# 16. ContextQualityEngine
-
-Definición:
-
-Componente responsable de evaluar calidad del contexto.
-
-Evalúa:
-
-- completitud;
-- vigencia;
-- consistencia;
-- confianza.
-
----
-
-# 17. Health Connect
-
-Definición:
-
-Proveedor externo de datos de salud.
-
-CardioSync no depende del proveedor.
-
-El dominio consume información clínica, no tecnología.
-
----
-
-# 18. Principios terminológicos
-
-Usar:
-
-ClinicalContext
-
-No:
-
-PatientContext
-
-
-Usar:
-
-ClinicalAnalysis
-
-No:
-
-DiagnosisEngine
-
-
-Usar:
-
-Recommendation
-
-No:
-
-Prescription
-
-
----
-
-# 19. Estado
-
-Draft.
-
-Pendiente:
-
-- revisión final;
-- alineación con implementación;
-- integración con estándares externos.
+## Convenciones de lenguaje
+Usar “hallazgo” para `ClinicalFinding`; “estadística” para métricas calculadas; “perfil clínico” para `ClinicalContext`; y “factor asociado a riesgo” para el hallazgo de riesgo actual. Evitar “diagnóstico”, “prescripción” o “riesgo calculado” cuando el código no produce esos resultados.
