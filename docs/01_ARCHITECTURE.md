@@ -1,308 +1,209 @@
-# CardioSync — Architecture
+# CardioSync — Arquitectura
 
 | Campo | Valor |
-|-------|--------|
-| Documento | 01_ARCHITECTURE.md |
-| Tipo | Especificación de Arquitectura |
+|---|---|
+| Documento | `01_ARCHITECTURE.md` |
+| Tipo | Especificación de arquitectura |
 | Estado | Activo |
-| Versión | Sincronizada con la versión del proyecto |
-| Última actualización | 2026-08-03 |
+| Última revisión | 2026-10-17 |
+| Alcance | Arquitectura observada y reglas de diseño |
 
----
+## 1. Objetivo
 
-# 1. Objetivo
+Este documento describe la organización técnica de CardioSync, las responsabilidades principales y los límites que deben respetarse al modificar el sistema.
 
-Este documento describe la arquitectura técnica de CardioSync.
+El documento distingue entre la estructura observada en el repositorio y los principios arquitectónicos que deben guiar su evolución. No sustituye al código ni afirma que todos los flujos estén validados en dispositivos.
 
-Su finalidad es documentar la organización del sistema, las responsabilidades de cada módulo y las relaciones entre ellos.
+## 2. Principios
 
-No describe funcionalidades de usuario.
-
-No reemplaza al código fuente.
-
-Describe la arquitectura que gobierna el proyecto.
-
----
-
-# 2. Principios arquitectónicos
-
-La arquitectura de CardioSync se basa en los siguientes principios:
+CardioSync prioriza:
 
 - Separación de responsabilidades.
-- Bajo acoplamiento.
-- Alta cohesión.
-- Arquitectura modular.
-- Reutilización.
-- Escalabilidad.
-- Evolución incremental.
+- Bajo acoplamiento y alta cohesión.
 - Dominio independiente de la interfaz.
 - Persistencia encapsulada.
-- Documentación sincronizada con el código.
+- Integraciones externas aisladas tras servicios específicos.
+- Reutilización sin crear abstracciones innecesarias.
+- TypeScript strict.
+- Compatibilidad verificada con Expo SDK 57.
+- Documentación sincronizada con la implementación.
+- Cambios incrementales, revisables y verificables.
 
----
+## 3. Estructura observada del repositorio
 
-# 3. Arquitectura general
+La carpeta `src/` contiene las siguientes áreas principales:
 
-La arquitectura del proyecto se organiza mediante capas claramente diferenciadas.
+| Ruta | Responsabilidad arquitectónica |
+|---|---|
+| `src/core` | Infraestructura compartida; actualmente incluye áreas como base de datos y autenticación. |
+| `src/domain` | Modelos y lógica del dominio, incluyendo mediciones, estadísticas, salud y dominio clínico. |
+| `src/features` | Flujos funcionales organizados por área, por ejemplo mediciones, estadísticas, reportes, Health Connect, copias de seguridad y actualizaciones. |
+| `src/components` | Componentes reutilizables de presentación. |
+| `src/clinical` | Código clínico compartido que debe revisarse junto con `src/domain/clinical` para evitar duplicación de reglas. |
+| `src/devtools` | Herramientas de desarrollo. Su inclusión en rutas de producción debe controlarse explícitamente. |
+| `src/hooks` | Hooks compartidos. |
+| `src/services` | Servicios compartidos o de compatibilidad que no deben duplicar la responsabilidad de las features. |
+| `src/store` | Estado compartido de la aplicación. |
+| `src/theme` | Tokens y configuración visual. |
+| `src/types` | Tipos compartidos cuando no pertenecen claramente a un dominio concreto. |
+| `src/utils` | Utilidades genéricas sin lógica de negocio específica. |
 
-Presentación
+La estructura principal acordada para la evolución sigue siendo `src/core`, `src/domain`, `src/features` y `src/components`. Las demás carpetas existentes se mantienen por compatibilidad con el código actual y no deben reorganizarse de forma masiva sin una propuesta específica.
 
-↓
+## 4. Navegación y entornos
 
-Features
+CardioSync utiliza Expo Router. El archivo `app.config.js` selecciona la raíz de rutas entre `app` y `app-production`, utilizando la configuración de entorno/build correspondiente.
 
-↓
+La separación entre producción y herramientas de desarrollo es una frontera importante:
 
-Domain
+- Las rutas de producción no deben exponer herramientas exclusivas de desarrollo.
+- Los cambios de navegación deben comprobarse tanto en el árbol correspondiente a producción como en el entorno de desarrollo.
+- No se debe asumir qué raíz se está utilizando solo por inspeccionar una carpeta; debe revisarse la configuración efectiva.
 
-↓
+## 5. Responsabilidades por capa
 
-Core
+### Presentación
 
-La capa Clinical consume información del dominio sin acoplarse a la interfaz.
+Incluye pantallas, componentes y elementos visuales.
 
-Toda comunicación entre módulos deberá respetar esta organización.
+Debe:
+- Presentar datos y estados.
+- Recoger las acciones del usuario.
+- Delegar cálculos y reglas a servicios o al dominio.
+- Mostrar errores, permisos pendientes y estados vacíos de forma explícita.
 
----
+No debe:
+- Acceder directamente a SQLite.
+- Duplicar clasificación o reglas clínicas.
+- Implementar lógica de negocio que deba reutilizarse fuera de la pantalla.
 
-# 4. Capas principales
+### Features
 
-## Core
+Cada feature agrupa la interfaz y los servicios necesarios para un flujo funcional concreto. Ejemplos presentes en el repositorio incluyen `measurements`, `statistics`, `reports`, `healthConnect`, `backup` y `appUpdate`.
 
-Responsabilidad:
+Las features pueden coordinar el flujo de usuario, pero no deben convertirse en una segunda implementación del dominio.
 
-Infraestructura compartida.
+### Domain
 
-Incluye persistencia, configuración y servicios comunes.
+Contiene los conceptos y reglas de negocio que deben poder entenderse sin depender de componentes React.
 
----
+Las estadísticas descriptivas deben permanecer separadas de la interpretación clínica. Los tipos compartidos deben ubicarse según su responsabilidad real, evitando dependencias circulares entre features.
 
-## Domain
+### Core e infraestructura
 
-Responsabilidad:
+Contiene capacidades transversales, como la inicialización y el acceso a la base de datos y los mecanismos comunes de autenticación.
 
-Modelar el dominio del negocio.
+La infraestructura no debe absorber reglas clínicas ni decisiones propias de una pantalla. Los cambios de infraestructura deben evaluarse por su impacto en todas las features consumidoras.
 
-Contiene entidades, modelos y lógica independiente de la interfaz.
+### Servicios de integración
 
----
+Los servicios que conectan CardioSync con Android, Health Connect, Google Drive, GitHub Releases, Expo Updates u otros sistemas deben encapsular sus APIs y traducir errores externos a resultados manejables por la aplicación.
 
-## Features
+Los permisos, la conectividad, los datos ausentes y las restricciones del sistema operativo son resultados posibles, no excepciones que deban ocultarse.
 
-Responsabilidad:
+## 6. Persistencia y base de datos
 
-Implementar funcionalidades organizadas por módulos.
+El proyecto utiliza Expo SQLite. El archivo de base de datos identificado en el servicio inspeccionado es `cardiosync.db`.
 
-Cada feature deberá ser autocontenida siempre que sea posible.
+Reglas:
 
----
+- La interfaz no debe ejecutar SQL directamente.
+- Las operaciones de persistencia deben pasar por la capa de acceso a datos/repositories existente.
+- Las migraciones deben ser explícitas, ordenadas y seguras para datos existentes.
+- Los errores de escritura, lectura y migración deben manejarse sin informar éxito prematuramente.
+- Los flujos de backup y restauración deben coordinarse con la base de datos y proteger frente a sobrescrituras accidentales.
+- Todo cambio de esquema requiere revisar su compatibilidad con copias de seguridad y versiones instaladas.
 
-## Clinical
+Antes de introducir una nueva abstracción de repositorio, debe auditarse el patrón real del módulo afectado y reutilizarse si resulta adecuado.
 
-Responsabilidad:
+## 7. Dominio clínico
 
-Implementar la lógica clínica basada en guías clínicas.
+El dominio clínico contiene responsabilidades de clasificación, contexto, reglas, análisis y resultados clínicos. La fuente clínica activa documentada es el Consenso Argentino de Hipertensión Arterial 2025.
 
-No implementa componentes de interfaz.
+Principios obligatorios:
 
-No realiza persistencia.
+- La UI consume resultados del dominio y no vuelve a implementar sus reglas.
+- Las estadísticas descriptivas no emiten recomendaciones clínicas.
+- Toda regla clínica debe ser trazable a una fuente y a un criterio documentado.
+- Deben distinguirse resultados calculados, información faltante y advertencias.
+- Los cambios de clasificación requieren revisar documentación, pruebas y todas las pantallas consumidoras.
+- Una regla implementada no implica que la totalidad de una guía esté cubierta ni que el sistema esté clínicamente validado.
 
----
+La carpeta `src/clinical` y `src/domain/clinical` deben inspeccionarse conjuntamente antes de mover o consolidar código clínico.
 
-## Components
+## 8. Integraciones y operaciones del sistema
 
-Responsabilidad:
+### Health Connect
 
-Componentes reutilizables de presentación.
+La feature de Health Connect debe gestionar permisos, tipos de datos disponibles, errores de acceso y ausencia de registros. La disponibilidad de datos depende del dispositivo, las aplicaciones proveedoras y los permisos del usuario.
 
-No contienen lógica de negocio.
+### Copias de seguridad
 
+El repositorio contiene servicios para copia manual, tareas programadas y Google Drive. Estas rutas tienen condiciones de ejecución diferentes y no deben documentarse como una garantía de respaldo exitoso sin comprobar el resultado real.
 
+La restauración requiere una revisión específica de integridad, compatibilidad y recuperación ante fallos.
 
----
+### Actualizaciones OTA y APK
 
-# 13. Dominio de Measurements
+La aplicación contiene servicios diferenciados para Expo Updates y para consultar/descargar APK desde GitHub Releases.
 
-## Estado
+- OTA solo debe utilizarse para cambios compatibles con el runtime instalado.
+- Cambios en Expo SDK, plugins, dependencias nativas, manifiesto, código Kotlin/Java o runtime pueden requerir una nueva APK.
+- La descarga de una APK y la instalación son pasos distintos.
+- La instalación depende del instalador y de las autorizaciones de Android.
+- Los cambios que afecten compatibilidad deben seguir el proceso de build de producción.
 
-✅ IMPLEMENTADO
+Antes de publicar una OTA se debe verificar el estado de Git, el commit, el runtime efectivo y el channel, y confirmar que no se introdujeron cambios nativos incompatibles.
 
-El dominio Measurements constituye el núcleo funcional del proyecto.
+## 9. TypeScript, dependencias y compatibilidad
 
-Responsabilidades:
+- El código nuevo debe mantener TypeScript strict y evitar `any` innecesario.
+- La comprobación disponible es `npm run typecheck`.
+- Antes de agregar o actualizar dependencias debe evaluarse su compatibilidad con Expo SDK 57, React Native instalado, soporte nativo, mantenimiento y costo de build.
+- No se debe actualizar una biblioteca por intuición ni asumir que una versión compatible con otra versión de Expo también lo es con SDK 57.
+- Los cambios nativos requieren validar configuración de Expo y el resultado de una Development Build o build de producción según el alcance.
 
-- Registrar mediciones.
-- Validar datos.
-- Gestionar el historial.
-- Persistir información.
+## 10. Flujo de cambios
 
-No implementa interpretación clínica.
+Para cada modificación arquitectónica:
 
----
+1. Auditar los archivos y consumidores relacionados.
+2. Identificar el comportamiento actual y el objetivo.
+3. Evaluar impacto en persistencia, datos de salud, navegación y módulos nativos.
+4. Implementar el cambio mínimo coherente.
+5. Ejecutar las comprobaciones aplicables y documentar las que no se ejecutaron.
+6. Revisar el diff y confirmar el alcance.
+7. Actualizar la documentación específica y el roadmap/changelog si corresponde.
+8. Abrir un Pull Request independiente para revisión.
 
-# 14. Dominio Statistics
+No se debe fusionar un PR ni publicar una OTA o APK sin autorización explícita.
 
-## Estado
+## 11. Criterios de aceptación
 
-✅ IMPLEMENTADO
+Una modificación arquitectónica se considera lista para revisión cuando:
 
-El motor Statistics procesa matemáticamente las mediciones registradas.
+- Respeta los límites de responsabilidad descritos.
+- No introduce dependencias ni duplicación injustificada.
+- Conserva los datos existentes o documenta una migración segura.
+- Mantiene compatibilidad con Expo SDK 57 o identifica claramente el cambio de build requerido.
+- Supera las comprobaciones ejecutadas aplicables.
+- Documenta las limitaciones y pruebas pendientes.
+- Contiene solo los archivos necesarios para el alcance del PR.
 
-Responsabilidades:
+## 12. Documentos relacionados
 
-- Estadísticas descriptivas.
-- Tendencias.
-- Promedios.
-- Variabilidad.
-- Indicadores.
+- `00_PROJECT_MASTER_CONTEXT.md`: contexto maestro y estado conocido.
+- `02_ROADMAP.md`: fases del proyecto.
+- `03_DECISIONS.md`: decisiones arquitectónicas y su justificación.
+- `04_CLINICAL_DOMAIN.md`: dominio clínico.
+- `05_CLINICAL_RULE_ENGINE.md`: reglas clínicas.
+- `06_CLINICAL_ANALYSIS.md`: análisis clínico.
+- `07_REPORTS.md`: reportes.
+- `08_HEALTH_CONNECT.md`: integración Health Connect.
+- `09_DATABASE.md`: persistencia y base de datos.
+- `10_CHANGELOG.md`: historial de cambios.
+- `11_MODULES.md`: inventario de módulos.
 
-No interpreta resultados clínicos.
+## 13. Regla final
 
-No genera recomendaciones.
-
----
-
-# 15. Dominio Clinical
-
-## Estado
-
-🚧 EN DESARROLLO
-
-El dominio Clinical será responsable de la interpretación de las mediciones utilizando exclusivamente reglas derivadas de guías clínicas oficialmente soportadas.
-
-Su evolución contempla:
-
-- ClinicalContext
-- ClinicalRuleEngine
-- ClinicalAnalysisEngine
-
-No realizará persistencia.
-
-No implementará componentes React.
-
----
-
-# 16. Persistencia
-
-## Estado
-
-✅ IMPLEMENTADO
-
-La persistencia del proyecto utiliza SQLite.
-
-Toda operación sobre la base de datos deberá realizarse mediante la capa Repository.
-
-La arquitectura prohíbe el acceso directo a SQLite desde la interfaz.
-
----
-
-# 17. Escalabilidad
-
-La arquitectura ha sido diseñada para permitir la incorporación de nuevos módulos sin modificar la estructura principal del sistema.
-
-Las futuras funcionalidades deberán integrarse respetando la separación entre:
-
-- Presentación.
-- Dominio.
-- Persistencia.
-- Interpretación clínica.
-
-
-
----
-
-# 18. Restricciones arquitectónicas
-
-Las siguientes restricciones constituyen reglas obligatorias del proyecto.
-
-## Separación de responsabilidades
-
-- La UI no implementa lógica de negocio.
-- El dominio no depende de React.
-- Clinical no depende de la interfaz.
-- Statistics no implementa reglas clínicas.
-- Dashboard únicamente presenta información.
-
----
-
-## Persistencia
-
-- Todo acceso a SQLite deberá realizarse mediante Repository.
-- Ningún componente React accederá directamente a la base de datos.
-
----
-
-## Dominio
-
-- Cada entidad deberá representar una única responsabilidad.
-- El dominio deberá permanecer independiente de la infraestructura.
-
----
-
-## Clinical
-
-- Toda interpretación clínica deberá derivarse exclusivamente de guías clínicas oficialmente soportadas.
-- Toda regla deberá ser trazable hasta su fuente.
-- No existirán recomendaciones sin respaldo documental.
-
----
-
-# 19. Evolución arquitectónica
-
-La evolución del proyecto seguirá el siguiente orden:
-
-Arquitectura Base
-
-↓
-
-Measurements
-
-↓
-
-Statistics
-
-↓
-
-Dashboard
-
-↓
-
-Clinical Foundation
-
-↓
-
-Clinical Domain
-
-↓
-
-Clinical Rule Engine
-
-↓
-
-Clinical Analysis Engine
-
-↓
-
-Health Connect
-
-↓
-
-Clinical Reports
-
-Cada nueva fase deberá preservar la compatibilidad con la arquitectura existente.
-
----
-
-# 20. Conclusión
-
-La arquitectura de CardioSync prioriza:
-
-- Mantenibilidad.
-- Modularidad.
-- Escalabilidad.
-- Bajo acoplamiento.
-- Alta cohesión.
-- Separación estricta de responsabilidades.
-
-Toda evolución futura deberá respetar estos principios para garantizar la estabilidad y el crecimiento sostenido del proyecto.
-
+La arquitectura debe evolucionar a partir del código real, no de diagramas desactualizados. Cuando una responsabilidad no esté clara, se auditan sus consumidores y dependencias antes de moverla. La prioridad es la estabilidad, la integridad de los datos de salud y la mantenibilidad a largo plazo.
