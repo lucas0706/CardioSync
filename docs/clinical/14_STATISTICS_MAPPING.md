@@ -1,215 +1,31 @@
-# Statistics Mapping
+# Relación entre Statistics y análisis clínico
 
-Version: 1.0
-Status: Draft
-Phase: Clinical Knowledge Base
+**Estado:** contrastado con `src/domain/statistics/` y `src/domain/clinical/` el 17-10-2026.
 
----
+## 1. Responsabilidades
 
-# 1. Objetivo
+Statistics calcula métricas a partir de registros longitudinales. Clinical Analysis consume el resumen estadístico y aplica reglas para generar hallazgos. Son capas distintas, aunque las métricas de clasificación y los umbrales actuales tienen decisiones clínicas embebidas que deben mantenerse visibles.
 
-Definir la relación entre el dominio Statistics de CardioSync y la arquitectura
-clínica definida por:
+## 2. Flujo implementado
 
-- BloodPressureRecord;
-- ClinicalContext;
-- ClinicalAnalysis.
+`StatisticsDomainService.getSummary(records, filter)` delega a `StatisticsEngine.summarize`. El motor filtra por periodo, agrega métricas y devuelve `StatisticsSummary`.
 
-Este documento establece qué información pertenece al análisis estadístico y
-qué información pertenece al análisis clínico.
+El resumen incluye total, promedios de PAS/PAD/FC, máximos y mínimos, registros extremos, presión de pulso media, presión arterial media, desviación estándar, variabilidad, carga hipertensiva, tiempo en objetivo, adherencia, tendencia y distribución de clasificación.
 
----
+## 3. Cálculos y límites actuales
 
-# 2. Principio fundamental
+- La tendencia se calcula sobre la serie cronológica de PAS; la implementación clasifica como ascendente si el último valor supera al primero en más de 3, descendente si cae más de 3 y estable en los demás casos.
+- La carga hipertensiva y el tiempo en objetivo utilizan por defecto umbrales de 135/85 mmHg en sus calculadores, independientemente de la guía entregada al análisis.
+- La variabilidad se calcula como desviación estándar dividida por la media y multiplicada por 100.
+- La clasificación de registros usa `BloodPressureClassifier`, que aplica cinco categorías implementadas en código.
+- El objetivo terapéutico del análisis se evalúa por separado mediante `TherapeuticTargetRule` y `ClinicalTargetSelector`.
 
-Statistics y ClinicalAnalysis son dominios diferentes.
+Estos cálculos no deben confundirse con reglas clínicas universales ni con valores configurables por todas las guías.
 
-Statistics responde:
+## 4. Relación con ClinicalAnalysis
 
-¿Cómo evolucionan las mediciones a lo largo del tiempo?
+`ClinicalAnalysisDomainService` recibe `StatisticsSummary` y ejecuta reglas que producen hallazgos. No calcula estadísticas por sí mismo. Aunque su contrato incluye una lista de mediciones, la implementación actual de las reglas se basa en el resumen y el contexto.
 
-ClinicalAnalysis responde:
+## 5. Uso y seguridad
 
-¿Qué significa clínicamente una medición según una guía determinada?
-
----
-
-# 3. Separación de responsabilidades
-
-## Statistics
-
-Trabaja principalmente con:
-
-- BloodPressureRecord;
-- series temporales;
-- tendencias;
-- variabilidad;
-- promedios;
-- distribución de valores.
-
-
----
-
-## ClinicalAnalysis
-
-Trabaja con:
-
-- BloodPressureRecord;
-- ClinicalContext;
-- ClinicalGuideline.
-
-
----
-
-# 4. Flujo conceptual
-
-Múltiples mediciones:
-
-BloodPressureRecord
-
-↓
-
-StatisticsEngine
-
-↓
-
-Estadísticas longitudinales
-
-
-Una medición:
-
-BloodPressureRecord
-
-+
-
-ClinicalContext
-
-+
-
-ClinicalGuideline
-
-↓
-
-ClinicalAnalysis
-
-
----
-
-# 5. Información estadística derivada
-
-Ejemplos:
-
-- promedio de presión sistólica;
-- promedio de presión diastólica;
-- tendencia temporal;
-- variabilidad;
-- carga hipertensiva;
-- tiempo en rango objetivo.
-
-
----
-
-# 6. Relación con ClinicalContext
-
-ClinicalContext puede aportar información para análisis futuros.
-
-Ejemplos:
-
-- comparar mediciones con sueño;
-- analizar relación con actividad física;
-- estudiar cambios asociados a peso.
-
-
-Pero Statistics no debe depender obligatoriamente de ClinicalContext.
-
----
-
-# 7. Calidad de datos
-
-Statistics debe considerar:
-
-- mediciones incompletas;
-- valores faltantes;
-- duplicados;
-- calidad temporal.
-
-
-Estas reglas pertenecen al dominio estadístico.
-
----
-
-# 8. Relación con ClinicalAnalysis
-
-Un análisis clínico puede utilizar resultados estadísticos.
-
-Ejemplo:
-
-Statistics:
-
-Promedio últimos 30 días elevado.
-
-
-ClinicalAnalysis:
-
-Interpretación según guía seleccionada.
-
-
----
-
-# 9. Decisiones arquitectónicas
-
-## ADR-042
-
-StatisticsEngine permanecerá separado de ClinicalAnalysisEngine.
-
-
-## ADR-043
-
-Statistics trabajará principalmente sobre mediciones longitudinales.
-
-
-## ADR-044
-
-ClinicalContext será opcional para cálculos estadísticos básicos.
-
-
-## ADR-045
-
-Los resultados estadísticos no deben interpretarse como diagnóstico.
-
-
----
-
-# 10. Riesgos
-
-Evitar:
-
-- mezclar clasificación clínica con estadísticas;
-- usar promedios como diagnóstico;
-- perder trazabilidad temporal;
-- ocultar calidad de datos.
-
-
----
-
-# 11. Impacto en CardioSync
-
-Utilizado por:
-
-- Dashboard;
-- ClinicalChart;
-- Reports;
-- ClinicalAnalysis futuro.
-
-
----
-
-# 12. Estado
-
-Draft.
-
-Pendiente:
-
-- revisión con Statistics V2 existente;
-- mapeo definitivo de métricas;
-- integración con ClinicalAnalysis.
+Dashboard, gráficos y reportes pueden consumir estadísticas para seguimiento. Un promedio, una tendencia o un porcentaje descriptivo no es por sí solo un diagnóstico. La documentación de cambios en umbrales debe incluir fuente, pruebas y revisión clínica.
