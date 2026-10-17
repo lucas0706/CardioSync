@@ -4,7 +4,7 @@ Esta guía describe cómo comprobar y distribuir una versión de CardioSync para
 
 ## Fuentes de configuración
 
-La configuración consultada en la rama `main` como referencia histórica; los valores de la rama de trabajo se verificaron el 2026-10-17 incluye:
+La configuración de referencia y los valores observados en `feature/app-updates` se revisaron el 2026-10-17. Los valores que siguen describen archivos de esa rama y no sustituyen la comprobación de la configuración efectiva del commit que se vaya a publicar.
 
 - `app.json`: configuración estática de Expo y versión declarada.
 - `package.json`: versión del paquete y versiones declaradas de dependencias.
@@ -12,11 +12,11 @@ La configuración consultada en la rama `main` como referencia histórica; los v
 
 En feature/app-updates sí existe `app.config.js`. Define `updates.url`, `checkAutomatically: 'NEVER'`, `runtimeVersion.policy: 'appVersion'` como valor general y `fingerprint` para Android e iOS; la configuración dinámica prevalece al resolver Expo Config.
 
-## Estado observado en main — 2026-10-17
+## Configuración declarada en feature/app-updates — 2026-10-17
 
 | Elemento | Valor encontrado | Alcance de la observación |
 |---|---|---|
-| Versión en `app.json` | Debe comprobarse en el archivo de la rama objetivo | No asumir que el valor histórico de main representa feature/app-updates. |
+| Versión en `app.json` | `1.2.0` | Valor declarado en la rama inspeccionada; confirmar la versión remota de EAS y la versión efectiva antes de una build. |
 | Versión en `package.json` | `1.2.0` | Valor leído en feature/app-updates; no confirma por sí solo la versión remota de EAS ni la instalada. |
 | Expo | `~57.0.26` | Rango declarado en package.json de feature/app-updates. |
 | React Native | `0.86.3` | Versión declarada en package.json de feature/app-updates. |
