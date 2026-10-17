@@ -147,3 +147,27 @@ Al finalizar la Fase 5:
 - SQLite compatible.
 - Proyecto compilando limpio.
 - Documentación sincronizada.
+
+---
+
+# Estado y límites documentales — 2026-10-17
+
+La separación entre medición y contexto clínico sigue siendo el principio rector. `BloodPressureRecord` debe representar la medición y no convertirse en una historia clínica general.
+
+## Estado observado
+
+- La clasificación clínica activa se centraliza en el dominio clínico.
+- Existen servicios y modelos para Clinical Analysis y reglas clínicas.
+- El árbol histórico `src/clinical/` debe distinguirse del dominio actual `src/domain/clinical/`; no asumir que ambos son equivalentes ni eliminarlos sin auditoría.
+- La disponibilidad de tipos o servicios de contexto no demuestra que exista un flujo de producción completo para capturar, persistir y suministrar todo el contexto clínico.
+- Cualquier migración de datos debe diseñarse y validarse antes de retirar campos o estructuras históricas.
+
+## Criterios para continuar
+
+1. Inspeccionar entidades, repositorios, esquema SQLite y migraciones antes de modificar el modelo.
+2. Mantener compatibilidad con datos ya almacenados.
+3. Evitar incorporar datos de Health Connect directamente a la entidad de medición.
+4. Validar reglas clínicas con escenarios trazables y fuentes documentadas.
+5. Ejecutar typecheck y pruebas relevantes antes de continuar con nuevas funcionalidades.
+
+Esta nota actualiza el estado documental; no afirma que se haya ejecutado una nueva migración ni una prueba técnica en esta revisión.
