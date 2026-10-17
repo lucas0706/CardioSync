@@ -7,7 +7,7 @@
 | Tipo | Organización del repositorio |
 | Estado | Activo |
 | Versión | Sincronizada con la versión del proyecto |
-| Última actualización | 2026-08-03 |
+| Última actualización | 2026-10-17 |
 
 ---
 
