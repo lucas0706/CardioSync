@@ -76,9 +76,6 @@ module.exports = {
 
     android: {
       ...appJson.expo.android,
-      runtimeVersion: {
-        policy: 'fingerprint',
-      },
       googleServicesFile:
         process.env.GOOGLE_SERVICES_JSON ?? './google-services.json',
     },
