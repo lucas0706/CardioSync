@@ -223,6 +223,9 @@ Además de los estados del roadmap, la documentación puede usar **IMPLEMENTADO 
 - Mantener TypeScript strict y la estructura arquitectónica vigente.
 - Para OTA, comprobar estado Git, HEAD, runtime/channel efectivos y ausencia de cambios nativos.
 - Los cambios en código nativo, plugins, dependencias nativas, Expo SDK o runtime requieren una APK de producción, no una OTA.
+- Para Android, mantener una única política de runtime `appVersion`; comprobar que el runtime efectivo coincide con la versión de la aplicación.
+- Antes de cada APK de producción, actualizar y validar `src/features/about/config/version-info.ts` y `src/features/about/config/appInfo.ts`, incluyendo versión, fecha, datos técnicos y novedades acumuladas desde la APK anterior, con las OTA relevantes del período.
+- Mantener las novedades de Acerca de y las notas de GitHub Release coherentes con los cambios realmente publicados.
 - Documentar la versión y el commit exactos de una publicación cuando se disponga de esos datos.
 
 ## Datos clínicos
