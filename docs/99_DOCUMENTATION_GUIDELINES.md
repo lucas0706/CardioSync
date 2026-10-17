@@ -194,3 +194,37 @@ Mantener una documentación profesional que permita:
 - Diagnosticar problemas arquitectónicos.
 - Evolucionar el proyecto de forma segura.
 
+---
+
+# Reglas de mantenimiento — 2026-10-17
+
+## Estados sin ambigüedad
+
+Además de los estados del roadmap, la documentación puede usar **IMPLEMENTADO / VALIDACIÓN PENDIENTE** cuando exista código pero falten pruebas de integración o de dispositivo. No utilizar COMPLETADO como sinónimo de “hay un servicio o una pantalla”.
+
+## Fuente de verdad
+
+- Para comportamiento actual, inspeccionar el código de la rama base antes de describirlo.
+- Diferenciar explícitamente hechos observados, decisiones de diseño, inferencias y trabajo futuro.
+- No afirmar que una build, typecheck, prueba clínica o prueba en dispositivo pasó si no se ejecutó y no hay evidencia verificable para ese commit.
+- Las validaciones históricas describen el commit en el que se realizaron; no certifican automáticamente commits posteriores.
+
+## Cambios documentales por Pull Request
+
+- Modificar un documento por PR cuando se trate de una actualización de la documentación principal.
+- Cada PR debe indicar propósito, alcance, fuentes de verificación y validaciones no ejecutadas.
+- Releer el archivo desde GitHub después del commit.
+- No fusionar el PR sin revisión y autorización del responsable del proyecto.
+- No recrear documentos eliminados deliberadamente.
+
+## Compatibilidad y publicación
+
+- Verificar compatibilidad con Expo SDK 57 antes de proponer cambios técnicos.
+- Mantener TypeScript strict y la estructura arquitectónica vigente.
+- Para OTA, comprobar estado Git, HEAD, runtime/channel efectivos y ausencia de cambios nativos.
+- Los cambios en código nativo, plugins, dependencias nativas, Expo SDK o runtime requieren una APK de producción, no una OTA.
+- Documentar la versión y el commit exactos de una publicación cuando se disponga de esos datos.
+
+## Datos clínicos
+
+Toda regla clínica nueva o modificada debe enlazar con fuentes clínicas identificables, conservar trazabilidad y distinguir resultados derivados de mediciones originales. La documentación no debe presentar la aplicación como sustituto de la evaluación profesional.
