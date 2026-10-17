@@ -1,57 +1,32 @@
-# Clinical Guidelines Index
+# Índice de fuentes clínicas
 
-## Argentina
+## Fuente clínica activa
 
-Ruta:
+**Consenso Argentino de Hipertensión Arterial 2025**
 
-docs/clinical/guidelines/source/argentina/
+Ruta: `docs/clinical/guidelines/source/argentina/`
 
-Fuente prioritaria:
+Es la única fuente clínica utilizada actualmente por CardioSync. La ficha, las extracciones temáticas y las reglas vigentes deben mantener trazabilidad con el documento primario.
 
-- Consenso Argentino de Hipertensión Arterial 2025
+## Material de otras guías
 
+Las siguientes rutas corresponden a material documental conservado y **no representan fuentes clínicas activas de CardioSync**:
 
-## Europa
+- `docs/clinical/guidelines/source/esc/` — ESC Guidelines 2024.
+- `docs/clinical/guidelines/source/aha/` — AHA/ACC Guideline 2025.
+- `docs/clinical/guidelines/source/ish/` — ISH Global Hypertension Practice Guidelines 2020.
 
-Ruta:
+No utilizar estas fuentes para definir, modificar o justificar el comportamiento clínico actual de la aplicación. Su eventual activación requiere una decisión explícita del proyecto, revisión clínica y trazabilidad técnica.
 
-docs/clinical/guidelines/source/esc/
+## Reglas de trazabilidad
 
-Fuente:
+Toda regla clínica activa debe registrar:
 
-- ESC Guidelines 2024
+- documento fuente y versión;
+- fecha de revisión;
+- sección, tabla o página;
+- interpretación clínica aprobada;
+- decisión derivada;
+- archivo de implementación y pruebas correspondientes.
 
-
-## Estados Unidos
-
-Ruta:
-
-docs/clinical/guidelines/source/aha/
-
-Fuente:
-
-- AHA/ACC Guideline 2025
-
-
-## Internacional
-
-Ruta:
-
-docs/clinical/guidelines/source/ish/
-
-Fuente:
-
-- ISH Global Hypertension Practice Guidelines 2020
-
-
-# Reglas de uso
-
-Toda extracción clínica debe registrar:
-
-- documento fuente;
-- versión;
-- fecha;
-- sección/página;
-- decisión derivada.
-
-No se incorporan reglas clínicas sin referencia.
+La presencia de un documento en este índice no implica que esté implementado ni validado.

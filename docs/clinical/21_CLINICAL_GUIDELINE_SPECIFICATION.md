@@ -1,248 +1,75 @@
-# Clinical Guideline Specification
+# Especificación de guía clínica
 
 ## Objetivo
 
-Definir la representación conceptual de una guía clínica dentro de
-CardioSync.
+Definir la representación conceptual de una guía clínica en CardioSync. Una guía representa conocimiento médico externo, versionado, trazable y aplicable bajo condiciones determinadas.
 
-Una guía clínica representa conocimiento médico externo versionado,
-trazable y aplicable bajo determinadas condiciones.
+## Principio arquitectónico
 
----
+Una guía clínica no es una medición, un diagnóstico almacenado ni una alerta directa. Es una fuente de conocimiento que permite interpretar datos del paciente mediante reglas explícitas.
 
-# Principio arquitectónico
+## Fuente clínica activa
 
-Una guía clínica NO es:
+La única guía clínica utilizada actualmente por CardioSync es el **Consenso Argentino de Hipertensión Arterial 2025**.
 
-- una medición;
-- un diagnóstico almacenado;
-- una alerta directa.
+Identificación documentada en el proyecto:
 
-Una guía clínica es una fuente de conocimiento que permite interpretar
-datos del paciente.
+- Organizaciones registradas: Federación Argentina de Cardiología (FAC), Sociedad Argentina de Hipertensión Arterial (SAHA) y Sociedad Argentina de Cardiología (SAC).
+- Año: 2025.
+- Referencia bibliográfica registrada: *Rev Fed Arg Cardiol. 2025; 54 (Suplemento 6): 5-64*.
 
----
+La referencia bibliográfica y la presencia de código no demuestran por sí solas que todas las recomendaciones estén implementadas o validadas.
 
-# Modelo conceptual
+## Información mínima y trazabilidad
 
-ClinicalGuideline
+Para cada regla clínica activa, conservar:
 
-Representa:
+- nombre, organización, año y versión de la fuente;
+- documento original y referencia bibliográfica;
+- sección, tabla o página exacta;
+- población y condiciones de aplicabilidad;
+- interpretación clínica derivada;
+- archivo y símbolo de implementación;
+- pruebas, resultados y limitaciones conocidas.
 
-- origen del conocimiento;
-- versión;
-- población aplicable;
-- reglas clínicas;
-- recomendaciones.
+## Relación con los modelos de CardioSync
 
----
+### BloodPressureRecord
 
-# Información mínima
+Proporciona los datos medidos. No contiene reglas clínicas.
 
-## Identificación
+### ClinicalContext
 
-Debe contener:
+Proporciona características y condiciones de la persona que pueden determinar la aplicabilidad de una regla. Los datos ausentes deben tratarse explícitamente.
 
-- nombre de la guía;
-- organización responsable;
-- año;
-- versión.
+### ClinicalGuideline
 
-Ejemplo:
+Identifica la fuente clínica activa y su versión.
 
-Consenso Argentino de Hipertensión Arterial 2025
+### ClinicalAnalysis
 
-Organizaciones:
+Consume mediciones, contexto y reglas asociadas con el Consenso Argentino de Hipertensión Arterial 2025 para producir los resultados que correspondan.
 
-- FAC
-- SAHA
-- SAC
+## Ejemplo conceptual
 
----
+Entrada: medición de presión arterial y contexto clínico disponible.
 
-## Fuente
+Fuente: Consenso Argentino de Hipertensión Arterial 2025.
 
-Debe conservar:
+Resultado: análisis según las reglas de esa fuente que estén efectivamente implementadas y aplicables. No se debe inferir un resultado cuando faltan los datos necesarios.
 
-- documento original;
-- referencia bibliográfica;
-- ubicación dentro del documento;
-- trazabilidad.
+## Versionado
 
-Ejemplo:
+Los cambios de fuente deben quedar versionados y trazables. Una futura actualización del consenso no debe sobrescribir el registro histórico de la versión anterior.
 
-Página 12-15.
+## Compatibilidad futura
 
----
+La arquitectura podría admitir otras fuentes en el futuro. La mención de esa posibilidad no significa que AHA/ACC, ESC, ISH u otras guías estén activas en CardioSync. Incorporar una fuente adicional requiere aprobación explícita, revisión clínica, reglas identificables, pruebas y documentación actualizada.
 
-## Población aplicable
+## Decisión arquitectónica
 
-Una recomendación puede depender de:
+Mantener separados datos, contexto, conocimiento clínico e interpretación. Las reglas clínicas no deben acoplarse a los componentes visuales.
 
-- edad;
-- sexo;
-- comorbilidades;
-- situación clínica.
+## Estado
 
-Ejemplo:
-
-Paciente hipertenso con diabetes.
-
----
-
-## Reglas clínicas
-
-Una guía puede definir:
-
-- umbrales;
-- clasificaciones;
-- objetivos;
-- recomendaciones.
-
-Ejemplos:
-
-- clasificación de hipertensión;
-- objetivos de presión arterial;
-- criterios de riesgo.
-
----
-
-# Relación con modelos CardioSync
-
-## BloodPressureRecord
-
-Proporciona:
-
-- datos medidos.
-
-No contiene reglas clínicas.
-
----
-
-## ClinicalContext
-
-Proporciona:
-
-- características del paciente.
-
-Permite determinar aplicabilidad.
-
----
-
-## ClinicalGuideline
-
-Proporciona:
-
-- interpretación basada en evidencia.
-
----
-
-## ClinicalAnalysis
-
-Consume:
-
-- mediciones;
-- contexto;
-- guía.
-
-Produce:
-
-- interpretación clínica.
-
----
-
-# Ejemplo conceptual
-
-Entrada:
-
-BloodPressureRecord
-
-PAS: 150 mmHg
-
-PAD: 95 mmHg
-
-
-Contexto:
-
-Paciente con diabetes.
-
-
-Guía:
-
-Consenso HTA 2025.
-
-
-Resultado:
-
-ClinicalAnalysis determina clasificación
-según reglas aplicables.
-
----
-
-# Versionado
-
-Las guías deben ser versionadas.
-
-Ejemplo:
-
-ClinicalGuideline:
-
-Consenso HTA Argentina
-
-Version:
-
-2025
-
-Una actualización futura no debe sobrescribir la anterior.
-
----
-
-# Compatibilidad futura
-
-El sistema debe permitir múltiples fuentes:
-
-- Argentina;
-- AHA;
-- ESC;
-- ISH.
-
-La fuente debe formar parte del modelo.
-
----
-
-# Decisión arquitectónica
-
-Separar:
-
-Datos
-
-↓
-
-Contexto
-
-↓
-
-Conocimiento clínico
-
-↓
-
-Interpretación
-
----
-
-# Impacto futuro
-
-Permite implementar:
-
-- RecommendationEngine;
-- RiskEngine;
-- AlertEngine.
-
-Sin acoplar reglas clínicas dentro de componentes visuales.
-
----
-
-# Estado
-
-Especificación conceptual creada.
-
+Especificación conceptual. No certifica cobertura integral ni validación clínica de todas las reglas existentes.

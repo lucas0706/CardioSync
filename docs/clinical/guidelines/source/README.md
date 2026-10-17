@@ -1,18 +1,21 @@
-# Clinical Guidelines Sources
+# Fuentes clínicas de CardioSync
 
-Este directorio contiene las fuentes bibliográficas utilizadas para definir
-las reglas clínicas de CardioSync.
+## Fuente activa
 
-Fuentes principales:
+La única guía clínica utilizada actualmente por CardioSync es el **Consenso Argentino de Hipertensión Arterial 2025**, conservado en `argentina/`.
 
-- Consenso Argentino de Hipertensión Arterial 2025
-- ESC Guidelines 2024
-- AHA/ACC Guideline 2025
-- ISH Global Hypertension Practice Guidelines 2020
+Las reglas activas deben mantener trazabilidad directa con esa fuente primaria. La documentación de extracción no sustituye la revisión del documento original ni la validación de la implementación.
 
-Reglas:
+## Material documental no activo
 
-- Toda decisión clínica debe tener trazabilidad hacia una fuente.
-- No se mezclan criterios de diferentes guías dentro de una misma regla.
-- Las versiones deben conservarse.
-- Las actualizaciones generan nuevas versiones.
+Las carpetas `aha/`, `esc/` e `ish/` contienen referencias a otras guías que no forman parte del alcance clínico activo actual. Se conservan únicamente como material documental; no deben usarse como fundamento de reglas ni combinarse con el consenso argentino.
+
+La existencia de estos materiales no implica que CardioSync ofrezca selección o análisis clínico basado en esas guías. Cualquier cambio de alcance requiere una decisión explícita, revisión clínica y trazabilidad de implementación.
+
+## Reglas
+
+- Toda regla activa debe citar la fuente primaria, versión y sección/página.
+- Mantener separadas fuente, interpretación clínica e implementación.
+- No mezclar criterios de diferentes guías en una regla vigente.
+- Registrar pruebas, resultados observados y limitaciones.
+- No declarar validación clínica solo por la presencia de código o documentación.

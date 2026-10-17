@@ -1,52 +1,54 @@
-# Fuentes de guías clínicas: inventario y trazabilidad
+# Guía clínica utilizada por CardioSync
 
 | Campo | Valor |
 |---|---|
-| Tipo | Registro de fuentes y estado de soporte |
-| Estado | Inventario inicial; referencias pendientes de verificación |
-| Fecha | 2026-10-15 |
+| Guía clínica vigente | Consenso Argentino de Hipertensión Arterial 2025 |
+| Organizaciones registradas en el proyecto | Federación Argentina de Cardiología (FAC), Sociedad Argentina de Hipertensión Arterial (SAHA) y Sociedad Argentina de Cardiología (SAC) |
+| Referencia bibliográfica registrada | Rev Fed Arg Cardiol. 2025; 54 (Suplemento 6): 5-64 |
+| Alcance documental | Única guía clínica utilizada actualmente por CardioSync |
+| Última revisión documental | 2026-10-17 |
 
-## 1. Objetivo
+## 1. Alcance vigente
 
-Este documento controla la relación entre las fuentes clínicas consideradas por el proyecto y las reglas que CardioSync implementa. No es una guía médica ni reemplaza los documentos primarios.
+CardioSync utiliza actualmente como única referencia clínica el **Consenso Argentino de Hipertensión Arterial 2025**. Las reglas clínicas vigentes deben trazarse a esta fuente.
 
-## 2. Estado de referencias
+La presencia de otras guías, fichas bibliográficas o documentos de comparación en el repositorio no significa que formen parte del comportamiento clínico actual de la aplicación. Los materiales de otras guías que se conserven deben identificarse claramente como históricos, archivados o no activos y no deben usarse para justificar reglas actuales.
 
-Los estados siguientes reflejan la evidencia localizada en el repositorio durante la revisión. La presencia de una fuente o de código asociado no demuestra por sí sola que todas las recomendaciones estén implementadas o validadas.
+Este documento define el alcance documental; no certifica que todas las recomendaciones del consenso estén implementadas ni que cada regla haya sido validada clínica y técnicamente.
 
-| Referencia documental | Estado en esta auditoría | Evidencia requerida antes de considerarla activa |
-|---|---|---|
-| [AHA/ACC 2025](guidelines/AHA_ACC_2025.md) | Pendiente de verificación de fuente primaria | Título oficial, autores/organización, publicación, versión, enlace primario y secciones utilizadas |
-| [Argentina 2025](guidelines/ARGENTINA_2025.md) | **Implementación y extracción documental presentes; trazabilidad y validación integral pendientes** | Revisar la fuente primaria por cada regla, confirmar límites y población, y documentar pruebas automatizadas e integración |
-| [ESC 2024](guidelines/ESC_2024.md) | Pendiente de verificación de fuente primaria | Documento oficial, versión, publicación, alcance y secciones utilizadas |
-| [ISH 2020](guidelines/ISH_2020.md) | Pendiente de verificar vigencia | Fuente primaria y revisión explícita de su vigencia frente a las referencias más recientes |
+## 2. Fuente primaria y materiales del proyecto
 
-## 3. Registro obligatorio por recomendación utilizada
+- Ficha del consenso: [Consenso Argentino de Hipertensión Arterial 2025](guidelines/ARGENTINA_2025.md)
+- Índice de fuentes: [Índice de fuentes clínicas](guidelines/source/INDEX.md)
+- Fuente incluida en el repositorio: `docs/clinical/guidelines/source/argentina/`
+- Extracciones temáticas: `docs/clinical/guidelines/extraction/argentina/consenso-2025/`
 
-Antes de asociar una guía con una regla de la aplicación, registrar:
+La referencia bibliográfica registrada en el proyecto es *Rev Fed Arg Cardiol. 2025; 54 (Suplemento 6): 5-64*. Antes de cambiar una regla clínica, debe verificarse directamente el documento primario incluido, su página, sección o tabla y la interpretación que se trasladará al software.
 
-- **Identificación de fuente:** título, organización/autores, año, versión y enlace o DOI oficial.
-- **Ubicación exacta:** capítulo, sección, tabla o recomendación relevante.
-- **Alcance:** población, condiciones clínicas, exclusiones y contexto de medición.
-- **Interpretación del proyecto:** cómo se traduce la recomendación a una regla de software y quién aprobó esa interpretación.
-- **Implementación:** ruta del archivo y símbolo de código que ejecuta la regla.
-- **Validación:** casos de prueba, valores de entrada, resultado esperado y resultado observado.
-- **Limitaciones:** aspectos que no cubre la regla y posibles diferencias con otras guías.
-- **Revisión:** fecha y responsable de la última comprobación de la fuente.
+## 3. Trazabilidad obligatoria por regla
 
-## 4. Reglas de uso documental
+Cada regla clínica debe registrar:
 
-1. No derivar una regla clínica de un nombre de archivo, resumen secundario o recuerdo no verificado.
-2. No combinar umbrales de guías distintas sin una decisión explícita y trazable.
-3. No presentar una recomendación publicada como comportamiento implementado hasta localizar y revisar el código.
-4. No presentar comportamiento implementado como clínicamente validado sin pruebas y revisión apropiadas.
-5. Si la fuente primaria no está disponible, mantener la referencia pendiente y no utilizarla como fundamento de una nueva regla.
-6. Registrar diferencias entre guías en lugar de resolverlas silenciosamente.
+- identificación de la fuente y versión;
+- sección, tabla, recomendación y página exactas;
+- población, condiciones de aplicabilidad y exclusiones;
+- interpretación funcional aprobada;
+- ruta del archivo y símbolo de código donde se implementa;
+- casos de prueba, valores límite, resultados esperados y resultados observados;
+- limitaciones conocidas;
+- fecha y responsable de revisión clínica y técnica.
 
-## 5. Relación con el código
+## 4. Reglas de mantenimiento
 
-El estado de cada regla debe contrastarse con [Dominio clínico](../04_CLINICAL_DOMAIN.md), [Motor de reglas](../05_CLINICAL_RULE_ENGINE.md) y [Análisis clínico](../06_CLINICAL_ANALYSIS.md). Esta referencia no certifica que todas las reglas del código correspondan a una guía concreta.
+1. No introducir umbrales ni recomendaciones clínicas sin una referencia verificable al Consenso Argentino de Hipertensión Arterial 2025.
+2. Mantener separadas la fuente primaria, la interpretación clínica y la implementación.
+3. No combinar criterios de otras guías con el consenso argentino dentro de una regla vigente.
+4. No declarar una regla validada solo porque exista código o documentación.
+5. Revisar los casos límite y el impacto sobre registros históricos, reportes y pruebas antes de cambiar reglas.
+6. Mantener los documentos de otras guías fuera del alcance activo; si se conservan por razones históricas o de investigación, etiquetarlos como no activos y evitar que se interpreten como fuentes utilizadas por la aplicación.
 
-## 6. Próxima revisión
+## 5. Estado y límites
 
-La siguiente tarea es revisar cada fuente primaria contra la implementación y los casos de prueba. En el caso argentino, ya existen un clasificador, un modelo de guía, objetivos terapéuticos y una regla que genera hallazgos. La tarea pendiente no es comenzar la investigación desde cero, sino completar la trazabilidad y validar los escenarios y límites de cada regla.
+La documentación existente describe clasificación de presión arterial, objetivos terapéuticos y otras extracciones relacionadas con el consenso. La cobertura completa, la correspondencia exacta con el documento primario y la ejecución satisfactoria de pruebas deben verificarse por separado.
+
+La identificación de una fuente no sustituye la revisión clínica de las reglas implementadas ni las pruebas técnicas. Cualquier declaración de conformidad debe apoyarse en trazabilidad verificable y resultados de validación documentados.
