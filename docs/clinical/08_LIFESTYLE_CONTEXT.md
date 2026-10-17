@@ -1,247 +1,29 @@
 # LifestyleContext
 
-Version: 1.0
-Status: Draft
-Phase: Clinical Knowledge Base
+**Estado:** concepto documentado; no existe un modelo `LifestyleContext` en el dominio clínico actual (revisión del 17-10-2026).
 
----
+## 1. Alcance conceptual
 
-# 1. Objetivo
+El sueño y la actividad física pueden ser datos complementarios para estudiar la evolución de la presión arterial. Su utilidad depende de su fuente, instante y relación temporal con las mediciones. No deben confundirse con un perfil longitudinal completo ni con recomendaciones terapéuticas.
 
-Definir el componente LifestyleContext dentro de ClinicalContext.
+## 2. Estado del código
 
-LifestyleContext representa factores recientes relacionados con el estilo de
-vida que pueden aportar información adicional para interpretar una medición de
-presión arterial.
+CardioSync dispone de servicios y mapeadores de Health Connect para sueño, ejercicio, pasos y peso. También existen funciones de presentación de estado para sueño, pasos y ejercicio en `src/domain/health/HealthClinicalRules.ts`. Estas funciones producen etiquetas visuales a partir de umbrales; no constituyen un modelo clínico de contexto ni un motor de interpretación de presión arterial.
 
-No representa hábitos históricos completos.
+No existe actualmente `LifestyleContext`, `ClinicalContextBuilder` ni una integración confirmada que agregue automáticamente datos de Health Connect al `ClinicalContext` usado por `ClinicalAnalysisDomainService`.
 
-No representa recomendaciones terapéuticas.
+## 3. Datos puntuales y perfil
 
-No determina riesgo cardiovascular por sí mismo.
+El perfil clínico local conserva información estable del paciente, mientras que sueño y actividad son datos temporales obtenidos por flujos separados. No deben copiarse al perfil ni asociarse a cada medición sin una política explícita de temporalidad y procedencia.
 
----
+## 4. Requisitos antes de integrarlo al análisis
 
-# 2. Principio fundamental
+- Definir ventanas temporales por tipo de dato.
+- Conservar fuente e instante del dato.
+- Distinguir ausencia de dato de un valor cero.
+- Definir comportamiento ante datos antiguos, duplicados o inconsistentes.
+- Validar clínicamente cualquier regla que use estos datos.
 
-Algunos factores relacionados con el estilo de vida pueden modificar
-temporalmente el estado fisiológico del paciente y aportar contexto adicional
-a una medición.
+## 5. Límites
 
-CardioSync diferencia:
-
-Estado puntual:
-
-LifestyleContext
-
-de:
-
-Evaluación clínica:
-
-ClinicalAnalysis
-
----
-
-# 3. Responsabilidad
-
-LifestyleContext responde:
-
-¿Qué factores recientes del estilo de vida pueden aportar contexto a esta
-medición?
-
-No responde:
-
-¿Cuál es el estilo de vida global del paciente?
-
----
-
-# 4. Componentes iniciales
-
-## SleepContext
-
-Representa información relacionada con el sueño reciente.
-
-Ejemplos:
-
-- duración del sueño;
-- calidad percibida;
-- periodo de sueño asociado.
-
-
-Origen posible:
-
-- ingreso manual;
-- Health Connect;
-- proveedores futuros.
-
-
----
-
-## PhysicalActivityContext
-
-Representa actividad física reciente.
-
-Ejemplos:
-
-- ejercicio realizado;
-- duración;
-- intensidad;
-- tiempo desde la última actividad.
-
-
-Origen posible:
-
-- ingreso manual;
-- Health Connect;
-- wearable.
-
-
----
-
-## RecentExercise
-
-Representa ejercicio cercano temporalmente a la medición.
-
-Ejemplo:
-
-Ejercicio intenso realizado poco antes de tomar la presión.
-
-
----
-
-# 5. Modelo conceptual
-
-LifestyleContext
-
-├── SleepContext
-
-├── PhysicalActivityContext
-
-└── RecentExercise
-
-
----
-
-# 6. Integración con Health Connect
-
-Health Connect puede proporcionar datos relacionados con:
-
-- sueño;
-- actividad física;
-- ejercicio.
-
-
-Flujo:
-
-Health Connect
-
-↓
-
-ClinicalDataProvider
-
-↓
-
-ClinicalContextBuilder
-
-↓
-
-LifestyleContext
-
-
----
-
-# 7. Vigencia temporal
-
-Los datos de estilo de vida tienen una ventana temporal específica.
-
-Ejemplos:
-
-Sueño:
-
-última noche.
-
-
-Actividad física:
-
-últimas horas.
-
-
-Ejercicio reciente:
-
-periodo cercano a la medición.
-
-
-La definición exacta de ventanas temporales pertenece a:
-
-ContextQualityEngine.
-
-
----
-
-# 8. Diferencia entre contexto y hábitos
-
-LifestyleContext no debe almacenar:
-
-- promedio anual de actividad;
-- historial deportivo completo;
-- patrones de sueño de años.
-
-
-Eso pertenece a futuros dominios longitudinales.
-
----
-
-# 9. Decisiones arquitectónicas
-
-## ADR-022
-
-Los datos de estilo de vida pertenecen a ClinicalContext cuando tienen
-relevancia temporal para una medición.
-
-
-## ADR-023
-
-LifestyleContext no representa hábitos históricos del paciente.
-
-
-## ADR-024
-
-Health Connect será un proveedor opcional de datos de estilo de vida.
-
-
----
-
-# 10. Riesgos
-
-Evitar:
-
-- convertir LifestyleContext en un perfil personal completo;
-- almacenar información sin relación temporal;
-- inferir condiciones clínicas automáticamente;
-- depender de un proveedor específico.
-
-
----
-
-# 11. Impacto en CardioSync
-
-Utilizado por:
-
-- ClinicalContextBuilder;
-- ContextQualityEngine;
-- ClinicalAnalysisEngine;
-- ContextAssistant;
-- Health Connect.
-
-
----
-
-# 12. Estado
-
-Draft.
-
-Pendiente de integración con:
-
-- ClinicalContext completo;
-- ContextQualityEngine;
-- ClinicalAnalysis.
+La presencia de sincronización con Health Connect no implica que el motor de análisis interprete sueño o actividad física. Las métricas de presentación no deben describirse como diagnósticos ni como una evaluación cardiovascular completa.
