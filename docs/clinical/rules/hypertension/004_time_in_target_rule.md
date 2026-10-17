@@ -1,63 +1,37 @@
-# Clinical Rule 004 — Time In Target
+# Regla clínica 004 — Porcentaje de mediciones dentro del objetivo
 
-## Purpose
+## Estado
 
-Evaluate the percentage of time that home blood pressure
-measurements remain within the expected target range.
+Implementada en `TimeInTargetRule`. El indicador se calcula en `TimeInTargetCalculator`, dentro de `StatisticsEngine`.
 
-This rule interprets an existing statistical indicator.
+## Cálculo estadístico implementado
 
-It does not calculate time in target.
+Una medición se considera dentro del objetivo si se cumplen ambas condiciones:
 
----
+- PAS < 135 mmHg; y
+- PAD < 85 mmHg.
 
-## Input
+El porcentaje es el número de mediciones dentro de ese rango dividido por el total. Con cero mediciones, el calculador devuelve 0.
 
-StatisticsSummary:
+Aunque el calculador permite pasar otros umbrales, el motor estadístico actual usa 135/85 mmHg por defecto. No usa el objetivo que `ClinicalTargetSelector` selecciona para el contexto clínico.
 
-- timeInTarget
+## Lógica clínica implementada
 
----
+- Si `timeInTarget >= 50`, no genera hallazgo.
+- Si `timeInTarget < 50`, genera un hallazgo de severidad `moderate`.
 
-## Logic
+## Salida
 
-When timeInTarget indicates insufficient control,
-generate a clinical finding.
+- Tipo: `time-in-target`.
+- Título: “Tiempo en objetivo de presión arterial reducido”.
 
-The calculation is performed by StatisticsEngine.
+## Límites
 
----
+El indicador es porcentaje de mediciones, no tiempo cronológico real entre mediciones. Por eso, “porcentaje de mediciones dentro del rango” describe el cálculo con más precisión que “porcentaje de tiempo”.
 
-## Output
+El límite del 50 % es una constante de la regla; su justificación clínica y su fuente exacta no están trazadas en el código consultado. El hallazgo no constituye diagnóstico.
 
-ClinicalFinding:
+## Código de referencia
 
-Type:
-
-time-in-target
-
-Example:
-
-"Tiempo en objetivo de presión arterial reducido"
-
----
-
-## Limitations
-
-This rule:
-
-- does not establish hypertension diagnosis;
-- depends on the configured clinical target;
-- requires adequate measurement history.
-
----
-
-## Traceability
-
-Source:
-
-Consenso Argentino de Hipertensión Arterial 2025
-
-Related:
-
-Statistics V2 TimeInTargetCalculator
+- `src/domain/clinical/rules/hypertension/TimeInTargetRule.ts`
+- `src/domain/statistics/calculators/TimeInTargetCalculator.ts`
