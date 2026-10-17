@@ -1,273 +1,50 @@
 # ClinicalAnalysis
 
-Version: 1.0
-Status: Draft
-Phase: Clinical Knowledge Base
+**Estado:** implementación contrastada con `src/domain/clinical/services/ClinicalAnalysisDomainService.ts` el 17-10-2026.
 
----
+## 1. Responsabilidad
 
-# 1. Objetivo
+`ClinicalAnalysisDomainService` coordina reglas clínicas que consumen un resumen estadístico, el contexto clínico opcional y una guía. No calcula las estadísticas ni modifica los registros originales.
 
-Definir el dominio ClinicalAnalysis dentro de CardioSync.
+## 2. Entrada efectiva
 
-ClinicalAnalysis representa el resultado de aplicar una interpretación clínica
-sobre una medición de presión arterial utilizando:
+El contrato `ClinicalAnalysisInput` declara:
 
-- BloodPressureRecord;
-- ClinicalContext;
-- ClinicalGuideline.
+- `measurements: BloodPressureRecord[]`;
+- `statistics?: StatisticsSummary`;
+- `context: ClinicalContext`;
+- `guideline?: ClinicalGuideline`.
 
-No modifica los datos originales.
+La implementación actual no lee `measurements` directamente durante la evaluación: las reglas usan principalmente `statistics` y `context`. Si no se entrega `statistics`, se omiten las reglas que requieren ese resumen.
 
-No reemplaza la medición.
+## 3. Orquestación implementada
 
-No representa una historia clínica.
+El servicio ejecuta, por composición:
 
----
+- `HomeBloodPressureControlRule`;
+- `TrendRule`;
+- `HypertensionLoadRule`;
+- `TimeInTargetRule`;
+- `VariabilityRule`;
+- `TherapeuticTargetRule`;
+- `CardiovascularRiskRule`;
+- `BloodPressureSafetyRule`;
+- `BloodPressureClassificationRule`.
 
-# 2. Principio fundamental
+La guía predeterminada es `ConsensoArgentinaHTA2025`. Los hallazgos se agrupan mediante `buildClinicalAnalysisResult` en clasificación, tendencias, objetivos, control, carga, variabilidad, seguridad y riesgo.
 
-CardioSync separa tres conceptos:
+## 4. Modelo de salida
 
-## Registro
+`ClinicalAnalysis` contiene identificador, `patientId`, fecha de creación, guía, estadísticas opcionales, lista de hallazgos, resultado estructurado y resumen textual. Cada `ClinicalFinding` incluye tipo, título, severidad opcional, fecha y posible `guidelineId`.
 
-Lo que ocurrió.
+## 5. Límites relevantes
 
-BloodPressureRecord
+- El servicio no crea un registro persistido de análisis en el código inspeccionado.
+- La salida no conserva una instantánea completa de todas las mediciones ni una versión del motor que garantice reproducibilidad histórica.
+- No existe aquí un motor completo de recomendaciones ni un motor independiente de alertas.
+- La regla de riesgo genera un hallazgo por determinados antecedentes; no calcula un porcentaje de riesgo cardiovascular validado.
+- Las categorías y objetivos activos no equivalen a implementar todas las reglas de las guías documentadas.
 
+## 6. Seguridad
 
-## Contexto
-
-Las circunstancias alrededor del registro.
-
-ClinicalContext
-
-
-## Interpretación
-
-El significado clínico del registro.
-
-ClinicalAnalysis
-
-
----
-
-# 3. Flujo conceptual
-
-BloodPressureRecord
-
-+
-
-ClinicalContext
-
-+
-
-ClinicalGuideline
-
-↓
-
-ClinicalAnalysis
-
-
----
-
-# 4. Responsabilidad
-
-ClinicalAnalysis responde:
-
-¿Qué interpretación produce una guía clínica utilizando una medición y su
-contexto?
-
-
-No responde:
-
-- ¿Qué datos fueron registrados?
-- ¿Qué tratamiento debe recibir el paciente?
-- ¿Cuál será la evolución futura?
-
----
-
-# 5. Modelo conceptual
-
-ClinicalAnalysis
-
-├── id
-
-├── bloodPressureRecordId
-
-├── clinicalContextId
-
-├── guidelineId
-
-├── classification
-
-├── riskAssessment
-
-├── findings
-
-├── recommendations
-
-├── generatedAt
-
-└── version
-
-
----
-
-# 6. Inmutabilidad
-
-Un análisis generado debe conservar:
-
-- guía utilizada;
-- versión de reglas;
-- fecha de generación;
-- datos evaluados.
-
-
-Cambiar una guía no debe modificar análisis históricos.
-
----
-
-# 7. Relación con ClinicalGuideline
-
-ClinicalAnalysis siempre debe indicar qué guía fue utilizada.
-
-Ejemplo:
-
-Measurement
-
-+
-
-ClinicalContext
-
-+
-
-Consenso Argentino 2025
-
-↓
-
-Analysis Result
-
-
----
-
-# 8. Relación con Statistics
-
-Statistics analiza:
-
-múltiples mediciones.
-
-
-ClinicalAnalysis interpreta:
-
-una medición específica.
-
-
-Son dominios diferentes.
-
----
-
-# 9. Motor clínico futuro
-
-ClinicalAnalysis será generado por:
-
-ClinicalAnalysisEngine
-
-
-Arquitectura conceptual:
-
-BloodPressureRecord
-
-↓
-
-ClinicalContext
-
-↓
-
-ClinicalGuideline
-
-↓
-
-ClinicalAnalysisEngine
-
-↓
-
-ClinicalAnalysis
-
-
----
-
-# 10. Resultados posibles
-
-Ejemplos conceptuales:
-
-- clasificación de presión arterial;
-- hallazgos relevantes;
-- evaluación contextual;
-- advertencias;
-- recomendaciones generales.
-
-
-Las reglas específicas dependerán de ClinicalGuideline.
-
----
-
-# 11. Decisiones arquitectónicas
-
-## ADR-029
-
-ClinicalAnalysis será una entidad independiente.
-
-
-## ADR-030
-
-ClinicalAnalysis será reproducible utilizando los mismos datos y la misma
-versión de guía.
-
-
-## ADR-031
-
-Los resultados clínicos no modificarán los datos originales.
-
-
-## ADR-032
-
-ClinicalAnalysisEngine será independiente de las guías.
-
-
----
-
-# 12. Riesgos
-
-Evitar:
-
-- mezclar reglas clínicas con almacenamiento;
-- modificar resultados históricos;
-- ocultar la guía utilizada;
-- generar recomendaciones sin trazabilidad.
-
-
----
-
-# 13. Impacto en CardioSync
-
-Utilizado por:
-
-- Dashboard;
-- Clinical Chart;
-- Statistics;
-- Reportes;
-- Alert Engine futuro.
-
-
----
-
-# 14. Estado
-
-Draft.
-
-Pendiente:
-
-- implementación del motor clínico;
-- reglas específicas por guía;
-- validación clínica.
+El análisis es una ayuda de seguimiento, no un diagnóstico ni una prescripción. Los textos de hallazgos deben mantener el alcance exacto de las reglas que los generan.
