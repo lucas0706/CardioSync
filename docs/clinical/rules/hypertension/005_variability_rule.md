@@ -1,63 +1,41 @@
-# Clinical Rule 005 — Blood Pressure Variability
+# Regla clínica 005 — Variabilidad de presión arterial
 
-## Purpose
+## Estado
 
-Evaluate increased variability in home blood pressure measurements.
+Implementada en `VariabilityRule`. Los indicadores se calculan en `VariabilityCalculator`.
 
-This rule interprets an existing statistical indicator.
+## Cálculo estadístico
 
-It does not calculate variability.
+Para cada serie de presión sistólica y diastólica, el calculador obtiene:
 
----
+```text
+variabilidad (%) = desviación estándar / promedio × 100
+```
 
-## Input
+Devuelve 0 cuando hay una o ninguna medición, o cuando el promedio es 0. La desviación estándar utiliza la implementación de `StandardDeviationCalculator`.
 
-StatisticsSummary:
+## Lógica clínica implementada
 
-- systolicVariability
-- diastolicVariability
+Genera un hallazgo si se cumple cualquiera de estas condiciones:
 
----
+- variabilidad sistólica > 15 %; o
+- variabilidad diastólica > 10 %.
 
-## Logic
+Los límites 15 y 10 están codificados directamente en la regla. No se seleccionan según la guía clínica del contexto.
 
-When variability values indicate increased
-blood pressure fluctuation, generate a clinical finding.
+## Salida
 
-The calculation is performed by StatisticsEngine.
+- Tipo: `blood-pressure-variability`.
+- Título: “Variabilidad elevada de presión arterial domiciliaria”.
+- Severidad: `moderate`.
 
----
+## Límites y trazabilidad
 
-## Output
+La regla interpreta un coeficiente de variación; no calcula la variabilidad ni evalúa la calidad de las mediciones. La fuente clínica y la justificación de los límites deben verificarse y registrarse antes de atribuirlos a una guía específica.
 
-ClinicalFinding:
+El hallazgo no diagnostica una condición clínica.
 
-Type:
+## Código de referencia
 
-blood-pressure-variability
-
-Example:
-
-"Variabilidad elevada de presión arterial domiciliaria"
-
----
-
-## Limitations
-
-This rule:
-
-- does not establish hypertension diagnosis;
-- requires adequate measurement history;
-- should be interpreted in clinical context.
-
----
-
-## Traceability
-
-Source:
-
-Consenso Argentino de Hipertensión Arterial 2025
-
-Related:
-
-Statistics V2 VariabilityCalculator
+- `src/domain/clinical/rules/hypertension/VariabilityRule.ts`
+- `src/domain/statistics/calculators/VariabilityCalculator.ts`
