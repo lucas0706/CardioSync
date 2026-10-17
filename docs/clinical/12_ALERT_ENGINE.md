@@ -1,263 +1,27 @@
 # AlertEngine
 
-Version: 1.0
-Status: Draft
-Phase: Clinical Knowledge Base
+**Estado:** motor independiente no implementado en el código auditado el 17-10-2026.
 
----
+## 1. Concepto
 
-# 1. Objetivo
+Una alerta comunica información que puede requerir atención del usuario. No es un diagnóstico ni una decisión médica autónoma.
 
-Definir el dominio AlertEngine dentro de CardioSync.
+## 2. Estado actual del código
 
-AlertEngine representa el componente encargado de identificar situaciones que
-requieren una advertencia al usuario basándose en datos registrados y análisis
-clínicos disponibles.
+Existe el tipo `ClinicalAlert` en `src/clinical/alerts/ClinicalAlert.ts`, con identificador, título, descripción, severidad y acción. Ese archivo define una interfaz de datos; no implementa por sí solo un motor de evaluación, persistencia, ciclo de vida ni entrega de alertas.
 
-No realiza diagnósticos.
+El dominio clínico también contiene `BloodPressureSafetyRule`, que genera un `ClinicalFinding` cuando la presión diastólica media es inferior a 70 mmHg. Ese hallazgo forma parte del análisis clínico y no equivale a un sistema completo de alertas.
 
-No reemplaza una evaluación médica.
+## 3. Lo que no debe asumirse
 
-No modifica datos registrados.
+No hay evidencia en el código inspeccionado de un `AlertEngine` independiente que consuma análisis, gestione estados de alerta o notifique automáticamente al usuario. Los tipos conceptuales `MeasurementAlert`, `ContextAlert` y `ClinicalAlert` no deben presentarse como flujos funcionales completos.
 
----
+## 4. Requisitos antes de implementar
 
-# 2. Principio fundamental
+- Definir condiciones y severidad con validación clínica.
+- Mantener trazabilidad al dato y a la regla que originan la alerta.
+- Evitar alertas duplicadas o mensajes ambiguos.
+- Diferenciar claramente información, advertencia y urgencia.
+- Definir persistencia, resolución, notificación y pruebas de seguridad.
 
-Una alerta es un mecanismo de comunicación de información relevante.
-
-No es un diagnóstico.
-
-No es una recomendación terapéutica.
-
-No es una decisión médica autónoma.
-
----
-
-# 3. Separación de responsabilidades
-
-## BloodPressureRecord
-
-Registra:
-
-- valores obtenidos;
-- fecha;
-- hora.
-
-
-## ClinicalContext
-
-Aporta:
-
-- información complementaria;
-- circunstancias clínicas.
-
-
-## ClinicalAnalysis
-
-Interpreta:
-
-- medición;
-- contexto;
-- guía seleccionada.
-
-
-## AlertEngine
-
-Comunica:
-
-- situaciones relevantes;
-- necesidad de atención;
-- datos inconsistentes.
-
-
----
-
-# 4. Flujo conceptual
-
-BloodPressureRecord
-
-+
-
-ClinicalContext
-
-+
-
-ClinicalAnalysis
-
-↓
-
-AlertEngine
-
-↓
-
-Alert
-
-
----
-
-# 5. Modelo conceptual
-
-Alert
-
-├── id
-
-├── type
-
-├── severity
-
-├── message
-
-├── source
-
-├── createdAt
-
-└── status
-
-
----
-
-# 6. Tipos de alertas
-
-Ejemplos conceptuales:
-
-## MeasurementAlert
-
-Relacionada con:
-
-- valores extremos;
-- medición incompleta;
-- datos inconsistentes.
-
-
----
-
-## ContextAlert
-
-Relacionada con:
-
-- ausencia de información relevante;
-- datos desactualizados;
-- baja calidad contextual.
-
-
----
-
-## ClinicalAlert
-
-Relacionada con hallazgos derivados del análisis clínico.
-
-
----
-
-# 7. Severidad
-
-La severidad debe ser independiente del texto mostrado.
-
-Modelo conceptual:
-
-- information;
-- warning;
-- urgent.
-
-
-La interpretación final dependerá de las reglas definidas.
-
----
-
-# 8. Trazabilidad
-
-Toda alerta debe poder responder:
-
-- qué dato la generó;
-- qué análisis la originó;
-- qué guía estaba activa;
-- cuándo fue creada.
-
-
----
-
-# 9. Integración con ClinicalAnalysis
-
-AlertEngine consume resultados.
-
-No contiene reglas clínicas de clasificación.
-
-Flujo:
-
-ClinicalAnalysis
-
-↓
-
-AlertEngine
-
-↓
-
-Alert
-
-
----
-
-# 10. Integración futura
-
-Puede utilizar información proveniente de:
-
-- ClinicalContextBuilder;
-- ContextQualityEngine;
-- ClinicalAnalysisEngine.
-
-
----
-
-# 11. Decisiones arquitectónicas
-
-## ADR-036
-
-Las alertas serán entidades independientes.
-
-
-## ADR-037
-
-AlertEngine no realizará diagnóstico.
-
-
-## ADR-038
-
-Toda alerta debe mantener trazabilidad hacia su origen.
-
-
----
-
-# 12. Riesgos
-
-Evitar:
-
-- exceso de alertas;
-- mensajes ambiguos;
-- alertas sin fuente;
-- confundir advertencia con recomendación médica.
-
-
----
-
-# 13. Impacto en CardioSync
-
-Utilizado por:
-
-- Dashboard;
-- ClinicalAnalysis;
-- ContextAssistant;
-- notificaciones futuras.
-
-
----
-
-# 14. Estado
-
-Draft.
-
-Pendiente:
-
-- definición de reglas clínicas;
-- integración con ClinicalAnalysisEngine;
-- validación de experiencia de usuario.
+Las advertencias actuales del análisis deben documentarse como hallazgos de reglas concretas, sin atribuirles capacidades de detección de emergencias.
