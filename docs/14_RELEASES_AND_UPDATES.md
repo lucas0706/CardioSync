@@ -1,97 +1,144 @@
 # Versiones, actualizaciones y distribución Android
 
-Esta guía describe cómo comprobar y distribuir una versión de CardioSync para Android. Los valores de configuración deben verificarse en la rama y el commit exactos que se van a publicar; este documento no sustituye esa comprobación.
+| Campo | Valor |
+|---|---|
+| Tipo | Procedimiento operativo de publicación |
+| Plataforma | Android |
+| Fuente operativa principal | Este documento |
+| Última actualización | 2026-10-17 |
 
-## Fuentes de configuración
+Esta guía establece el procedimiento para preparar, validar y publicar versiones de CardioSync. Antes de cada publicación se deben verificar los archivos y la configuración efectiva del commit que se distribuirá. La documentación no sustituye esa verificación.
 
-La configuración de referencia y los valores observados en `feature/app-updates` se revisaron el 2026-10-17. Los valores que siguen describen archivos de esa rama y no sustituyen la comprobación de la configuración efectiva del commit que se vaya a publicar.
+## 1. Versionado y runtime Android
 
-- `app.json`: configuración estática de Expo y versión declarada.
-- `package.json`: versión del paquete y versiones declaradas de dependencias.
-- `eas.json`: perfiles de compilación y opciones de EAS Build.
+### Política oficial
 
-En feature/app-updates sí existe `app.config.js`. Define `updates.url`, `checkAutomatically: 'NEVER'`, `runtimeVersion.policy: 'appVersion'` como valor general y `fingerprint` para Android e iOS; la configuración dinámica prevalece al resolver Expo Config.
+CardioSync para Android utiliza **una única política de runtime: `appVersion`**.
 
-## Configuración declarada en feature/app-updates — 2026-10-17
+El runtime efectivo de una build Android debe corresponder a la versión de la aplicación. Por ejemplo, una APK `1.2.0` utiliza runtime `1.2.0`. El valor efectivo se debe confirmar con Expo/EAS antes de publicar.
 
-| Elemento | Valor encontrado | Alcance de la observación |
-|---|---|---|
-| Versión en `app.json` | `1.2.0` | Valor declarado en la rama inspeccionada; confirmar la versión remota de EAS y la versión efectiva antes de una build. |
-| Versión en `package.json` | `1.2.0` | Valor leído en feature/app-updates; no confirma por sí solo la versión remota de EAS ni la instalada. |
-| Expo | `~57.0.26` | Rango declarado en package.json de feature/app-updates. |
-| React Native | `0.86.3` | Versión declarada en package.json de feature/app-updates. |
-| Fuente de versión de EAS | `remote` | `eas.json` establece `appVersionSource: "remote"`; revisar la versión remota de EAS antes de una build. |
-| Perfiles de EAS | `development`, `preview`, `production` | Son los perfiles presentes en `eas.json` consultado. |
-| Perfil `production-apk` | Presente en `eas.json` | Configurado con `android.buildType: apk` y canal `production` en feature/app-updates. Verificar la configuración en el commit de publicación. |
-| Runtime Android | Política `fingerprint` en `app.config.js` | Configuración declarada en feature/app-updates; confirmar con Expo Config antes de publicar. |
+Reglas obligatorias:
 
-Los valores anteriores se deben interpretar según la rama nombrada en cada fila. La configuración de feature/app-updates se inspeccionó en sus archivos; no se ejecutó `npx expo config` ni se consultó la versión remota de EAS. No se ejecutó Expo Config, EAS Build ni una consulta de versión remota, por lo que no constituyen una validación de la configuración efectiva de publicación.
+- No configurar una política `fingerprint` paralela para Android.
+- Mantener la política Android en `appVersion`, heredada de la configuración global de Expo cuando no exista una sobrescritura específica para Android.
+- Verificar `app.config.js`, `app.json` y la configuración pública resuelta antes de cada build y OTA.
+- No inferir el runtime instalado a partir de `package.json`: verificar los datos de la build EAS.
+- Publicar OTA solamente para el runtime compatible con la APK de destino.
+- Cuando se cambie la versión de la aplicación, el nuevo runtime esperado también cambiará. Para distribuir ese runtime se debe generar y publicar la nueva APK antes de enviar OTA dirigidas a él.
+- No cambiar ni eliminar la configuración de iOS como parte de una tarea exclusiva de Android. CardioSync se distribuye actualmente para Android.
 
-## Diferencia entre APK y actualización OTA
+La configuración `updates.checkAutomatically: 'NEVER'` debe verificarse por separado: publicar una OTA no implica que la aplicación la descargue automáticamente.
 
-Una APK es un instalador Android que contiene el runtime nativo y el paquete de aplicación generado por una build. Se utiliza cuando se necesita distribuir una compilación nueva, incluidos cambios nativos o dependencias que requieren recompilación.
+### Fuentes de configuración
 
-Una actualización OTA distribuye cambios JavaScript/TypeScript compatibles con el runtime instalado. No reemplaza el código nativo de la aplicación. Solo debe publicarse después de verificar la compatibilidad entre el bundle, el runtime y el canal objetivo.
+- `package.json`: versión del paquete y dependencias declaradas.
+- `app.json`: configuración estática de Expo.
+- `app.config.js`: configuración dinámica, política de runtime y Expo Updates.
+- `eas.json`: perfiles de build y canales.
+- EAS Build: versión, runtime y artefacto realmente generados.
+- EAS Update: runtime, canal, commit y grupo de actualización publicados.
 
-No publicar una OTA para cambios que requieran modificar código Kotlin/Java, dependencias nativas, plugins, configuración nativa o Expo SDK. En esos casos, evaluar y generar una nueva build de Android.
+La configuración efectiva de Expo y los datos remotos de EAS son la referencia para una publicación concreta. No reutilizar valores históricos sin verificarlos.
 
-## Preparación de una build de Android
+## 2. Pantalla Acerca de: requisito obligatorio por APK
 
-Antes de generar una build:
+**Cada nueva versión de APK de producción debe incluir una revisión y actualización de la pantalla Acerca de antes de generar la build.**
 
-1. Confirmar rama, commit y estado limpio de Git.
-2. Revisar `app.json`, `package.json`, `eas.json` y la configuración dinámica si existe.
-3. Consultar la versión remota de EAS, ya que `appVersionSource` está configurado como `remote`.
-4. Confirmar qué perfil existe realmente y qué tipo de artefacto produce.
-5. Verificar la versión, el runtime efectivo y los ajustes nativos.
-6. Generar la build y comprobar el artefacto resultante.
-7. Instalar y probar el artefacto en un dispositivo compatible.
-8. Confirmar por separado si el archivo se subió a la GitHub Release correspondiente.
+Archivos de información identificados en el proyecto:
 
-No asumir que el perfil llamado `production` genera una APK. El tipo de artefacto debe verificarse en la configuración efectiva del perfil y en el resultado de EAS Build.
+- `src/features/about/config/version-info.ts`
+- `src/features/about/config/appInfo.ts`
 
-## Preparación de una actualización OTA
+Antes de cada APK:
 
-Antes de publicar una OTA:
+- [ ] Actualizar la versión que se muestra al usuario.
+- [ ] Actualizar la fecha de lanzamiento correspondiente a esa distribución.
+- [ ] Verificar Expo SDK, React Native, plataforma y datos técnicos contra la configuración real del proyecto.
+- [ ] Actualizar las novedades para resumir los cambios relevantes desde la APK anterior.
+- [ ] Incluir mejoras relevantes de código y OTA publicadas desde la última APK, sin atribuir funciones que no estén implementadas o verificadas.
+- [ ] Mantener sincronizados ambos archivos de información.
+- [ ] Revisar visualmente Acerca de en una build de prueba o dispositivo antes de cerrar la publicación.
+- [ ] Confirmar que las notas de GitHub Release y la pantalla Acerca de describen coherentemente la versión publicada.
+
+Las novedades deben ser útiles para el usuario, no una lista indiscriminada de commits técnicos. Los cambios internos de runtime pueden documentarse técnicamente sin presentarlos como funcionalidades visibles.
+
+Si se publica una OTA que modifica funcionalidades visibles, revisar también si corresponde actualizar las novedades de Acerca de. Una OTA no elimina la obligación de revisar esta pantalla al preparar la siguiente APK.
+
+## 3. Diferencia entre APK y OTA
+
+Una APK es un instalador Android que incluye el runtime nativo y el paquete generado por EAS Build. Se utiliza para distribuir una nueva compilación.
+
+Una OTA distribuye código JavaScript/TypeScript y recursos compatibles con el runtime de la aplicación instalada. No sustituye el código nativo.
+
+Una OTA puede ser apropiada para cambios compatibles de interfaz, navegación, textos, reportes, estadísticas y lógica TypeScript. No debe utilizarse para cambios que requieran modificar código Kotlin/Java, AndroidManifest, plugins, dependencias nativas, Expo SDK u otros elementos incompatibles con el runtime instalado.
+
+Ante una duda sobre compatibilidad, detener la publicación OTA y evaluar una nueva APK.
+
+## 4. Preparación de una APK de producción
+
+Antes de iniciar la build:
+
+1. Confirmar rama, `git status` y `git rev-parse HEAD`.
+2. Revisar los cambios y ejecutar `git diff --check`.
+3. Resolver errores de compilación y ejecutar `npm run typecheck`.
+4. Confirmar la versión en `package.json` y la configuración de versión remota de EAS.
+5. Verificar la configuración efectiva de Expo, runtime Android y canal.
+6. Revisar cambios en AndroidManifest, plugins, dependencias nativas, Expo SDK y código Kotlin/Java.
+7. Actualizar y validar la pantalla Acerca de siguiendo la sección 2.
+8. Actualizar la documentación relacionada y las notas de versión.
+9. Crear el checkpoint y sincronizar el commit con GitHub.
+10. Generar una APK con el perfil `production-apk`, salvo que el usuario solicite expresamente otro formato.
+11. Verificar en EAS la versión, runtime, version code y enlace del artefacto.
+12. Instalar y probar la APK antes de dar por validada la distribución.
+13. Actualizar el APK de la GitHub Release correspondiente y sus notas.
+14. Verificar que GitHub contiene el artefacto nuevo y las notas correctas.
+
+No asumir que un perfil llamado `production` produce APK. Verificar que el perfil elegido configura `android.buildType: apk` y confirmar el artefacto de salida.
+
+## 5. Preparación de una OTA de producción
+
+Antes de publicar:
 
 - [ ] Confirmar `git status` y `git rev-parse HEAD`.
 - [ ] Revisar el diff completo.
-- [ ] Confirmar que no cambiaron AndroidManifest, plugins, dependencias nativas, Expo SDK, runtime, código Kotlin ni código Java.
-- [ ] Resolver la configuración efectiva de runtime y canal para Android.
-- [ ] Confirmar que el canal destino existe y corresponde a la distribución instalada.
-- [ ] Publicar solo cambios compatibles con el runtime.
-- [ ] Registrar Update Group ID, commit publicado, runtime y canal.
-- [ ] Verificar la actualización en un dispositivo con la build objetivo.
+- [ ] Ejecutar `npm run typecheck`.
+- [ ] Confirmar que no hay cambios nativos incompatibles.
+- [ ] Resolver la configuración efectiva del runtime Android y del canal.
+- [ ] Confirmar que el runtime coincide con el de la APK objetivo.
+- [ ] Confirmar el canal `production`.
+- [ ] Publicar solo cambios compatibles.
+- [ ] Registrar Update Group ID, commit, runtime, canal y mensaje.
+- [ ] Verificar el resultado en un dispositivo con la APK objetivo.
+- [ ] No asumir que la OTA se instaló solo porque EAS confirmó su publicación.
 
-Si no puede determinarse con certeza el runtime o canal efectivos, detener la publicación hasta resolverlo.
-
-## Comando de publicación OTA
-
-Usar este comando únicamente después de completar las comprobaciones anteriores y confirmar que el proyecto tiene la configuración OTA requerida:
+Comando de publicación, únicamente después de las verificaciones:
 
 ```bash
 eas update \
   --channel production \
   --platform android \
+  --environment production \
   --message "descripción del cambio"
 ```
 
-El comando se dirige al canal `production`; su presencia en la guía no demuestra que ese canal esté configurado o enlazado correctamente en el commit actual.
+## 6. Registro posterior
 
-## Registro posterior a la publicación
+Para una APK, registrar:
 
-Registrar como mínimo:
+- Versión y version code.
+- Commit de la build.
+- Runtime Android.
+- Build ID y enlace de descarga.
+- Etiqueta y enlace de GitHub Release.
+- Resultado de las pruebas de instalación.
+- Confirmación de que Acerca de y las notas de Release están actualizadas.
 
-- Commit exacto publicado.
-- Rama y estado de Git antes de publicar.
-- Versión de la aplicación y fuente de versión utilizada.
-- Runtime efectivo y canal OTA, si corresponde.
-- Update Group ID para una OTA o enlace/artefacto para una build.
-- Resultado de la instalación y de las comprobaciones en dispositivo.
+Para una OTA, registrar:
 
-La creación de una build o una OTA no demuestra por sí sola que el usuario final la haya recibido o instalado.
+- Commit publicado.
+- Runtime y canal.
+- Update Group ID y Android update ID.
+- Mensaje de publicación.
+- Resultado de la verificación en dispositivo.
 
-
-## Nota de mantenimiento de la rama de trabajo — 2026-10-17
-
-La configuración inspeccionada en `feature/app-updates` declara Expo `~57.0.26`, React Native `0.86.3`, el perfil `production-apk` con salida APK, canal EAS `production`, `appVersionSource: remote` y runtime Android con política `fingerprint` en `app.config.js`. Antes de publicar, comprobar la configuración efectiva del commit con Expo/EAS; el contenido del archivo por sí solo no certifica la configuración remota ni una actualización recibida por un dispositivo.
+La publicación de una build u OTA no demuestra por sí sola que el usuario final la haya recibido o instalado.
