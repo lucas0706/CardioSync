@@ -6,17 +6,13 @@
 | Tipo | Diseño Conceptual de Integración |
 | Estado | Parcialmente implementado |
 | Versión | Sincronizada con la versión del proyecto |
-| Última actualización | 2026-08-03 |
+| Última actualización | 2026-10-17 |
 
 ---
 
 # Objetivo
 
-Este documento define el diseño conceptual de la integración futura con Health Connect.
-
-No contiene implementación.
-
-Su finalidad es establecer qué información podrá ser incorporada, cómo será transformada y qué módulos podrán consumirla.
+Este documento describe el alcance observado de la integración Health Connect y distingue los servicios presentes de los flujos aún no validados. La implementación actual incluye inicialización y solicitud de permisos; no debe inferirse que todas las lecturas, escrituras, sincronizaciones y contextos descritos abajo estén disponibles o validados en producción.
 
 ---
 
