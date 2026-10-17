@@ -6,17 +6,13 @@
 | Tipo | Diseño Conceptual de Reportes |
 | Estado | Parcialmente implementado |
 | Versión | Sincronizada con la versión del proyecto |
-| Última actualización | 2026-08-10 |
+| Última actualización | 2026-10-17 |
 
 ---
 
 # Objetivo
 
-Este documento define el diseño conceptual del sistema de reportes de CardioSync.
-
-No contiene implementación.
-
-Su finalidad es establecer la estructura, objetivos y diferencias entre los distintos tipos de reportes que generará el sistema.
+Este documento describe el alcance actual de los reportes de CardioSync y separa las capacidades implementadas de las que permanecen planificadas. El reporte PDF disponible tiene alcance parcial; la existencia de secciones conceptuales no demuestra que todos los datos o un reporte médico especializado estén implementados.
 
 ---
 
