@@ -3,36 +3,43 @@
 | Campo | Valor |
 |---|---|
 | Título oficial | 2025 AHA/ACC/AANP/AAPA/ABC/ACCP/ACPM/AGS/AMA/ASPC/NMA/PCNA/SGIM Guideline for the Prevention, Detection, Evaluation and Management of High Blood Pressure in Adults |
-| Organizaciones principales | American Heart Association (AHA) y American College of Cardiology (ACC), con organizaciones colaboradoras indicadas en la publicación |
+| Organizaciones | American Heart Association (AHA), American College of Cardiology (ACC) y organizaciones colaboradoras indicadas en la publicación |
 | Publicación | Circulation. 2025;152:e114–e218 |
-| DOI | https://doi.org/10.1161/CIR.0000000000001356 |
-| Publicación paralela | Hypertension. 2025;82:e212–e316. DOI: https://doi.org/10.1161/HYP.0000000000000249 |
-| Estado de fuente | Publicación primaria identificada |
-| Estado de implementación en CardioSync | No se encontró una implementación AHA/ACC 2025 seleccionable en el código inspeccionado de `main` |
-| Última verificación documental | 2026-10-17 |
+| DOI principal | https://doi.org/10.1161/CIR.0000000000001356 |
+| Publicación paralela | Hypertension. 2025;82:e212–e316 |
+| DOI de publicación paralela | https://doi.org/10.1161/HYP.0000000000000249 |
+| Alcance clínico de CardioSync | AHA/ACC 2025 para adultos |
+| Última revisión documental | 2026-10-17 |
 
 ## Fuentes primarias
 
-- [Artículo oficial en Circulation](https://doi.org/10.1161/CIR.0000000000001356)
-- [Artículo oficial en Hypertension](https://doi.org/10.1161/HYP.0000000000000249)
-- [Centro de recursos de AHA Professional Heart Daily](https://professional.heart.org/en/guidelines-statements/2025-ahaaccaanpaapaabcaccpacpmagsamaaspcnmapcnasgim-guideline-for-thecir0000000000001356)
+- [Publicación oficial en Circulation](https://doi.org/10.1161/CIR.0000000000001356)
+- [Publicación paralela en Hypertension](https://doi.org/10.1161/HYP.0000000000000249)
 
-## Evidencia del repositorio revisado
+## Propósito en CardioSync
 
-En `src/clinical/types/ClinicalGuide.ts` y `src/clinical/guides/index.ts` aparece la referencia heredada `accaha2017`, no una entrada `aha2025`. El selector `src/clinical/selector/ClinicalGuideSelector.ts` solo construye explícitamente los motores `cardiosync` y `esc2024`; los demás identificadores caen en el motor CardioSync.
+La guía AHA/ACC 2025 es la referencia clínica definida para CardioSync. La documentación, las reglas clínicas y sus validaciones deben conservar trazabilidad directa con esta publicación.
 
-Esto describe el código observado en `main`, no demuestra que ninguna rama de desarrollo contenga trabajo adicional.
+Esta ficha identifica la fuente y fija el alcance documental. No afirma por sí sola que todas las recomendaciones estén implementadas ni que el comportamiento de la aplicación haya sido validado clínicamente.
 
-## Alcance pendiente
+## Trazabilidad obligatoria por regla
 
-Este archivo registra identificación bibliográfica y estado de integración. No resume ni reproduce recomendaciones clínicas de la guía.
+Para cada regla clínica derivada de la guía, registrar:
 
-Antes de considerar la guía implementada se debe:
+1. Sección, tabla o recomendación exacta y página de la publicación.
+2. Población y condiciones de aplicabilidad.
+3. Interpretación funcional aprobada para CardioSync.
+4. Archivo y símbolo de código donde se implementa.
+5. Casos de prueba, incluidos valores límite y resultados esperados.
+6. Resultados de ejecución y limitaciones conocidas.
+7. Fecha y responsable de la revisión clínica y técnica.
 
-1. Determinar qué recomendaciones concretas se pretende soportar y para qué población.
-2. Registrar sección, tabla o recomendación exacta de la fuente primaria para cada regla propuesta.
-3. Comparar esa especificación con el comportamiento del código actual y las reglas de otras guías, sin mezclar umbrales.
-4. Definir casos de prueba, incluidos valores fronterizos y escenarios discordantes de presión sistólica y diastólica.
-5. Obtener revisión clínica y documentar por separado validación técnica y clínica.
+## Mantenimiento
 
-No utilizar la identificación bibliográfica como evidencia de que la guía está implementada o validada.
+- No incorporar umbrales ni recomendaciones sin una referencia verificable a la publicación oficial.
+- Mantener separadas la fuente, la interpretación funcional y la implementación.
+- Revisar la publicación oficial antes de modificar reglas.
+- Evaluar el impacto de cualquier cambio sobre resultados históricos, reportes y pruebas.
+- No declarar una regla validada solo porque exista código o documentación.
+
+La identificación bibliográfica no sustituye la revisión clínica ni las pruebas técnicas.
