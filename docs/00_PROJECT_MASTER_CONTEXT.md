@@ -1,588 +1,217 @@
-# CardioSync — Project Master Context
+# CardioSync — Contexto Maestro del Proyecto
 
 | Campo | Valor |
-|-------|--------|
-| Documento | 00_PROJECT_MASTER_CONTEXT.md |
-| Tipo | Documento Maestro del Proyecto |
+|---|---|
+| Documento | `00_PROJECT_MASTER_CONTEXT.md` |
+| Tipo | Documento maestro del proyecto |
 | Estado | Activo |
-| Versión | Sincronizada con la versión del proyecto |
-| Última actualización | 2026-08-22 |
+| Última revisión | 2026-10-17 |
+| Fuente de verdad de implementación | Código de la rama revisada y configuración del proyecto |
+
+Este documento es el punto de entrada para comprender CardioSync, sus límites arquitectónicos, el estado conocido de sus módulos y la documentación complementaria.
+
+> **Regla de autoridad:** el código y la configuración vigentes describen lo implementado; las especificaciones describen las reglas de diseño; el roadmap describe trabajo pendiente. Una función mencionada en documentación no debe considerarse validada en dispositivos sin evidencia de pruebas.
 
 ---
 
-# 1. Propósito
+## 1. Propósito y visión
 
-Este documento constituye la referencia principal de CardioSync.
+CardioSync es una aplicación Android para el seguimiento personal de la presión arterial y otra información cardiovascular compatible. Permite registrar mediciones, consultar historial y estadísticas, generar reportes y utilizar integraciones de salud y mecanismos de respaldo disponibles en el proyecto.
 
-Su finalidad es proporcionar el contexto arquitectónico completo del proyecto y servir como punto de entrada al resto de la documentación oficial.
+La aplicación no sustituye la evaluación de profesionales de la salud ni debe presentarse como herramienta autónoma de diagnóstico.
 
-Toda modificación del proyecto deberá realizarse respetando los principios definidos en este documento.
+Los objetivos técnicos son:
 
-El código representa la implementación.
+- Mantener una arquitectura modular, clara y mantenible.
+- Separar presentación, dominio, infraestructura y reglas clínicas.
+- Preservar la integridad de los datos de salud.
+- Mantener TypeScript en modo estricto.
+- Verificar compatibilidad con Expo SDK 57 antes de proponer cambios.
+- Evitar dependencias nuevas sin justificar necesidad, compatibilidad y costo de mantenimiento.
+- Mantener código, pruebas y documentación sincronizados.
+- Diferenciar funcionalidades implementadas de funcionalidades cuya operación todavía necesita validación.
 
-La arquitectura define el diseño.
+## 2. Stack tecnológico
 
-La documentación preserva el conocimiento del proyecto.
-
-Los tres elementos deberán evolucionar de forma sincronizada.
-
----
-
-# 2. Visión
-
-CardioSync es una aplicación especializada para el registro, seguimiento y análisis de la presión arterial.
-
-El proyecto cuenta con una base clínica estructurada mediante:
-
-- clasificación de presión arterial;
-- contexto clínico;
-- targets clínicos;
-- reglas clínicas;
-- análisis clínico;
-- warnings;
-- resultados clínicos.
-
-La arquitectura está diseñada para permitir el crecimiento progresivo mediante módulos independientes sin comprometer la estabilidad del sistema.
-
-La interfaz utiliza actualmente el sistema Visual Redesign V2 como referencia visual oficial.
-
----
-
-# 3. Objetivos
-
-## Objetivo principal
-
-Construir una plataforma robusta para el seguimiento de la presión arterial mediante una arquitectura moderna, mantenible y escalable, con capacidad de incorporar progresivamente funcionalidades clínicas e integraciones externas.
-
-## Objetivos técnicos
-
-- Mantener una arquitectura modular.
-- Reducir el acoplamiento.
-- Centralizar la persistencia.
-- Mantener el dominio independiente de la interfaz.
-- Favorecer la reutilización.
-- Mantener TypeScript strict.
-- Mantener compatibilidad con Expo SDK 57.
-- Evaluar dependencias antes de incorporarlas.
-- Mantener documentación sincronizada con el código.
-
-## Objetivos funcionales
-
-### ✅ Implementado
-
-- Registro de mediciones.
-- Validación.
-- Persistencia local.
-- Historial.
-- Edición y eliminación.
-- Detalle de medición.
-- Dashboard.
-- Resumen semanal.
-- Motor de estadísticas.
-- ClinicalChart V2.
-- Clasificación clínica.
-- Clinical Domain.
-- Clinical Rule Engine.
-- Clinical Analysis Engine.
-- Targets clínicos.
-- Warnings clínicos.
-- Reportes PDF.
-- Compartir reportes.
-- Visual Redesign V2.
-- Navegación V2.
-- Sistema visual V2.
-
-### 📋 Planificado
-
-- Configuración consolidada.
-- Integración Health Connect.
-- Sistema de backup.
-- Backup local.
-- Backup en nube.
-- Google Drive.
-- Dashboard dinámico.
-- Evolución futura de reportes.
-- Nuevas funcionalidades V2.
-
----
-
-# 4. Alcance
-
-Actualmente CardioSync implementa:
-
-- Registro de presión arterial.
-- Persistencia local mediante SQLite.
-- Historial de mediciones.
-- Dashboard.
-- Estadísticas.
-- Visualización clínica mediante ClinicalChart.
-- Clasificación de presión arterial.
-- Infraestructura del dominio clínico.
-- Clinical Rule Engine.
-- Clinical Analysis Engine.
-- Targets clínicos.
-- Warnings clínicos.
-- Generación y compartición de reportes PDF.
-- Sistema visual V2.
-
-Toda funcionalidad futura deberá respetar la arquitectura establecida en este documento.
-
-Las funcionalidades clínicas deberán permanecer separadas de la presentación y utilizar las estructuras del dominio existentes.
-
----
-
-# 5. Estado actual
-
-## Arquitectura
-
-✅ Implementada
-
-## Measurements
-
-✅ Implementado
-
-## Statistics
-
-✅ Implementado
-
-## Dashboard
-
-✅ Implementado
-
-## History
-
-✅ Implementado
-
-## Clinical Domain
-
-✅ Implementado
-
-## Clinical Classification
-
-✅ Implementado
-
-## Clinical Rule Engine
-
-✅ Implementado
-
-## Clinical Analysis Engine
-
-✅ Implementado
-
-## ClinicalChart V2
-
-✅ Implementado
-
-## Reports
-
-✅ Implementado
-
-## Visual Redesign V2
-
-✅ Implementado
-
-## Configuración
-
-📋 Planificado / en consolidación
-
-## Health Connect
-
-📋 Planificado
-
-## Backup
-
-📋 Planificado
-
-## Documentación
-
-🚧 En consolidación
-
-La documentación existente está siendo sincronizada con el estado real de implementación del proyecto.
-
----
-
-# 6. Stack tecnológico oficial
-
-## Estado
-
-✅ IMPLEMENTADO
-
-El stack tecnológico constituye una decisión arquitectónica del proyecto.
-
-Toda modificación deberá quedar documentada.
+El proyecto utiliza las dependencias declaradas en `package.json`. Entre las principales:
 
 | Área | Tecnología |
-|------|------------|
+|---|---|
 | Lenguaje | TypeScript |
-| Framework | React Native |
-| Plataforma | Expo |
+| Aplicación | React Native |
+| Plataforma | Expo SDK 57 |
 | Navegación | Expo Router |
-| Persistencia | SQLite (expo-sqlite) |
+| Persistencia local | Expo SQLite |
 | Formularios | React Hook Form |
 | Validación | Zod |
-| UI nativa complementaria | @expo/ui |
+| Estado compartido | Zustand |
+| Gráficos y visualización | React Native Skia, SVG y bibliotecas de gráficos declaradas |
+| Actualizaciones JavaScript | Expo Updates |
+| Integraciones Android | Health Connect y módulos nativos declarados por el proyecto |
 
-## Principios tecnológicos
+Las versiones exactas y la compatibilidad se deben comprobar en `package.json`, `package-lock.json`, `app.json` y `app.config.js`. No se debe asumir compatibilidad por el nombre de una biblioteca o por documentación de otra versión de Expo.
 
-### TypeScript
+## 3. Arquitectura y estructura
 
-Todo el código nuevo deberá escribirse en TypeScript.
+La estructura modular principal del código es:
 
-El tipado estricto forma parte de la arquitectura.
+- `src/core`: infraestructura y capacidades compartidas.
+- `src/domain`: modelos, reglas y conceptos del dominio.
+- `src/features`: funcionalidades organizadas por área.
+- `src/components`: componentes de presentación reutilizables.
 
-El uso de `any` deberá evitarse.
+Las rutas de la aplicación se organizan mediante Expo Router. La configuración del proyecto contempla los árboles `app` y `app-production`; la raíz de rutas efectiva depende de la configuración de ejecución/build. La separación debe conservarse al cambiar navegación o herramientas de desarrollo.
 
-### React Native
+### Límites de responsabilidad
 
-La interfaz deberá implementarse exclusivamente mediante React Native.
+- **Presentación:** muestra información y recoge acciones del usuario; no debe contener reglas de negocio ni acceder directamente a SQLite.
+- **Dominio:** modela conceptos y reglas de negocio sin depender de componentes React.
+- **Persistencia:** las operaciones de base de datos deben pasar por los repositorios o servicios de persistencia definidos por el proyecto.
+- **Estadísticas:** calcula métricas descriptivas; no debe generar interpretaciones clínicas.
+- **Dominio clínico:** concentra clasificación, reglas, contexto y resultados clínicos trazables.
+- **Servicios de integración:** encapsulan el acceso a sistemas externos y capacidades nativas.
 
-La lógica de negocio permanecerá fuera de la UI.
+Toda modificación arquitectónica debe respetar la estructura existente y registrar decisiones cuando cambie una regla o un límite relevante.
 
-### Expo
+## 4. Funcionalidades y estado conocido
 
-Expo constituye la plataforma oficial del proyecto.
+Los siguientes estados reflejan la inspección documental y de código disponible. **“Implementación presente” no equivale a validación integral en todos los dispositivos.**
 
-Las APIs oficiales deberán priorizarse frente a soluciones externas cuando cubran la necesidad.
+| Área | Estado conocido | Observaciones |
+|---|---|---|
+| Mediciones de presión arterial | Implementación presente | Incluye operaciones de registro e historial descritas en la documentación del módulo. |
+| Estadísticas y visualizaciones | Implementación presente | Mantener los cálculos descriptivos separados de las reglas clínicas. |
+| Clasificación y análisis clínico | Implementación presente | La corrección clínica debe evaluarse contra la fuente clínica activa y sus pruebas. |
+| Reportes | Implementación presente | Existen servicios para construir y compartir reportes; validar los flujos reales cuando cambien. |
+| SQLite | Implementación presente | La base de datos principal se identifica como `cardiosync.db` en el servicio inspeccionado. |
+| Health Connect | Servicios presentes | Los datos disponibles dependen de permisos, fuentes y compatibilidad del dispositivo. |
+| Backup manual | Servicio presente | Se identificó un flujo que copia la base de datos mediante el selector de ubicación de Android. |
+| Google Drive | Servicio presente | La integración requiere autenticación y autorización. |
+| Backup programado | Servicio presente | Su ejecución depende de la configuración y de los mecanismos y restricciones del sistema Android. |
+| Actualizaciones OTA | Servicios y pantalla presentes | La comprobación, descarga y aplicación son pasos distintos y deben verificarse por separado. |
+| Actualización por APK | Servicios y pantalla presentes | La descarga valida datos del paquete antes de solicitar al instalador Android; la instalación requiere intervención del sistema/usuario. |
 
-### SQLite
+Cuando una tarea dependa de una función sensible —en particular restauración de copias, datos de salud, actualización o migración de base de datos— debe revisarse el flujo completo y sus errores posibles antes de declarar que está validada.
 
-Toda persistencia local utilizará SQLite.
+## 5. Dominio clínico y evidencia
 
-El acceso deberá realizarse mediante la capa Repository.
+La referencia clínica activa del proyecto es el **Consenso Argentino de Hipertensión Arterial 2025**, según el alcance documental vigente.
 
-### React Hook Form
+Las reglas clínicas deben:
 
-Los formularios deberán implementarse utilizando React Hook Form.
+- Identificar la fuente que las respalda.
+- Mantener trazabilidad entre fuente, criterio, regla implementada y resultado mostrado.
+- Separarse de las estadísticas descriptivas y de la interfaz.
+- Distinguir datos faltantes de resultados negativos.
+- Evitar recomendaciones que no puedan vincularse con una fuente clínica documentada.
+- Mantener sus limitaciones visibles para el usuario.
 
-### Zod
+La existencia de un motor clínico no demuestra por sí sola que todas las reglas de una guía estén implementadas ni que el producto haya sido validado clínicamente.
 
-Toda validación deberá centralizarse mediante esquemas Zod.
+## 6. Persistencia, copias y privacidad
 
----
+La base de datos principal utiliza SQLite en el almacenamiento de la aplicación. Los flujos de respaldo y las integraciones externas son distintos del almacenamiento local:
 
-# 7. Arquitectura general
+- Las operaciones de Health Connect dependen de los permisos concedidos por el usuario.
+- Google Drive requiere configuración, autenticación y autorización.
+- El backup manual utiliza una ubicación elegida mediante Android.
+- Las tareas programadas dependen de la configuración y de las restricciones del sistema operativo.
+- Las actualizaciones consultan los servicios de publicación configurados y pueden descargar archivos desde GitHub Releases.
 
-## Estado
+No se debe afirmar que todos los datos permanecen exclusivamente en el dispositivo cuando se utilizan integraciones externas. Los documentos específicos deben explicar qué datos se leen, escriben, exportan o transfieren, y qué autorización requiere cada operación.
 
-✅ IMPLEMENTADO
+Las tareas de restauración deben contemplar integridad, compatibilidad de esquema, errores de lectura/escritura y protección contra sobrescrituras accidentales.
 
-La arquitectura se organiza mediante separación de responsabilidades.
+## 7. Actualizaciones y distribución Android
 
-Capas principales:
+El proyecto contempla actualizaciones OTA mediante Expo Updates y actualizaciones de la aplicación mediante APK publicada.
 
-- Core
-- Domain
-- Features
-- Clinical
-- Components
-- Theme
-- Services
-- Hooks
-- Store
-- Utils
-- Types
+### OTA
 
-Cada módulo posee una responsabilidad claramente definida.
+OTA solo debe utilizarse para cambios compatibles con el runtime instalado, como cambios de interfaz, navegación y lógica JavaScript/TypeScript. No es apropiada para cambios de Expo SDK, dependencias nativas, plugins, manifiesto Android, código Kotlin/Java u otros cambios que alteren el runtime nativo.
 
----
+Antes de cada publicación OTA se debe verificar el estado de Git, el commit, la configuración efectiva de runtime y channel, y confirmar que no hubo cambios nativos incompatibles. Si existe duda sobre la compatibilidad, detener la publicación OTA y preparar una nueva APK de producción.
 
-# 8. Organización del repositorio
+### APK de producción
 
-La organización del proyecto busca mantener independencia entre los distintos dominios funcionales.
+El perfil preferido de distribución es `production-apk`. Antes de compilar se deben revisar el estado de Git, el commit, la versión, la configuración efectiva de Expo y los cambios nativos. La salida esperada para una publicación de producción es APK, no AAB, salvo solicitud explícita.
 
-La documentación oficial reside en:
+La configuración efectiva debe comprobarse desde `app.config.js` y `app.json`; no se deben copiar valores de runtime o channel de documentación antigua sin verificarlos en la configuración vigente.
 
-docs/
+## 8. Calidad y definición de terminado
 
-Toda modificación estructural deberá reflejarse también en esta carpeta.
+Una modificación no se considera terminada solo porque el código fue escrito. Según el alcance, la validación puede incluir:
 
----
+- TypeScript: `npm run typecheck`.
+- Formato: `npm run format:check`, cuando corresponda.
+- Pruebas automatizadas disponibles.
+- Revisión de compatibilidad con Expo SDK 57.
+- Revisión de errores, estados vacíos, permisos y recuperación.
+- Verificación manual en Development Build o dispositivo para los flujos nativos afectados.
+- Actualización de la documentación relacionada.
+- Revisión del diff para confirmar que solo cambió el alcance previsto.
 
-# 9. Dominios principales
+Si una comprobación no se ejecutó, debe declararse explícitamente; no se debe presentar como aprobada.
 
-## Measurements
+## 9. Política de cambios y dependencias
 
-Estado: ✅ IMPLEMENTADO
+- Auditar primero el código y la documentación relacionados.
+- Resolver errores de compilación o tipado antes de agregar funcionalidades.
+- Mantener TypeScript strict.
+- No agregar dependencias sin evaluar necesidad, mantenimiento, tamaño, compatibilidad y efectos nativos.
+- Preferir APIs oficiales de Expo cuando cubran adecuadamente la necesidad.
+- Evitar accesos directos a SQLite desde la UI.
+- No mezclar una publicación OTA con cambios que requieren una nueva compilación nativa.
+- Mantener los cambios pequeños, revisables y trazables mediante commits y Pull Requests.
 
-Responsable del registro y gestión de las mediciones.
+## 10. Documentación oficial
 
----
+La carpeta `docs/` contiene la documentación técnica, clínica y operativa del proyecto. Los documentos principales son:
 
-## Statistics
+1. `00_PROJECT_MASTER_CONTEXT.md`: contexto maestro y punto de entrada.
+2. `00_CARDIOSYNC_CONSTITUTION.md`: principios rectores del proyecto; actualmente requiere contenido.
+3. `01_ARCHITECTURE.md`: arquitectura y límites entre módulos.
+4. `02_ROADMAP.md`: fases completadas, en curso y planificadas.
+5. `03_DECISIONS.md`: decisiones arquitectónicas y su justificación.
+6. `04_CLINICAL_DOMAIN.md` y `05_CLINICAL_RULE_ENGINE.md`: dominio y reglas clínicas.
+7. `06_CLINICAL_ANALYSIS.md`: análisis clínico.
+8. `07_REPORTS.md`: reportes.
+9. `08_HEALTH_CONNECT.md`: integración Health Connect.
+10. `09_DATABASE.md`: persistencia.
+11. `10_CHANGELOG.md`: historial de cambios.
+12. `11_MODULES.md`: inventario de módulos.
 
-Estado: ✅ IMPLEMENTADO
+Los documentos deben indicar si describen el estado implementado, una decisión, una propuesta o una referencia histórica. Las afirmaciones sobre el estado actual deben contrastarse con el código.
 
-Responsable del procesamiento matemático y estadístico.
+## 11. Sincronización y checkpoints
 
-No interpreta resultados clínicos.
+Cuando se complete una funcionalidad relevante:
 
----
+1. Revisar y actualizar este documento y los documentos específicos afectados.
+2. Actualizar el roadmap y changelog cuando corresponda.
+3. Ejecutar las comprobaciones aplicables y registrar las que no pudieron ejecutarse.
+4. Revisar el diff y crear un commit descriptivo.
+5. Abrir un Pull Request para revisión.
+6. Después de la fusión, verificar el commit resultante y el estado del repositorio.
 
-## Dashboard
+No se debe declarar una sincronización con GitHub o un estado limpio de Git sin haberlo comprobado.
 
-Estado: ✅ IMPLEMENTADO
+## 12. Referencias de desarrollo
 
-Responsable de la visualización de información.
+Desde la raíz del repositorio:
 
-No implementa lógica de negocio.
+```bash
+npx expo start --dev-client --tunnel
+```
 
----
+Comprobación de TypeScript:
 
-## Clinical
+```bash
+npm run typecheck
+```
 
-Estado: ✅ IMPLEMENTADO
+Las tareas de desarrollo, validación y distribución deben ejecutarse con la versión de Node/npm y las dependencias fijadas por el repositorio.
 
-Responsable de la interpretación clínica basada en guías clínicas mediante:
+## 13. Principio rector
 
-- clasificación clínica;
-- targets clínicos;
-- reglas clínicas;
-- análisis clínico;
-- warnings;
-- resultados clínicos.
-
-La evolución posterior del dominio clínico continúa en desarrollo.
-
-
-
----
-
-# 10. Principios arquitectónicos
-
-## Estado
-
-✅ IMPLEMENTADO
-
-La arquitectura de CardioSync se basa en los siguientes principios:
-
-- Separación de responsabilidades.
-- Bajo acoplamiento.
-- Alta cohesión.
-- Dominio independiente de la interfaz.
-- Persistencia encapsulada.
-- Componentes reutilizables.
-- Evolución incremental.
-- Documentación sincronizada con el código.
-
----
-
-# 11. Principios clínicos
-
-## Estado
-
-🚧 EN DESARROLLO
-
-CardioSync implementará un sistema de soporte clínico basado exclusivamente en evidencia científica y guías clínicas oficialmente adoptadas.
-
-Toda interpretación clínica deberá ser:
-
-- Reproducible.
-- Trazable.
-- Basada en reglas explícitas.
-- Respaldada por una guía clínica documentada.
-
-No existirán recomendaciones cuyo origen no pueda identificarse.
-
----
-
-# 12. Arquitectura objetivo
-
-## Estado
-
-📐 DISEÑO APROBADO
-
-La evolución del proyecto contempla la separación del dominio clínico mediante contextos especializados.
-
-La arquitectura objetivo comprende:
-
-- ClinicalContext
-- MeasurementContext
-- StatisticsContext
-- PatientContext
-- HistoryContext
-- VitalSignsContext
-- SleepContext
-- ActivityContext
-- BodyCompositionContext
-
-Cada contexto será responsable exclusivamente de su propio dominio.
-
-La composición de estos contextos permitirá construir una evaluación clínica integral sin incrementar el acoplamiento del sistema.
-
----
-
-# 13. Restricciones arquitectónicas
-
-Las siguientes reglas forman parte de la arquitectura oficial del proyecto.
-
-1. Toda lógica de negocio deberá permanecer fuera de la interfaz de usuario.
-
-2. Toda lógica clínica deberá implementarse exclusivamente dentro del dominio Clinical.
-
-3. Toda recomendación deberá estar respaldada por una guía clínica documentada.
-
-4. Statistics nunca generará recomendaciones clínicas.
-
-5. Dashboard nunca implementará lógica clínica.
-
-6. Ningún componente React accederá directamente a SQLite.
-
-7. Toda persistencia utilizará la capa Repository.
-
-8. Toda modificación arquitectónica deberá registrarse en la documentación oficial.
-
-
-
----
-
-# 14. Roadmap resumido
-
-## Fases completadas
-
-- Arquitectura inicial.
-- Measurements.
-- Dashboard.
-- Statistics.
-- Clinical Foundation.
-- Clinical Domain.
-- Clinical Rule Engine.
-- Clinical Analysis Engine.
-- Reports.
-- Importación.
-- Visual Redesign V2.
-
-## Fase actual
-
-### Refactorización final del dominio
-
-Estado: 🚧 EN DESARROLLO
-
-Objetivo:
-
-Simplificar el modelo de medición y continuar la separación entre datos propios de la medición, contexto clínico, datos externos y resultados derivados.
-
-## Próximas fases
-
-- Configuración consolidada.
-- Integración Health Connect.
-- Sistema de backup.
-- Backup local.
-- Backup en nube / Google Drive.
-- Dashboard dinámico.
-- Evolución futura de reportes.
-- Nuevas funcionalidades clínicas basadas en el dominio establecido.
-
----
-
-# 15. Definition of Done
-
-Una fase únicamente podrá considerarse finalizada cuando:
-
-- El código compile correctamente.
-- La funcionalidad esté validada.
-- La arquitectura permanezca consistente.
-- Las decisiones arquitectónicas estén documentadas.
-- El Roadmap haya sido actualizado.
-- El Changelog haya sido actualizado.
-- La documentación específica haya sido revisada.
-- No existan contradicciones entre código y documentación.
-
----
-
-# 16. Política de documentación
-
-La documentación forma parte del proyecto.
-
-Toda fase deberá actualizar obligatoriamente:
-
-- 00_PROJECT_MASTER_CONTEXT.md
-- 02_ROADMAP.md
-- 03_DECISIONS.md
-- Documento específico afectado.
-- 10_CHANGELOG.md
-
-La documentación deberá reflejar exactamente el estado real del proyecto.
-
-No deberán existir diferencias entre la arquitectura documentada y la implementación.
-
----
-
-# 17. Referencias
-
-La lectura recomendada para comprender CardioSync es:
-
-1. 00_PROJECT_MASTER_CONTEXT.md
-2. 01_ARCHITECTURE.md
-3. 02_ROADMAP.md
-4. 03_DECISIONS.md
-5. Documentación específica del módulo correspondiente.
-
----
-
-# 17.1 Estado UI/UX — Visual Redesign V2
-
-## Estado
-
-✅ IMPLEMENTADO
-
-El Rediseño Visual V2 fue implementado y validado el 2026-08-22.
-
-La implementación abarcó la evolución visual y estructural de las principales áreas de la aplicación, manteniendo la lógica funcional y la arquitectura existente.
-
-El bloque de Measurements V2 fue completado y validado para los tres flujos principales:
-
-- Nueva medición.
-- Edición.
-- Detalle.
-
-### Elementos visuales consolidados
-
-- Cards SIS / DIA.
-- Card FC centrada y del mismo tamaño visual.
-- Selector de fecha.
-- Selector de hora.
-- Selector visual de brazo.
-- Selector visual de posición.
-- Campo de notas.
-- Clasificación clínica en detalle.
-- Alertas clínicas condicionales.
-- Confirmación antes de eliminar.
-
-### Componentes V2 incorporados
-
-- `MeasurementDateTimeField`
-- `MeasurementMetricInputCard`
-- `MeasurementOptionSelector`
-
-### Regla de reutilización
-
-Nueva medición, edición y detalle deberán mantener una jerarquía visual coherente.
-
-La pantalla de detalle utiliza la misma representación visual de las métricas en modo lectura.
-
-La edición reutiliza el mismo formulario visual de Nueva medición.
-
-### Fecha y hora
-
-La selección utiliza `@expo/ui`, manteniendo compatibilidad con Expo SDK 57.
-
-### Checkpoint
-
-`171ef4c feat: complete measurement create edit and detail UI`
-
----
-
-# 18. Conclusión
-
-CardioSync se desarrolla como una plataforma modular especializada en hipertensión arterial.
-
-Su evolución estará guiada por:
-
-- Arquitectura consistente.
-- Separación de responsabilidades.
-- Evidencia científica.
-- Guías clínicas oficialmente soportadas.
-- Documentación sincronizada con el código.
-
-La documentación constituye un componente oficial del proyecto y deberá evolucionar junto con la implementación.
-
+CardioSync debe evolucionar de forma incremental, con prioridad en la estabilidad, la mantenibilidad, la integridad de la información de salud y la trazabilidad clínica. El código, la configuración, las pruebas y la documentación deben permanecer coherentes; cuando no se conozca el estado real de una función, se debe declarar la incertidumbre y auditar antes de afirmar que está terminada.
