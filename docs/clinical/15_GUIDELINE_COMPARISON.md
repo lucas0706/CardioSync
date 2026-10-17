@@ -1,214 +1,37 @@
-# Guideline Comparison
+# Estado de comparación de guías clínicas
 
-Version: 1.0
-Status: Draft
-Phase: Clinical Knowledge Base
+Versión: 1.1
+Estado: Documento de alcance y arquitectura
+Última revisión: 2026-10-17
 
----
+## 1. Propósito
 
-# 1. Objetivo
+Este documento describe cómo podría evaluarse en el futuro la incorporación de otras guías clínicas. **No declara que CardioSync utilice actualmente múltiples guías.**
 
-Definir la estructura de comparación entre las guías clínicas utilizadas por
-CardioSync.
+## 2. Alcance clínico actual
 
-Este documento no reemplaza las guías originales.
+La única guía clínica utilizada actualmente por CardioSync es el **Consenso Argentino de Hipertensión Arterial 2025**.
 
-Su objetivo es identificar:
+Las referencias a ESC 2024, AHA/ACC 2025 e ISH 2020 que puedan permanecer en el repositorio son material documental histórico o de investigación; no forman parte del alcance clínico activo ni deben justificar reglas, resultados o recomendaciones actuales de la aplicación.
 
-- conceptos comunes;
-- diferencias relevantes;
-- impacto arquitectónico;
-- decisiones necesarias para soportar múltiples guías.
+## 3. Posible evolución futura
 
----
+Si el proyecto decide soportar otra guía en el futuro, la decisión debe aprobarse explícitamente antes de implementarla. La evaluación deberá incluir:
 
-# 2. Guías consideradas
+- fuente primaria y versión;
+- diferencias clínicas concretas frente al consenso argentino;
+- población y condiciones de aplicación;
+- reglas que requerirían implementación separada;
+- impacto en registros históricos, reportes y configuración;
+- pruebas clínicas y técnicas;
+- decisión documentada y revisión responsable.
 
-CardioSync considera inicialmente:
+Hasta que exista esa decisión, no deben implementarse comparaciones clínicas activas entre guías ni mezclarse umbrales de fuentes diferentes.
 
-## Argentina
+## 4. Principios arquitectónicos
 
-Consenso Argentino de Hipertensión Arterial 2025.
+La arquitectura puede mantener abstraídas las reglas clínicas sin afirmar que todas las estrategias estén activas. Cualquier futura guía adicional deberá tener una identificación inequívoca y trazabilidad propia; los análisis históricos deberán conservar la referencia efectivamente utilizada.
 
+## 5. Estado
 
-## Europa
-
-ESC Guidelines 2024.
-
-
-## Estados Unidos
-
-AHA/ACC Guideline 2025.
-
-
-## Internacional
-
-ISH Global Hypertension Practice Guidelines 2020.
-
-
----
-
-# 3. Principio fundamental
-
-Las guías pueden diferir.
-
-CardioSync no debe forzar una única interpretación clínica.
-
-La arquitectura debe permitir:
-
-Misma medición
-
-+
-
-Mismo contexto
-
-+
-
-Guía diferente
-
-↓
-
-Análisis diferente
-
-
----
-
-# 4. Áreas de comparación
-
-## 4.1 Definición de hipertensión
-
-Comparar:
-
-- umbrales diagnósticos;
-- categorías;
-- nomenclatura utilizada.
-
-
----
-
-## 4.2 Objetivos terapéuticos
-
-Comparar:
-
-- valores objetivo;
-- grupos especiales;
-- criterios de seguimiento.
-
-
----
-
-## 4.3 Medición domiciliaria y ambulatoria
-
-Comparar:
-
-- uso de MAPA;
-- uso de MDPA;
-- confirmación diagnóstica.
-
-
----
-
-## 4.4 Estratificación de riesgo
-
-Comparar:
-
-- factores considerados;
-- modelos utilizados;
-- impacto sobre decisiones.
-
-
----
-
-## 4.5 Seguimiento
-
-Comparar:
-
-- frecuencia de controles;
-- evaluación longitudinal;
-- criterios de reevaluación.
-
-
----
-
-# 5. Modelo arquitectónico
-
-ClinicalGuideline
-
-↓
-
-GuidelineRules
-
-↓
-
-ClinicalAnalysisEngine
-
-↓
-
-ClinicalAnalysis
-
-
-Cada guía aporta reglas propias.
-
-El motor permanece independiente.
-
-
----
-
-# 6. Decisiones arquitectónicas
-
-## ADR-046
-
-Las diferencias entre guías serán modeladas mediante estrategias intercambiables.
-
-
-## ADR-047
-
-Nunca mezclar reglas de diferentes guías dentro de un mismo análisis.
-
-
-## ADR-048
-
-Cada análisis histórico debe conservar la guía utilizada.
-
-
-## ADR-049
-
-Las actualizaciones de guías deben generar nuevas versiones.
-
-
----
-
-# 7. Riesgos
-
-Evitar:
-
-- sobrescribir versiones antiguas;
-- ocultar diferencias entre guías;
-- utilizar valores clínicos sin referencia;
-- crear lógica duplicada por guía.
-
-
----
-
-# 8. Impacto en CardioSync
-
-Utilizado por:
-
-- ClinicalGuideline;
-- ClinicalAnalysisEngine;
-- configuración del usuario;
-- reportes;
-- auditoría clínica.
-
-
----
-
-# 9. Estado
-
-Draft.
-
-Pendiente:
-
-- extracción detallada de cada guía;
-- tablas comparativas;
-- definición de reglas implementables.
+Este documento no certifica que exista soporte funcional completo para múltiples guías. La fuente clínica activa del producto sigue siendo exclusivamente el Consenso Argentino de Hipertensión Arterial 2025.
