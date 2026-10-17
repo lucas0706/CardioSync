@@ -1,78 +1,41 @@
-# Clinical Rule 001 — Home Blood Pressure Control
+# Regla clínica 001 — Promedio de presión arterial domiciliaria
 
-## Source
+## Estado
 
-Guideline:
+Implementada en `HomeBloodPressureControlRule`.
 
-Consenso Argentino de Hipertensión Arterial 2025
+## Entrada
 
-Organizations:
+La regla recibe un `StatisticsSummary` y utiliza:
 
-- Federación Argentina de Cardiología (FAC)
-- Sociedad Argentina de Hipertensión Arterial (SAHA)
-- Sociedad Argentina de Cardiología (SAC)
+- `averageSystolic`: promedio de presión sistólica.
+- `averageDiastolic`: promedio de presión diastólica.
 
----
+## Lógica implementada
 
-## Purpose
+Genera un hallazgo cuando se cumple cualquiera de estas condiciones:
 
-Evaluate home blood pressure patterns using
-aggregated measurements.
+- PAS promedio ≥ 135 mmHg; o
+- PAD promedio ≥ 85 mmHg.
 
-This rule does not establish diagnosis of hypertension.
+Si ambas condiciones son falsas, no genera hallazgo.
 
-It generates a clinical follow-up finding.
+El umbral está codificado directamente en la regla. Aunque el hallazgo recibe el identificador de la guía seleccionada, el umbral no cambia dinámicamente según esa guía.
 
----
+## Salida
 
-## Input
+- Tipo: `home-blood-pressure`.
+- Título: “Presión arterial domiciliaria promedio elevada”.
+- Severidad: `moderate`.
+- Guía asociada: ID de la guía del contexto, si existe.
 
-StatisticsSummary:
+## Límites
 
-- averageSystolic
-- averageDiastolic
-- totalMeasurements
+- Es un hallazgo de seguimiento, no un diagnóstico.
+- No reemplaza mediciones en consultorio, monitoreo ambulatorio ni evaluación médica.
+- La regla no comprueba por sí misma cantidad mínima de mediciones ni duración del período.
+- La fuente exacta, sección/página y población que respaldan el umbral deben documentarse antes de declarar trazabilidad clínica completa.
 
----
+## Código de referencia
 
-## Logic
-
-A home blood pressure pattern is considered elevated when:
-
-average systolic pressure >= 135 mmHg
-
-OR
-
-average diastolic pressure >= 85 mmHg
-
----
-
-## Output
-
-ClinicalFinding:
-
-Type:
-
-home-blood-pressure
-
-Example:
-
-"Presión arterial domiciliaria promedio elevada"
-
----
-
-## Limitations
-
-This rule does not replace:
-
-- office blood pressure measurement;
-- ambulatory monitoring;
-- clinical diagnosis.
-
----
-
-## Traceability
-
-Source:
-
-Consenso Argentino de Hipertensión Arterial 2025
+`src/domain/clinical/rules/hypertension/HomeBloodPressureControlRule.ts`
