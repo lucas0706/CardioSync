@@ -1,248 +1,35 @@
-# Clinical Guideline Specification
+# Especificación de ClinicalGuideline
 
-## Objetivo
+**Estado:** especificación contrastada con `src/domain/clinical/models/ClinicalGuideline.ts` y `src/domain/clinical/targets/` el 17-10-2026.
 
-Definir la representación conceptual de una guía clínica dentro de
-CardioSync.
+## 1. Contrato actual
 
-Una guía clínica representa conocimiento médico externo versionado,
-trazable y aplicable bajo determinadas condiciones.
+`ClinicalGuideline` es un objeto de metadatos con:
 
----
+- Identidad: `id`.
+- Identificación: `name`, `organization`, `version`, `publicationYear`.
+- Fuente y trazabilidad bibliográfica opcional: `source`, `sourceDocument`, `reference`.
+- Aplicabilidad: `population`, `clinicalArea`.
+- Descripción: `description`.
 
-# Principio arquitectónico
+El contrato no incluye un arreglo de reglas ejecutables, tablas de umbrales ni recomendaciones estructuradas.
 
-Una guía clínica NO es:
+## 2. Guía argentina activa
 
-- una medición;
-- un diagnóstico almacenado;
-- una alerta directa.
+`ConsensoArgentinaHTA2025` registra el Consenso Argentino de Hipertensión Arterial 2025 y se usa como guía predeterminada del análisis. Los objetivos terapéuticos están en un módulo separado y son recuperados por `ClinicalTargetRepository`.
 
-Una guía clínica es una fuente de conocimiento que permite interpretar
-datos del paciente.
+## 3. Separación real de reglas y objetivos
 
----
+Las reglas ejecutables están en `src/domain/clinical/rules/`, y los objetivos en `src/domain/clinical/targets/guidelines/`. Por tanto, el principio anterior de que las reglas “pertenecen a ClinicalGuideline” no describe la implementación actual. La guía aporta metadata e identificador para seleccionar la configuración que el código conoce.
 
-# Modelo conceptual
+El repositorio de objetivos solo reconoce actualmente el identificador argentino 2025. Las otras fuentes aceptadas por `GuidelineSource` no tienen objetivos equivalentes registrados en este repositorio.
 
-ClinicalGuideline
+## 4. Selección contextual: límites actuales
 
-Representa:
+`ClinicalTargetSelector` separa población en `mayores_80` si `age >= 80`, y `adultos_16_79` en caso contrario. No valida el límite inferior de edad. Cuando no encuentra un objetivo cuyas condiciones coincidan, devuelve el primer objetivo de la población, incluso si las condiciones de ese objetivo no se cumplen. Además, la condición `buena_tolerancia` actualmente devuelve `false`, por lo que el objetivo deseable condicionado por ella no se selecciona.
 
-- origen del conocimiento;
-- versión;
-- población aplicable;
-- reglas clínicas;
-- recomendaciones.
+Estos comportamientos son límites de la implementación observada, no recomendaciones clínicas.
 
----
+## 5. Requisitos de evolución
 
-# Información mínima
-
-## Identificación
-
-Debe contener:
-
-- nombre de la guía;
-- organización responsable;
-- año;
-- versión.
-
-Ejemplo:
-
-Consenso Argentino de Hipertensión Arterial 2025
-
-Organizaciones:
-
-- FAC
-- SAHA
-- SAC
-
----
-
-## Fuente
-
-Debe conservar:
-
-- documento original;
-- referencia bibliográfica;
-- ubicación dentro del documento;
-- trazabilidad.
-
-Ejemplo:
-
-Página 12-15.
-
----
-
-## Población aplicable
-
-Una recomendación puede depender de:
-
-- edad;
-- sexo;
-- comorbilidades;
-- situación clínica.
-
-Ejemplo:
-
-Paciente hipertenso con diabetes.
-
----
-
-## Reglas clínicas
-
-Una guía puede definir:
-
-- umbrales;
-- clasificaciones;
-- objetivos;
-- recomendaciones.
-
-Ejemplos:
-
-- clasificación de hipertensión;
-- objetivos de presión arterial;
-- criterios de riesgo.
-
----
-
-# Relación con modelos CardioSync
-
-## BloodPressureRecord
-
-Proporciona:
-
-- datos medidos.
-
-No contiene reglas clínicas.
-
----
-
-## ClinicalContext
-
-Proporciona:
-
-- características del paciente.
-
-Permite determinar aplicabilidad.
-
----
-
-## ClinicalGuideline
-
-Proporciona:
-
-- interpretación basada en evidencia.
-
----
-
-## ClinicalAnalysis
-
-Consume:
-
-- mediciones;
-- contexto;
-- guía.
-
-Produce:
-
-- interpretación clínica.
-
----
-
-# Ejemplo conceptual
-
-Entrada:
-
-BloodPressureRecord
-
-PAS: 150 mmHg
-
-PAD: 95 mmHg
-
-
-Contexto:
-
-Paciente con diabetes.
-
-
-Guía:
-
-Consenso HTA 2025.
-
-
-Resultado:
-
-ClinicalAnalysis determina clasificación
-según reglas aplicables.
-
----
-
-# Versionado
-
-Las guías deben ser versionadas.
-
-Ejemplo:
-
-ClinicalGuideline:
-
-Consenso HTA Argentina
-
-Version:
-
-2025
-
-Una actualización futura no debe sobrescribir la anterior.
-
----
-
-# Compatibilidad futura
-
-El sistema debe permitir múltiples fuentes:
-
-- Argentina;
-- AHA;
-- ESC;
-- ISH.
-
-La fuente debe formar parte del modelo.
-
----
-
-# Decisión arquitectónica
-
-Separar:
-
-Datos
-
-↓
-
-Contexto
-
-↓
-
-Conocimiento clínico
-
-↓
-
-Interpretación
-
----
-
-# Impacto futuro
-
-Permite implementar:
-
-- RecommendationEngine;
-- RiskEngine;
-- AlertEngine.
-
-Sin acoplar reglas clínicas dentro de componentes visuales.
-
----
-
-# Estado
-
-Especificación conceptual creada.
-
+Antes de ampliar el modelo se debe definir cómo versionar reglas, objetivos, poblaciones, referencias y aplicabilidad; cómo conservar trazabilidad por hallazgo; y cómo probar datos ausentes, edad límite y condiciones que no coinciden. No presentar una guía como totalmente soportada hasta que sus reglas y objetivos estén implementados y validados.
