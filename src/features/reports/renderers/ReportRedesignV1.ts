@@ -1424,6 +1424,55 @@ small {
 
 <section class="section">
   <h2 class="section-title">
+    Clasificación de registros según el Consenso Argentino 2025
+  </h2>
+
+
+
+  <div class="table-wrapper">
+    <table class="measurements-table">
+      <thead>
+        <tr>
+          <th>Categoría</th>
+          <th>Criterio sistólico (PAS)</th>
+          <th>Criterio diastólico (PAD)</th>
+        </tr>
+      </thead>
+      <tbody>
+<tr>
+          <td><span style="color: #16A34A; font-weight: 600;">Presión arterial normal</span></td>
+          <td>&lt; 130 mmHg</td>
+          <td>&lt; 80 mmHg</td>
+        </tr>
+<tr>
+          <td><span style="color: #CA8A04; font-weight: 600;">Presión arterial limítrofe</span></td>
+          <td>≥ 130 mmHg</td>
+          <td>≥ 80 mmHg</td>
+        </tr>
+<tr>
+          <td><span style="color: #EA580C; font-weight: 600;">Hipertensión arterial nivel 1</span></td>
+          <td>≥ 140 mmHg</td>
+          <td>≥ 90 mmHg</td>
+        </tr>
+<tr>
+          <td><span style="color: #7C3AED; font-weight: 600;">Hipertensión sistólica aislada</span></td>
+          <td>≥ 140 mmHg</td>
+          <td>&lt; 90 mmHg</td>
+        </tr>
+<tr>
+          <td><span style="color: #DC2626; font-weight: 600;">Hipertensión arterial nivel 2</span></td>
+          <td>≥ 160 mmHg</td>
+          <td>≥ 100 mmHg</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+
+</section>
+
+<section class="section">
+  <h2 class="section-title">
     Clasificación de las mediciones
   </h2>
 
@@ -1545,57 +1594,6 @@ small {
       </div>
     </div>
 
-    <div class="metric">
-      <div class="metric-label">
-        Desviación estándar sistólica
-      </div>
-
-      <div class="metric-value">
-        ${formatNumber(
-          summary.systolicStandardDeviation,
-          1,
-        )}
-      </div>
-    </div>
-
-    <div class="metric">
-      <div class="metric-label">
-        Desviación estándar diastólica
-      </div>
-
-      <div class="metric-value">
-        ${formatNumber(
-          summary.diastolicStandardDeviation,
-          1,
-        )}
-      </div>
-    </div>
-
-    <div class="metric">
-      <div class="metric-label">
-        Variabilidad sistólica
-      </div>
-
-      <div class="metric-value">
-        ${formatNumber(
-          summary.systolicVariability,
-          1,
-        )}%
-      </div>
-    </div>
-
-    <div class="metric">
-      <div class="metric-label">
-        Variabilidad diastólica
-      </div>
-
-      <div class="metric-value">
-        ${formatNumber(
-          summary.diastolicVariability,
-          1,
-        )}%
-      </div>
-    </div>
 
   </div>
 </section>

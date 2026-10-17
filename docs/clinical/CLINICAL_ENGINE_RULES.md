@@ -27,8 +27,8 @@ Las reglas que requieren estadísticas se omiten cuando `statistics` no está pr
 - `normal`: por debajo de los umbrales de la categoría limítrofe.
 - `borderline`: PAS ≥130 o PAD ≥80, salvo categorías superiores.
 - `grade-1`: PAS ≥140 o PAD ≥90, salvo categoría superior o sistólica aislada.
-- `grade-2`: PAS ≥160 o PAD ≥100, excepto la condición sistólica aislada evaluada antes.
-- `isolated-systolic`: PAS ≥140 y PAD <90.
+- `grade-2`: PAS ≥160 o PAD ≥100; se evalúa primero.
+- `isolated-systolic`: PAS ≥140 y PAD <90, si no se activó antes `grade-2`.
 
 El orden de evaluación importa. El clasificador añade la advertencia `low-diastolic` si la PAD evaluada es inferior a 60 mmHg; la regla de seguridad del análisis genera un hallazgo independiente cuando la PAD media es inferior a 70 mmHg.
 

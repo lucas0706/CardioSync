@@ -2,7 +2,7 @@
 
 ## Estado en CardioSync
 
-**Estado:** soporte parcial en código; trazabilidad bibliográfica pendiente de completar.
+**Estado:** referencia bibliográfica principal incorporada. Los criterios implementados deben interpretarse según el alcance y las notas de la fuente primaria; las reglas adicionales se documentan por separado y no se atribuyen automáticamente al consenso.
 
 La implementación identifica la guía con:
 
@@ -22,9 +22,9 @@ La ficha de código es metadato de configuración; no constituye por sí misma u
 
 | Categoría implementada | Condición |
 |---|---|
-| Hipertensión sistólica aislada | PAS ≥ 140 mmHg y PAD < 90 mmHg; se evalúa antes que las demás categorías |
-| Hipertensión nivel 2 | PAS ≥ 160 mmHg o PAD ≥ 100 mmHg |
-| Hipertensión nivel 1 | PAS ≥ 140 mmHg o PAD ≥ 90 mmHg |
+| Hipertensión nivel 2 | PAS ≥ 160 mmHg o PAD ≥ 100 mmHg; se evalúa primero |
+| Hipertensión sistólica aislada | PAS ≥ 140 mmHg y PAD < 90 mmHg, si no se activó nivel 2 |
+| Hipertensión nivel 1 | PAS ≥ 140 mmHg o PAD ≥ 90 mmHg, si no se aplicó una categoría anterior |
 | Presión limítrofe | PAS ≥ 130 mmHg o PAD ≥ 80 mmHg, si no se aplicó una categoría anterior |
 | Normal | Ninguna de las condiciones anteriores |
 
@@ -62,3 +62,28 @@ La regla de control domiciliario genera un hallazgo cuando el promedio de PAS es
 ## Seguridad
 
 CardioSync ofrece información de seguimiento y no debe presentar estos resultados como diagnóstico ni como sustituto de una evaluación médica.
+
+
+## Referencia bibliográfica primaria
+
+Aquieri A, Rodríguez P, Vissani S, et al. **Consenso Argentino de
+Hipertensión Arterial 2025**. Revista de la Federación Argentina de
+Cardiología. 2025;54 (suplemento):5–64.
+
+- Publicación oficial: https://www.revistafac.org.ar/ojs/index.php/revistafac/es/article/view/726
+- PDF publicado por la Sociedad Argentina de Cardiología:
+  https://www.sac.org.ar/wp-content/uploads/2025/08/COMPLETO-E-41.pdf
+- Ficha institucional de la SAC:
+  https://www.sac.org.ar/sac-consensos/consenso-de-hipertension-arterial-2025/
+
+La tabla 1 corresponde a la clasificación de presión arterial en consultorio
+para personas de 16 años o más. La nota de la tabla indica que, si la presión
+sistólica y la diastólica corresponden a categorías distintas, se elige la
+categoría más alta. La clasificación descrita en el documento se basa en el
+promedio de tres lecturas de la visita inicial, con equipo y técnica
+recomendados.
+
+La referencia de esta sección identifica la publicación primaria. No implica
+que todas las reglas de seguridad, los objetivos terapéuticos, los umbrales
+estadísticos o las reglas domiciliarias del código hayan sido validados por
+esa misma tabla. Cada regla requiere su propia correspondencia documental.
