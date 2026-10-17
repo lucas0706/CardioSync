@@ -2,45 +2,53 @@
 
 | Campo | Valor |
 |---|---|
-| Guía de referencia | 2025 AHA/ACC Guideline for the Prevention, Detection, Evaluation and Management of High Blood Pressure in Adults |
-| Organizaciones | American Heart Association (AHA) y American College of Cardiology (ACC), junto con las organizaciones colaboradoras de la publicación |
-| Año | 2025 |
-| Estado documental | Fuente principal definida para el alcance clínico de CardioSync |
-| Fecha de revisión | 2026-10-17 |
+| Guía clínica vigente | Consenso Argentino de Hipertensión Arterial 2025 |
+| Organizaciones registradas en el proyecto | Federación Argentina de Cardiología (FAC), Sociedad Argentina de Hipertensión Arterial (SAHA) y Sociedad Argentina de Cardiología (SAC) |
+| Referencia bibliográfica registrada | Rev Fed Arg Cardiol. 2025; 54 (Suplemento 6): 5-64 |
+| Alcance documental | Única guía clínica utilizada actualmente por CardioSync |
+| Última revisión documental | 2026-10-17 |
 
-## Objetivo
+## 1. Alcance vigente
 
-CardioSync utiliza como referencia clínica la guía AHA/ACC 2025 para adultos. La documentación clínica, las reglas derivadas y las validaciones deben mantenerse alineadas con esta versión.
+CardioSync utiliza actualmente como única referencia clínica el **Consenso Argentino de Hipertensión Arterial 2025**. Las reglas clínicas vigentes deben trazarse a esta fuente.
 
-Este documento identifica la fuente y establece requisitos de trazabilidad. No reemplaza la publicación oficial ni constituye por sí solo evidencia de que cada recomendación se encuentre implementada o validada.
+La presencia de otras guías, fichas bibliográficas o documentos de comparación en el repositorio no significa que formen parte del comportamiento clínico actual de la aplicación. Los materiales de otras guías que se conserven deben identificarse claramente como históricos, archivados o no activos y no deben usarse para justificar reglas actuales.
 
-## Fuentes primarias
+Este documento define el alcance documental; no certifica que todas las recomendaciones del consenso estén implementadas ni que cada regla haya sido validada clínica y técnicamente.
 
-- [Publicación oficial en Circulation](https://doi.org/10.1161/CIR.0000000000001356)
-- [Publicación paralela en Hypertension](https://doi.org/10.1161/HYP.0000000000000249)
-- [Material oficial de AHA Professional Heart Daily](https://professional.heart.org/en/guidelines-statements/2025-ahaaccaanpaapaabcaccpacnmapcnasgim-guideline-for-thecir0000000000001356)
+## 2. Fuente primaria y materiales del proyecto
 
-## Trazabilidad obligatoria
+- Ficha del consenso: [Consenso Argentino de Hipertensión Arterial 2025](guidelines/ARGENTINA_2025.md)
+- Índice de fuentes: [Índice de fuentes clínicas](guidelines/source/INDEX.md)
+- Fuente incluida en el repositorio: `docs/clinical/guidelines/source/argentina/`
+- Extracciones temáticas: `docs/clinical/guidelines/extraction/argentina/consenso-2025/`
 
-Cada regla clínica que CardioSync derive de esta guía debe registrar:
+La referencia bibliográfica registrada en el proyecto es *Rev Fed Arg Cardiol. 2025; 54 (Suplemento 6): 5-64*. Antes de cambiar una regla clínica, debe verificarse directamente el documento primario incluido, su página, sección o tabla y la interpretación que se trasladará al software.
 
-- sección, tabla o recomendación exacta de la fuente;
-- página o ubicación verificable;
-- población y condiciones de aplicabilidad;
-- interpretación que se trasladará al comportamiento de la aplicación;
-- archivo y símbolo de código donde se implementa;
-- pruebas que cubran el valor esperado y los límites relevantes;
-- fecha y responsable de revisión.
+## 3. Trazabilidad obligatoria por regla
 
-## Criterios de mantenimiento
+Cada regla clínica debe registrar:
 
-1. No introducir umbrales ni recomendaciones clínicas sin referencia verificable a la guía AHA/ACC 2025.
-2. Mantener separadas la fuente clínica, su interpretación funcional y la implementación.
-3. No declarar una regla como validada solo porque exista código o documentación.
-4. Registrar las limitaciones conocidas y los casos aún no cubiertos.
-5. Antes de actualizar reglas, revisar la fuente oficial y evaluar el impacto sobre registros históricos, reportes y pruebas.
-6. Mantener este documento centrado exclusivamente en la guía definida como referencia clínica de CardioSync.
+- identificación de la fuente y versión;
+- sección, tabla, recomendación y página exactas;
+- población, condiciones de aplicabilidad y exclusiones;
+- interpretación funcional aprobada;
+- ruta del archivo y símbolo de código donde se implementa;
+- casos de prueba, valores límite, resultados esperados y resultados observados;
+- limitaciones conocidas;
+- fecha y responsable de revisión clínica y técnica.
 
-## Alcance y límites
+## 4. Reglas de mantenimiento
 
-La identificación de la fuente no sustituye la revisión clínica de las reglas implementadas ni la ejecución de pruebas técnicas. Cualquier declaración de conformidad debe apoyarse en trazabilidad verificable y resultados de validación documentados.
+1. No introducir umbrales ni recomendaciones clínicas sin una referencia verificable al Consenso Argentino de Hipertensión Arterial 2025.
+2. Mantener separadas la fuente primaria, la interpretación clínica y la implementación.
+3. No combinar criterios de otras guías con el consenso argentino dentro de una regla vigente.
+4. No declarar una regla validada solo porque exista código o documentación.
+5. Revisar los casos límite y el impacto sobre registros históricos, reportes y pruebas antes de cambiar reglas.
+6. Mantener los documentos de otras guías fuera del alcance activo; si se conservan por razones históricas o de investigación, etiquetarlos como no activos y evitar que se interpreten como fuentes utilizadas por la aplicación.
+
+## 5. Estado y límites
+
+La documentación existente describe clasificación de presión arterial, objetivos terapéuticos y otras extracciones relacionadas con el consenso. La cobertura completa, la correspondencia exacta con el documento primario y la ejecución satisfactoria de pruebas deben verificarse por separado.
+
+La identificación de una fuente no sustituye la revisión clínica de las reglas implementadas ni las pruebas técnicas. Cualquier declaración de conformidad debe apoyarse en trazabilidad verificable y resultados de validación documentados.
