@@ -28,7 +28,7 @@ La ficha de código es metadato de configuración; no constituye por sí misma u
 | Presión limítrofe | PAS ≥ 130 mmHg o PAD ≥ 80 mmHg, si no se aplicó una categoría anterior |
 | Normal | Ninguna de las condiciones anteriores |
 
-La implementación también agrega una advertencia de seguridad cuando la PAD es inferior a 70 mmHg.
+La advertencia `low-diastolic` del clasificador se activa cuando la PAD evaluada es inferior a 60 mmHg. La regla independiente `BloodPressureSafetyRule` del análisis clínico conserva su umbral de PAD media inferior a 70 mmHg.
 
 ### Objetivos terapéuticos configurados
 
