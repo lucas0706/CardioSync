@@ -257,3 +257,26 @@ La estructura del repositorio podrá evolucionar, pero cualquier cambio arquitec
 - 03_DECISIONS.md
 - 10_CHANGELOG.md
 
+---
+
+# Nota de estado — 2026-10-17
+
+La estructura real del repositorio incluye las áreas principales:
+
+- `src/core`: infraestructura compartida, incluida la base de datos y servicios transversales.
+- `src/domain`: modelos, reglas y servicios de dominio.
+- `src/features`: módulos organizados por funcionalidad, entre ellos measurements, statistics, reports, backup, appUpdate, updates y healthConnect.
+- `src/components`: componentes reutilizables de presentación.
+
+También existen áreas de soporte como `src/clinical`, `src/devtools`, `src/hooks`, `src/services`, `src/store`, `src/theme`, `src/types` y `src/utils`. No deben eliminarse ni moverse solo para forzar una estructura ideal sin una auditoría de dependencias e imports.
+
+## Criterios para futuras modificaciones
+
+1. Respetar los límites y responsabilidades actuales antes de mover archivos.
+2. Mantener TypeScript strict y compatibilidad con Expo SDK 57.
+3. No introducir nuevas dependencias sin evaluar impacto y necesidad.
+4. Separar código de producción de herramientas de desarrollo.
+5. Verificar los imports y la compilación después de cambios estructurales.
+6. Actualizar este documento en un PR independiente cuando cambie la estructura real.
+
+La documentación de carpetas describe el árbol observado y no autoriza por sí misma una refactorización.
