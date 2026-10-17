@@ -1,230 +1,28 @@
 # MeasurementContext
 
-Version: 1.0
-Status: Draft
-Phase: Clinical Knowledge Base
+**Estado:** concepto arquitectónico parcialmente implementado; revisión del código de `feature/app-updates` del 17-10-2026.
 
----
+## 1. Propósito conceptual
 
-# 1. Objetivo
+El contexto de medición describe las condiciones en las que se obtuvo una lectura: por ejemplo, brazo y posición. No representa el valor de presión arterial ni su interpretación clínica.
 
-Definir el componente MeasurementContext dentro de ClinicalContext.
+## 2. Representación actual
 
-MeasurementContext describe las condiciones y características bajo las cuales
-se obtuvo una medición de presión arterial.
+No existe un modelo de dominio independiente llamado `MeasurementContext`. Los campos `arm` y `position` están definidos directamente como opcionales en `BloodPressureRecord` y son mapeados por `createMeasurement` desde el formulario.
 
-No representa el valor de presión arterial.
+El contrato `BloodPressureRecord` también incluye `origin` y `notes`. No se encontraron en el modelo actual campos independientes para tipo de medición, dispositivo, tamaño del manguito, periodo de reposo o lecturas repetidas.
 
-No interpreta el resultado.
+## 3. Relación con el análisis
 
-No realiza clasificación clínica.
+El servicio de análisis recibe registros, estadísticas, contexto clínico y guía como entrada, pero la implementación de `ClinicalAnalysisDomainService` evalúa las reglas a partir de las estadísticas y el contexto. No utiliza directamente brazo o posición para modificar la interpretación.
 
----
+## 4. Límite de implementación
 
-# 2. Principio fundamental
+Los conceptos de medición domiciliaria, consultorio y MAPA no deben describirse como un modelo ya persistido de `MeasurementContext`. El soporte futuro requerirá definir tipos, migraciones, importación/exportación y reglas de validación antes de separar estos campos del registro.
 
-Una medición de presión arterial no depende únicamente del valor obtenido.
+## 5. Principios
 
-La calidad e interpretación posterior dependen también de:
-
-- método utilizado;
-- condiciones de medición;
-- posición;
-- procedimiento seguido;
-- repetición de mediciones.
-
-MeasurementContext conserva esa información.
-
----
-
-# 3. Responsabilidad
-
-MeasurementContext responde:
-
-¿Cómo fue obtenida esta medición?
-
-No responde:
-
-¿Qué significa clínicamente esta medición?
-
-Eso pertenece a ClinicalAnalysis.
-
----
-
-# 4. Relación con BloodPressureRecord
-
-BloodPressureRecord:
-
-Registra el resultado.
-
-Ejemplo:
-
-- PAS
-- PAD
-- fecha
-- hora
-
-
-MeasurementContext:
-
-Describe el procedimiento.
-
-Ejemplo:
-
-- medición domiciliaria;
-- posición sentada;
-- brazo utilizado;
-- mediciones repetidas.
-
----
-
-# 5. Modelo conceptual
-
-MeasurementContext forma parte de:
-
-ClinicalContext
-
-↓
-
-MeasurementContext
-
-
-Es opcional.
-
-Una medición puede existir sin información adicional del procedimiento.
-
----
-
-# 6. Componentes previstos
-
-## MeasurementType
-
-Define el tipo de medición.
-
-Valores posibles:
-
-- consultorio;
-- domicilio;
-- monitoreo ambulatorio.
-
----
-
-## Position
-
-Representa la posición durante la medición.
-
-Ejemplos:
-
-- sentado;
-- de pie;
-- acostado.
-
----
-
-## Arm
-
-Representa el brazo utilizado.
-
-Ejemplos:
-
-- izquierdo;
-- derecho.
-
----
-
-## RestPeriod
-
-Representa el tiempo de reposo previo cuando esté disponible.
-
----
-
-## RepeatedMeasurements
-
-Representa si se realizaron múltiples lecturas.
-
-Información posible:
-
-- cantidad de lecturas;
-- promedio utilizado;
-- mediciones individuales.
-
----
-
-# 7. Relación con guías clínicas
-
-Las guías de hipertensión enfatizan que la técnica de medición influye en la interpretación de los valores obtenidos.
-
-Por esta razón CardioSync separa:
-
-Dato medido:
-
-BloodPressureRecord
-
-de:
-
-Condiciones de medición:
-
-MeasurementContext
-
----
-
-# 8. Independencia tecnológica
-
-MeasurementContext no debe depender de:
-
-- fabricante del dispositivo;
-- aplicación externa;
-- Health Connect;
-- modelo de tensiómetro.
-
-El dominio representa el procedimiento clínico.
-
----
-
-# 9. Decisiones arquitectónicas
-
-## ADR-011
-
-MeasurementContext será responsable exclusivamente de describir
-cómo fue obtenida una medición.
-
----
-
-## ADR-012
-
-La información del procedimiento no debe almacenarse dentro de
-BloodPressureRecord.
-
----
-
-# 10. Riesgos
-
-Evitar:
-
-- mezclar interpretación clínica con procedimiento;
-- almacenar información específica de un proveedor;
-- duplicar datos existentes;
-- convertir MeasurementContext en una historia clínica.
-
----
-
-# 11. Impacto en CardioSync
-
-Utilizado por:
-
-- ClinicalContextBuilder;
-- ClinicalAnalysisEngine;
-- Statistics;
-- Exportación.
-
----
-
-# 12. Estado
-
-Draft.
-
-Pendiente de revisión conjunta con:
-
-- Anthropometry;
-- VitalSigns;
-- ClinicalAnalysis.
+- Conservar el origen y los datos originales disponibles.
+- No inferir técnica correcta a partir de la mera presencia de brazo o posición.
+- No mezclar condiciones de medición con clasificación o diagnóstico.
+- No introducir dependencias de proveedor en el dominio.
