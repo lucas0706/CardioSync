@@ -1,7 +1,5 @@
 # Copias de seguridad y recuperación de datos
 
-# Copias de seguridad y recuperación de datos
-
 CardioSync permite crear copias de su base SQLite local, guardar copias en una carpeta elegida o en Google Drive y restaurar una copia compatible. Esta guía describe las operaciones disponibles y las precauciones importantes para proteger el historial.
 
 Los pasos de copia programada dependen de los permisos y las restricciones de Android. Después de una ejecución, conviene comprobar el resultado y la fecha de la última copia; activar la programación no garantiza por sí solo que se haya guardado una copia.
