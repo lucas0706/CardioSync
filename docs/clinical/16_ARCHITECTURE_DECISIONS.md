@@ -1,285 +1,54 @@
-# Architecture Decisions
+# Decisiones de arquitectura clínica
 
-Version: 1.0
-Status: Draft
-Phase: Clinical Knowledge Base
+**Estado:** decisiones conceptuales contrastadas con `feature/app-updates` el 17-10-2026.
 
----
+Este documento resume decisiones y su grado de implementación. Los identificadores ADR históricos se conservan como referencias documentales, pero no implican que cada concepto esté implementado.
 
-# 1. Objetivo
+## 1. Registro separado del análisis
 
-Documentar las principales decisiones arquitectónicas tomadas durante el diseño
-del dominio clínico de CardioSync.
+**Decisión:** el registro de presión arterial conserva los valores observados; la interpretación se produce en reglas y servicios separados.
 
-Estas decisiones establecen las reglas que deberán respetarse durante la
-implementación.
+**Estado:** parcialmente implementado. `BloodPressureRecord` y `ClinicalAnalysis` son contratos separados, pero el registro aún conserva campos reservados de contexto, signos vitales y guía.
 
----
+## 2. Contexto clínico
 
-# 2. ADR-007
+**Decisión:** el perfil del paciente es opcional y no debe copiarse automáticamente en cada medición.
 
-## ClinicalContext representa el contexto de una medición
+**Estado:** implementado para el perfil local. `ClinicalContext` incluye datos demográficos, antropométricos y determinados antecedentes. No es todavía un agregado compuesto por `MeasurementContext`, `VitalSigns`, `LifestyleContext` y `CardiovascularSymptoms`.
 
-### Contexto
+## 3. Independencia de fuentes
 
-La medición de presión arterial necesita información adicional para su
-interpretación.
+**Decisión:** los modelos de dominio no deben depender de Health Connect.
 
-### Decisión
+**Estado:** los servicios de Health Connect están en la capa de feature y existen modelos de dominio para datos de salud, pero no hay un `ClinicalDataProvider` común ni un constructor que combine automáticamente esas fuentes con el contexto del análisis.
 
-ClinicalContext representa exclusivamente información asociada a una medición
-específica.
+## 4. Reglas clínicas
 
-### Consecuencias
+**Decisión:** las reglas deben ser unidades separadas, comprobables y trazables.
 
-Positivas:
+**Estado:** implementado mediante el contrato `ClinicalRule`, `ClinicalRuleContext` y reglas concretas en `src/domain/clinical/rules/`. Los hallazgos pueden registrar el identificador de guía, pero la trazabilidad completa a párrafo, versión de motor e instantánea de entradas no está modelada en cada hallazgo.
 
-- evita convertir CardioSync en una historia clínica completa;
-- mantiene BloodPressureRecord como núcleo;
-- facilita análisis reproducibles.
+## 5. Guías y objetivos
 
-Negativas:
+**Decisión:** las guías son metadatos versionados y los objetivos se seleccionan por fuente y contexto.
 
-- algunos datos clínicos deberán modelarse en otros dominios futuros.
+**Estado:** parcial. La guía argentina 2025 y sus objetivos están registrados; el repositorio no proporciona objetivos ejecutables para todas las guías documentadas. Algunas reglas y calculadores mantienen umbrales fijos.
 
----
+## 6. Estadísticas y análisis
 
-# 3. ADR-008
+**Decisión:** Statistics calcula métricas y Clinical Analysis genera hallazgos a partir de resultados estadísticos y contexto.
 
-## ClinicalContext será un Aggregate compuesto
+**Estado:** implementado. `StatisticsDomainService` delega a `StatisticsEngine`; `ClinicalAnalysisDomainService` coordina reglas y construye `ClinicalAnalysisResult`. El servicio de análisis no utiliza directamente la lista `measurements` de su entrada durante la evaluación.
 
-### Contexto
+## 7. Recomendaciones y alertas
 
-Los datos clínicos asociados tienen diferente naturaleza.
+**Decisión:** recomendaciones, hallazgos y alertas deben ser conceptos separados.
 
-### Decisión
+**Estado:** parcial. Hay hallazgos clínicos y un tipo de datos `ClinicalAlert`, pero no se encontraron motores independientes completos de recomendaciones y alertas.
 
-ClinicalContext se dividirá en componentes especializados:
+## 8. Reglas de mantenimiento
 
-- MeasurementContext;
-- Anthropometry;
-- VitalSigns;
-- LifestyleContext;
-- CardiovascularSymptoms.
-
-### Consecuencias
-
-Positivas:
-
-- mejor separación de responsabilidades;
-- mayor extensibilidad;
-- menor acoplamiento.
-
----
-
-# 4. ADR-009
-
-## El dominio será independiente del origen de datos
-
-### Contexto
-
-CardioSync podrá obtener datos desde múltiples fuentes.
-
-### Decisión
-
-El dominio representa información clínica, no tecnologías.
-
-Fuentes posibles:
-
-- manual;
-- Health Connect;
-- importación;
-- proveedores futuros.
-
-### Consecuencias
-
-Positivas:
-
-- permite nuevas integraciones;
-- evita dependencia tecnológica.
-
----
-
-# 5. ADR-010
-
-## ClinicalContext será construido mediante ClinicalContextBuilder
-
-### Contexto
-
-La construcción del contexto puede requerir combinar múltiples fuentes.
-
-### Decisión
-
-La creación del contexto será responsabilidad de un Builder dedicado.
-
-### Consecuencias
-
-Positivas:
-
-- reglas centralizadas;
-- mejor testabilidad;
-- separación UI/dominio.
-
----
-
-# 6. ADR-011
-
-## MeasurementContext separado de BloodPressureRecord
-
-### Decisión
-
-Las condiciones de medición no forman parte del registro principal.
-
----
-
-# 7. ADR-012
-
-## El procedimiento de medición no se mezcla con interpretación clínica
-
-### Decisión
-
-MeasurementContext describe.
-
-ClinicalAnalysis interpreta.
-
----
-
-# 8. ADR-013
-
-## Anthropometry pertenece a ClinicalContext
-
-### Decisión
-
-Peso, talla e IMC contextual no forman parte de BloodPressureRecord.
-
----
-
-# 9. ADR-014
-
-## BMI será un valor derivado
-
-### Decisión
-
-El IMC se calculará desde peso y talla.
-
-No se permitirá inconsistencia entre valores.
-
----
-
-# 10. ADR-016
-
-## VitalSigns pertenece a ClinicalContext
-
-### Decisión
-
-FC, SpO2 y frecuencia respiratoria serán información contextual.
-
----
-
-# 11. ADR-019
-
-## Síntomas cardiovasculares como dominio específico
-
-### Decisión
-
-No utilizar un modelo genérico de síntomas.
-
----
-
-# 12. ADR-022
-
-## LifestyleContext representa factores recientes
-
-### Decisión
-
-Sueño y actividad física asociados a una medición pertenecen al contexto
-cuando tengan relevancia temporal.
-
----
-
-# 13. ADR-025
-
-## ClinicalGuideline será una entidad independiente
-
-### Decisión
-
-Las guías son intercambiables.
-
----
-
-# 14. ADR-026
-
-## ClinicalAnalysisEngine no contiene reglas clínicas embebidas
-
-### Decisión
-
-Las reglas pertenecen a ClinicalGuideline.
-
----
-
-# 15. ADR-029
-
-## ClinicalAnalysis será una entidad independiente
-
-### Decisión
-
-Los resultados de interpretación deben conservar trazabilidad.
-
----
-
-# 16. ADR-033
-
-## RecommendationEngine separado de ClinicalAnalysis
-
-### Decisión
-
-Interpretar y recomendar son responsabilidades diferentes.
-
----
-
-# 17. ADR-036
-
-## AlertEngine no realiza diagnóstico
-
-### Decisión
-
-Las alertas comunican información relevante.
-
----
-
-# 18. ADR-042
-
-## Statistics separado de ClinicalAnalysis
-
-### Decisión
-
-El análisis estadístico y el clínico tienen objetivos diferentes.
-
----
-
-# 19. Principios generales
-
-CardioSync seguirá estos principios:
-
-- registrar primero;
-- enriquecer después;
-- interpretar al final.
-
-El dominio clínico debe permanecer:
-
-- desacoplado;
-- trazable;
-- versionable;
-- extensible.
-
----
-
-# 20. Estado
-
-Draft.
-
-Pendiente:
-
-- revisión clínica final;
-- implementación;
-- validación mediante pruebas.
+- No describir diseños futuros como capacidades actuales.
+- Toda modificación de reglas debe citar fuente, alcance, población y pruebas.
+- Las migraciones de `BloodPressureRecord` deben preservar compatibilidad con datos guardados e importados.
+- Los cambios de documentación no certifican por sí solos la validez clínica de una regla.
