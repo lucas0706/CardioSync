@@ -1,273 +1,48 @@
 # ClinicalContext
 
-Version: 1.0
-Status: Draft
-Phase: Clinical Knowledge Base
+**Estado:** contrastado con `src/domain/clinical/models/ClinicalContext.ts` el 17-10-2026.
 
----
+## 1. Responsabilidad actual
 
-# 1. Objetivo
+`ClinicalContext` representa información opcional a nivel de paciente utilizada como contexto para el análisis clínico. En la implementación actual funciona también como contrato del perfil local; no es un agregado compuesto por submodelos independientes ni un contexto vinculado individualmente a una medición.
 
-Definir el dominio ClinicalContext dentro de CardioSync.
+## 2. Campos implementados
 
-ClinicalContext representa el conjunto de información clínica adicional asociado
-a una medición específica de presión arterial.
+- Identidad: `patientId`, `name`.
+- Demografía: `age`, `sex` (`male` o `female`).
+- Antropometría: `height`, `weight`, `bmi`.
+- Factores cardiovasculares: `smoking`, `diabetes`, `dyslipidemia`.
+- Antecedentes: `cardiovascularDisease`, `heartFailure`, `strokeHistory`, `peripheralVascularDisease`.
+- Condición renal: `chronicKidneyDisease`.
 
-No representa una historia clínica completa.
+Los campos opcionales pueden estar ausentes. La persistencia SQLite convierte los booleanos a enteros y los recupera como booleanos.
 
-No representa un paciente.
+## 3. Persistencia e interfaz
 
-No representa un diagnóstico.
+`ClinicalProfileService` delega las operaciones al `ClinicalProfileRepository`. El repositorio lee y guarda el perfil en la tabla `clinical_profile`. La pantalla `ProfileScreen` permite editar los datos enumerados y calcula el IMC a partir de talla y peso positivos.
 
----
+El perfil local utiliza el identificador `local-user`. Esto no constituye todavía un modelo multiusuario o una historia clínica longitudinal.
 
-# 2. Principio fundamental
+## 4. Relación con el análisis
 
-CardioSync mantiene la medición como núcleo del dominio.
+`ClinicalAnalysisDomainService` pasa el contexto a las reglas. La regla de riesgo cardiovascular utiliza antecedentes cardiovasculares, enfermedad renal crónica y diabetes para generar un hallazgo de factores asociados a riesgo aumentado. La selección de objetivos terapéuticos usa edad, diabetes y enfermedad renal crónica en las condiciones implementadas.
 
-Flujo:
+La presencia de un campo en el perfil no implica que todas las reglas clínicas lo utilicen.
 
-BloodPressureRecord
+## 5. Fuera del alcance actual
 
-↓
+No están implementados como componentes de `ClinicalContext` independientes:
 
-ClinicalContext
+- `MeasurementContext`;
+- `VitalSigns`;
+- `LifestyleContext`;
+- `CardiovascularSymptoms`;
+- `ClinicalContextBuilder`;
+- `ContextQualityEngine`;
+- `ClinicalDataProvider`.
 
-↓
+Health Connect dispone de flujos propios de sincronización, pero no se debe asumir que sus datos se combinan automáticamente con el perfil y se entregan al análisis clínico.
 
-ClinicalAnalysis
+## 6. Restricciones
 
-↓
-
-Statistics
-
----
-
-# 3. Responsabilidad
-
-ClinicalContext:
-
-- describe el contexto de una medición;
-- aporta información complementaria;
-- permite interpretación posterior.
-
-ClinicalContext NO:
-
-- clasifica hipertensión;
-- genera alertas;
-- recomienda tratamientos;
-- modifica mediciones.
-
----
-
-# 4. Modelo conceptual
-
-ClinicalContext es un Aggregate compuesto.
-
-Componentes:
-
-- MeasurementContext
-- Anthropometry
-- VitalSigns
-- LifestyleContext
-- CardiovascularSymptoms
-- ClinicalNotes
-
----
-
-# 5. Relación con BloodPressureRecord
-
-BloodPressureRecord
-
-1
-
-↓
-
-0..1
-
-ClinicalContext
-
-
-Una medición puede existir sin contexto adicional.
-
----
-
-# 6. Relación con ClinicalAnalysis
-
-ClinicalContext
-
-↓
-
-ClinicalAnalysis
-
-
-ClinicalAnalysis interpreta.
-
-ClinicalContext describe.
-
----
-
-# 7. Independencia de fuentes
-
-El dominio no depende del origen del dato.
-
-Fuentes posibles:
-
-- Manual
-- Health Connect
-- Importación
-- Proveedores futuros
-
-El dominio almacena información clínica, no tecnología.
-
----
-
-# 8. Componentes internos
-
-## MeasurementContext
-
-Describe cómo se obtuvo la medición.
-
-Incluye:
-
-- tipo de medición;
-- posición;
-- brazo;
-- condiciones del procedimiento.
-
----
-
-## Anthropometry
-
-Información corporal:
-
-- peso;
-- talla;
-- IMC derivado.
-
----
-
-## VitalSigns
-
-Signos vitales:
-
-- frecuencia cardíaca;
-- SpO2;
-- frecuencia respiratoria.
-
----
-
-## LifestyleContext
-
-Contexto reciente:
-
-- sueño;
-- actividad física;
-- ejercicio.
-
----
-
-## CardiovascularSymptoms
-
-Síntomas relacionados:
-
-- dolor torácico;
-- disnea;
-- palpitaciones;
-- síntomas neurológicos asociados.
-
----
-
-# 9. ClinicalContextBuilder
-
-Responsabilidad:
-
-Construir un ClinicalContext combinando:
-
-- datos manuales;
-- proveedores externos;
-- reglas temporales;
-- calidad del dato.
-
----
-
-# 10. ClinicalDataProvider
-
-Interfaz conceptual para obtener datos clínicos.
-
-Implementaciones futuras:
-
-- ManualProvider
-- HealthConnectProvider
-- ImportProvider
-
----
-
-# 11. ContextQualityEngine
-
-Evalúa:
-
-- completitud;
-- vigencia;
-- consistencia;
-- confianza.
-
----
-
-# 12. ContextAssistant
-
-Entrega sugerencias al usuario.
-
-Ejemplos:
-
-- datos encontrados automáticamente;
-- datos faltantes;
-- conflictos;
-- advertencias.
-
----
-
-# 13. ADR
-
-## ADR-007
-
-ClinicalContext representa exclusivamente el contexto clínico de una medición.
-
----
-
-## ADR-008
-
-ClinicalContext será un Aggregate compuesto.
-
----
-
-## ADR-009
-
-El dominio será independiente del origen de datos.
-
----
-
-## ADR-010
-
-ClinicalContext será construido mediante ClinicalContextBuilder.
-
----
-
-# 14. Decisiones congeladas
-
-- BloodPressureRecord continúa siendo el núcleo.
-- ClinicalContext es opcional.
-- ClinicalAnalysis permanece separado.
-- Health Connect no será una dependencia del dominio.
-- Los proveedores serán intercambiables.
-
----
-
-# 15. Trazabilidad
-
-Fuentes:
-
-- Consenso Argentino de Hipertensión Arterial 2025.
-- ESC Guidelines 2024.
-- AHA/ACC Guideline 2025.
-- ISH Global Hypertension Practice Guidelines 2020.
+No copiar automáticamente el perfil a cada registro de presión arterial. No presentar campos del perfil como diagnóstico ni generar hallazgos únicamente porque exista información. Las ampliaciones deben mantener el contrato único y evitar modelos duplicados.
