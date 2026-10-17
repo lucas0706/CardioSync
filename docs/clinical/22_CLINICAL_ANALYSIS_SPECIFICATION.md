@@ -1,275 +1,51 @@
-# Clinical Analysis Specification
+# Especificación de Clinical Analysis
 
-## Objetivo
+**Estado:** contrastado con los contratos y servicios de `feature/app-updates` el 17-10-2026.
 
-Definir la capa de interpretación clínica de CardioSync.
+## 1. Responsabilidad
 
-ClinicalAnalysis transforma datos registrados y contexto clínico en
-información interpretada utilizando conocimiento clínico versionado.
+El análisis clínico coordina reglas que convierten estadísticas y contexto del perfil en hallazgos. No calcula las estadísticas ni modifica las mediciones originales.
 
----
+## 2. Entrada
 
-# Principio arquitectónico
+`ClinicalAnalysisInput` declara:
 
-ClinicalAnalysis NO almacena datos primarios.
+- `measurements: BloodPressureRecord[]`;
+- `statistics?: StatisticsSummary`;
+- `context: ClinicalContext`;
+- `guideline?: ClinicalGuideline`.
 
-No reemplaza:
+**Límite importante:** aunque `measurements` forma parte del contrato, `ClinicalAnalysisDomainService.analyze()` no usa esa lista al evaluar reglas. El servicio usa el resumen estadístico y el contexto. Las reglas que requieren estadísticas se omiten cuando `statistics` está ausente.
 
-- BloodPressureRecord;
-- StatisticsEngine;
-- ClinicalGuideline.
+## 3. Proceso implementado
 
-Su función es interpretar.
+1. Usa la guía recibida o `ConsensoArgentinaHTA2025` como predeterminada.
+2. Construye un `ClinicalRuleContext` con guía, contexto clínico y fecha de evaluación.
+3. Ejecuta las reglas registradas en el servicio.
+4. Reúne los `ClinicalFinding` producidos.
+5. Agrupa los hallazgos en `ClinicalAnalysisResult` mediante `buildClinicalAnalysisResult`.
+6. Devuelve un objeto `ClinicalAnalysis` en memoria.
 
----
+Las reglas actuales cubren clasificación de la media de PAS/PAD, advertencia por PAD media inferior a 70, control domiciliario, tendencia, carga hipertensiva, tiempo en objetivo, variabilidad, objetivo terapéutico y factores asociados al riesgo.
 
-# Entradas
+## 4. Salida actual
 
-ClinicalAnalysis recibe:
+`ClinicalAnalysis` contiene `id`, `patientId`, `createdAt`, guía opcional, estadísticas opcionales, hallazgos, resultado estructurado, resumen y metadata opcional. El resultado organiza hallazgos en clasificación, tendencias, objetivos, control, carga, variabilidad, seguridad y riesgo.
 
-## Mediciones
+No se encontró persistencia de `ClinicalAnalysis` en el flujo inspeccionado. El identificador y la fecha se generan al ejecutar el servicio; el modelo no conserva una instantánea de entradas ni una versión del motor suficiente para garantizar reproducción histórica.
 
-Desde:
+## 5. Límites funcionales
 
-BloodPressureRecord
+- No produce diagnósticos formales ni prescribe tratamientos.
+- No existe un motor independiente de recomendaciones integrado en esta salida.
+- El tipo `ClinicalAlert` no convierte este proceso en un sistema completo de alertas.
+- La regla de riesgo identifica antecedentes; no calcula riesgo absoluto validado.
+- La guía argentina es la única con objetivos registrados en el selector actual; algunas reglas usan umbrales fijos.
 
-Incluye:
+## 6. Separación de capas
 
-- presión sistólica;
-- presión diastólica;
-- frecuencia cardíaca;
-- fecha y hora;
-- evolución temporal.
+`src/domain/clinical` contiene contratos, reglas y servicio de análisis. `src/domain/statistics` calcula las métricas. Las pantallas y componentes presentan información, pero no deben duplicar las reglas clínicas.
 
----
+## 7. Criterios para cambios futuros
 
-## Contexto clínico
-
-Desde:
-
-ClinicalContext
-
-Incluye:
-
-- antecedentes;
-- factores de riesgo;
-- enfermedades asociadas;
-- estilo de vida;
-- poblaciones especiales.
-
----
-
-## Conocimiento clínico
-
-Desde:
-
-ClinicalGuideline
-
-Incluye:
-
-- clasificación;
-- objetivos;
-- recomendaciones;
-- criterios específicos.
-
----
-
-# Salidas
-
-ClinicalAnalysis puede producir:
-
-## Clasificación clínica
-
-Ejemplos:
-
-- hipertensión sostenida;
-- hipertensión de guardapolvo blanco;
-- hipertensión oculta.
-
----
-
-## Evaluación del control
-
-Ejemplos:
-
-- control adecuado;
-- fuera de objetivo;
-- tendencia desfavorable.
-
----
-
-## Hallazgos clínicos
-
-Ejemplos:
-
-- posible falta de control;
-- necesidad de revisión;
-- patrón relevante.
-
----
-
-# Relación con StatisticsEngine
-
-StatisticsEngine:
-
-Calcula datos.
-
-Ejemplos:
-
-- promedio;
-- tendencia;
-- variabilidad.
-
-ClinicalAnalysis:
-
-Interpreta esos datos clínicamente.
-
-Ejemplo:
-
-StatisticsEngine:
-
-Promedio PAS elevado.
-
-
-ClinicalAnalysis:
-
-Resultado:
-
-Control insuficiente según guía aplicable.
-
----
-
-# Relación con ClinicalGuideline
-
-Las reglas clínicas deben venir desde:
-
-ClinicalGuideline.
-
-No deben estar codificadas directamente dentro de:
-
-- componentes;
-- pantallas;
-- formularios.
-
----
-
-# Relación con motores futuros
-
-## RiskEngine
-
-Entrada:
-
-ClinicalAnalysis
-
-Salida:
-
-Evaluación de riesgo cardiovascular.
-
----
-
-## RecommendationEngine
-
-Entrada:
-
-ClinicalAnalysis + ClinicalGuideline
-
-Salida:
-
-Recomendaciones personalizadas.
-
----
-
-## AlertEngine
-
-Entrada:
-
-ClinicalAnalysis
-
-Salida:
-
-Alertas clínicas.
-
----
-
-# Ejemplo conceptual
-
-Datos:
-
-BloodPressureRecord:
-
-PAS 150
-
-PAD 95
-
-
-Contexto:
-
-Diabetes.
-
-
-Guía:
-
-Consenso HTA 2025.
-
-
-Proceso:
-
-ClinicalAnalysis interpreta:
-
-- clasificación;
-- objetivo aplicable;
-- necesidad de seguimiento.
-
----
-
-# Decisiones arquitectónicas
-
-## Separación de responsabilidades
-
-Measurement:
-
-¿Qué ocurrió?
-
-
-Statistics:
-
-¿Qué patrón matemático existe?
-
-
-ClinicalAnalysis:
-
-¿Qué significa clínicamente?
-
-
-Recommendation:
-
-¿Qué acción podría considerarse?
-
-
----
-
-# Compatibilidad con arquitectura actual
-
-Mantiene separación:
-
-src/domain
-
-- reglas y modelos clínicos.
-
-
-src/features
-
-- interacción con usuario.
-
-
-src/components
-
-- representación visual.
-
-
----
-
-# Estado
-
-Especificación conceptual creada.
-
+Cada regla debe tener fuente, población, condiciones, comportamiento ante datos ausentes y pruebas de límites. La trazabilidad debe permitir identificar qué regla y guía generaron un hallazgo. Toda nueva interpretación clínica requiere revisión clínica; esta especificación técnica no valida por sí misma los umbrales.
