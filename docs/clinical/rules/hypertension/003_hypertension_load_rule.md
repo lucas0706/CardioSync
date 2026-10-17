@@ -1,63 +1,36 @@
-# Clinical Rule 003 — Hypertension Load
+# Regla clínica 003 — Carga de mediciones elevadas
 
-## Purpose
+## Estado
 
-Evaluate the proportion of elevated blood pressure measurements
-within a home monitoring period.
+Implementada en `HypertensionLoadRule`. El porcentaje se calcula en `HypertensionLoadCalculator`, dentro de `StatisticsEngine`.
 
-This rule interprets an existing statistical indicator.
+## Cálculo estadístico
 
-It does not calculate hypertension load.
+El calculador cuenta una medición como elevada si:
 
----
+- PAS ≥ 135 mmHg; o
+- PAD ≥ 85 mmHg.
 
-## Input
+La carga es el porcentaje de mediciones que cumplen al menos una de esas condiciones respecto del total. Con cero mediciones, devuelve 0. El calculador acepta umbrales como argumentos, pero el motor estadístico usa los valores predeterminados 135/85.
 
-StatisticsSummary:
+## Lógica clínica implementada
 
-- hypertensionLoad
+La regla genera un hallazgo cuando `statistics.hypertensionLoad > 0`. No aplica un umbral mínimo de carga clínicamente relevante: cualquier valor positivo genera el hallazgo.
 
----
+## Salida
 
-## Logic
+- Tipo: `hypertension-load`.
+- Título: “Carga elevada de mediciones de presión arterial”.
+- Severidad: `moderate`.
 
-When hypertensionLoad indicates a relevant proportion
-of elevated measurements, generate a clinical finding.
+## Limitaciones y deuda documental
 
-The calculation is performed by StatisticsEngine.
+- La descripción “proporción relevante” no representa una condición adicional del código; el criterio real es mayor que cero.
+- El umbral estadístico de 135/85 mmHg está fijo y no se deriva de la guía seleccionada.
+- No se debe atribuir esta regla a una recomendación clínica concreta sin fuente primaria, sección/página y revisión.
+- El hallazgo no diagnostica hipertensión.
 
----
+## Código de referencia
 
-## Output
-
-ClinicalFinding:
-
-Type:
-
-hypertension-load
-
-Example:
-
-"Alta carga de mediciones de presión arterial elevada"
-
----
-
-## Limitations
-
-This rule:
-
-- does not establish hypertension diagnosis;
-- does not replace clinical evaluation;
-- depends on the measurement period and data quality.
-
----
-
-## Traceability
-
-Source:
-
-Consenso Argentino de Hipertensión Arterial 2025
-
-Related:
-
-Statistics V2 HypertensionLoadCalculator
+- `src/domain/clinical/rules/hypertension/HypertensionLoadRule.ts`
+- `src/domain/statistics/calculators/HypertensionLoadCalculator.ts`
