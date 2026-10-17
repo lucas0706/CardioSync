@@ -44,7 +44,7 @@ La estructura real del repositorio y las excepciones históricas se documentan e
 
 ## Publicaciones y cambios nativos
 
-Las actualizaciones OTA solo se utilizan cuando los cambios son compatibles con el runtime instalado y no requieren modificar código nativo, configuración nativa, plugins, dependencias nativas, Expo SDK o runtimeVersion. Si cambia alguno de esos elementos, se debe evaluar y generar una nueva APK de producción en lugar de publicar una OTA.
+Las actualizaciones OTA solo se utilizan cuando los cambios son compatibles con el runtime instalado y no requieren modificar código nativo, configuración nativa, plugins, dependencias nativas, Expo SDK o runtimeVersion. Si cambia alguno de esos elementos, se debe evaluar y generar una nueva APK de producción en lugar de publicar una OTA.\n\nPara Android existe una única política de runtime: `appVersion`. El runtime efectivo debe coincidir con la versión de la aplicación; no se debe configurar una política `fingerprint` paralela para Android. La política de runtime se verifica en la configuración efectiva de Expo y en los datos de EAS antes de publicar.\n\nCada nueva APK de producción exige actualizar y validar la pantalla Acerca de, incluyendo versión, fecha, datos técnicos y novedades relevantes desde la APK anterior, con las OTA publicadas en ese período. La guía operativa es `docs/14_RELEASES_AND_UPDATES.md`.
 
 ## Resolución de conflictos
 

@@ -124,20 +124,31 @@ Las tareas de restauración deben contemplar integridad, compatibilidad de esque
 
 ## 7. Actualizaciones y distribución Android
 
-El proyecto contempla actualizaciones OTA mediante Expo Updates y actualizaciones de la aplicación mediante APK publicada.
+La guía operativa principal es `docs/14_RELEASES_AND_UPDATES.md`.
+
+### Runtime Android
+
+CardioSync utiliza una única política de runtime Android: `appVersion`. El runtime efectivo debe corresponder a la versión de la aplicación; por ejemplo, una APK `1.2.0` utiliza runtime `1.2.0`. No se debe configurar una política `fingerprint` paralela para Android.
+
+Antes de cada publicación, comprobar la configuración efectiva de Expo y los datos de la build EAS. Una OTA solo puede dirigirse a un runtime compatible con la APK instalada. Al cambiar la versión de aplicación, generar y distribuir la nueva APK antes de publicar OTA para el nuevo runtime.
+
+La política de runtime de iOS no se modifica en tareas exclusivas de Android.
 
 ### OTA
 
-OTA solo debe utilizarse para cambios compatibles con el runtime instalado, como cambios de interfaz, navegación y lógica JavaScript/TypeScript. No es apropiada para cambios de Expo SDK, dependencias nativas, plugins, manifiesto Android, código Kotlin/Java u otros cambios que alteren el runtime nativo.
+OTA se utiliza solo para cambios compatibles con el runtime instalado, como interfaz, navegación y lógica JavaScript/TypeScript. No es apropiada para cambios de Expo SDK, dependencias nativas, plugins, AndroidManifest, código Kotlin/Java u otros cambios que requieran una nueva compilación nativa.
 
-Antes de cada publicación OTA se debe verificar el estado de Git, el commit, la configuración efectiva de runtime y channel, y confirmar que no hubo cambios nativos incompatibles. Si existe duda sobre la compatibilidad, detener la publicación OTA y preparar una nueva APK de producción.
+Antes de cada OTA se deben comprobar el estado de Git, el commit, el runtime efectivo, el canal y la ausencia de cambios nativos incompatibles. La configuración actual `checkAutomatically: 'NEVER'` implica que publicar una OTA no garantiza su descarga automática.
 
 ### APK de producción
 
-El perfil preferido de distribución es `production-apk`. Antes de compilar se deben revisar el estado de Git, el commit, la versión, la configuración efectiva de Expo y los cambios nativos. La salida esperada para una publicación de producción es APK, no AAB, salvo solicitud explícita.
+El perfil preferido es `production-apk`; la salida esperada es una APK, no un AAB, salvo solicitud explícita. Antes de la build se debe verificar la versión, el runtime, el version code, el commit y la configuración nativa.
 
-La configuración efectiva debe comprobarse desde `app.config.js` y `app.json`; no se deben copiar valores de runtime o channel de documentación antigua sin verificarlos en la configuración vigente.
+**Requisito obligatorio:** antes de cada APK de producción, actualizar y validar la pantalla Acerca de. Mantener sincronizados `src/features/about/config/version-info.ts` y `src/features/about/config/appInfo.ts` con la versión, fecha, datos técnicos reales y las novedades relevantes acumuladas desde la APK anterior, incluidas las OTA publicadas durante ese período.
 
+Después de la build, verificar el artefacto, probar la instalación, actualizar la GitHub Release correspondiente y confirmar que las notas de Release coinciden con las novedades mostradas en Acerca de.
+
+Los pasos detallados y los comandos están en `docs/14_RELEASES_AND_UPDATES.md`.
 ## 8. Calidad y definición de terminado
 
 Una modificación no se considera terminada solo porque el código fue escrito. Según el alcance, la validación puede incluir:
