@@ -555,3 +555,29 @@ La implementación actual cumple los siguientes criterios:
 16. La documentación queda sincronizada.
 
 La atomicidad transaccional de `createMany()` quedó verificada.
+
+---
+
+# Estado de implementación y criterios de aceptación — 2026-10-17
+
+Esta especificación describe el contrato esperado de importación. No debe interpretarse como garantía de soporte para todos los formatos enumerados en el diseño.
+
+## Estado conocido
+
+La navegación y los flujos de importación/exportación están presentes en la aplicación. Antes de declarar un formato como soportado, debe comprobarse el parser real, el mapeo, la validación, el manejo de errores y la persistencia final.
+
+## Criterios obligatorios
+
+- Identificar explícitamente los formatos admitidos por la implementación actual.
+- Validar datos antes de persistirlos y presentar errores comprensibles.
+- No permitir que una fila inválida produzca una medición parcial o corrupta.
+- Normalizar fechas, unidades y valores sin alterar silenciosamente los datos originales.
+- Evitar duplicados cuando el formato y los identificadores disponibles permitan detectarlos.
+- Informar cuántos registros se importaron, rechazaron y omitieron, con causas cuando corresponda.
+- Proteger la base existente frente a cancelaciones y fallos durante la importación.
+- Mantener la exportación limitada a formatos realmente implementados y probados.
+- Mantener los adaptadores externos fuera de la entidad central de medición.
+
+## Validación pendiente
+
+La lista exacta de formatos soportados, los límites de tamaño y los escenarios de error deben verificarse contra el código de la feature antes de publicarse como capacidades garantizadas. No se ejecutaron pruebas de importación durante esta actualización documental.
