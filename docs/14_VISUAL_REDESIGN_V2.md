@@ -997,3 +997,23 @@ src/theme/colors.ts
 
 Versión activa: Splash V1.
 
+---
+
+# Nota de mantenimiento — 2026-10-17
+
+Este documento registra la dirección visual y las decisiones del rediseño V2. Para cambios futuros, el código actual es la fuente de verdad sobre la implementación concreta de cada pantalla y componente.
+
+## Límites
+
+- Mantener la navegación principal documentada como `Inicio | Registros | Perfil | Más`, salvo que una decisión posterior aprobada indique lo contrario.
+- Mantener reglas clínicas y cálculos estadísticos fuera de componentes puramente visuales.
+- Reutilizar el theme y los componentes existentes antes de crear alternativas paralelas.
+- No agregar dependencias visuales sin analizar compatibilidad con Expo SDK 57, peso, mantenimiento y necesidad.
+- Mantener TypeScript strict y accesibilidad de controles.
+- No dar por validada una pantalla solo por la descripción de diseño: comprobar el código y probar en dispositivo cuando el comportamiento dependa de Android o de APIs nativas.
+
+## Relación con actualizaciones
+
+Los cambios exclusivamente visuales pueden ser candidatos a OTA solo después de verificar el commit, el árbol Git, runtime/channel y la ausencia de modificaciones nativas. Cambios en plugins, dependencias nativas, código Android o runtime requieren una nueva APK de producción.
+
+Esta nota no afirma que se haya ejecutado una nueva compilación ni una prueba visual en dispositivo durante la actualización documental.
