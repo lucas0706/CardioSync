@@ -1,58 +1,41 @@
-# Clinical Rule 006 — Blood Pressure Classification
+# Regla clínica 006 — Clasificación de presión arterial
 
-## Purpose
+## Estado
 
-Transform a blood pressure classification result into
-a clinical finding.
+Implementada en `BloodPressureClassificationRule`. La clasificación se realiza en `BloodPressureClassifier`.
 
-This rule does not calculate classification.
+## Entrada
 
-Classification is provided by the selected clinical guide engine.
+La regla recibe el promedio de presión sistólica y diastólica. No recibe ni consulta la guía para elegir los umbrales de clasificación.
 
----
+## Lógica de clasificación implementada
 
-## Input
+El clasificador aplica este orden:
 
-ClinicalResult:
+1. **Hipertensión sistólica aislada:** PAS ≥ 140 mmHg y PAD < 90 mmHg.
+2. **Hipertensión nivel 2:** PAS ≥ 160 mmHg o PAD ≥ 100 mmHg.
+3. **Hipertensión nivel 1:** PAS ≥ 140 mmHg o PAD ≥ 90 mmHg.
+4. **Presión limítrofe:** PAS ≥ 130 mmHg o PAD ≥ 80 mmHg.
+5. **Presión normal:** ninguna condición anterior.
 
-- classification
-- guideline
+La categoría se determina mediante los umbrales codificados, no mediante un motor que seleccione dinámicamente los criterios de la guía configurada. El código incluye un comentario que atribuye estos umbrales al Consenso Argentino de Hipertensión Arterial 2025; la referencia exacta a sección/página sigue pendiente de documentación.
 
----
+## Advertencia de seguridad
 
-## Logic
+El clasificador agrega `low-diastolic` a `safetyWarnings` cuando PAD < 70 mmHg. La regla clínica de clasificación no convierte esa advertencia en un diagnóstico.
 
-When a classification result exists,
-generate a clinical finding describing the classification.
+## Salida
 
----
+- Tipo: `blood-pressure-classification`.
+- Título: etiqueta de la categoría calculada.
+- Severidad: `low` si la categoría es `normal`; de lo contrario, `moderate`.
+- Guía asociada: ID de la guía del contexto, si existe.
 
-## Output
+## Límites
 
-ClinicalFinding:
+La clasificación de valores promedio no equivale por sí sola a un diagnóstico clínico. La documentación debe diferenciar los umbrales de clasificación de consultorio de los umbrales de presión domiciliaria y los objetivos terapéuticos.
 
-Type:
+## Código de referencia
 
-blood-pressure-classification
-
-Example:
-
-"Clasificación de presión arterial: Hipertensión grado 1"
-
----
-
-## Limitations
-
-This rule:
-
-- does not replace the selected guideline engine;
-- depends on the configured clinical guide;
-- does not perform diagnosis.
-
----
-
-## Traceability
-
-Source:
-
-ClinicalGuideline selected by ClinicalEngine
+- `src/domain/clinical/rules/blood-pressure/BloodPressureClassificationRule.ts`
+- `src/domain/clinical/classification/BloodPressureClassifier.ts`
