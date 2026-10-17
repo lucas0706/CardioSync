@@ -4,7 +4,7 @@
 |-------|--------|
 | Documento | 07_REPORTS.md |
 | Tipo | Diseño Conceptual de Reportes |
-| Estado | En implementación |
+| Estado | Parcialmente implementado |
 | Versión | Sincronizada con la versión del proyecto |
 | Última actualización | 2026-08-10 |
 
@@ -51,7 +51,7 @@ Cada uno tendrá objetivos y niveles de detalle diferentes.
 
 # Reporte del Paciente
 
-Estado: 🔄 EN IMPLEMENTACIÓN
+Estado: 🔄 PARCIALMENTE IMPLEMENTADO
 
 ## Objetivo
 
@@ -277,9 +277,28 @@ La ausencia de datos externos no bloqueará la generación del reporte.
 
 # Evolución prevista
 
-La implementación de reportes comenzará después de:
+La evolución del reporte médico especializado continuará después de completar y validar: 
 
 1. Finalizar dominio clínico.
 2. Implementar Clinical Rule Engine.
 3. Implementar Clinical Analysis Engine.
 
+---
+
+# Estado verificado de implementación — 2026-10-17
+
+Esta sección distingue los componentes identificados en el código de los tipos de reporte que siguen siendo diseño.
+
+## Estado actual
+
+- **Reporte PDF actual:** existe implementación en `src/features/reports/services/ReportService.ts`, `ReportPdfService.ts`, `ReportHtmlService.ts` y `ReportClinicalChartService.ts`. El PDF incluye un gráfico temporal de sistólica, diastólica y frecuencia cardíaca.
+- **Contexto de salud en reportes:** existen modelos y un constructor de contexto (`ReportHealthContext.ts` y `ReportHealthContextBuilder.ts`). Su presencia no significa que todas las fuentes externas posibles estén disponibles en cada reporte.
+- **Reporte médico especializado:** permanece planificado en este documento; no describirlo como funcionalidad terminada sin verificar una pantalla y un flujo específicos.
+
+## Corrección del alcance
+
+La implementación de reportes ya no debe describirse en términos generales como si todavía no hubiera comenzado. La evolución prevista debe enfocarse en las capacidades pendientes del reporte médico, trazabilidad clínica ampliada y validaciones que aún no estén demostradas, sin duplicar las funcionalidades que ya están presentes.
+
+## Validación
+
+Esta actualización documental se contrastó con la estructura de la feature de reportes en la rama de referencia. No se ejecutaron generación de PDF ni pruebas en dispositivo durante esta revisión.
