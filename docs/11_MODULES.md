@@ -227,3 +227,26 @@ Reports
 - Health Connect no modifica Measurements.
 - Importadores no modifican el modelo interno.
 
+---
+
+# Estado observado de módulos — 2026-10-17
+
+Esta sección complementa el catálogo existente. Describe responsabilidades inferidas de la estructura y los servicios inspeccionados; no implica que todos los flujos hayan sido probados en dispositivo.
+
+| Módulo | Responsabilidad observada | Estado conocido / límite |
+|---|---|---|
+| Measurements | Registro, consulta y mantenimiento de mediciones | Funcionalidad base presente; persistencia local SQLite. |
+| Statistics | Resúmenes, filtros, métricas y gráfico clínico | Implementación presente; conservar la independencia del período por feature. |
+| Clinical Domain | Clasificación, contextos, reglas, findings y análisis | Infraestructura de dominio presente; mantener trazabilidad clínica y validación continua. |
+| Reports | Construcción y generación de reportes PDF | Flujo presente; el reporte médico ampliado permanece pendiente. |
+| App Update | Consulta de releases, descarga y validación de APK | El instalador Android requiere confirmación del usuario; no es instalación silenciosa. |
+| Updates / OTA | Preferencia de descarga automática, comprobación y descarga OTA | Aplicación de actualización separada; validar runtime y canal antes de publicar. |
+| Backup | Copia SQLite, exportación manual, Google Drive y programación | Restauración integral y política de retención no deben darse por completadas sin validación específica. |
+| Health Connect | Inicialización y solicitud de permisos | La lectura/escritura efectiva y sincronización requieren completar y validar la integración. |
+
+## Límites entre módulos
+
+- Los componentes visuales no deben duplicar reglas clínicas ni cálculos estadísticos.
+- Las integraciones externas no deben alterar directamente el modelo de medición sin un flujo de dominio explícito.
+- La persistencia y los servicios nativos deben aislarse de la presentación.
+- La existencia de un servicio o una pantalla no sustituye las pruebas de integración.
