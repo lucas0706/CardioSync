@@ -1,184 +1,41 @@
-# Clinical Profile Specification
+# Especificación del perfil clínico
 
-## Purpose
+**Estado:** contrastado con `ProfileScreen`, `ClinicalProfileService`, `ClinicalProfileRepository` y `ClinicalContext` el 17-10-2026.
 
-The CardioSync Profile provides optional patient-level information used to construct ClinicalContext.
+## 1. Propósito
 
-The Profile does not replace blood pressure measurements and does not become part of BloodPressureRecord.
+El perfil local almacena información opcional a nivel de paciente que puede utilizarse para contextualizar el seguimiento de presión arterial. No reemplaza los registros de medición ni representa una historia clínica completa.
 
-CardioSync remains focused on:
+## 2. Implementación disponible
 
-- registering blood pressure measurements;
-- visualizing measurements;
-- understanding blood pressure evolution.
+- Interfaz de usuario: `src/features/profile/screens/ProfileScreen.tsx`.
+- Contrato: `src/domain/clinical/models/ClinicalContext.ts`.
+- Servicio: `src/features/profile/services/ClinicalProfileService.ts`.
+- Persistencia: `src/core/database/ClinicalProfileRepository.ts`, sobre la tabla SQLite `clinical_profile`.
+- Identificador local: `LOCAL_PROFILE_ID = 'local-user'`.
+- El perfil permite nombre, edad, sexo, altura, peso inicial, IMC, tabaquismo, diabetes, dislipidemia y antecedentes cardiovasculares/renales.
+- El IMC se calcula desde altura en centímetros y peso en kilogramos y se redondea a un decimal.
 
-## Architecture
+Por lo tanto, la interfaz y la persistencia del perfil **sí están implementadas**; la versión anterior de este documento que las marcaba como pendientes estaba desactualizada.
 
-Configuration -> Profile -> Clinical Profile Data -> ClinicalContext -> Clinical Analysis -> ClinicalAnalysisResult
+## 3. Relación con Clinical Analysis
 
-Clinical Analysis may operate without Profile data.
+El contrato de `ClinicalAnalysisDomainService` recibe `ClinicalContext`, y las reglas de objetivos y factores asociados al riesgo consumen campos del contexto. Sin embargo, en el código inspeccionado, el único consumidor de `ClinicalAnalysisDomainService.analyze()` identificado de forma directa es el escenario de desarrollo `src/devtools/clinical/ClinicalHistoricalScenario.ts`.
 
-No Profile:
-BloodPressureRecord[] + StatisticsSummary -> Clinical Analysis
+No se confirmó una integración de producción que cargue el perfil guardado, calcule estadísticas del periodo seleccionado y entregue ambos al servicio de análisis desde una pantalla o flujo normal de la aplicación. Por ello, la existencia del perfil no debe confundirse con una integración productiva completa del análisis contextual.
 
-With Profile:
-Profile -> ClinicalContext -> Clinical Analysis
+## 4. Datos fuera del perfil
 
-## Profile data
+Los valores de una medición específica —PAS, PAD, fecha/hora, frecuencia cardíaca, brazo, posición, notas y metadata del evento— pertenecen al registro. El contrato actual conserva algunos campos heredados adicionales en `BloodPressureRecord`; su separación sigue pendiente.
 
-### Demographic
+## 5. Health Connect
 
-- age: number
-- sex: male | female
+Health Connect tiene servicios y mapeadores propios. No se debe asumir que peso actual, sueño, actividad, pasos o frecuencia cardíaca se fusionan automáticamente con el perfil local o se pasan al análisis clínico.
 
-### Anthropometric
+## 6. Límites de diseño
 
-- height: number
-- weight: number
-- bmi: number
-
-BMI may later be derived from height and weight.
-
-### Cardiovascular risk factors
-
-- smoking: boolean
-- diabetes: boolean
-- dyslipidemia: boolean
-- obesity: boolean
-- familyHistoryCardiovascularDisease: boolean
-
-### Cardiovascular conditions
-
-- cardiovascularDisease: boolean
-- heartFailure: boolean
-- strokeHistory: boolean
-- peripheralVascularDisease: boolean
-
-### Renal conditions
-
-- chronicKidneyDisease: boolean
-
-### Special populations
-
-- pregnancy: boolean
-- olderAdult: boolean
-
-olderAdult may later be derived from age.
-
-### Lifestyle
-
-- physicalActivityLevel: string
-- alcoholConsumption: string
-- dietaryPattern: string
-
-### Additional
-
-- notes: string
-
-## Data outside Profile
-
-The following remain measurement-level data in BloodPressureRecord:
-
-- systolic
-- diastolic
-- dateTime
-- heartRate
-- arm
-- position
-- measurement notes
-- other values describing that specific measurement
-
-Profile data must not be copied into every BloodPressureRecord.
-
-## ClinicalContext responsibilities
-
-ClinicalContext represents patient-level information available to Clinical Analysis.
-
-It may contain:
-
-- demographic context;
-- cardiovascular risk factors;
-- cardiovascular conditions;
-- renal conditions;
-- special populations;
-- lifestyle context.
-
-It does not:
-
-- calculate statistics;
-- store blood pressure measurements;
-- generate findings;
-- select the analysis period;
-- export reports.
-
-## Statistics
-
-The Profile does not own the analysis period.
-
-Periods belong to the Statistics or analysis workflow:
-
-- 7 days
-- 30 days
-- 90 days
-- custom
-
-Clinical Analysis receives the resulting StatisticsSummary and ClinicalContext.
-
-Clinical Analysis does not directly depend on PeriodFilter.
-
-## Reports
-
-Reports may later consume:
-
-- selected-period measurements;
-- StatisticsSummary;
-- ClinicalAnalysisResult;
-- relevant Profile/ClinicalContext information;
-- available Health Connect information.
-
-The Profile does not define report contents.
-
-## Health Connect
-
-Health Connect will be treated as another data source.
-
-The Clinical Engine must remain independent of the origin of the data.
-
-Possible sources:
-
-- Manual
-- Health Connect
-- Future imports
-
-The domain representation remains independent from the source.
-
-## Implementation status
-
-Completed:
-
-- ClinicalContext consolidated under src/domain/clinical/models/ClinicalContext.ts
-- historical duplicate Profile model removed
-- historical duplicate ClinicalContext model removed
-- TypeScript compilation verified
-
-Not implemented yet:
-
-- Profile UI
-- Profile persistence
-- ClinicalContext persistence
-- production integration of Profile with Clinical Analysis
-
-## Design constraints
-
-Do not:
-
-- add clinical fields to BloodPressureRecord;
-- create duplicate ClinicalContext models;
-- make Clinical Analysis depend on UI components;
-- make Clinical Analysis depend directly on PeriodFilter;
-- automatically generate findings from Profile fields;
-- introduce diagnostic functionality;
-- introduce treatment recommendations;
-- introduce complex cardiovascular risk models without a separate specification.
-
-CardioSync remains focused on registration, visualization, and understanding of blood pressure evolution.
+- No copiar el perfil dentro de cada registro de presión arterial.
+- No inferir diagnósticos a partir de campos del perfil.
+- No tratar la edad o las condiciones ausentes como datos clínicos confirmados.
+- No describir el análisis contextual como integrado en producción hasta localizar y probar el flujo de consumo.
+- Si se amplía el perfil, mantener un único contrato de dominio y migraciones SQLite compatibles.
