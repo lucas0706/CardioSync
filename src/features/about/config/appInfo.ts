@@ -4,41 +4,34 @@ export const appInfo = {
   tagline:
     'Monitoreo inteligente de presión arterial',
 
-  version: '1.1.0',
+  version: '1.2.0',
 
-  releaseDate: '29/09/2026',
+  releaseDate: '17/10/2026',
 
-  status: 'Beta privada',
+  status: 'Producción',
 
   changelog: [
-    'Reportes PDF profesionales',
-    'Integración con Health Connect',
-    'Sincronización de presión arterial',
-    'Integración de frecuencia cardíaca',
-    'Integración de sueño',
-    'Integración de pasos',
-    'Integración de ejercicio',
-    'Integración de peso',
-    'Dashboard de salud integrada',
-    'Correcciones en reportes y rangos de fechas',
-    'Correcciones en estadísticas y destacados de gráficos',
-    'Mejoras en el resumen de salud y sincronización',
-    'Corrección del cálculo de sueño y fechas locales',
-    'Correcciones en la sección de actualizaciones',
-    'Copias programadas de seguridad en Google Drive',
-    'Notificaciones del resultado de las copias programadas',
+    'Mejoras en la clasificación de presión arterial y sus colores clínicos',
+    'Mejoras en el flujo de registro de mediciones',
+    'Valores predeterminados para brazo derecho y posición sentada',
+    'Mejoras en el historial y los gráficos de estadísticas',
+    'Aviso de actualización OTA instalada',
+    'Mejoras en la fiabilidad de las copias de seguridad programadas',
+    'Diagnósticos y seguimiento de las tareas de copia de seguridad',
+    'Rediseño de informes clínicos y tabla de clasificación de mediciones',
+    'Actualización de la configuración del runtime de Android para appVersion',
   ],
 
   technical: {
     expoSdk: '57',
-    reactNative: '0.86.2',
+    reactNative: '0.86.3',
     platform: 'Android',
     database: 'SQLite',
   },
 
   links: {
-    privacyPolicy: 'Próximamente',
-    website: 'Próximamente',
-    contact: 'Próximamente',
+    privacyPolicy: 'https://lucas0706.github.io/cardiosync-site/privacy.html',
+    website: 'https://lucas0706.github.io/cardiosync-site/',
+    contact: 'cardiosync.support@gmail.com',
   },
 } as const
