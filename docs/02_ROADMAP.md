@@ -3,693 +3,265 @@
 | Campo | Valor |
 |-------|--------|
 | Documento | 02_ROADMAP.md |
-| Tipo | Roadmap Oficial del Proyecto |
+| Tipo | Roadmap oficial del proyecto |
 | Estado | Activo |
-| Versión | Sincronizada con la versión del proyecto |
-| Última actualización | 2026-08-22 |
+| Última actualización | 2026-10-17 |
 
 ---
 
-# Objetivo
+## Objetivo
 
-Este documento registra la evolución oficial de CardioSync.
+Registrar la evolución de CardioSync y distinguir entre código presente, funcionalidades verificadas y trabajo pendiente. La existencia de un servicio o pantalla no implica por sí sola que todos los flujos estén validados en dispositivos reales.
 
-Cada fase del proyecto deberá actualizar este documento para reflejar exactamente el estado del desarrollo.
-
----
-
-# Estados utilizados
+## Estados
 
 | Estado | Significado |
-|---------|-------------|
-| ✅ COMPLETADO | Funcionalidad implementada, validada y documentada. |
-| 🚧 EN DESARROLLO | Fase actualmente en ejecución. |
-| 📋 PLANIFICADO | Fase prevista para futuras versiones. |
+|--------|-------------|
+| ✅ COMPLETADO | Implementación finalizada y validación disponible para el alcance indicado. |
+| 🟡 IMPLEMENTADO / VALIDACIÓN PENDIENTE | Hay código funcional, pero falta confirmar uno o más escenarios o la integración completa. |
+| 🚧 EN DESARROLLO | Trabajo en curso. |
+| 📋 PLANIFICADO | No se considera terminado; requiere diseño o implementación adicional. |
 
 ---
 
-# Fases completadas
+# Funcionalidades base
 
-## Arquitectura Base
-
-**Estado:** ✅ COMPLETADO
-
-### Objetivo
-
-Definir la arquitectura inicial del proyecto.
-
-### Funcionalidades implementadas
-
-- Organización del repositorio.
-- Arquitectura modular.
-- Infraestructura base.
-
----
-
-## Measurements
+## Arquitectura y estructura modular
 
 **Estado:** ✅ COMPLETADO
 
-### Objetivo
+- Estructura de navegación y módulos por funcionalidad.
+- Separación entre presentación, dominio, servicios e infraestructura.
+- TypeScript y configuración del proyecto alineados con Expo SDK 57.
+- Documentación arquitectónica mantenida en documentos específicos.
 
-Implementar el registro y gestión de mediciones.
+La arquitectura seguirá evolucionando sin introducir dependencias nuevas salvo que su necesidad, compatibilidad e impacto estén evaluados.
 
-### Funcionalidades implementadas
-
-- Captura de mediciones.
-- Validación.
-- Persistencia.
-- Historial.
-- Edición.
-- Eliminación.
-- Detalle de medición.
-- Formulario V2.
-
----
-
-## Dashboard
+## Mediciones e historial
 
 **Estado:** ✅ COMPLETADO
 
-### Objetivo
+- Registro y validación de mediciones de presión arterial.
+- Persistencia local SQLite.
+- Historial, detalle, edición y eliminación.
+- Formulario de medición y navegación asociada.
+- Resumen de la última medición en el Dashboard.
 
-Visualizar de forma clara el estado actual de las mediciones.
-
-### Funcionalidades implementadas
-
-- Dashboard principal.
-- Última medición.
-- PAS.
-- PAD.
-- FC.
-- Clasificación.
-- Resumen semanal.
-- Indicadores visuales.
-- FAB para nueva medición.
-- Rediseño visual V2.
-
----
-
-## Statistics
+## Dashboard y estadísticas
 
 **Estado:** ✅ COMPLETADO
 
-### Objetivo
+- Resumen de mediciones recientes.
+- Estadísticas, promedios, tendencias y filtros temporales.
+- Visualización conjunta de PAS, PAD y frecuencia cardíaca.
+- Interacción del gráfico mediante zoom, desplazamiento y selección de series.
 
-Implementar el motor estadístico y su presentación.
+## Dominio clínico
 
-### Funcionalidades implementadas
+**Estado:** 🟡 IMPLEMENTADO / VALIDACIÓN CONTINUA
 
-- Estadísticas.
-- Tendencias.
-- Promedios.
-- Variabilidad.
-- Métricas.
-- Filtros temporales.
-- Estadísticas V2.
-- ClinicalChart.
-- PAS, PAD y FC en un mismo gráfico.
-- Zoom.
-- Desplazamiento.
-- Selección de series.
+- Clasificación de presión arterial centralizada en el dominio.
+- Contextos clínicos y objetivos terapéuticos.
+- Clinical Findings, warnings y reglas clínicas.
+- Clinical Rule Engine y Clinical Analysis Engine.
+- Contextos contemplados: GENERAL, DIABETES, CKD y ELDERLY.
+- Trazabilidad de reglas y fuentes clínicas como requisito para futuras evoluciones.
 
----
+La documentación clínica debe mantenerse alineada con el Consenso Argentino de Hipertensión Arterial 2025 y con las fuentes registradas por el proyecto. No se considerará validación clínica definitiva una prueba exclusivamente técnica.
 
-## Clinical Foundation
+## Reportes PDF
 
-**Estado:** ✅ COMPLETADO
-
-### Objetivo
-
-Preparar la infraestructura del dominio clínico.
-
-### Funcionalidades implementadas
-
-- Organización del módulo Clinical.
-- Modelos clínicos.
-- Contextos clínicos.
-- Tipos clínicos.
-- Guías clínicas.
-- Targets clínicos.
-- Warnings clínicos.
-- Infraestructura para reglas clínicas.
-- Infraestructura para análisis clínico.
-
----
-
-## Refactorización Final del Dominio
-
-**Estado:** ✅ COMPLETADO
-
-### Objetivo
-
-Simplificar el modelo de dominio y separar los datos propios de la medición de la información clínica contextual.
-
-### Resultado
-
-- BloodPressureRecord representa principalmente la medición de presión arterial.
-- Separación progresiva de contexto clínico.
-- Menor acoplamiento.
-- Base preparada para el Clinical Domain.
-
----
-
-## Clinical Domain
-
-**Estado:** ✅ COMPLETADO
-
-### Objetivo
-
-Implementar la estructura del dominio clínico de CardioSync.
-
-### Funcionalidades implementadas
-
-- Clasificación de presión arterial.
-- Contextos clínicos.
-- Targets clínicos.
-- Fuentes de guías.
-- Clinical Findings.
-- Clinical Analysis.
-- Clinical Analysis Result.
-- Reglas clínicas.
-- Warnings clínicos.
-
----
-
-## Clinical Rule Engine
-
-**Estado:** ✅ COMPLETADO
-
-### Objetivo
-
-Implementar un sistema de reglas clínicas desacoplado de la interfaz.
-
-### Funcionalidades implementadas
-
-- ClinicalRule.
-- ClinicalRuleContext.
-- Reglas de presión arterial.
-- Reglas de seguridad.
-- Reglas de hipertensión.
-- Reglas de riesgo cardiovascular.
-- Reglas de target terapéutico.
-- Reglas de tiempo en objetivo.
-- Reglas de carga hipertensiva.
-- Reglas de tendencia.
-- Reglas de variabilidad.
-- Integración con Clinical Analysis.
-
-### Resultado
-
-Las reglas clínicas pueden ejecutarse de forma independiente de la presentación.
-
----
-
-## Clinical Analysis Engine
-
-**Estado:** ✅ COMPLETADO
-
-### Objetivo
-
-Construir una capa de análisis clínico basada en los resultados del Rule Engine y el contexto clínico seleccionado.
-
-### Funcionalidades implementadas
-
-- ClinicalAnalysisService.
-- ClinicalAnalysisDomainService.
-- ClinicalAnalysisResultBuilder.
-- Integración con ClinicalTargetSelector.
-- Integración con reglas clínicas.
-- Generación de Clinical Findings.
-- Clasificación clínica.
-- Evaluación contextual.
-- Targets terapéuticos.
-- Warnings.
-
-### Validación
-
-Se validaron contextos clínicos y escenarios históricos.
-
-Se verificó la ejecución de las reglas y la construcción de resultados clínicos.
-
----
-
-## Clinical Classification
-
-**Estado:** ✅ COMPLETADO
-
-### Objetivo
-
-Centralizar la clasificación de presión arterial.
-
-### Categorías implementadas
-
-- normal;
-- borderline;
-- grade-1;
-- grade-2;
-- isolated-systolic.
-
-### Implementación
-
-La clasificación se centraliza en:
-
-`src/domain/clinical/classification/BloodPressureClassifier.ts`
-
-La interfaz utiliza el resultado del dominio y no duplica las reglas clínicas.
-
----
-
-## ClinicalChart V2
-
-**Estado:** ✅ COMPLETADO
-
-### Objetivo
-
-Consolidar la visualización clínica de las principales mediciones.
-
-### Funcionalidades implementadas
-
-- PAS.
-- PAD.
-- FC.
-- Ejes clínicos.
-- Fechas.
-- Valores.
-- Leyenda.
-- Múltiples series.
-- Zoom.
-- Desplazamiento.
-- Selección de series.
-
----
-
-## History V2
-
-**Estado:** ✅ COMPLETADO
-
-### Objetivo
-
-Optimizar la consulta rápida del historial.
-
-### Funcionalidades implementadas
-
-- Tarjetas compactas.
-- Clasificación semántica.
-- Información secundaria compacta.
-- Acceso al detalle.
-- Edición.
-- Eliminación.
-- FAB para nueva medición.
-
----
-
-## Visual Redesign V2
-
-**Estado:** ✅ COMPLETADO
-
-### Objetivo
-
-Modernizar la interfaz de CardioSync sin alterar innecesariamente la lógica funcional.
-
-### Áreas implementadas
-
-- Sistema visual.
-- Theme.
-- Cards.
-- Botones.
-- FAB.
-- Dashboard.
-- History.
-- Measurement.
-- Statistics.
-- Profile.
-- Más.
-- Configuración.
-- Reportes.
-- Navegación.
-
-### Resultado
-
-Se estableció el sistema visual V2 como referencia actual de la aplicación.
-
----
-
-## Reports
-
-**Estado:** ✅ COMPLETADO
-
-### Objetivo
-
-Generar y compartir reportes de presión arterial.
-
-### Funcionalidades implementadas
+**Estado:** 🟡 IMPLEMENTADO / VALIDACIÓN PENDIENTE
 
 - Selección de período.
-- Construcción del reporte.
-- HTML.
-- Generación de PDF.
-- Compartir.
-- Nombre de archivo estructurado.
-- Eliminación del archivo temporal después de compartir.
-
-Los archivos temporales generados por CardioSync no se conservan como una colección permanente dentro de la aplicación.
-
----
-
-# Fases completadas recientemente
-
-## Refactorización Final del Dominio
-
-**Estado:** ✅ COMPLETADO
-
-### Objetivo
-
-Simplificar el modelo de dominio y separar progresivamente los datos propios de la medición de la información clínica contextual.
-
-### Resultado
-
-- `BloodPressureRecord` representa la medición de presión arterial.
-- Se redujo el acoplamiento entre mediciones y contexto clínico.
-- Se establecieron bases para la evolución del Clinical Domain.
-
----
-
-## Clinical Rule Engine
-
-**Estado:** ✅ COMPLETADO
-
-### Objetivo
-
-Centralizar las reglas clínicas utilizadas por CardioSync.
-
-### Resultado
-
-- Reglas clínicas desacopladas de la interfaz.
-- Clasificación de presión arterial centralizada.
-- Consolidación de la fuente activa de clasificación.
-- Compatibilidad con distintos contextos clínicos.
-
----
-
-## Clinical Analysis Engine
-
-**Estado:** ✅ COMPLETADO
-
-### Objetivo
-
-Procesar información clínica y generar resultados derivados a partir de las reglas y contexto disponibles.
-
-### Resultado
-
-- Clinical Analysis V2 implementado.
-- Selección de objetivos clínicos mediante `ClinicalTargetSelector`.
-- Soporte para contextos GENERAL, DIABETES, CKD y ELDERLY.
-- Integración con reglas terapéuticas.
-- Validación mediante registros históricos simulados.
-
----
-
-## Statistics V2 / ClinicalChart
-
-**Estado:** ✅ COMPLETADO
-
-### Resultado
-
-- PAS, PAD y FC integrados en un único gráfico.
-- Zoom.
-- Desplazamiento.
-- Selección de series.
-- Ejes y fechas.
-- Leyenda.
-- Integración con el período seleccionado.
-- Rediseño visual del gráfico.
-
----
-
-## Reports
-
-**Estado:** ✅ COMPLETADO
-
-### Resultado
-
-- Generación de reportes PDF.
-- Contenido estandarizado.
-- Selección de período.
-- Generación temporal del archivo.
+- Generación de reporte PDF.
+- Gráfico de evolución para PAS, PAD y frecuencia cardíaca.
 - Compartir mediante el sistema nativo.
-- Eliminación del archivo temporal después del proceso de compartir.
+- Limpieza del archivo temporal tras el flujo de compartir.
 
----
+El reporte médico especializado y otras ampliaciones clínicas permanecen fuera del alcance completado.
 
-## Visual Redesign V2
+## Interfaz visual V2
 
 **Estado:** ✅ COMPLETADO
 
-### Objetivo
-
-Modernizar la interfaz de CardioSync manteniendo la funcionalidad y arquitectura existentes.
-
-### Resultado
-
-- Sistema visual V2.
-- Navegación `Inicio | Registros | Perfil | Más`.
-- Dashboard rediseñado.
-- Historial rediseñado.
-- Detalle de medición reorganizado.
-- Nueva medición reorganizada.
-- Perfil reorganizado.
-- Más / Configuración reorganizado.
-- Estadísticas reorganizadas.
-- Componentes visuales reutilizables.
-- Estados visuales y microinteracciones.
-- FAB para nueva medición.
-- Eliminación de navegación redundante en Inicio.
+- Sistema visual reutilizable.
+- Navegación principal reorganizada.
+- Dashboard, historial, medición, estadísticas, perfil y configuración adaptados.
+- Componentes, tarjetas, botones y acciones visuales compartidos.
 
 ---
 
-# Fase actual
+# Configuración, integraciones y actualizaciones
 
-## Consolidación y Documentación
+## Configuración e importación/exportación
 
-**Estado:** 🚧 EN DESARROLLO
+**Estado:** 🟡 IMPLEMENTADO / VALIDACIÓN PENDIENTE
 
-### Objetivo
+- Pantallas y opciones de configuración disponibles en la navegación actual.
+- Flujos de importación/exportación presentes en la aplicación.
+- La documentación de base de datos todavía debe actualizarse para reflejar el alcance real y los formatos admitidos.
 
-Consolidar la implementación actual y mantener toda la documentación oficial sincronizada con el código.
+Pendiente: consolidar la documentación funcional, los límites de compatibilidad y los escenarios de error; no asumir compatibilidad con formatos no verificados.
 
-### Actividades
+## Actualización OTA
 
-- Actualización del Project Master Context.
-- Actualización del Roadmap.
-- Actualización del Changelog.
-- Revisión de decisiones arquitectónicas.
-- Documentación final del Visual Redesign V2.
-- Verificación de TypeScript strict.
-- Preparación de próximos módulos.
+**Estado:** 🟡 IMPLEMENTADO / VALIDACIÓN CONTINUA
+
+- Preferencia persistida para habilitar o deshabilitar la descarga automática de OTA.
+- Comprobación y descarga automática condicionadas por la preferencia.
+- Aplicación de la actualización mediante reinicio controlado de la aplicación.
+- Pantalla de actualización con controles y estado de OTA.
+
+La publicación OTA debe respetar el runtime compatible y la política del proyecto. Antes de publicar, verificar estado Git, commit, configuración efectiva de runtime/channel y ausencia de cambios nativos. Si cambia código nativo, plugins, dependencias nativas, Expo SDK o runtime, corresponde una nueva APK de producción y no una OTA.
+
+## Actualización de APK desde GitHub Releases
+
+**Estado:** 🟡 IMPLEMENTADO / VALIDACIÓN CONTINUA
+
+- Consulta de la última versión estable en GitHub Releases.
+- Identificación del APK asociado al release.
+- Descarga y validaciones previas a la instalación.
+- Apertura del instalador Android con intervención explícita del usuario.
+
+La descarga no equivale a una instalación silenciosa: Android mantiene el control de confirmación. Cada publicación debe incluir la APK de producción esperada y comprobar versión, artefacto y release.
+
+## Backup y recuperación
+
+**Estado:** 🟡 BACKUP IMPLEMENTADO / RECUPERACIÓN PENDIENTE
+
+### Implementado en código
+
+- Copia SQLite con validación de integridad.
+- Exportación manual de una copia a una ubicación elegida por el usuario en Android.
+- Subida de copia a Google Drive, dentro de la carpeta CardioSync Backups.
+- Configuración de frecuencia diaria o semanal y hora.
+- Coordinación de ejecución programada, registro de estado y notificaciones.
+
+### Pendiente
+
+- Diseñar e implementar un flujo seguro de restauración, si no existe ya en otra parte del proyecto.
+- Definir y aplicar una política de retención y limpieza de copias en la nube.
+- Validar en dispositivos reales las ejecuciones programadas, restricciones del sistema y recuperación tras reinicios.
+- Documentar errores, límites y procedimientos de recuperación.
+
+No considerar el backup completado de extremo a extremo hasta validar restauración y recuperación de datos.
+
+## Health Connect
+
+**Estado:** 🟡 INFRAESTRUCTURA PRESENTE / INTEGRACIÓN COMPLETA PENDIENTE
+
+- Existe un servicio de inicialización y solicitud de permisos.
+- El servicio solicita permisos para tipos de registros de salud específicos.
+
+Pendiente:
+
+- Verificar la compatibilidad nativa con Expo SDK 57 y las builds Android de producción.
+- Implementar y validar lectura/escritura efectiva de registros.
+- Definir sincronización, deduplicación, errores y permisos revocados.
+- Acordar cómo se muestran los datos externos y cómo se distinguen de las mediciones creadas en CardioSync.
+- Actualizar la documentación de Health Connect para diferenciar el diseño previsto de lo implementado.
+
+La presencia del servicio y de la dependencia no demuestra por sí sola que la integración de datos esté completa.
 
 ---
 
 # Próximas fases
 
-## 1. Configuración e Integraciones
+## 1. Consolidación documental
 
 **Estado:** 🚧 EN DESARROLLO
 
-### Implementado
+- Actualizar un documento por Pull Request.
+- Contrastar cada afirmación con el código y el estado conocido.
+- Mantener alineados Project Master Context, Architecture, Roadmap, Changelog y documentación de módulos.
+- No recrear documentos que hayan sido eliminados deliberadamente.
+- Registrar de forma explícita qué fue inspeccionado y qué validaciones no se ejecutaron.
 
-- Importar registros.
-- Exportar registros.
-- Gestión de datos desde Configuración.
-- Estructura de Configuración dentro de la navegación V2.
-
-### Pendiente
-
-- Consolidación final de Configuración.
-- Health Connect.
-- Gestión de integraciones externas.
-
----
-
-## 2. Backup y recuperación
+## 2. Cierre del ciclo de backup y recuperación
 
 **Estado:** 📋 PLANIFICADO
 
-### Objetivo
+- Diseñar restauración transaccional y segura.
+- Evitar sobrescribir datos sin confirmación y validación.
+- Definir política de retención de Google Drive.
+- Probar copias, integridad, restauración y fallos de red/dispositivo.
+- Documentar el procedimiento de recuperación para el usuario.
 
-Implementar mecanismos seguros para preservar y recuperar los datos de CardioSync.
-
-### Alcance previsto
-
-- Backup local.
-- Backup en nube.
-- Google Drive.
-- Recuperación de datos.
-- Política de retención.
-- Control de copias para evitar acumulación innecesaria.
-
-La estrategia definitiva se establecerá después de evaluar las capacidades actuales de Expo, SQLite y las integraciones externas necesarias.
-
----
-
-## 3. Health Connect
+## 3. Completar Health Connect
 
 **Estado:** 📋 PLANIFICADO
 
-### Objetivo
+- Auditoría de compatibilidad nativa.
+- Lectura y escritura de los registros aprobados por el producto.
+- Tratamiento de permisos parciales o revocados.
+- Sincronización idempotente y manejo de duplicados.
+- Pruebas en dispositivos Android compatibles.
 
-Integrar CardioSync con Health Connect para permitir el intercambio de datos compatibles con el ecosistema de salud de Android.
-
-### Alcance previsto
-
-- Gestión de permisos.
-- Lectura de datos compatibles.
-- Escritura de mediciones cuando corresponda.
-- Sincronización.
-- Recuperación de información compatible ante determinados escenarios de pérdida local.
-
-La administración de Health Connect pertenece a:
-
-`Más → Configuración → Health Connect`
-
-No pertenece al Perfil.
-
----
-
-## 4. Dashboard Dinámico
+## 4. Evolución del Dashboard
 
 **Estado:** 📋 PLANIFICADO
 
-### Objetivo
+- Evolucionar la presentación sin duplicar reglas clínicas.
+- Mantener claridad clínica, accesibilidad y bajo acoplamiento.
+- Incorporar datos externos solo cuando su disponibilidad y significado estén validados.
 
-Evolucionar el Dashboard utilizando la infraestructura existente para permitir una presentación más dinámica de la información.
-
-La evolución deberá mantener:
-
-- jerarquía visual;
-- claridad clínica;
-- bajo acoplamiento;
-- separación entre presentación y dominio.
-
----
-
-## 5. Evolución de Clinical Context
+## 5. Evolución clínica
 
 **Estado:** 📋 PLANIFICADO
 
-### Objetivo
+- Mantener la separación entre mediciones originales, contexto clínico y resultados derivados.
+- Extender contextos solo con justificación clínica documentada.
+- Trazar reglas, umbrales y hallazgos a fuentes verificables.
+- Revisar las reglas frente al Consenso Argentino de Hipertensión Arterial 2025.
+- Evitar presentar resultados de la aplicación como sustituto de la evaluación profesional.
 
-Continuar la especialización y extensión de los contextos clínicos existentes sin incrementar el acoplamiento del dominio.
-
-La evolución deberá respetar la separación entre:
-
-- mediciones;
-- contexto clínico;
-- datos externos;
-- resultados derivados.
-
-No se deberá modificar `BloodPressureRecord` para incorporar información perteneciente a otros dominios.
-
----
-
-## 6. Funcionalidades clínicas futuras
+## 6. Reportes clínicos ampliados
 
 **Estado:** 📋 PLANIFICADO
 
-Nuevas funcionalidades clínicas basadas en:
+- Definir el alcance del reporte médico.
+- Diferenciar datos observados, estadísticas y resultados derivados.
+- Incluir fuentes y contexto solo cuando estén disponibles y correctamente trazados.
 
-- Clinical Domain;
-- Clinical Rule Engine;
-- Clinical Analysis Engine;
-- Clinical Targets;
-- Clinical Findings;
-- Warnings;
-- guías clínicas documentadas.
+## 7. Distribución y tiendas alternativas
 
-Toda nueva funcionalidad clínica deberá mantener trazabilidad hacia las reglas y fuentes clínicas correspondientes.
+**Estado:** 📋 PLANIFICADO
+
+- Realizar una auditoría común de requisitos de distribución fuera de Play Store.
+- Separar requisitos compartidos de los específicos de cada tienda.
+- Revisar actualización, firma, privacidad, permisos y proceso de publicación por tienda.
+- Evaluar cada tienda de manera individual; F-Droid queda para una etapa posterior.
 
 ---
 
-# Línea temporal
+# Criterios transversales de aceptación
 
-Arquitectura Base
+Una funcionalidad no se marca como completada únicamente porque exista código. Según corresponda, debe contar con:
 
-↓
+- Compatibilidad comprobada con Expo SDK 57 y dependencias instaladas.
+- TypeScript strict y compilación sin errores.
+- Pruebas automatizadas o pasos de validación reproducibles.
+- Validación en dispositivo para flujos nativos, permisos, alarmas, archivos o instalación.
+- Manejo de errores y estados de ausencia de datos.
+- Documentación actualizada y coherente.
+- Revisión del impacto sobre SQLite, migraciones, backups, actualizaciones y arquitectura.
 
-Measurements
+Los cambios nativos no se publican mediante OTA. Toda publicación debe partir de un commit identificado y de un árbol de trabajo revisado.
 
-↓
+---
 
-Dashboard
+# Secuencia de evolución
 
-↓
-
-Statistics
-
-↓
-
-Clinical Foundation
-
-↓
-
-Refactorización Final del Dominio
-
-↓
-
-Clinical Domain
-
-↓
-
-Clinical Classification
-
-↓
-
-Clinical Rule Engine
-
-↓
-
-Clinical Analysis Engine
-
-↓
-
-Statistics V2 / ClinicalChart
-
-↓
-
-History V2
-
-↓
-
-Reports
-
-↓
-
-Importación
-
-↓
-
-Visual Redesign V2
-
-↓
-
-🚧 Configuración e Integraciones
-
-↓
-
-📋 Health Connect
-
-↓
-
-📋 Backup y recuperación
-
-↓
-
-📋 Dashboard Dinámico
-
-↓
-
-📋 Evolución de Clinical Context
-
-↓
-
-📋 Funcionalidades clínicas futuras
+1. Arquitectura base.
+2. Mediciones, historial y Dashboard.
+3. Estadísticas y visualización clínica.
+4. Dominio clínico, reglas y análisis.
+5. Reportes PDF.
+6. Interfaz visual V2.
+7. Consolidación documental.
+8. Cierre y validación de backup/recuperación.
+9. Integración completa de Health Connect.
+10. Evolución del Dashboard y reportes clínicos.
+11. Evolución clínica trazable.
+12. Auditoría de distribución en tiendas alternativas.
