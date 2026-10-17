@@ -139,7 +139,7 @@ export class BloodPressureClassifier {
         'safetyWarnings'
       ] = []
 
-    if (diastolic < 70) {
+    if (diastolic < 60) {
       safetyWarnings.push(
         'low-diastolic',
       )
