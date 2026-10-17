@@ -1475,3 +1475,29 @@ Solo documentación. No se modificaron archivos de aplicación, dependencias, co
 - `app.json`
 - `package.json`
 - `eas.json`
+
+
+---
+
+# 2026-10-17 — Inventario documental de seguimiento
+
+### Tipo
+
+Auditoría documental
+
+### Cambios realizados
+
+- Añadida una auditoría de seguimiento basada en la lectura de archivos de `main`.
+- Registrados los 19 documentos vacíos confirmados en el conjunto inspeccionado.
+- Añadida la referencia a la auditoría actual desde el índice documental, conservando el enlace a la auditoría histórica.
+- Eliminado el título duplicado en la guía de copias y recuperación.
+
+### Alcance y límites
+
+Solo documentación. La revisión fue estática a través de los archivos disponibles en GitHub; no se ejecutaron comandos en Codespaces, compilaciones, pruebas automatizadas, publicaciones OTA ni pruebas en dispositivo. El inventario no se presenta como una inspección exhaustiva de todos los archivos del repositorio.
+
+### Referencias
+
+- `docs/21_DOCUMENTATION_AUDIT_2026-10-17.md`
+- `docs/14_RELEASES_AND_UPDATES.md`
+- `docs/16_BACKUP_AND_RESTORE.md`
