@@ -1,165 +1,35 @@
-# Clinical Foundations
+# Fundamentos clínicos de CardioSync
 
-Version: 1.0
-Status: Draft
-Phase: Clinical Knowledge Base
+**Estado:** contrastado con el código de `feature/app-updates` el 17-10-2026.
 
----
+## 1. Objetivo
 
-# 1. Objetivo
+Establecer los principios que separan las mediciones originales, los datos del perfil, las estadísticas derivadas y los hallazgos del análisis clínico.
 
-Definir los fundamentos clínicos que guían el diseño de CardioSync.
+## 2. Medición y contexto
 
-Este documento establece los principios utilizados para modelar:
+`BloodPressureRecord` representa un evento de medición e incluye actualmente PAS, PAD, fecha/hora, identificadores, marcas temporales y campos opcionales como frecuencia cardíaca, brazo, posición, origen y notas. También conserva campos adicionales marcados como reservados para futuras separaciones. Por lo tanto, la separación entre registro y contexto es un objetivo arquitectónico parcial, no una extracción completa ya realizada.
 
-- mediciones;
-- contexto clínico;
-- interpretación;
-- seguimiento longitudinal.
+`ClinicalContext` representa actualmente información opcional a nivel de paciente: edad, sexo, talla, peso de referencia, IMC, tabaquismo, diabetes, dislipidemia y determinados antecedentes cardiovasculares y renales. No es una historia clínica completa ni está asociado individualmente a cada medición.
 
----
+## 3. Estadísticas e interpretación
 
-# 2. Principio clínico principal
+`StatisticsDomainService` aplica filtros y delega el cálculo a `StatisticsEngine`. Entre los resultados están promedios, máximos, mínimos, frecuencia cardíaca media, presión de pulso, presión arterial media, desviación estándar, variabilidad, carga hipertensiva, tiempo en objetivo, adherencia, tendencia y distribución de clasificación.
 
-Una medición aislada de presión arterial representa un evento clínico puntual.
+`ClinicalAnalysisDomainService` consume el resumen estadístico y el contexto, ejecuta reglas y devuelve hallazgos. Aunque la entrada de su contrato incluye una lista de mediciones, la implementación actual de este servicio utiliza las estadísticas y el contexto para evaluar las reglas; no analiza directamente cada registro.
 
-Su interpretación depende de:
+## 4. Guías y trazabilidad
 
-- técnica de medición;
-- condiciones del registro;
-- características del paciente;
-- contexto asociado;
-- guía clínica utilizada.
+La guía argentina 2025 es la predeterminada cuando no se proporciona otra. El hallazgo puede incluir el identificador de guía y una fecha de creación. El modelo actual no conserva por sí solo una instantánea inmutable de todos los datos y de la versión del motor que originaron cada análisis.
 
----
+## 5. Seguridad clínica
 
-# 3. Presión arterial como variable longitudinal
+Los resultados son información de seguimiento y no sustituyen la evaluación profesional. Las reglas implementadas deben documentarse con sus condiciones reales; no deben inferirse capacidades de diagnóstico, prescripción o motores futuros a partir de nombres conceptuales.
 
-CardioSync no debe interpretar únicamente valores aislados.
+## 6. Estado de implementación
 
-El seguimiento longitudinal permite analizar:
+- **Implementado:** registro de presión arterial, perfil local, estadísticas y reglas de análisis descritas en `CLINICAL_ENGINE_RULES.md`.
+- **Parcial:** separación de datos de medición y perfil clínico.
+- **Pendiente:** modelos independientes para todos los componentes contextuales, versionado reproducible completo del análisis y motores autónomos de recomendaciones/alertas.
 
-- evolución temporal;
-- tendencia;
-- variabilidad;
-- respuesta a cambios;
-- patrones de comportamiento.
-
----
-
-# 4. Registro versus interpretación
-
-CardioSync separa:
-
-## Registro
-
-Dato observado.
-
-Ejemplo:
-
-120/80 mmHg.
-
-
-## Interpretación
-
-Significado clínico del dato.
-
-Ejemplo:
-
-clasificación según una guía seleccionada.
-
-
-La interpretación nunca debe modificar el registro original.
-
----
-
-# 5. Calidad de medición
-
-La calidad de una medición depende de factores como:
-
-- técnica correcta;
-- posición adecuada;
-- condiciones previas;
-- dispositivo utilizado;
-- repetición cuando corresponde.
-
-Estos elementos pertenecen a MeasurementContext.
-
----
-
-# 6. Contexto clínico
-
-La misma medición puede tener diferentes interpretaciones dependiendo del
-contexto.
-
-Ejemplos:
-
-- síntomas asociados;
-- frecuencia cardíaca;
-- peso;
-- actividad reciente;
-- sueño.
-
----
-
-# 7. Guías clínicas
-
-CardioSync debe soportar múltiples guías.
-
-Cada guía puede definir:
-
-- umbrales;
-- categorías;
-- objetivos;
-- criterios de interpretación.
-
-La guía utilizada debe quedar registrada.
-
----
-
-# 8. Principios de seguridad clínica
-
-CardioSync debe:
-
-- informar;
-- contextualizar;
-- ayudar al seguimiento.
-
-No debe:
-
-- diagnosticar automáticamente;
-- reemplazar evaluación profesional;
-- indicar tratamientos.
-
----
-
-# 9. Arquitectura derivada
-
-Los principios clínicos generan la siguiente separación:
-
-BloodPressureRecord
-
-↓
-
-ClinicalContext
-
-↓
-
-ClinicalAnalysis
-
-↓
-
-Statistics
-
-
----
-
-# 10. Estado
-
-Draft.
-
-Pendiente:
-
-- incorporación detallada de evidencia de guías;
-- revisión clínica;
-- aprobación.
+Este documento describe el código actual y no sustituye las fuentes clínicas originales.
