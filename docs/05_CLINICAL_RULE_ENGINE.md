@@ -4,11 +4,23 @@
 |-------|--------|
 | Documento | 05_CLINICAL_RULE_ENGINE.md |
 | Tipo | Diseño Conceptual |
-| Estado | Planificado |
+| Estado | Implementación parcial; diseño futuro identificado |
 | Versión | Sincronizada con la versión del proyecto |
-| Última actualización | 2026-08-03 |
+| Última actualización | 2026-10-17 |
 
 ---
+
+# Estado de implementación — 2026-10-17
+
+Este documento describe el diseño objetivo y debe leerse junto con `docs/clinical/CLINICAL_ENGINE_RULES.md` y las reglas activas en `src/domain/clinical/rules/`. CardioSync dispone de reglas clínicas ejecutables que generan hallazgos dentro del análisis actual, pero esto no demuestra que exista el motor integral descrito en todas las secciones de este documento.
+
+## Capacidades y límites confirmados
+
+- Las reglas activas se orquestan desde `ClinicalAnalysisDomainService`.
+- La clasificación activa de presión arterial se centraliza en `BloodPressureClassificationRule`.
+- La guía y los objetivos clínicos disponibles no deben generalizarse a guías que no tienen soporte ejecutable confirmado.
+- Los motores autónomos completos de recomendaciones y alertas, la solicitud dinámica de información y la cobertura de todos los contextos opcionales permanecen fuera del alcance confirmado.
+- La trazabilidad documental de cada umbral debe seguir indicándose cuando no se ha podido vincular a una sección verificable de la fuente oficial.
 
 # Objetivo
 
