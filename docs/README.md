@@ -49,7 +49,8 @@ La carpeta [clinical/](clinical/) reúne la descripción del dominio, las guías
 
 Los siguientes documentos sirven para organizar el trabajo interno de documentación; no son la explicación principal de cómo funciona el producto:
 
-- [Auditoría documental de octubre de 2026](00_DOCUMENTATION_AUDIT_2026-10-15.md).
+- [Auditoría documental actualizada — 2026-10-17](21_DOCUMENTATION_AUDIT_2026-10-17.md).
+- [Auditoría documental inicial — 2026-10-15](00_DOCUMENTATION_AUDIT_2026-10-15.md).
 - [Brechas documentales y plan de resolución](18_DOCUMENTATION_GAPS.md).
 
 Los archivos de checkpoints y los documentos históricos describen estados de desarrollo concretos. Para conocer el comportamiento actual de una función, se debe priorizar su documentación funcional y el código correspondiente.

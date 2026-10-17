@@ -1447,3 +1447,57 @@ Documentación modificada en la rama `docs/documentation-audit`. No se modificó
 
 - Coherencia final: el roadmap define `IMPLEMENTADO` por presencia en código y reserva `PLANIFICADO` para funcionalidades aún inexistentes. Las comprobaciones y validaciones se documentan de forma independiente.
 - Las normas documentales incorporan el mismo criterio para evitar que las pruebas pendientes se interpreten como funcionalidades sin implementar.
+
+
+---
+
+# 2026-10-17 — Auditoría de documentación de releases
+
+### Tipo
+
+Auditoría y corrección documental
+
+### Cambios realizados
+
+- Alineada la guía de versiones y actualizaciones con los archivos de configuración consultados en `main`.
+- Registrados los valores declarados en `app.json`, `package.json` y `eas.json`, distinguiéndolos de la configuración efectiva de EAS.
+- Retirada la afirmación de que el perfil `production-apk` existe en la configuración consultada.
+- Aclarado que el runtime, el canal OTA y la versión remota de EAS deben verificarse antes de publicar.
+- Reforzada la separación entre una build, una OTA publicada y una actualización efectivamente recibida en un dispositivo.
+
+### Alcance y límites
+
+Solo documentación. No se modificaron archivos de aplicación, dependencias, configuración nativa ni perfiles de build. No se ejecutaron Expo Config, EAS Build, publicaciones OTA ni pruebas en dispositivo. Los valores documentados reflejan los archivos consultados en la rama `main` el 2026-10-17.
+
+### Documentos relacionados
+
+- `docs/14_RELEASES_AND_UPDATES.md`
+- `app.json`
+- `package.json`
+- `eas.json`
+
+
+---
+
+# 2026-10-17 — Inventario documental de seguimiento
+
+### Tipo
+
+Auditoría documental
+
+### Cambios realizados
+
+- Añadida una auditoría de seguimiento basada en la lectura de archivos de `main`.
+- Registrados los 19 documentos vacíos confirmados en el conjunto inspeccionado.
+- Añadida la referencia a la auditoría actual desde el índice documental, conservando el enlace a la auditoría histórica.
+- Eliminado el título duplicado en la guía de copias y recuperación.
+
+### Alcance y límites
+
+Solo documentación. La revisión fue estática a través de los archivos disponibles en GitHub; no se ejecutaron comandos en Codespaces, compilaciones, pruebas automatizadas, publicaciones OTA ni pruebas en dispositivo. El inventario no se presenta como una inspección exhaustiva de todos los archivos del repositorio.
+
+### Referencias
+
+- `docs/21_DOCUMENTATION_AUDIT_2026-10-17.md`
+- `docs/14_RELEASES_AND_UPDATES.md`
+- `docs/16_BACKUP_AND_RESTORE.md`
