@@ -1,93 +1,85 @@
-# CardioSync — Brechas de documentación
+# CardioSync — Pendientes documentales y de validación
 
 | Campo | Valor |
 |---|---|
 | Documento | 18_DOCUMENTATION_GAPS.md |
-| Tipo | Auditoría de documentación |
+| Tipo | Registro de pendientes documentales y validaciones no demostradas |
 | Estado | Activo |
-| Última actualización | 2026-10-17 |
+| Última revisión | 2026-10-17 |
 
----
+## Propósito
 
-## Objetivo
+Registrar únicamente pendientes que siguen siendo relevantes después de las actualizaciones documentales realizadas el 17-10-2026. Este archivo no sustituye las pruebas ni debe conservar como brecha documental una tarea ya resuelta por los PR #19–#25 y #57–#98.
 
-Registrar discrepancias documentales conocidas y priorizar su resolución sin afirmar capacidades que no estén respaldadas por el código o por pruebas verificables.
+## Pendientes vigentes
 
-## Brechas identificadas
+### 1. Constitución del proyecto
 
-### 1. Roadmap frente a implementación
+**Estado:** pendiente de contenido en la rama base revisada.
 
-**Prioridad:** Alta
+**Acción:** definir principios estables sin duplicar la arquitectura, las decisiones ADR ni las guías operativas. Si no aporta un nivel normativo propio, reconsiderar su existencia. La propuesta se encuentra en el PR documental correspondiente.
 
-**Acción:** Mantener diferenciados los estados implementado, validación pendiente, en desarrollo y planificado. Revisar OTA, actualización APK, backup y Health Connect contra los servicios actuales.
+### 2. Diseño conceptual del dominio clínico
 
-### 2. Health Connect
+**Estado:** diseño e implementación parcial.
 
-**Prioridad:** Alta
+**Acción:** mantener explícita la diferencia entre el perfil clínico opcional actualmente disponible y el ClinicalContext integral descrito como objetivo. No afirmar que los contextos opcionales de sueño, actividad, composición corporal, síntomas y signos vitales estén integrados en producción sin evidencia.
 
-**Brecha:** La documentación de diseño presenta una integración más amplia que el servicio observado, que inicializa Health Connect y solicita permisos.
+### 3. Validación funcional de Health Connect
 
-**Acción:** Documentar por separado inicialización, permisos, lectura, escritura, sincronización, deduplicación y tratamiento de revocaciones, indicando qué está implementado y probado.
+**Estado:** la documentación de alcance ya fue actualizada; la validación funcional es independiente.
 
-### 3. Backup y recuperación
+**Acción:** comprobar por separado inicialización, permisos, lectura/escritura soportada, revocaciones y comportamiento en dispositivo. No convertir la existencia del servicio o de permisos declarados en prueba de un flujo completo.
 
-**Prioridad:** Alta
+### 4. Backup, restauración y programación
 
-**Brecha:** Existen servicios para crear copias SQLite, exportación manual, Google Drive y programación, pero no debe declararse completo el ciclo de recuperación sin localizar y validar restauración y retención.
+**Estado:** existe una guía de backup y recuperación; la guía deja constancia de límites y validaciones pendientes.
 
-**Acción:** Auditar el repositorio completo y documentar restauración, retención, errores y pruebas de dispositivo.
+**Acción:** validar en dispositivo la creación, acceso a Google Drive, ejecución programada, errores y restauración. No afirmar que retención o recuperación estén completamente validadas sin pruebas reproducibles.
 
-### 4. Importación y exportación
+### 5. Importación y exportación
 
-**Prioridad:** Alta
+**Estado:** documentación de base de datos y especificación de importación ya fueron alineadas con el alcance observado.
 
-**Brecha:** La documentación de base de datos aún contiene descripciones de importación/exportación como planificadas, mientras que existen flujos en la aplicación.
+**Acción:** si cambia el código, actualizar formatos, validaciones, deduplicación y errores en la misma revisión. No se registra como brecha documental abierta por el mero hecho de que existan escenarios no soportados.
 
-**Acción:** Verificar formatos reales, validaciones, límites, errores y persistencia; actualizar la especificación sin ampliar el soporte por inferencia.
+### 6. Reportes
 
-### 5. Reportes
+**Estado:** alcance del reporte actual y del reporte médico planificado documentados en docs/07_REPORTS.md.
 
-**Prioridad:** Media
+**Acción:** validar en dispositivo el PDF real y sus datos antes de ampliar el estado a completo. El reporte médico planificado no debe presentarse como implementado.
 
-**Brecha:** La documentación conceptual contempla un reporte médico especializado, mientras que la implementación descrita se centra en el reporte PDF actual.
+### 7. Arquitectura clínica histórica y actual
 
-**Acción:** Separar alcance disponible y evolución planificada, incluidos datos y fuentes clínicas realmente incluidos.
+**Estado:** la documentación clínica específica fue revisada en los PR #57–#98; los documentos conceptuales generales requieren distinguir implementación y diseño futuro.
 
-### 6. Árbol histórico y dominio clínico actual
+**Acción:** mantener clara la separación entre el dominio clínico actual y el árbol histórico src/clinical/. No retirar código histórico sin una decisión y validación independiente.
 
-**Prioridad:** Media
+### 8. Fechas de revisión documental
 
-**Brecha:** Conviven referencias a `src/clinical/` y al dominio actual `src/domain/clinical/`.
+**Estado:** algunos documentos generales conservan fechas de actualización anteriores a las revisiones documentales recientes.
 
-**Acción:** Documentar responsabilidades, dependencias y estado de migración antes de retirar código histórico.
+**Acción:** actualizar la fecha solo cuando el contenido del archivo se haya revisado en el cambio correspondiente. La fecha indica revisión documental, no certifica pruebas funcionales.
 
-### 7. Validaciones y checkpoints
+### 9. Configuración de releases
 
-**Prioridad:** Media
+**Estado:** docs/14_RELEASES_AND_UPDATES.md debe referenciar inequívocamente la rama inspeccionada y diferenciar valores declarados de configuración efectiva remota.
 
-**Brecha:** Los documentos históricos registran validaciones de fechas anteriores que no prueban automáticamente el estado del commit actual.
+**Acción:** antes de cada build u OTA, comprobar commit, estado Git, Expo Config efectivo, perfil, runtime y canal; registrar resultados y validación del artefacto o dispositivo.
 
-**Acción:** Cada actualización debe indicar qué se inspeccionó, qué comandos/pruebas se ejecutaron y qué quedó sin verificar.
+### 10. Documento de instrucciones clínicas fuera de docs/
 
-### 8. Distribución y actualizaciones
+**Estado:** CLINICAL_KNOWLEDGE_BASE_PHASE1.md contiene instrucciones antiguas que piden comparar cuatro guías, mientras que la documentación actual no declara implementado ese conjunto de cuatro motores.
 
-**Prioridad:** Media
+**Acción:** retirar ese artefacto de instrucciones obsoleto o reemplazarlo por un plan vigente antes de reutilizarlo. No usarlo como fuente clínica ni como evidencia de soporte implementado.
 
-**Brecha:** La guía de publicación debe reflejar los requisitos por canal/tienda y la separación entre OTA y APK nativa.
+## Documentos revisados anteriormente
 
-**Acción:** Mantener un procedimiento verificable de runtime, canal, commit, cambios nativos, firma y artefacto de producción.
+Los PR #19–#25 trataron documentación de reportes, Health Connect, base de datos, importación/exportación, releases, backup y flujo de trabajo. Los PR #57–#98 revisaron los documentos clínicos específicos. No repetir esas actualizaciones salvo que aparezca una discrepancia concreta nueva.
 
----
+## Criterio de cierre
 
-## Orden recomendado
-
-1. Confirmar el estado de recuperación y retención de backups.
-2. Verificar alcance real de Health Connect.
-3. Alinear importación/exportación y base de datos.
-4. Alinear decisiones arquitectónicas y changelog.
-5. Revisar documentos de módulos y estructura de carpetas.
-6. Revisar reportes clínicos y brechas restantes.
-
-## Regla de cierre
-
-Una brecha solo se cierra cuando el documento se contrasta con código y, si corresponde, con pruebas reproducibles o evidencia de dispositivo. Un cambio de documentación por sí solo no demuestra que una funcionalidad se haya implementado.
+- Una brecha documental se cierra cuando el contenido se alinea con el código y con las decisiones vigentes.
+- Una validación funcional solo se cierra con evidencia reproducible o de dispositivo adecuada.
+- Un PR documental no demuestra que una funcionalidad esté implementada o probada.
+- Toda afirmación debe indicar el alcance y las limitaciones que realmente se han comprobado.
