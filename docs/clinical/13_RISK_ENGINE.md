@@ -1,200 +1,32 @@
-# RiskEngine
+# Evaluación de factores asociados al riesgo cardiovascular
 
-Version: 1.0
-Status: Draft
-Phase: Clinical Knowledge Base
+**Estado:** regla parcial implementada; motor de riesgo completo no implementado (revisión del 17-10-2026).
 
----
+## 1. Implementación actual
 
-# 1. Objetivo
+La regla `CardiovascularRiskRule` está en `src/domain/clinical/rules/cardiovascular/`. Consume el `ClinicalContext` y genera un `ClinicalFinding` cuando detecta determinados antecedentes:
 
-Definir el dominio RiskEngine dentro de CardioSync.
+- **Muy alto** (`very-high`): enfermedad cardiovascular, insuficiencia cardíaca, antecedente de ACV o enfermedad vascular periférica.
+- **Alto** (`high`): enfermedad renal crónica o diabetes.
+- Sin esos factores, la regla no genera hallazgo.
 
-RiskEngine representa el componente encargado de estimar o categorizar
-información relacionada con riesgo cardiovascular utilizando datos clínicos
-disponibles y reglas definidas.
+El hallazgo utiliza el tipo `cardiovascular-risk` y puede incluir el identificador de la guía seleccionada.
 
-No realiza diagnósticos.
+## 2. Qué significa el resultado
 
-No reemplaza una evaluación profesional.
+La regla identifica antecedentes asociados a riesgo cardiovascular aumentado. No calcula riesgo absoluto, porcentaje a diez años, ni un score validado. No usa actualmente todos los campos del perfil: tabaquismo y dislipidemia, por ejemplo, no participan en esta regla.
 
-No indica tratamientos.
+## 3. Ubicación en el análisis
 
----
+`ClinicalAnalysisDomainService` incorpora la regla en su composición. El resultado se agrega al grupo `risk` de `ClinicalAnalysisResult`. Esto es una regla de hallazgos contextual, no un servicio autónomo `RiskEngine`.
 
-# 2. Principio fundamental
+## 4. Límites
 
-El riesgo cardiovascular no depende únicamente de una medición aislada de
-presión arterial.
+- No presentar la severidad del hallazgo como una estimación cuantitativa de riesgo.
+- No inferir ausencia de riesgo cuando no se genera un hallazgo.
+- No afirmar que se calcula riesgo cardiovascular integral.
+- La regla no reemplaza evaluación profesional ni indica tratamientos.
 
-Puede integrar:
+## 5. Evolución requerida
 
-- valores de presión arterial;
-- contexto clínico;
-- factores adicionales;
-- guía clínica seleccionada.
-
----
-
-# 3. Separación de responsabilidades
-
-## BloodPressureRecord
-
-Registra la medición.
-
-
-## ClinicalContext
-
-Aporta información complementaria.
-
-
-## ClinicalAnalysis
-
-Interpreta la medición según una guía.
-
-
-## RiskEngine
-
-Evalúa información relacionada con riesgo.
-
-
----
-
-# 4. Flujo conceptual
-
-BloodPressureRecord
-
-+
-
-ClinicalContext
-
-+
-
-ClinicalGuideline
-
-↓
-
-ClinicalAnalysis
-
-↓
-
-RiskEngine
-
-↓
-
-RiskAssessment
-
-
----
-
-# 5. Modelo conceptual
-
-RiskAssessment
-
-├── id
-
-├── category
-
-├── factors
-
-├── source
-
-├── guidelineId
-
-├── generatedAt
-
-└── version
-
-
----
-
-# 6. Factores de riesgo
-
-Los factores de riesgo deben modelarse como información trazable.
-
-Ejemplos conceptuales:
-
-- factores antropométricos;
-- factores cardiovasculares;
-- factores clínicos disponibles.
-
-La definición exacta dependerá de las reglas implementadas.
-
----
-
-# 7. Relación con ClinicalGuideline
-
-Cada evaluación de riesgo debe mantener referencia a:
-
-- guía utilizada;
-- versión;
-- fecha de generación.
-
-Cambiar una guía no debe modificar evaluaciones históricas.
-
----
-
-# 8. Independencia del motor
-
-RiskEngine no debe contener:
-
-- reglas específicas embebidas;
-- lógica de una sola guía;
-- valores fijos difíciles de actualizar.
-
-Las reglas deben pertenecer a ClinicalGuideline.
-
----
-
-# 9. Decisiones arquitectónicas
-
-## ADR-039
-
-RiskEngine será independiente de ClinicalAnalysisEngine.
-
-
-## ADR-040
-
-Toda evaluación de riesgo tendrá trazabilidad hacia la fuente clínica.
-
-
-## ADR-041
-
-Los resultados históricos de riesgo serán inmutables.
-
-
----
-
-# 10. Riesgos
-
-Evitar:
-
-- presentar riesgo como diagnóstico;
-- calcular riesgo sin contexto suficiente;
-- mezclar guías;
-- modificar resultados históricos.
-
-
----
-
-# 11. Impacto en CardioSync
-
-Utilizado por:
-
-- ClinicalAnalysis;
-- Dashboard;
-- Reportes;
-- futuras herramientas de seguimiento.
-
-
----
-
-# 12. Estado
-
-Draft.
-
-Pendiente:
-
-- definición de modelos de riesgo;
-- reglas específicas;
-- validación clínica.
+Un modelo de riesgo formal necesitaría especificar población, variables, fórmula, horizonte temporal, tratamiento de datos ausentes, fuente bibliográfica, versión, pruebas y validación clínica antes de su implementación.
