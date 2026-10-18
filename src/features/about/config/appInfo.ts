@@ -4,13 +4,14 @@ export const appInfo = {
   tagline:
     'Monitoreo inteligente de presión arterial',
 
-  version: '1.2.0',
+  version: '1.2.1',
 
   releaseDate: '17/10/2026',
 
   status: 'Producción',
 
   changelog: [
+    'Nuevo widget de pantalla de inicio para acceder directamente al registro de una medición',
     'Mejoras en la clasificación de presión arterial y sus colores clínicos',
     'Mejoras en el flujo de registro de mediciones',
     'Valores predeterminados para brazo derecho y posición sentada',

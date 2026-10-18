@@ -4,7 +4,7 @@ export const VERSION_INFO = {
   description:
     'Monitoreo inteligente de presión arterial',
 
-  version: '1.2.0',
+  version: '1.2.1',
 
   releaseDate: '17/10/2026',
 
@@ -19,7 +19,14 @@ export const VERSION_INFO = {
 
   highlights: [
     {
-      title: 'Cambios desde la versión 1.1.0',
+      title: 'Novedades de la versión 1.2.1',
+      items: [
+        'Nuevo widget para la pantalla de inicio de Android con acceso directo al formulario de nueva medición',
+        'Acceso rápido al registro sin mostrar datos de salud en el widget',
+      ],
+    },
+    {
+      title: 'Mejoras anteriores',
       items: [
         'Mejoras en la clasificación de presión arterial y sus colores clínicos',
         'Mejoras en el flujo de registro de mediciones',
@@ -33,4 +40,4 @@ export const VERSION_INFO = {
       ],
     },
   ],
-}
+} as const

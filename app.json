@@ -2,7 +2,7 @@
   "expo": {
     "name": "CardioSync",
     "slug": "CardioSync",
-    "version": "1.2.0",
+    "version": "1.2.1",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "cardiosync",
@@ -31,7 +31,6 @@
         "android.permission.health.READ_SLEEP",
         "android.permission.health.READ_EXERCISE",
         "android.permission.POST_NOTIFICATIONS",
-
         "android.permission.RECEIVE_BOOT_COMPLETED",
         "android.permission.SCHEDULE_EXACT_ALARM"
       ]

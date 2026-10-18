@@ -37,6 +37,34 @@ Cada entrada deberá incluir:
 
 # Historial
 
+# 2026-10-17 — CardioSync 1.2.1
+
+## Tipo
+
+Funcionalidad Android / Publicación
+
+## Cambios realizados
+
+- Incorporado un widget nativo Android para la pantalla de inicio.
+- El widget muestra el icono de CardioSync y un acceso rápido con el símbolo +.
+- Al tocar el widget, se abre directamente el formulario de nueva medición.
+- El widget no muestra valores ni datos de salud.
+- Actualizada la información de versión y novedades de la pantalla Acerca de.
+
+## Validación
+
+- Development Build de EAS completada correctamente.
+- Widget probado en un dispositivo Android: apariencia y navegación verificadas.
+- TypeScript y configuración Expo SDK 57 validados antes de preparar la versión.
+
+## Runtime
+
+Se mantiene la política Android `appVersion`. La build de esta versión debe confirmar el runtime efectivo `1.2.1` antes de distribuirse.
+
+---
+
+
+
 ---
 
 # 2026-08-03
