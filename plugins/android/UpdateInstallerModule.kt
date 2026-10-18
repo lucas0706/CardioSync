@@ -78,6 +78,7 @@ class UpdateInstallerModule(
                         .orEmpty()
                     val installedSigners = installedSignatureInfo.apkContentsSigners
                         ?.map { it.toByteArray().toList() }
+                        ?.toSet()
                         .orEmpty()
 
                     candidateSigners.isNotEmpty() &&
