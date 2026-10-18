@@ -56,6 +56,7 @@ module.exports = {
       ...plugins,
       'expo-notifications',
       './plugins/withCardioSyncAlarm',
+      './plugins/withCardioSyncQuickWidget',
     ],
 
     updates: {
