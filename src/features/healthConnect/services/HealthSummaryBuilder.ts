@@ -1,22 +1,20 @@
+import {
+  getAverage,
+  getDailyHeartRateAverages,
+  getSleepHoursByWakeDay,
+} from '@/domain/health/HealthMetrics'
 import { HealthSummary } from '@/domain/health/HealthSummary'
-import { getAverage, getDailyHeartRateAverages, getSleepHoursByWakeDay } from '@/domain/health/HealthMetrics'
 
 import {
   getHealthConnectSettings,
   updateHealthConnectLastSync,
 } from './HealthConnectSettingsService'
 
-import {
-  healthConnectCoordinator,
-} from './HealthConnectCoordinator'
+import { healthConnectCoordinator } from './HealthConnectCoordinator'
 
-import {
-  healthAggregateService,
-} from './HealthAggregateService'
+import { healthAggregateService } from './HealthAggregateService'
 
-import {
-  profileWeightSyncService,
-} from './ProfileWeightSyncService'
+import { profileWeightSyncService } from './ProfileWeightSyncService'
 
 function getLocalDateString(): string {
   const now = new Date()
@@ -32,8 +30,7 @@ export class HealthSummaryBuilder {
   async build(): Promise<HealthSummary> {
     await profileWeightSyncService.syncLatestWeight()
 
-    const { heartRate, steps, sleep, exercise, weight } =
-      await healthConnectCoordinator.syncAll()
+    const { heartRate, steps, sleep, exercise, weight } = await healthConnectCoordinator.syncAll()
 
     updateHealthConnectLastSync()
 
@@ -73,21 +70,17 @@ export class HealthSummaryBuilder {
       getAverage(Array.from(sleepHoursByWakeDay.values())).toFixed(1),
     )
 
-    const daysWithSteps = new Set(
-      steps.map((record) => record.startTime.slice(0, 10)),
-    ).size
+    const daysWithSteps = new Set(steps.map((record) => record.startTime.slice(0, 10))).size
 
-    const averageDailySteps30Days = daysWithSteps > 0
-      ? Math.round(
-          steps.reduce((total, record) => total + record.count, 0) / daysWithSteps,
-        )
-      : 0
+    const averageDailySteps30Days =
+      daysWithSteps > 0
+        ? Math.round(steps.reduce((total, record) => total + record.count, 0) / daysWithSteps)
+        : 0
 
-    const latestWeight = weight.length > 0
-      ? [...weight].sort(
-          (a, b) => Date.parse(b.dateTime) - Date.parse(a.dateTime),
-        )[0]
-      : undefined
+    const latestWeight =
+      weight.length > 0
+        ? [...weight].sort((a, b) => Date.parse(b.dateTime) - Date.parse(a.dateTime))[0]
+        : undefined
 
     return {
       todaySteps,

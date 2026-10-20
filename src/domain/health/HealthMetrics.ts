@@ -9,9 +9,7 @@ function getDayKey(timestamp: string): string | null {
   return timestamp.slice(0, 10)
 }
 
-function getValidInterval(
-  interval: SleepInterval,
-): { start: number; end: number } | null {
+function getValidInterval(interval: SleepInterval): { start: number; end: number } | null {
   const start = Date.parse(interval.startTime)
   const end = Date.parse(interval.endTime)
 
@@ -22,9 +20,7 @@ function getValidInterval(
   return { start, end }
 }
 
-export function sumNonOverlappingIntervalMinutes(
-  intervals: SleepInterval[],
-): number {
+export function sumNonOverlappingIntervalMinutes(intervals: SleepInterval[]): number {
   const validIntervals = intervals
     .map(getValidInterval)
     .filter((interval): interval is { start: number; end: number } => interval !== null)
@@ -54,20 +50,14 @@ export function sumNonOverlappingIntervalMinutes(
   return Math.round(totalMilliseconds / 60000)
 }
 
-export function getDailyHeartRateAverages(
-  samples: HeartRateSample[],
-): Map<string, number> {
+export function getDailyHeartRateAverages(samples: HeartRateSample[]): Map<string, number> {
   const samplesByDay = new Map<string, { total: number; count: number }>()
   const seenSamples = new Set<string>()
 
   for (const sample of samples) {
     const day = getDayKey(sample.dateTime)
 
-    if (
-      day === null ||
-      !Number.isFinite(sample.bpm) ||
-      sample.bpm <= 0
-    ) {
+    if (day === null || !Number.isFinite(sample.bpm) || sample.bpm <= 0) {
       continue
     }
 
@@ -102,9 +92,7 @@ export function getAverage(values: number[]): number {
     : 0
 }
 
-export function getSleepHoursByWakeDay(
-  sessions: SleepSessionRecord[],
-): Map<string, number> {
+export function getSleepHoursByWakeDay(sessions: SleepSessionRecord[]): Map<string, number> {
   const intervalsByWakeDay = new Map<string, SleepInterval[]>()
 
   for (const session of sessions) {

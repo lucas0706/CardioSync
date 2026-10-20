@@ -1,5 +1,5 @@
-import { readAllRecords } from './HealthConnectPagination'
 import { HeartRateMapper } from '../mappers/HeartRateMapper'
+import { readAllRecords } from './HealthConnectPagination'
 
 export class HeartRateSyncService {
   async readLast30Days() {

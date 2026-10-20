@@ -1,6 +1,10 @@
 import type { ExerciseSessionRecord } from '@/domain/health/ExerciseSessionRecord'
+import {
+  getAverage,
+  getDailyHeartRateAverages,
+  getSleepHoursByWakeDay,
+} from '@/domain/health/HealthMetrics'
 import type { StepRecord } from '@/domain/health/StepRecord'
-import { getAverage, getDailyHeartRateAverages, getSleepHoursByWakeDay } from '@/domain/health/HealthMetrics'
 import {
   getHealthConnectSettings,
   healthConnectCoordinator,

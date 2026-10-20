@@ -1,5 +1,5 @@
-import type { SleepSessionRecord, SleepInterval } from '@/domain/health/SleepSessionRecord'
 import { sumNonOverlappingIntervalMinutes } from '@/domain/health/HealthMetrics'
+import type { SleepInterval, SleepSessionRecord } from '@/domain/health/SleepSessionRecord'
 
 function isAsleepStage(stage: unknown): boolean {
   // Health Connect SleepStageType: SLEEPING=2, LIGHT=4, DEEP=5, REM=6.
@@ -24,17 +24,16 @@ export class SleepMapper {
 
     const sleepIntervals: SleepInterval[] = hasStages
       ? record.stages.flatMap((stage: any): SleepInterval[] => {
-          if (
-            !isAsleepStage(stage?.stage) ||
-            !isValidInterval(stage?.startTime, stage?.endTime)
-          ) {
+          if (!isAsleepStage(stage?.stage) || !isValidInterval(stage?.startTime, stage?.endTime)) {
             return []
           }
 
-          return [{
-            startTime: stage.startTime,
-            endTime: stage.endTime,
-          }]
+          return [
+            {
+              startTime: stage.startTime,
+              endTime: stage.endTime,
+            },
+          ]
         })
       : isValidInterval(startTime, endTime)
         ? [{ startTime, endTime }]
