@@ -1,7 +1,9 @@
 import {
   getAverage,
-  getDailyHeartRateAverages,
+  getAverageHeartRateWithinDays,
+  getRecentDayKeys,
   getSleepHoursByWakeDay,
+  getValuesWithinDays,
 } from '@/domain/health/HealthMetrics'
 import { HealthSummary } from '@/domain/health/HealthSummary'
 
@@ -61,13 +63,12 @@ export class HealthSummaryBuilder {
       0,
     )
 
-    const dailyHeartRateAverages = getDailyHeartRateAverages(heartRate)
-    const averageHeartRate30Days = Math.round(
-      getAverage(Array.from(dailyHeartRateAverages.values())),
-    )
+    const recentDays = getRecentDayKeys()
+
+    const averageHeartRate30Days = Math.round(getAverageHeartRateWithinDays(heartRate, recentDays))
 
     const averageSleepHours30Days = Number(
-      getAverage(Array.from(sleepHoursByWakeDay.values())).toFixed(1),
+      getAverage(getValuesWithinDays(sleepHoursByWakeDay, recentDays)).toFixed(1),
     )
 
     const daysWithSteps = new Set(steps.map((record) => record.startTime.slice(0, 10))).size

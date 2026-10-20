@@ -1,8 +1,11 @@
 import type { ExerciseSessionRecord } from '@/domain/health/ExerciseSessionRecord'
 import {
   getAverage,
+  getAverageHeartRateWithinDays,
   getDailyHeartRateAverages,
+  getRecentDayKeys,
   getSleepHoursByWakeDay,
+  getValuesWithinDays,
 } from '@/domain/health/HealthMetrics'
 import type { StepRecord } from '@/domain/health/StepRecord'
 import {
@@ -12,19 +15,6 @@ import {
 } from '@/features/healthConnect'
 
 import type { ReportHealthContext, ReportHealthTrendPoint } from '../models/ReportHealthContext'
-
-const REPORT_PERIOD_DAYS = 30
-
-function getRecentDayKeys(): string[] {
-  const now = new Date()
-  const today = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()))
-
-  return Array.from({ length: REPORT_PERIOD_DAYS }, (_, index) => {
-    const date = new Date(today)
-    date.setUTCDate(today.getUTCDate() - (REPORT_PERIOD_DAYS - index - 1))
-    return date.toISOString().slice(0, 10)
-  })
-}
 
 function getRecordDay(timestamp: string): string | null {
   if (!Number.isFinite(Date.parse(timestamp))) {
@@ -69,7 +59,10 @@ function getObservedValues(series: ReportHealthTrendPoint[]): number[] {
 function getValidStepRecords(steps: StepRecord[]): Array<{ timestamp: string; value: number }> {
   return steps
     .filter((record) => Number.isFinite(record.count) && record.count >= 0)
-    .map((record) => ({ timestamp: record.startTime, value: record.count }))
+    .map((record) => ({
+      timestamp: record.startTime,
+      value: record.count,
+    }))
 }
 
 function getValidExerciseSessions(
@@ -88,7 +81,6 @@ export class ReportHealthContextBuilder {
     const settings = getHealthConnectSettings()
 
     if (!settings.enabled) {
-      console.log('[REPORT HC] disabled')
       return undefined
     }
 
@@ -112,13 +104,12 @@ export class ReportHealthContextBuilder {
       const sleepSeries = createDailySeries(days, sleepDailyTotals)
       const exerciseSeries = createDailySeries(days, exerciseDailyTotals)
       const dailyStepValues = getObservedValues(stepSeries)
-      const dailyHeartRateValues = getObservedValues(heartRateSeries)
-      const dailySleepValues = getObservedValues(sleepSeries)
+      const dailySleepValues = getValuesWithinDays(sleepDailyTotals, days)
       const dailyExerciseValues = getObservedValues(exerciseSeries)
 
       return {
         averageDailySteps30Days: Math.round(getAverage(dailyStepValues)),
-        averageHeartRate30Days: Math.round(getAverage(dailyHeartRateValues)),
+        averageHeartRate30Days: Math.round(getAverageHeartRateWithinDays(heartRate, days)),
         averageSleepHours30Days: Number(getAverage(dailySleepValues).toFixed(1)),
         exerciseMinutes30Days: dailyExerciseValues.reduce((total, value) => total + value, 0),
         averageDailyExerciseMinutes30Days: getAverage(dailyExerciseValues),

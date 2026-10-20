@@ -1,6 +1,39 @@
 import type { HeartRateSample } from './HeartRateSample'
 import type { SleepInterval, SleepSessionRecord } from './SleepSessionRecord'
 
+export const HEALTH_METRICS_PERIOD_DAYS = 30
+
+export function getRecentDayKeys(
+  periodDays = HEALTH_METRICS_PERIOD_DAYS,
+  referenceDate = new Date(),
+): string[] {
+  if (!Number.isInteger(periodDays) || periodDays < 1) {
+    return []
+  }
+
+  const today = new Date(
+    Date.UTC(
+      referenceDate.getUTCFullYear(),
+      referenceDate.getUTCMonth(),
+      referenceDate.getUTCDate(),
+    ),
+  )
+
+  return Array.from({ length: periodDays }, (_, index) => {
+    const date = new Date(today)
+    date.setUTCDate(today.getUTCDate() - (periodDays - index - 1))
+    return date.toISOString().slice(0, 10)
+  })
+}
+
+export function getValuesWithinDays(dailyValues: Map<string, number>, days: string[]): number[] {
+  return days.flatMap((day) => {
+    const value = dailyValues.get(day)
+
+    return value !== undefined && Number.isFinite(value) ? [value] : []
+  })
+}
+
 function getDayKey(timestamp: string): string | null {
   if (!Number.isFinite(Date.parse(timestamp))) {
     return null
@@ -90,6 +123,31 @@ export function getAverage(values: number[]): number {
   return validValues.length > 0
     ? validValues.reduce((total, value) => total + value, 0) / validValues.length
     : 0
+}
+
+export function getAverageHeartRateWithinDays(samples: HeartRateSample[], days: string[]): number {
+  const allowedDays = new Set(days)
+  const seenSamples = new Set<string>()
+  const values: number[] = []
+
+  for (const sample of samples) {
+    const day = getDayKey(sample.dateTime)
+
+    if (day === null || !allowedDays.has(day) || !Number.isFinite(sample.bpm) || sample.bpm <= 0) {
+      continue
+    }
+
+    const deduplicationKey = `${sample.dateTime}|${sample.bpm}`
+
+    if (seenSamples.has(deduplicationKey)) {
+      continue
+    }
+
+    seenSamples.add(deduplicationKey)
+    values.push(sample.bpm)
+  }
+
+  return getAverage(values)
 }
 
 export function getSleepHoursByWakeDay(sessions: SleepSessionRecord[]): Map<string, number> {
