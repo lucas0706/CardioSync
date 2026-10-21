@@ -1492,21 +1492,29 @@ small {
 
     <div class="indicator">
       <div class="indicator-label">
-        Mediciones dentro del objetivo
+        Mediciones por debajo de 135/85 mmHg
       </div>
 
       <div class="indicator-value">
         ${summary.timeInTarget.toFixed(0)}%
       </div>
+
+      <div style="margin-top:4px;font-size:10px;line-height:1.4;color:#687585;">
+        PAS < 135 y PAD < 85 mmHg
+      </div>
     </div>
 
     <div class="indicator">
       <div class="indicator-label">
-        Mediciones con presión elevada
+        Mediciones que alcanzan el umbral de 135/85 mmHg
       </div>
 
       <div class="indicator-value">
         ${summary.hypertensionLoad.toFixed(0)}%
+      </div>
+
+      <div style="margin-top:4px;font-size:10px;line-height:1.4;color:#687585;">
+        PAS ≥ 135 o PAD ≥ 85 mmHg
       </div>
     </div>
 
