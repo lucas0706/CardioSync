@@ -32,9 +32,6 @@ export interface StatisticsSummary {
   timeInTarget: number
 
   adherence: number
-
-  trend: 'up' | 'down' | 'stable'
-
   predominantClassification?: string
 
   classificationDistribution?: Record<string, number>

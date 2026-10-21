@@ -11,7 +11,6 @@ import {
   PulsePressureCalculator,
   StandardDeviationCalculator,
   TimeInTargetCalculator,
-  TrendCalculator,
   VariabilityCalculator,
 } from '../calculators'
 
@@ -30,13 +29,6 @@ export class StatisticsEngine {
     const filteredRecords = filter
       ? PeriodFilter.apply(records, filter)
       : records
-
-    const chronologicalRecords =
-      [...filteredRecords].sort(
-        (a, b) =>
-          new Date(a.dateTime).getTime() -
-          new Date(b.dateTime).getTime(),
-      )
 
     const metrics =
       StatisticsAggregator.aggregate(
@@ -75,7 +67,6 @@ export class StatisticsEngine {
         timeInTarget: 0,
         adherence: 0,
 
-        trend: 'stable',
 
         predominantClassification:
           clinicalClassification.predominantClassification,
@@ -167,14 +158,6 @@ export class StatisticsEngine {
         AdherenceCalculator.calculate(
           filteredRecords,
         ),
-
-      trend:
-        TrendCalculator.calculate(
-          chronologicalRecords.map(
-            record => record.systolic,
-          ),
-        ),
-
       predominantClassification:
         clinicalClassification.predominantClassification,
 

@@ -12,9 +12,6 @@ import type { ClinicalFinding } from './ClinicalFinding'
  */
 export interface ClinicalAnalysisResult {
   classification: ClinicalFinding[]
-
-  trends: ClinicalFinding[]
-
   targets: ClinicalFinding[]
 
   control: ClinicalFinding[]

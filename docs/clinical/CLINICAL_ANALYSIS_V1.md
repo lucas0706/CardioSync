@@ -17,7 +17,6 @@ El contrato `ClinicalAnalysisInput` incluye mediciones, resumen estadístico, co
 - Clasificación de la media de PAS/PAD.
 - Advertencia si la PAD media es inferior a 70 mmHg.
 - Control domiciliario si el promedio alcanza PAS 135 o PAD 85 mmHg.
-- Tendencia ascendente cuando la estadística indica `up`.
 - Hallazgo de carga hipertensiva si la carga calculada es mayor que cero.
 - Hallazgo de tiempo en objetivo cuando la proporción es inferior al 50%.
 - Hallazgo de variabilidad cuando la variabilidad sistólica supera 15 o la diastólica supera 10.

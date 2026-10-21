@@ -13,7 +13,6 @@ import {
 
 import {
   HomeBloodPressureControlRule,
-  TrendRule,
   HypertensionLoadRule,
   TimeInTargetRule,
   VariabilityRule,
@@ -42,7 +41,6 @@ export class ClinicalAnalysisDomainService
 {
   private readonly rules: ClinicalRule[] = [
     new HomeBloodPressureControlRule(),
-    new TrendRule(),
     new HypertensionLoadRule(),
     new TimeInTargetRule(),
     new VariabilityRule(),

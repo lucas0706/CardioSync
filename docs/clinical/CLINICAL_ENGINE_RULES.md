@@ -11,7 +11,6 @@
 | `BloodPressureClassificationRule` | Clasifica la media de PAS/PAD mediante `BloodPressureClassifier` |
 | `BloodPressureSafetyRule` | Genera hallazgo si la PAD media es inferior a 70 mmHg |
 | `HomeBloodPressureControlRule` | Genera hallazgo si PAS media ≥135 o PAD media ≥85 mmHg |
-| `TrendRule` | Genera hallazgo cuando `StatisticsSummary.trend === 'up'` |
 | `HypertensionLoadRule` | Genera hallazgo cuando `hypertensionLoad > 0` |
 | `TimeInTargetRule` | Genera hallazgo cuando `timeInTarget < 50` |
 | `VariabilityRule` | Genera hallazgo si variabilidad sistólica >15 o diastólica >10 |

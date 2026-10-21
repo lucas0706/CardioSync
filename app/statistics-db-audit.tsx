@@ -197,7 +197,6 @@ export default function StatisticsDbAuditScreen() {
 
           <Text>
             Tendencia:{' '}
-            {summary.trend}
           </Text>
         </View>
 
