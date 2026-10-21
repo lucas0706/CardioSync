@@ -223,6 +223,14 @@ npm run typecheck
 
 Las tareas de desarrollo, validación y distribución deben ejecutarse con la versión de Node/npm y las dependencias fijadas por el repositorio.
 
-## 13. Principio rector
+## 13. Ejecución segura en GitHub Codespaces
+
+Para auditorías y tareas largas, consultar primero `docs/17_DEVELOPMENT_WORKFLOW.md`, sección 12, sobre ejecución segura de comandos, registros y diagnóstico de terminales.
+
+El repositorio incluye `.local-tools/run-logged.sh` para ejecutar scripts Bash en un proceso secundario y guardar sus salidas en `.local-tools/logs/`. Los registros locales están excluidos de Git. Esta herramienta ayuda a conservar evidencia de errores, pero no impide cierres externos de VS Code/Codespaces ni garantiza un archivo de estado si el proceso se interrumpe abruptamente.
+
+Las futuras auditorías deben comprobar el estado de Git antes de modificar archivos, evitar bloques que terminen innecesariamente la sesión interactiva y revisar los registros disponibles antes de atribuir un cierre a una causa. No cambiar la configuración de Codespaces ni eliminar archivos de bloqueo sin evidencia suficiente.
+
+## 14. Principio rector
 
 CardioSync debe evolucionar de forma incremental, con prioridad en la estabilidad, la mantenibilidad, la integridad de la información de salud y la trazabilidad clínica. El código, la configuración, las pruebas y la documentación deben permanecer coherentes; cuando no se conozca el estado real de una función, se debe declarar la incertidumbre y auditar antes de afirmar que está terminada.

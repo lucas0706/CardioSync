@@ -177,3 +177,43 @@ Para actualizar la documentación principal:
 4. Releer el archivo desde GitHub después del commit y describir qué se verificó y qué pruebas no se ejecutaron.
 5. No fusionar el PR sin revisión y autorización del responsable del proyecto.
 6. No recrear documentos que hayan sido eliminados deliberadamente.
+
+
+## 12. Ejecución segura de comandos y auditorías
+
+En GitHub Codespaces, un comando que devuelve un error no debería terminar innecesariamente la terminal interactiva. Los códigos 1 y 127 tienen significados diferentes: el primero indica un fallo de ejecución general; el segundo suele indicar que no se encontró un comando. Ninguno identifica por sí solo la causa de un cierre de terminal.
+
+### Reglas de ejecución
+
+- Antes de modificar archivos, registrar `git status` y `git rev-parse HEAD`.
+- Evitar `exit` en bloques que se ejecuten directamente en la terminal interactiva.
+- No usar `set -e` indiscriminadamente en la sesión principal.
+- Para tareas largas, preparar un script completo y ejecutarlo en un proceso Bash secundario.
+- No asumir que un error de Bash explica un cierre de VS Code/Codespaces.
+- No borrar archivos de bloqueo, reiniciar procesos ni modificar la configuración de VS Code sin evidencia.
+- No utilizar estos procedimientos para omitir validaciones, revisiones de cambios ni controles previos a OTA/build.
+
+### Ejecutor con registros
+
+El repositorio incluye `.local-tools/run-logged.sh`. Ejecuta un script Bash en un proceso secundario y guarda la salida y el código de terminación en `.local-tools/logs/`, directorio excluido de Git.
+
+Ejemplo desde la raíz del proyecto:
+
+```bash
+bash /workspaces/CardioSync/.local-tools/run-logged.sh .local-tools/mi-auditoria.sh
+```
+
+El script indicado debe existir y contener la tarea completa. Los registros se crean con permisos privados para el usuario actual. No deben contener secretos, tokens, credenciales ni datos personales de salud.
+
+El ejecutor registra el código de salida cuando el proceso termina normalmente. Si se mata el proceso, se cierra el entorno o se interrumpe la escritura, el archivo de estado puede no existir; el mecanismo no garantiza supervivencia ante la terminación abrupta de Codespaces.
+
+### Diagnóstico cuando se cierra la terminal
+
+1. Registrar el comando exacto que precedió al cierre y la hora aproximada.
+2. Comprobar `git status`, `git rev-parse HEAD` y si existe un registro parcial.
+3. Revisar los logs disponibles de VS Code/Codespaces, incluidos los del host de terminales.
+4. Diferenciar la salida de un comando, la terminación de Bash y la terminación del host de terminales.
+5. No atribuir el problema a disco, memoria, extensiones o configuración sin evidencia.
+6. Si no existe evidencia concluyente, continuar con scripts independientes y registros, sin cambiar la configuración global.
+
+Antes de versionar cambios en este procedimiento, validar la sintaxis del ejecutor con `bash -n`, ejecutar una prueba controlada, revisar `git diff --check` y comprobar que los registros estén excluidos de Git.

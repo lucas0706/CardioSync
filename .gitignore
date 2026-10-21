@@ -49,3 +49,6 @@ project/audit/
 
 # APKs de distribución: publicar mediante GitHub Releases
 *.apk
+
+# Registros locales de ejecución y diagnóstico
+.local-tools/logs/
