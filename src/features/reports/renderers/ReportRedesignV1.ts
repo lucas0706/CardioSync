@@ -871,14 +871,6 @@ export function buildReportRedesignV1(
 
   const periodLabel =
     getPeriodLabel(report)
-
-  const trendLabel =
-    summary.trend === 'up'
-      ? 'En aumento'
-      : summary.trend === 'down'
-        ? 'En descenso'
-        : 'Estable'
-
   const predominant =
     summary.predominantClassification
       ? getClassificationLabel(
@@ -1528,15 +1520,7 @@ small {
       </div>
     </div>
 
-    <div class="indicator">
-      <div class="indicator-label">
-        Tendencia
-      </div>
 
-      <div class="indicator-value">
-        ${trendLabel}
-      </div>
-    </div>
 
   </div>
 </section>

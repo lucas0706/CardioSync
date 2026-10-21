@@ -4,7 +4,6 @@ export type { ClinicalRuleContext } from './ClinicalRuleContext'
 
 export {
   HomeBloodPressureControlRule,
-  TrendRule,
   HypertensionLoadRule,
   TimeInTargetRule,
   VariabilityRule,
@@ -13,7 +12,6 @@ export {
 
 export type {
   HomeBloodPressureControlInput,
-  TrendRuleInput,
   HypertensionLoadRuleInput,
   TimeInTargetRuleInput,
   VariabilityRuleInput,

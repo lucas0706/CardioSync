@@ -43,3 +43,7 @@ El clasificador actual devuelve cinco categorías: `normal`, `borderline`, `grad
 ## 6. Qué demuestra y qué no
 
 Este escenario demuestra que existe un flujo de desarrollo para calcular estadísticas y generar hallazgos sobre datos simulados. No demuestra validez clínica, no sustituye revisión profesional, no prueba datos reales y no acredita por sí solo una suite automatizada. Para una garantía de regresión deben existir pruebas automatizadas versionadas y ejecutadas en el pipeline.
+
+## Nota de mantenimiento
+
+La regla de tendencia de presión arterial fue retirada de la implementación vigente. Los resultados históricos que la incluyen describen versiones anteriores y no representan hallazgos que la versión actual deba generar.

@@ -22,7 +22,6 @@ La implementación actual no lee `measurements` directamente durante la evaluaci
 El servicio ejecuta, por composición:
 
 - `HomeBloodPressureControlRule`;
-- `TrendRule`;
 - `HypertensionLoadRule`;
 - `TimeInTargetRule`;
 - `VariabilityRule`;

@@ -98,7 +98,6 @@ exports = [
     "export * from './MinCalculator'",
     "export * from './PulsePressureCalculator'",
     "export * from './StandardDeviationCalculator'",
-    "export * from './TrendCalculator'",
     "export * from './VariabilityCalculator'",
     "export * from './HypertensionLoadCalculator'",
     "export * from './TimeInTargetCalculator'",

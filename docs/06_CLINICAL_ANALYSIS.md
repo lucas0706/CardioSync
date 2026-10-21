@@ -253,7 +253,6 @@ La implementación comenzará después de:
 
 Después de retirar `ClinicalClassificationRule` de la composición activa, la validación histórica continuó produciendo los cuatro findings esperados:
 
-- tendencia ascendente de presión arterial domiciliaria;
 - carga elevada de mediciones de presión arterial;
 - presión arterial por encima del objetivo terapéutico;
 - presión arterial elevada.

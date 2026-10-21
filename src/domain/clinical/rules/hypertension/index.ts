@@ -7,14 +7,6 @@ export type {
 } from './HomeBloodPressureControlRule'
 
 export {
-  TrendRule,
-} from './TrendRule'
-
-export type {
-  TrendRuleInput,
-} from './TrendRule'
-
-export {
   HypertensionLoadRule,
 } from './HypertensionLoadRule'
 

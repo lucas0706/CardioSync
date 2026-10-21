@@ -119,17 +119,6 @@ export function StatisticsSummaryGrid({
         'Indica cuánto se alejan, en promedio, tus valores de presión sistólica de su promedio.',
     },
     {
-      title: 'Tendencia de las mediciones',
-      value:
-        summary.trend === 'up'
-          ? 'En aumento'
-          : summary.trend === 'down'
-            ? 'En descenso'
-            : 'Estable',
-      description:
-        'Indica si los valores de presión sistólica registrados tienden a subir, bajar o mantenerse estables durante el período seleccionado.',
-    },
-    {
       title: 'Regularidad de registros',
       value: `${summary.adherence.toFixed(0)}%`,
       description:

@@ -6,10 +6,6 @@ const CLASSIFICATION_TYPES = new Set([
   'blood-pressure-classification',
 ])
 
-const TREND_TYPES = new Set([
-  'home-blood-pressure-trend',
-])
-
 const TARGET_TYPES = new Set([
   'therapeutic-target',
   'time-in-target',
@@ -46,7 +42,6 @@ export function buildClinicalAnalysisResult(
   statistics?: StatisticsSummary,
 ): ClinicalAnalysisResult {
   const classification: ClinicalFinding[] = []
-  const trends: ClinicalFinding[] = []
   const targets: ClinicalFinding[] = []
   const control: ClinicalFinding[] = []
   const load: ClinicalFinding[] = []
@@ -59,12 +54,6 @@ export function buildClinicalAnalysisResult(
       classification.push(finding)
       continue
     }
-
-    if (TREND_TYPES.has(finding.type)) {
-      trends.push(finding)
-      continue
-    }
-
     if (TARGET_TYPES.has(finding.type)) {
       targets.push(finding)
       continue
@@ -102,7 +91,6 @@ export function buildClinicalAnalysisResult(
 
   return {
     classification,
-    trends,
     targets,
     control,
     load,
