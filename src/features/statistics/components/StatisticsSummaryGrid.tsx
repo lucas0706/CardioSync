@@ -39,7 +39,10 @@ export function StatisticsSummaryGrid({
     },
     {
       title: 'Presión promedio',
-      value: `${Math.round(summary.averageSystolic)}/${Math.round(summary.averageDiastolic)}`,
+      value:
+        summary.totalMeasurements > 0
+          ? `${Math.round(summary.averageSystolic)}/${Math.round(summary.averageDiastolic)}`
+          : '--',
       subtitle: 'mmHg',
       description:
         'Promedio de tus valores de presión arterial durante el período seleccionado.',
@@ -59,9 +62,9 @@ export function StatisticsSummaryGrid({
     {
       title: 'Presión arterial media',
       value:
-        Math.round(
-          summary.meanArterialPressureAverage,
-        ),
+        summary.totalMeasurements > 0
+          ? Math.round(summary.meanArterialPressureAverage)
+          : '--',
       subtitle: 'mmHg',
       description:
         'Representa la presión promedio ejercida en las arterias durante cada latido.',
@@ -72,22 +75,28 @@ export function StatisticsSummaryGrid({
     {
       title: 'Presión de pulso',
       value:
-        Math.round(
-          summary.pulsePressureAverage,
-        ),
+        summary.totalMeasurements > 0
+          ? Math.round(summary.pulsePressureAverage)
+          : '--',
       subtitle: 'mmHg',
       description:
         'Es la diferencia entre la presión sistólica y la presión diastólica.',
     },
     {
       title: 'Variabilidad sistólica',
-      value: `${summary.systolicVariability.toFixed(1)}%`,
+      value:
+        summary.totalMeasurements > 0
+          ? `${summary.systolicVariability.toFixed(1)}%`
+          : '--',
       description:
         'Muestra cuánto pueden cambiar entre sí tus valores de presión sistólica.',
     },
     {
       title: 'Variabilidad diastólica',
-      value: `${summary.diastolicVariability.toFixed(1)}%`,
+      value:
+        summary.totalMeasurements > 0
+          ? `${summary.diastolicVariability.toFixed(1)}%`
+          : '--',
       description:
         'Muestra cuánto pueden cambiar entre sí tus valores de presión diastólica.',
     },
@@ -112,27 +121,36 @@ export function StatisticsSummaryGrid({
     {
       title: 'Desviación estándar sistólica',
       value:
-        summary.systolicStandardDeviation.toFixed(
-          1,
-        ),
+        summary.totalMeasurements > 0
+          ? summary.systolicStandardDeviation.toFixed(1)
+          : '--',
       description:
         'Indica cuánto se alejan, en promedio, tus valores de presión sistólica de su promedio.',
     },
     {
       title: 'Regularidad de registros',
-      value: `${summary.adherence.toFixed(0)}%`,
+      value:
+        summary.adherence !== undefined
+          ? `${summary.adherence.toFixed(0)}%`
+          : '--',
       description:
-        'Porcentaje de intervalos entre mediciones consecutivas que cumplen el criterio interno de regularidad utilizado por CardioSync. Se calcula únicamente sobre los registros existentes y no representa cumplimiento de un protocolo de medición.',
+        'Porcentaje de intervalos entre fechas válidas consecutivas, ordenadas cronológicamente, que no superan 48 horas. Requiere al menos dos fechas válidas y no representa adherencia clínica ni porcentaje del tiempo real.',
     },
     {
       title: 'En objetivo según mediciones',
-      value: `${summary.timeInTarget.toFixed(0)}%`,
+      value:
+        summary.totalMeasurements > 0
+          ? `${summary.timeInTarget.toFixed(0)}%`
+          : '--',
       description:
         'Porcentaje de las mediciones registradas que se encuentran dentro del objetivo utilizado por el análisis. Representa proporción de mediciones, no porcentaje del tiempo real transcurrido.',
     },
     {
       title: 'Presión elevada según mediciones',
-      value: `${summary.hypertensionLoad.toFixed(0)}%`,
+      value:
+        summary.totalMeasurements > 0
+          ? `${summary.hypertensionLoad.toFixed(0)}%`
+          : '--',
       description:
         'Porcentaje de las mediciones registradas que presentan valores elevados según el criterio utilizado por el análisis. Representa proporción de mediciones, no porcentaje del tiempo real transcurrido.',
     },

@@ -464,11 +464,17 @@ function getClassificationColor(
 function buildTrendChart(
   report: BloodPressureReport,
 ): string {
-  const records = [...report.records].sort(
-    (a, b) =>
-      new Date(a.dateTime).getTime() -
-      new Date(b.dateTime).getTime(),
-  )
+  const records = report.records
+    .filter(record =>
+      Number.isFinite(Date.parse(record.dateTime)) &&
+      Number.isFinite(record.systolic) &&
+      Number.isFinite(record.diastolic),
+    )
+    .sort(
+      (left, right) =>
+        Date.parse(left.dateTime) - Date.parse(right.dateTime) ||
+        left.id.localeCompare(right.id),
+    )
 
   if (records.length === 0) {
     return `
@@ -480,191 +486,76 @@ function buildTrendChart(
 
   const width = 760
   const height = 250
-  const paddingLeft = 42
-  const paddingRight = 20
-  const paddingTop = 24
-  const paddingBottom = 36
-
-  const plotWidth =
-    width - paddingLeft - paddingRight
-
-  const plotHeight =
-    height - paddingTop - paddingBottom
-
+  const padding = { left: 42, right: 20, top: 24, bottom: 36 }
+  const plotWidth = width - padding.left - padding.right
+  const plotHeight = height - padding.top - padding.bottom
   const values = records.flatMap(record => [
     record.systolic,
     record.diastolic,
   ])
-
-  const minValue =
-    Math.floor(
-      (Math.min(...values) - 10) / 10,
-    ) * 10
-
-  const maxValue =
-    Math.ceil(
-      (Math.max(...values) + 10) / 10,
-    ) * 10
-
-  const valueRange =
-    Math.max(maxValue - minValue, 20)
-
-  const getX = (index: number): number => {
-    if (records.length === 1) {
-      return paddingLeft + plotWidth / 2
-    }
-
-    return (
-      paddingLeft +
-      (index / (records.length - 1)) *
-        plotWidth
-    )
-  }
-
-  const getY = (value: number): number =>
-    paddingTop +
-    ((maxValue - value) / valueRange) *
-      plotHeight
-
-  const buildPath = (
-    selector: (
-      record: BloodPressureRecord,
-    ) => number,
-  ): string =>
+  const minValue = Math.floor((Math.min(...values) - 10) / 10) * 10
+  const maxValue = Math.ceil((Math.max(...values) + 10) / 10) * 10
+  const valueRange = Math.max(maxValue - minValue, 20)
+  const x = (index: number) =>
+    records.length === 1
+      ? padding.left + plotWidth / 2
+      : padding.left + (index / (records.length - 1)) * plotWidth
+  const y = (value: number) =>
+    padding.top + ((maxValue - value) / valueRange) * plotHeight
+  const path = (pressure: 'systolic' | 'diastolic') =>
     records
       .map(
         (record, index) =>
-          `${index === 0 ? 'M' : 'L'} ` +
-          `${getX(index).toFixed(1)} ` +
-          `${getY(selector(record)).toFixed(1)}`,
+          `${index === 0 ? 'M' : 'L'} ${x(index).toFixed(1)} ${y(record[pressure]).toFixed(1)}`,
       )
       .join(' ')
+  const grid = Array.from({ length: 5 }, (_, index) => {
+    const value = maxValue - (index * valueRange) / 4
+    const yPosition = y(value)
 
-  const gridLines = Array.from(
-    { length: 5 },
-    (_, index) => {
-      const value =
-        maxValue -
-        (index * valueRange) / 4
-
-      const y = getY(value)
-
-      return `
-        <line
-          x1="${paddingLeft}"
-          y1="${y}"
-          x2="${width - paddingRight}"
-          y2="${y}"
-          class="chart-grid"
-        />
-
-        <text
-          x="${paddingLeft - 8}"
-          y="${y + 4}"
-          text-anchor="end"
-          class="chart-label"
-        >
-          ${Math.round(value)}
-        </text>
-      `
-    },
-  ).join('')
-
-  const systolicPoints = records
-    .map(
-      (record, index) => `
-        <circle
-          cx="${getX(index)}"
-          cy="${getY(record.systolic)}"
-          r="2.8"
-          class="point-systolic"
-        />
-      `,
-    )
-    .join('')
-
-  const diastolicPoints = records
-    .map(
-      (record, index) => `
-        <circle
-          cx="${getX(index)}"
-          cy="${getY(record.diastolic)}"
-          r="2.8"
-          class="point-diastolic"
-        />
-      `,
-    )
-    .join('')
-
-  const xLabels = records
+    return `
+      <line x1="${padding.left}" y1="${yPosition}" x2="${width - padding.right}" y2="${yPosition}" class="chart-grid" />
+      <text x="${padding.left - 8}" y="${yPosition + 4}" text-anchor="end" class="chart-label">${Math.round(value)}</text>
+    `
+  }).join('')
+  const points = (
+    pressure: 'systolic' | 'diastolic',
+    className: string,
+  ) =>
+    records
+      .map(
+        (record, index) =>
+          `<circle cx="${x(index)}" cy="${y(record[pressure])}" r="2.8" class="${className}" />`,
+      )
+      .join('')
+  const labels = records
     .map((record, index) => {
       if (
         records.length > 8 &&
         index !== 0 &&
         index !== records.length - 1 &&
-        index %
-          Math.ceil(records.length / 6) !==
-          0
+        index % Math.ceil(records.length / 6) !== 0
       ) {
         return ''
       }
 
-      return `
-        <text
-          x="${getX(index)}"
-          y="${height - 10}"
-          text-anchor="middle"
-          class="chart-label"
-        >
-          ${escapeHtml(
-            formatDate(record.dateTime),
-          )}
-        </text>
-      `
+      return `<text x="${x(index)}" y="${height - 10}" text-anchor="middle" class="chart-label">${escapeHtml(formatDate(record.dateTime))}</text>`
     })
     .join('')
 
   return `
     <div class="chart-wrapper">
       <div class="chart-legend">
-        <span>
-          <i class="legend-dot systolic"></i>
-          Sistólica
-        </span>
-
-        <span>
-          <i class="legend-dot diastolic"></i>
-          Diastólica
-        </span>
+        <span><i class="legend-dot systolic"></i>Sistólica</span>
+        <span><i class="legend-dot diastolic"></i>Diastólica</span>
       </div>
-
-      <svg
-        viewBox="0 0 ${width} ${height}"
-        class="chart"
-        role="img"
-        aria-label="Evolución de presión sistólica y diastólica"
-      >
-        ${gridLines}
-
-        <path
-          d="${buildPath(
-            record => record.systolic,
-          )}"
-          class="line-systolic"
-          fill="none"
-        />
-
-        <path
-          d="${buildPath(
-            record => record.diastolic,
-          )}"
-          class="line-diastolic"
-          fill="none"
-        />
-
-        ${systolicPoints}
-        ${diastolicPoints}
-        ${xLabels}
+      <svg viewBox="0 0 ${width} ${height}" class="chart" role="img" aria-label="Evolución de presión sistólica y diastólica">
+        ${grid}
+        <path d="${path('systolic')}" class="line-systolic" fill="none" />
+        <path d="${path('diastolic')}" class="line-diastolic" fill="none" />
+        ${points('systolic', 'point-systolic')}
+        ${points('diastolic', 'point-diastolic')}
+        ${labels}
       </svg>
     </div>
   `
@@ -1248,8 +1139,11 @@ small {
       </div>
 
       <div class="primary-value">
-        ${Math.round(summary.averageSystolic)}/
-        ${Math.round(summary.averageDiastolic)}
+        ${
+          summary.totalMeasurements > 0
+            ? `${Math.round(summary.averageSystolic)}/${Math.round(summary.averageDiastolic)}`
+            : '—'
+        }
         <span class="primary-unit">mmHg</span>
       </div>
     </div>
@@ -1277,9 +1171,11 @@ small {
       </div>
 
       <div class="primary-value">
-        ${Math.round(
-          summary.meanArterialPressureAverage,
-        )}
+        ${
+          summary.totalMeasurements > 0
+            ? Math.round(summary.meanArterialPressureAverage)
+            : '—'
+        }
         <span class="primary-unit">mmHg</span>
       </div>
     </div>
@@ -1290,9 +1186,11 @@ small {
       </div>
 
       <div class="primary-value">
-        ${Math.round(
-          summary.pulsePressureAverage,
-        )}
+        ${
+          summary.totalMeasurements > 0
+            ? Math.round(summary.pulsePressureAverage)
+            : '—'
+        }
         <span class="primary-unit">mmHg</span>
       </div>
     </div>
@@ -1341,7 +1239,11 @@ small {
       </div>
 
       <div class="indicator-value">
-        ${summary.timeInTarget.toFixed(0)}%
+        ${
+          summary.totalMeasurements > 0
+            ? `${summary.timeInTarget.toFixed(0)}%`
+            : 'No disponible'
+        }
       </div>
 
       <div style="margin-top:4px;font-size:10px;line-height:1.4;color:#687585;">
@@ -1355,7 +1257,11 @@ small {
       </div>
 
       <div class="indicator-value">
-        ${summary.hypertensionLoad.toFixed(0)}%
+        ${
+          summary.totalMeasurements > 0
+            ? `${summary.hypertensionLoad.toFixed(0)}%`
+            : 'No disponible'
+        }
       </div>
 
       <div style="margin-top:4px;font-size:10px;line-height:1.4;color:#687585;">
@@ -1369,7 +1275,15 @@ small {
       </div>
 
       <div class="indicator-value">
-        ${summary.adherence.toFixed(0)}%
+        ${
+          summary.adherence !== undefined
+            ? `${summary.adherence.toFixed(0)}%`
+            : 'No disponible'
+        }
+      </div>
+
+      <div style="margin-top:4px;font-size:10px;line-height:1.4;color:#687585;">
+        Intervalos consecutivos entre fechas válidas que no superan 48 horas. Requiere al menos dos mediciones; no representa adherencia clínica ni tiempo real.
       </div>
     </div>
 
@@ -1387,25 +1301,65 @@ small {
 
     <div class="metric">
       <div class="metric-label">
-        Valor máximo
+        Máxima sistólica (PAS)
       </div>
 
       <div class="metric-value">
-        ${summary.maximumSystolic}/
-        ${summary.maximumDiastolic}
+        ${summary.maximumSystolicRecord?.systolic ?? '—'}
         <span class="metric-unit">mmHg</span>
+        ${
+          summary.maximumSystolicRecord
+            ? `<div class="metric-subvalue">${formatDate(summary.maximumSystolicRecord.dateTime)}</div>`
+            : ''
+        }
       </div>
     </div>
 
     <div class="metric">
       <div class="metric-label">
-        Valor mínimo
+        Máxima diastólica (PAD)
       </div>
 
       <div class="metric-value">
-        ${summary.minimumSystolic}/
-        ${summary.minimumDiastolic}
+        ${summary.maximumDiastolicRecord?.diastolic ?? '—'}
         <span class="metric-unit">mmHg</span>
+        ${
+          summary.maximumDiastolicRecord
+            ? `<div class="metric-subvalue">${formatDate(summary.maximumDiastolicRecord.dateTime)}</div>`
+            : ''
+        }
+      </div>
+    </div>
+
+    <div class="metric">
+      <div class="metric-label">
+        Mínima sistólica (PAS)
+      </div>
+
+      <div class="metric-value">
+        ${summary.minimumSystolicRecord?.systolic ?? '—'}
+        <span class="metric-unit">mmHg</span>
+        ${
+          summary.minimumSystolicRecord
+            ? `<div class="metric-subvalue">${formatDate(summary.minimumSystolicRecord.dateTime)}</div>`
+            : ''
+        }
+      </div>
+    </div>
+
+    <div class="metric">
+      <div class="metric-label">
+        Mínima diastólica (PAD)
+      </div>
+
+      <div class="metric-value">
+        ${summary.minimumDiastolicRecord?.diastolic ?? '—'}
+        <span class="metric-unit">mmHg</span>
+        ${
+          summary.minimumDiastolicRecord
+            ? `<div class="metric-subvalue">${formatDate(summary.minimumDiastolicRecord.dateTime)}</div>`
+            : ''
+        }
       </div>
     </div>
 
@@ -1415,10 +1369,11 @@ small {
       </div>
 
       <div class="metric-value">
-        ${formatNumber(
-          summary.systolicStandardDeviation,
-          1,
-        )}
+        ${
+          summary.totalMeasurements > 0
+            ? formatNumber(summary.systolicStandardDeviation, 1)
+            : '—'
+        }
       </div>
     </div>
 
@@ -1428,10 +1383,11 @@ small {
       </div>
 
       <div class="metric-value">
-        ${formatNumber(
-          summary.diastolicStandardDeviation,
-          1,
-        )}
+        ${
+          summary.totalMeasurements > 0
+            ? formatNumber(summary.diastolicStandardDeviation, 1)
+            : '—'
+        }
       </div>
     </div>
 
@@ -1441,10 +1397,11 @@ small {
       </div>
 
       <div class="metric-value">
-        ${formatNumber(
-          summary.systolicVariability,
-          1,
-        )}%
+        ${
+          summary.totalMeasurements > 0
+            ? `${formatNumber(summary.systolicVariability, 1)}%`
+            : '—'
+        }
       </div>
     </div>
 
@@ -1454,10 +1411,11 @@ small {
       </div>
 
       <div class="metric-value">
-        ${formatNumber(
-          summary.diastolicVariability,
-          1,
-        )}%
+        ${
+          summary.totalMeasurements > 0
+            ? `${formatNumber(summary.diastolicVariability, 1)}%`
+            : '—'
+        }
       </div>
     </div>
 

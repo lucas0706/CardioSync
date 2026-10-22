@@ -40,18 +40,16 @@ function formatDate(value: string): string {
   )
 }
 
-function formatDateTime(value: string): string {
+function formatTime(value: string): string {
   const date = new Date(value)
 
   if (Number.isNaN(date.getTime())) {
     return '—'
   }
 
-  return (
-    `${formatDate(value)} ` +
-    `${String(date.getHours()).padStart(2, '0')}:` +
-    `${String(date.getMinutes()).padStart(2, '0')}`
-  )
+  return `${String(date.getHours()).padStart(2, '0')}:${String(
+    date.getMinutes(),
+  ).padStart(2, '0')}`
 }
 
 function formatHoursMinutes(
@@ -119,10 +117,18 @@ function formatAxisValue(
   return Math.round(value).toLocaleString('es-AR')
 }
 
+function hasHealthChartData(series: ReportHealthTrendPoint[] | undefined): boolean {
+  return (
+    series?.some((point) => typeof point.value === 'number' && Number.isFinite(point.value)) ??
+    false
+  )
+}
+
 function buildHealthChart(
   series: ReportHealthTrendPoint[] | undefined,
   metric: HealthChartMetric,
   label: string,
+  average: number | undefined,
 ): string {
   const values =
     series?.map((point) =>
@@ -229,7 +235,7 @@ function buildHealthChart(
     })
     .join('')
   const colors: Record<HealthChartMetric, string> = {
-    steps: '#2563EB',
+    steps: '#F97316',
     heartRate: '#DC2626',
     sleep: '#7C3AED',
     exercise: '#16A34A',
@@ -285,6 +291,13 @@ function buildHealthChart(
         })
         .join('')
     : ''
+  const averageLine =
+    average !== undefined &&
+    Number.isFinite(average) &&
+    average >= axisMinimum &&
+    average <= axisMaximum
+      ? `<line x1="${left}" y1="${yForValue(average).toFixed(2)}" x2="${width - right}" y2="${yForValue(average).toFixed(2)}" stroke="#0F172A" stroke-width="1.6" stroke-dasharray="5 4" opacity="0.9" />`
+      : ''
   const xTickIndexes = Array.from(
     new Set(
       [0, 5, 10, 15, 20, 25, values.length - 1].filter(
@@ -329,6 +342,7 @@ function buildHealthChart(
         stroke="#64748B"
         stroke-width="1.2"
       />
+      ${averageLine}
       <g
         fill="${isHeartRate ? 'none' : color}"
         stroke="${color}"
@@ -345,6 +359,37 @@ function buildHealthChart(
         ${xLabels}
       </g>
     </svg>
+  `
+}
+
+function buildHealthMetricCard(
+  series: ReportHealthTrendPoint[] | undefined,
+  metric: HealthChartMetric,
+  metricLabel: string,
+  chartLabel: string,
+  average: number | undefined,
+  averageLabel: string,
+): string {
+  if (!hasHealthChartData(series)) {
+    return ''
+  }
+
+  const hasAverage = average !== undefined && Number.isFinite(average)
+
+  return `
+    <div class="indicator health-indicator">
+      <div class="indicator-label">${escapeHtml(metricLabel)}</div>
+      <div class="indicator-value">${hasAverage ? escapeHtml(averageLabel) : '—'}</div>
+      ${
+        hasAverage
+          ? `<div class="health-average-legend">
+              <span class="health-average-swatch"></span>
+              Línea punteada: promedio
+            </div>`
+          : ''
+      }
+      ${buildHealthChart(series, metric, chartLabel, average)}
+    </div>
   `
 }
 
@@ -411,7 +456,10 @@ function getRecordClassification(
 ): {
   category: string
   label: string
-  hasClinicalAlert: boolean
+  determiningPressures: {
+    systolic: boolean
+    diastolic: boolean
+  }
 } {
   const classification =
     BloodPressureClassifier.classify(
@@ -422,32 +470,7 @@ function getRecordClassification(
   return {
     category: classification.category,
     label: classification.label,
-    hasClinicalAlert:
-      classification.safetyWarnings.length > 0,
-  }
-}
-
-function getClassificationClass(
-  category: string,
-): string {
-  switch (category) {
-    case 'normal':
-      return 'normal'
-
-    case 'borderline':
-      return 'borderline'
-
-    case 'grade-1':
-      return 'grade1'
-
-    case 'grade-2':
-      return 'grade2'
-
-    case 'isolated-systolic':
-      return 'isolated-systolic'
-
-    default:
-      return 'unknown'
+    determiningPressures: classification.determiningPressures,
   }
 }
 
@@ -470,11 +493,17 @@ function getClassificationColor(
 function buildTrendChart(
   report: BloodPressureReport,
 ): string {
-  const records = [...report.records].sort(
-    (a, b) =>
-      new Date(a.dateTime).getTime() -
-      new Date(b.dateTime).getTime(),
-  )
+  const records = report.records
+    .filter(record =>
+      Number.isFinite(Date.parse(record.dateTime)) &&
+      Number.isFinite(record.systolic) &&
+      Number.isFinite(record.diastolic),
+    )
+    .sort(
+      (left, right) =>
+        Date.parse(left.dateTime) - Date.parse(right.dateTime) ||
+        left.id.localeCompare(right.id),
+    )
 
   if (records.length === 0) {
     return `
@@ -486,259 +515,106 @@ function buildTrendChart(
 
   const width = 760
   const height = 250
-  const paddingLeft = 42
-  const paddingRight = 20
-  const paddingTop = 24
-  const paddingBottom = 36
-
-  const plotWidth =
-    width - paddingLeft - paddingRight
-
-  const plotHeight =
-    height - paddingTop - paddingBottom
-
+  const padding = { left: 42, right: 20, top: 24, bottom: 36 }
+  const plotWidth = width - padding.left - padding.right
+  const plotHeight = height - padding.top - padding.bottom
   const values = records.flatMap(record => [
     record.systolic,
     record.diastolic,
   ])
-
-  const minValue =
-    Math.floor(
-      (Math.min(...values) - 10) / 10,
-    ) * 10
-
-  const maxValue =
-    Math.ceil(
-      (Math.max(...values) + 10) / 10,
-    ) * 10
-
-  const valueRange =
-    Math.max(maxValue - minValue, 20)
-
-  const maximumRecord =
-    records.reduce((current, record) =>
-      record.systolic > current.systolic
-        ? record
-        : current,
-    )
-
-  const minimumRecord =
-    records.reduce((current, record) =>
-      record.systolic < current.systolic
-        ? record
-        : current,
-    )
-
-  const getX = (index: number): number => {
-    if (records.length === 1) {
-      return paddingLeft + plotWidth / 2
-    }
-
-    return (
-      paddingLeft +
-      (index / (records.length - 1)) *
-        plotWidth
-    )
-  }
-
-  const getY = (value: number): number =>
-    paddingTop +
-    ((maxValue - value) / valueRange) *
-      plotHeight
-
-  const buildPath = (
-    selector: (
-      record: BloodPressureRecord,
-    ) => number,
-  ): string =>
+  const minValue = Math.floor((Math.min(...values) - 10) / 10) * 10
+  const maxValue = Math.ceil((Math.max(...values) + 10) / 10) * 10
+  const valueRange = Math.max(maxValue - minValue, 20)
+  const x = (index: number) =>
+    records.length === 1
+      ? padding.left + plotWidth / 2
+      : padding.left + (index / (records.length - 1)) * plotWidth
+  const y = (value: number) =>
+    padding.top + ((maxValue - value) / valueRange) * plotHeight
+  const path = (pressure: 'systolic' | 'diastolic') =>
     records
       .map(
         (record, index) =>
-          `${index === 0 ? 'M' : 'L'} ` +
-          `${getX(index).toFixed(1)} ` +
-          `${getY(selector(record)).toFixed(1)}`,
+          `${index === 0 ? 'M' : 'L'} ${x(index).toFixed(1)} ${y(record[pressure]).toFixed(1)}`,
       )
       .join(' ')
+  const maximumSystolicRecord = records.reduce(
+    (current, record) =>
+      record.systolic > current.systolic ? record : current,
+  )
+  const minimumSystolicRecord = records.reduce(
+    (current, record) =>
+      record.systolic < current.systolic ? record : current,
+  )
+  const grid = Array.from({ length: 5 }, (_, index) => {
+    const value = maxValue - (index * valueRange) / 4
+    const yPosition = y(value)
 
-  const gridLines = Array.from(
-    { length: 5 },
-    (_, index) => {
-      const value =
-        maxValue -
-        (index * valueRange) / 4
-
-      const y = getY(value)
-
-      return `
-        <line
-          x1="${paddingLeft}"
-          y1="${y}"
-          x2="${width - paddingRight}"
-          y2="${y}"
-          class="chart-grid"
-        />
-
-        <text
-          x="${paddingLeft - 8}"
-          y="${y + 4}"
-          text-anchor="end"
-          class="chart-label"
-        >
-          ${Math.round(value)}
-        </text>
-      `
-    },
-  ).join('')
-
-  const systolicPoints = records
-    .map(
-      (record, index) => `
-        <circle
-          cx="${getX(index)}"
-          cy="${getY(record.systolic)}"
-          r="2.8"
-          class="point-systolic"
-        />
-      `,
-    )
-    .join('')
-
-  const diastolicPoints = records
-    .map(
-      (record, index) => `
-        <circle
-          cx="${getX(index)}"
-          cy="${getY(record.diastolic)}"
-          r="2.8"
-          class="point-diastolic"
-        />
-      `,
-    )
-    .join('')
-
-
+    return `
+      <line x1="${padding.left}" y1="${yPosition}" x2="${width - padding.right}" y2="${yPosition}" class="chart-grid" />
+      <text x="${padding.left - 8}" y="${yPosition + 4}" text-anchor="end" class="chart-label">${Math.round(value)}</text>
+    `
+  }).join('')
+  const points = (
+    pressure: 'systolic' | 'diastolic',
+    className: string,
+  ) =>
+    records
+      .map(
+        (record, index) =>
+          `<circle cx="${x(index)}" cy="${y(record[pressure])}" r="2.8" class="${className}" />`,
+      )
+      .join('')
   const extremeLabels = records
     .map((record, index) => {
       const labels: string[] = []
 
-      if (
-        record.id === maximumRecord.id
-      ) {
+      if (record.id === maximumSystolicRecord.id) {
         labels.push(`
-          <circle
-            cx="${getX(index)}"
-            cy="${getY(record.systolic)}"
-            r="6"
-            class="point-highlight-high"
-          />
-
-          <text
-            x="${getX(index)}"
-            y="${getY(record.systolic) - 12}"
-            text-anchor="middle"
-            class="highlight-label-high"
-          >
-            ${record.systolic}/${record.diastolic}
-          </text>
+          <circle cx="${x(index)}" cy="${y(record.systolic)}" r="6" class="point-highlight-high" />
+          <text x="${x(index)}" y="${y(record.systolic) - 12}" text-anchor="middle" class="highlight-label-high">${record.systolic}/${record.diastolic}</text>
         `)
       }
 
-      if (
-        record.id === minimumRecord.id
-      ) {
+      if (record.id === minimumSystolicRecord.id) {
         labels.push(`
-          <circle
-            cx="${getX(index)}"
-            cy="${getY(record.systolic)}"
-            r="6"
-            class="point-highlight-low"
-          />
-
-          <text
-            x="${getX(index)}"
-            y="${getY(record.systolic) + 20}"
-            text-anchor="middle"
-            class="highlight-label-low"
-          >
-            ${record.systolic}/${record.diastolic}
-          </text>
+          <circle cx="${x(index)}" cy="${y(record.systolic)}" r="6" class="point-highlight-low" />
+          <text x="${x(index)}" y="${y(record.systolic) + 20}" text-anchor="middle" class="highlight-label-low">${record.systolic}/${record.diastolic}</text>
         `)
       }
 
       return labels.join('')
     })
     .join('')
-
-  const xLabels = records
+  const labels = records
     .map((record, index) => {
       if (
         records.length > 8 &&
         index !== 0 &&
         index !== records.length - 1 &&
-        index %
-          Math.ceil(records.length / 6) !==
-          0
+        index % Math.ceil(records.length / 6) !== 0
       ) {
         return ''
       }
 
-      return `
-        <text
-          x="${getX(index)}"
-          y="${height - 10}"
-          text-anchor="middle"
-          class="chart-label"
-        >
-          ${escapeHtml(
-            formatDate(record.dateTime),
-          )}
-        </text>
-      `
+      return `<text x="${x(index)}" y="${height - 10}" text-anchor="middle" class="chart-label">${escapeHtml(formatDate(record.dateTime))}</text>`
     })
     .join('')
 
   return `
     <div class="chart-wrapper">
       <div class="chart-legend">
-        <span>
-          <i class="legend-dot systolic"></i>
-          Sistólica
-        </span>
-
-        <span>
-          <i class="legend-dot diastolic"></i>
-          Diastólica
-        </span>
+        <span><i class="legend-dot systolic"></i>Sistólica</span>
+        <span><i class="legend-dot diastolic"></i>Diastólica</span>
       </div>
-
-      <svg
-        viewBox="0 0 ${width} ${height}"
-        class="chart"
-        role="img"
-        aria-label="Evolución de presión sistólica y diastólica"
-      >
-        ${gridLines}
-
-        <path
-          d="${buildPath(
-            record => record.systolic,
-          )}"
-          class="line-systolic"
-          fill="none"
-        />
-
-        <path
-          d="${buildPath(
-            record => record.diastolic,
-          )}"
-          class="line-diastolic"
-          fill="none"
-        />
-
-        ${systolicPoints}
-        ${diastolicPoints}
+      <svg viewBox="0 0 ${width} ${height}" class="chart" role="img" aria-label="Evolución de presión sistólica y diastólica">
+        ${grid}
+        <path d="${path('systolic')}" class="line-systolic" fill="none" />
+        <path d="${path('diastolic')}" class="line-diastolic" fill="none" />
+        ${points('systolic', 'point-systolic')}
+        ${points('diastolic', 'point-diastolic')}
         ${extremeLabels}
-        ${xLabels}
+        ${labels}
       </svg>
     </div>
   `
@@ -814,7 +690,7 @@ function buildMeasurementRows(
   if (records.length === 0) {
     return `
       <tr>
-        <td colspan="4" class="empty">
+        <td colspan="6" class="empty">
           No hay registros en el período seleccionado.
         </td>
       </tr>
@@ -825,38 +701,57 @@ function buildMeasurementRows(
     .map((record, index) => {
       const classification =
         getRecordClassification(record)
+      const classificationColor =
+        getClassificationColor(classification.category)
 
       return `
         <tr class="${index % 2 === 0 ? 'row-light' : 'row-shaded'}">
-          <td>
-            ${formatDateTime(record.dateTime)}
+          <td class="date-cell classification-marker" style="--classification-color: ${
+            classificationColor ?? '#94A3B8'
+          };">
+            ${formatDate(record.dateTime)}
           </td>
 
-          <td class="pressure">
-            ${record.systolic}/${record.diastolic}
-            <small>mmHg</small>
+          <td class="time-cell">
+            ${formatTime(record.dateTime)}
           </td>
 
-          <td>
+          <td
+            class="numeric-cell pressure-cell"
+            style="${
+              classification.determiningPressures.systolic && classificationColor
+                ? `color: ${classificationColor};`
+                : ''
+            }"
+          >
+            ${record.systolic}
+          </td>
+
+          <td
+            class="numeric-cell pressure-cell"
+            style="${
+              classification.determiningPressures.diastolic && classificationColor
+                ? `color: ${classificationColor};`
+                : ''
+            }"
+          >
+            ${record.diastolic}
+          </td>
+
+          <td class="numeric-cell pressure-cell">
             ${
               record.heartRate !== undefined
-                ? formatNumber(
-                    record.heartRate,
-                  )
+                ? formatNumber(record.heartRate)
                 : '—'
             }
-            <small>lpm</small>
           </td>
 
-          <td>
-            <span class="classification ${getClassificationClass(
-              classification.category,
-            )}">
-              ${classification.hasClinicalAlert ? '⚠️ ' : ''}
-              ${escapeHtml(
-                classification.label,
-              )}
-            </span>
+          <td class="classification-cell" style="${
+            classificationColor
+              ? `color: ${classificationColor};`
+              : ''
+          }">
+            ${escapeHtml(classification.label)}
           </td>
         </tr>
       `
@@ -877,6 +772,45 @@ export function buildReportRedesignV1(
           summary.predominantClassification,
         )
       : 'No disponible'
+  const healthContext = report.healthContext
+  const healthCards = healthContext
+    ? [
+        buildHealthMetricCard(
+          healthContext.dailySteps30Days,
+          'steps',
+          'Pasos diarios promedio',
+          'Pasos',
+          healthContext.averageDailySteps30Days,
+          String(healthContext.averageDailySteps30Days),
+        ),
+        buildHealthMetricCard(
+          healthContext.dailyHeartRate30Days,
+          'heartRate',
+          'Frecuencia cardíaca promedio',
+          'Frecuencia cardíaca',
+          healthContext.averageHeartRate30Days,
+          `${healthContext.averageHeartRate30Days} lpm`,
+        ),
+        buildHealthMetricCard(
+          healthContext.dailySleepHours30Days,
+          'sleep',
+          'Sueño promedio',
+          'Sueño',
+          healthContext.averageSleepHours30Days,
+          formatHoursMinutes(healthContext.averageSleepHours30Days),
+        ),
+        buildHealthMetricCard(
+          healthContext.dailyExerciseMinutes30Days,
+          'exercise',
+          'Ejercicio promedio diario',
+          'Ejercicio',
+          healthContext.averageDailyExerciseMinutes30Days,
+          formatHoursMinutes(healthContext.averageDailyExerciseMinutes30Days / 60),
+        ),
+      ]
+        .filter((card) => card.length > 0)
+        .join('')
+    : ''
 
   return `
 <!DOCTYPE html>
@@ -891,7 +825,7 @@ export function buildReportRedesignV1(
 <style>
 @page {
   size: A4 portrait;
-  margin: 10mm;
+  margin: 10mm 8mm;
 }
 
 * {
@@ -902,8 +836,10 @@ html,
 body {
   margin: 0;
   padding: 0;
-  background: #EDF4FF;
+  background: #FFFFFF;
   color: #172033;
+  font-size: 12px;
+  line-height: 1.45;
   font-family:
     -apple-system,
     BlinkMacSystemFont,
@@ -912,7 +848,7 @@ body {
 }
 
 body {
-  padding: 8px;
+  padding: 0;
 }
 
 .page {
@@ -924,48 +860,59 @@ body {
 .header,
 .section {
   background: #ffffff;
-  border: 1px solid #DBEAFE;
-  border-radius: 18px;
+  border: 1px solid #CBD5E1;
+  border-radius: 12px;
 }
 
 .header {
-  padding: 24px;
-  margin-bottom: 16px;
+  padding: 14px 16px;
+  margin-bottom: 8px;
+  break-inside: avoid-page;
+  page-break-inside: avoid;
 }
 
 .brand {
   color: #16A34A;
-  font-size: 26px;
+  font-size: 24px;
   font-weight: 800;
 }
 
 .title {
   margin-top: 4px;
-  font-size: 21px;
+  font-size: 23px;
   font-weight: 700;
 }
 
 .patient {
-  margin-top: 14px;
-  font-size: 15px;
+  margin-top: 10px;
+  font-size: 14px;
   color: #526174;
 }
 
 .period {
   margin-top: 4px;
-  font-size: 13px;
+  font-size: 12px;
   color: #6b7787;
 }
 
 .section {
-  padding: 18px 20px;
-  margin-bottom: 12px;
+  padding: 12px 14px;
+  margin-bottom: 8px;
+  break-inside: avoid-page;
+  page-break-inside: avoid;
+}
+
+.measurements-section {
+  break-inside: auto;
+  page-break-inside: auto;
 }
 
 .section-title {
-  margin: 0 0 14px;
-  font-size: 16px;
+  margin: 0 0 12px;
+  font-size: 17px;
   font-weight: 750;
+  break-after: avoid-page;
+  page-break-after: avoid;
 }
 
 .primary-grid,
@@ -977,28 +924,28 @@ body {
 }
 
 .primary-card {
-  padding: 14px;
-  border-radius: 13px;
+  padding: 12px;
+  border-radius: 10px;
   background: #EDF4FF;
 }
 
 .primary-label,
 .metric-label,
 .indicator-label {
-  font-size: 11px;
+  font-size: 12px;
   color: #687585;
 }
 
 .primary-value {
   margin-top: 5px;
-  font-size: 23px;
+  font-size: 26px;
   font-weight: 800;
 }
 
 .primary-unit,
 .metric-unit {
   margin-left: 4px;
-  font-size: 11px;
+  font-size: 12px;
   color: #687585;
 }
 
@@ -1019,8 +966,8 @@ body {
 .health-chart {
   display: block;
   width: 100%;
-  height: 142px;
-  margin-top: 16px;
+  height: 150px;
+  margin-top: 8px;
   overflow: hidden;
 }
 
@@ -1033,16 +980,30 @@ body {
 .health-chart-empty {
   display: flex;
   align-items: center;
-  height: 142px;
-  margin-top: 16px;
+  height: 150px;
+  margin-top: 8px;
   color: #8A94A3;
-  font-size: 12px;
+  font-size: 13px;
+}
+
+.health-average-legend {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 5px;
+  color: #475569;
+  font-size: 10px;
+}
+
+.health-average-swatch {
+  width: 18px;
+  border-top: 2px dashed #0F172A;
 }
 
 .metric-value,
 .indicator-value {
   margin-top: 4px;
-  font-size: 17px;
+  font-size: 20px;
   font-weight: 750;
 }
 
@@ -1194,7 +1155,8 @@ body {
 }
 
 .table-wrapper {
-  overflow-x: auto;
+  width: 100%;
+  overflow: visible;
 }
 
 table {
@@ -1212,17 +1174,102 @@ table {
 }
 
 th {
-  padding: 9px 7px;
+  padding: 9px 5px;
   text-align: left;
-  color: #687585;
-  font-weight: 650;
-  border-bottom: 1px solid #DBEAFE;
+  color: #1E293B;
+  font-weight: 750;
+  background: #E8EFF8;
+  border-bottom: 1px solid #CBD5E1;
 }
 
 td {
-  padding: 9px 7px;
-  border-bottom: 1px solid #F8FAFF;
+  padding: 8px 5px;
+  border-bottom: 1px solid #E2E8F0;
   vertical-align: middle;
+  font-family:
+    "DMSans_400Regular",
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+  font-size: 11px;
+  font-weight: 400;
+  line-height: 14px;
+}
+
+.measurements-table .pressure-cell {
+  color: #0F172A;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 20px;
+}
+
+.measurements-table .date-cell {
+  padding-right: 10px;
+}
+
+.measurements-table .classification-cell {
+  font-size: 12px;
+  font-weight: 700;
+  line-height: normal;
+}
+
+.measurements-table {
+  table-layout: fixed;
+  break-inside: auto;
+  page-break-inside: auto;
+}
+
+.measurements-table thead {
+  display: table-header-group;
+  break-inside: avoid-page;
+  page-break-inside: avoid;
+}
+
+.measurements-table tfoot {
+  display: table-footer-group;
+}
+
+.measurements-table tr {
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+.numeric-cell {
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.measurements-table .date-cell,
+.measurements-table .time-cell {
+  font-weight: 700;
+}
+
+.measurements-table th:nth-child(-n + 4),
+.measurements-table td:nth-child(-n + 4) {
+  border-right: 1px solid #CBD5E1;
+}
+
+.measurements-table .pressure-cell {
+  padding-right: 10px;
+  padding-left: 10px;
+}
+
+.date-cell,
+.time-cell {
+  white-space: nowrap;
+}
+
+.classification-marker {
+  border-left: 4px solid var(--classification-color, #94A3B8);
+}
+
+.measurements-table th:last-child,
+.classification-cell {
+  text-align: left;
+  white-space: nowrap;
+  word-break: keep-all;
 }
 
 .pressure {
@@ -1234,51 +1281,29 @@ small {
   color: #7a8491;
 }
 
-.classification {
-  display: inline-block;
-  padding: 4px 7px;
-  border-radius: 7px;
-  font-size: 10px;
-  font-weight: 650;
-}
-
-.classification.normal {
-  background: #EFF6FF;
-  color: #16A34A;
-}
-
-.classification.borderline {
-  background: #f6f0dd;
-  color: #CA8A04;
-}
-
-.classification.grade1 {
-  background: #fde4dc;
-  color: #EA580C;
-  font-weight: 750;
-}
-
-.classification.grade2 {
-  background: #f8d2d2;
-  color: #DC2626;
-  font-weight: 750;
-}
-
-.classification.isolated-systolic {
-  background: #eee5ff;
-  color: #7C3AED;
-  font-weight: 750;
-}
-
-.classification.unknown {
-  background: #edf0f2;
-  color: #5f6975;
-}
-
 .empty {
-  padding: 18px;
+  padding: 16px;
   text-align: center;
   color: #7a8491;
+}
+
+.health-empty-state {
+  margin: 0;
+  padding: 8px 0;
+  color: #64748B;
+  font-size: 13px;
+}
+
+.health-source {
+  margin: 0 0 10px;
+  padding: 10px 12px;
+  border: 1px solid #CBD5E1;
+  border-radius: 8px;
+  font-size: 11px;
+  line-height: 1.5;
+  color: #475569;
+  break-inside: avoid-page;
+  page-break-inside: avoid;
 }
 
 .chart-empty {
@@ -1295,14 +1320,18 @@ small {
 }
 
 @media (max-width: 600px) {
-  body {
-    padding: 10px;
-  }
-
   .primary-grid,
   .metric-grid,
   .indicator-grid {
     grid-template-columns: 1fr;
+  }
+}
+
+@media print {
+  .primary-grid,
+  .metric-grid,
+  .indicator-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 </style>
@@ -1321,10 +1350,10 @@ small {
   <div class="patient">
     ${
       report.patientName
-        ? `Paciente: ${escapeHtml(
+        ? `Usuario: ${escapeHtml(
             report.patientName,
           )}`
-        : 'Paciente: No configurado'
+        : 'Usuario: No configurado'
     }
 
     ${
@@ -1354,8 +1383,11 @@ small {
       </div>
 
       <div class="primary-value">
-        ${Math.round(summary.averageSystolic)}/
-        ${Math.round(summary.averageDiastolic)}
+        ${
+          summary.totalMeasurements > 0
+            ? `${Math.round(summary.averageSystolic)}/${Math.round(summary.averageDiastolic)}`
+            : '—'
+        }
         <span class="primary-unit">mmHg</span>
       </div>
     </div>
@@ -1383,9 +1415,11 @@ small {
       </div>
 
       <div class="primary-value">
-        ${Math.round(
-          summary.meanArterialPressureAverage,
-        )}
+        ${
+          summary.totalMeasurements > 0
+            ? Math.round(summary.meanArterialPressureAverage)
+            : '—'
+        }
         <span class="primary-unit">mmHg</span>
       </div>
     </div>
@@ -1396,9 +1430,11 @@ small {
       </div>
 
       <div class="primary-value">
-        ${Math.round(
-          summary.pulsePressureAverage,
-        )}
+        ${
+          summary.totalMeasurements > 0
+            ? Math.round(summary.pulsePressureAverage)
+            : '—'
+        }
         <span class="primary-unit">mmHg</span>
       </div>
     </div>
@@ -1496,7 +1532,11 @@ small {
       </div>
 
       <div class="indicator-value">
-        ${summary.timeInTarget.toFixed(0)}%
+        ${
+          summary.totalMeasurements > 0
+            ? `${summary.timeInTarget.toFixed(0)}%`
+            : 'No disponible'
+        }
       </div>
 
       <div style="margin-top:4px;font-size:10px;line-height:1.4;color:#687585;">
@@ -1510,7 +1550,11 @@ small {
       </div>
 
       <div class="indicator-value">
-        ${summary.hypertensionLoad.toFixed(0)}%
+        ${
+          summary.totalMeasurements > 0
+            ? `${summary.hypertensionLoad.toFixed(0)}%`
+            : 'No disponible'
+        }
       </div>
 
       <div style="margin-top:4px;font-size:10px;line-height:1.4;color:#687585;">
@@ -1524,7 +1568,15 @@ small {
       </div>
 
       <div class="indicator-value">
-        ${summary.adherence.toFixed(0)}%
+        ${
+          summary.adherence !== undefined
+            ? `${summary.adherence.toFixed(0)}%`
+            : 'No disponible'
+        }
+      </div>
+
+      <div style="margin-top:4px;font-size:10px;line-height:1.4;color:#687585;">
+        Intervalos consecutivos entre fechas válidas que no superan 48 horas. Requiere al menos dos mediciones; no representa adherencia clínica ni tiempo real.
       </div>
     </div>
 
@@ -1541,46 +1593,52 @@ small {
   <div class="metric-grid">
 
     <div class="metric">
-      <div class="metric-label">
-        Valor máximo
-      </div>
-
+      <div class="metric-label">Máxima sistólica (PAS)</div>
       <div class="metric-value">
-        ${summary.maximumRecord
-          ? `${summary.maximumRecord.systolic}/${summary.maximumRecord.diastolic}`
-          : '--'}
+        ${summary.maximumSystolicRecord?.systolic ?? '—'}
         <span class="metric-unit">mmHg</span>
-
         ${
-          summary.maximumRecord
-            ? `<div class="metric-subvalue">
-                ${formatDate(
-                  summary.maximumRecord.dateTime,
-                )}
-              </div>`
+          summary.maximumSystolicRecord
+            ? `<div class="metric-subvalue">${formatDate(summary.maximumSystolicRecord.dateTime)}</div>`
             : ''
         }
       </div>
     </div>
 
     <div class="metric">
-      <div class="metric-label">
-        Valor mínimo
-      </div>
-
+      <div class="metric-label">Máxima diastólica (PAD)</div>
       <div class="metric-value">
-        ${summary.minimumRecord
-          ? `${summary.minimumRecord.systolic}/${summary.minimumRecord.diastolic}`
-          : '--'}
+        ${summary.maximumDiastolicRecord?.diastolic ?? '—'}
         <span class="metric-unit">mmHg</span>
-
         ${
-          summary.minimumRecord
-            ? `<div class="metric-subvalue">
-                ${formatDate(
-                  summary.minimumRecord.dateTime,
-                )}
-              </div>`
+          summary.maximumDiastolicRecord
+            ? `<div class="metric-subvalue">${formatDate(summary.maximumDiastolicRecord.dateTime)}</div>`
+            : ''
+        }
+      </div>
+    </div>
+
+    <div class="metric">
+      <div class="metric-label">Mínima sistólica (PAS)</div>
+      <div class="metric-value">
+        ${summary.minimumSystolicRecord?.systolic ?? '—'}
+        <span class="metric-unit">mmHg</span>
+        ${
+          summary.minimumSystolicRecord
+            ? `<div class="metric-subvalue">${formatDate(summary.minimumSystolicRecord.dateTime)}</div>`
+            : ''
+        }
+      </div>
+    </div>
+
+    <div class="metric">
+      <div class="metric-label">Mínima diastólica (PAD)</div>
+      <div class="metric-value">
+        ${summary.minimumDiastolicRecord?.diastolic ?? '—'}
+        <span class="metric-unit">mmHg</span>
+        ${
+          summary.minimumDiastolicRecord
+            ? `<div class="metric-subvalue">${formatDate(summary.minimumDiastolicRecord.dateTime)}</div>`
             : ''
         }
       </div>
@@ -1590,17 +1648,27 @@ small {
   </div>
 </section>
 
-<section class="section">
+<section class="section measurements-section">
   <h2 class="section-title">
     Mediciones registradas
   </h2>
 
   <div class="table-wrapper">
     <table class="measurements-table">
+      <colgroup>
+        <col style="width: 18%;" />
+        <col style="width: 12%;" />
+        <col style="width: 11%;" />
+        <col style="width: 11%;" />
+        <col style="width: 10%;" />
+        <col style="width: 38%;" />
+      </colgroup>
       <thead>
         <tr>
-          <th>Fecha y hora</th>
-          <th>Presión</th>
+          <th>Fecha</th>
+          <th>Hora</th>
+          <th>PAS</th>
+          <th>PAD</th>
           <th>FC</th>
           <th>Clasificación</th>
         </tr>
@@ -1614,122 +1682,28 @@ small {
 </section>
 
 ${
-  report.healthContext
+  healthContext
     ? `
 <section class="section">
   <h2 class="section-title">
     Contexto fisiológico (últimos 30 días)
   </h2>
 
-  <div class="indicator-grid">
-
-    <div class="indicator">
-      <div class="indicator-label">
-        Pasos diarios promedio
-      </div>
-
-      <div class="indicator-value">
-        ${
-          report.healthContext
-            ?.averageDailySteps30Days ?? '—'
-        }
-      </div>
-      ${buildHealthChart(
-        report.healthContext?.dailySteps30Days,
-        'steps',
-        'Pasos',
-      )}
-    </div>
-
-    <div class="indicator">
-      <div class="indicator-label">
-        Frecuencia cardíaca promedio
-      </div>
-
-      <div class="indicator-value">
-        ${
-          report.healthContext
-            ?.averageHeartRate30Days ?? '—'
-        }
-        lpm
-      </div>
-      ${buildHealthChart(
-        report.healthContext?.dailyHeartRate30Days,
-        'heartRate',
-        'Frecuencia cardíaca',
-      )}
-    </div>
-
-    <div class="indicator">
-      <div class="indicator-label">
-        Sueño promedio
-      </div>
-
-      <div class="indicator-value">
-        ${
-          report.healthContext
-            ?.averageSleepHours30Days != null
-            ? formatHoursMinutes(
-                report.healthContext
-                  .averageSleepHours30Days,
-              )
-            : '—'
-        }
-      </div>
-      ${buildHealthChart(
-        report.healthContext?.dailySleepHours30Days,
-        'sleep',
-        'Sueño',
-      )}
-    </div>
-
-    <div class="indicator">
-      <div class="indicator-label">
-        Ejercicio promedio diario
-      </div>
-
-      <div class="indicator-value">
-        ${
-          report.healthContext
-            ?.averageDailyExerciseMinutes30Days != null
-            ? formatHoursMinutes(
-                report.healthContext
-                  .averageDailyExerciseMinutes30Days / 60,
-              )
-            : '—'
-        }
-      </div>
-      <div class="indicator-label">
-        por día con datos
-      </div>
-      ${buildHealthChart(
-        report.healthContext?.dailyExerciseMinutes30Days,
-        'exercise',
-        'Ejercicio',
-      )}
-    </div>
-
-  </div>
+  ${
+    healthCards
+      ? `<div class="indicator-grid health-grid">${healthCards}</div>`
+      : '<p class="health-empty-state">Sin datos disponibles de Health Connect para este período.</p>'
+  }
 </section>
 
-<div
-  style="
-    margin-top:16px;
-    padding:12px;
-    border:1px solid #e5e7eb;
-    border-radius:8px;
-    font-size:12px;
-    line-height:1.5;
-    color:#6b7280;
-  "
->
+<aside class="health-source">
   <strong>Fuente de datos:</strong>
   Información obtenida desde Health Connect.
   Los indicadores de pasos, frecuencia cardíaca,
   sueño y ejercicio son calculados por
   CardioSync a partir de los registros disponibles
   durante los últimos 30 días.
-</div>
+</aside>
 `
     : ''
 }

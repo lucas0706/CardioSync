@@ -42,15 +42,6 @@ export function useStatistics() {
     }, []),
   )
 
-  const summary = useMemo(
-    () =>
-      StatisticsDomainService.getSummary(
-        measurements,
-        filter,
-      ),
-    [measurements, filter],
-  )
-
   const updateFilter = (
     nextFilter: Partial<StatisticsFilter>,
   ) => {
@@ -69,6 +60,14 @@ export function useStatistics() {
         ),
       [measurements, filter],
     )
+
+  const summary = useMemo(
+    () =>
+        StatisticsDomainService.getSummary(
+          filteredMeasurements,
+        ),
+    [filteredMeasurements],
+  )
 
   return {
     measurements,

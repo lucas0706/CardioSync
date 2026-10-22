@@ -40,8 +40,7 @@ export class ReportService {
 
     const summary =
       StatisticsDomainService.getSummary(
-        records,
-        filter,
+        filteredRecords,
       )
 
     return {

@@ -1,14 +1,23 @@
-import { BloodPressureRecord } from '@/domain/measurements/BloodPressureRecord'
+import type { BloodPressureRecord } from '@/domain/measurements/BloodPressureRecord'
 
 export class AdherenceCalculator {
-  static calculate(records: BloodPressureRecord[]): number {
-    if (records.length <= 1) return 100
+  static calculate(
+    records: BloodPressureRecord[],
+  ): number | undefined {
 
-    const ordered = [...records].sort(
-      (a, b) =>
-        new Date(a.dateTime).getTime() -
-        new Date(b.dateTime).getTime(),
-    )
+    const ordered = [...records]
+      .filter(record => {
+        const timestamp = new Date(record.dateTime).getTime()
+        return Number.isFinite(timestamp)
+      })
+      .sort(
+        (a, b) =>
+          new Date(a.dateTime).getTime() -
+            new Date(b.dateTime).getTime() ||
+          a.id.localeCompare(b.id),
+      )
+
+    if (ordered.length <= 1) return undefined
 
     let consecutive = 0
 
@@ -17,7 +26,7 @@ export class AdherenceCalculator {
       const current = new Date(ordered[i].dateTime)
 
       const days =
-        Math.abs(current.getTime() - previous.getTime()) /
+        (current.getTime() - previous.getTime()) /
         86400000
 
       if (days <= 2) {

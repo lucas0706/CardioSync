@@ -7,15 +7,22 @@ export interface StatisticsSummary {
   averageDiastolic: number
   averageHeartRate?: number
 
-  maximumSystolic: number
-  maximumDiastolic: number
+  maximumSystolic?: number
+  maximumDiastolic?: number
 
-  minimumSystolic: number
-  minimumDiastolic: number
+  minimumSystolic?: number
+  minimumDiastolic?: number
 
+  /** The record with the maximum systolic value; ties use earliest valid date, then ID. */
   maximumRecord?: BloodPressureRecord
 
+  /** The record with the minimum systolic value; ties use earliest valid date, then ID. */
   minimumRecord?: BloodPressureRecord
+
+  maximumSystolicRecord?: BloodPressureRecord
+  maximumDiastolicRecord?: BloodPressureRecord
+  minimumSystolicRecord?: BloodPressureRecord
+  minimumDiastolicRecord?: BloodPressureRecord
 
   pulsePressureAverage: number
 
@@ -31,7 +38,7 @@ export interface StatisticsSummary {
 
   timeInTarget: number
 
-  adherence: number
+  adherence?: number
   predominantClassification?: string
 
   classificationDistribution?: Record<string, number>

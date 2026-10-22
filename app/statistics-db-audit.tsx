@@ -191,8 +191,13 @@ export default function StatisticsDbAuditScreen() {
           </Text>
 
           <Text>
-            Adherencia:{' '}
-            {summary.adherence.toFixed(2)}%
+            Regularidad de registros:{' '}
+            {summary.adherence !== undefined
+              ? `${summary.adherence.toFixed(2)}%`
+              : '--'}
+          </Text>
+          <Text>
+            Porcentaje de intervalos consecutivos de hasta 48 horas; no representa adherencia clínica ni tiempo real.
           </Text>
 
           <Text>

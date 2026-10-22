@@ -1,7 +1,10 @@
 import type { BloodPressureRecord } from '@/domain/measurements/BloodPressureRecord'
 
 import { StatisticsEngine } from '../engines'
-import { PeriodFilter } from '../filters'
+import {
+  PeriodFilter,
+  ValidBloodPressureFilter,
+} from '../filters'
 import type {
   StatisticsFilter,
   StatisticsSummary,
@@ -12,14 +15,11 @@ export class StatisticsDomainService {
     records: BloodPressureRecord[],
     filter?: StatisticsFilter,
   ): BloodPressureRecord[] {
-    if (!filter) {
-      return records
-    }
+    const periodRecords = filter
+      ? PeriodFilter.apply(records, filter)
+      : records
 
-    return PeriodFilter.apply(
-      records,
-      filter,
-    )
+    return ValidBloodPressureFilter.apply(periodRecords)
   }
 
   static getSummary(

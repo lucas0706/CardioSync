@@ -1,34 +1,94 @@
-import { BloodPressureRecord } from '@/domain/measurements/BloodPressureRecord'
+import type { BloodPressureRecord } from '@/domain/measurements/BloodPressureRecord'
 
 import {
   AdherenceCalculator,
   AverageCalculator,
   ClinicalClassificationCalculator,
   HypertensionLoadCalculator,
-  MaxCalculator,
   MeanArterialPressureCalculator,
-  MinCalculator,
   PulsePressureCalculator,
   StandardDeviationCalculator,
   TimeInTargetCalculator,
   VariabilityCalculator,
 } from '../calculators'
 
-import { PeriodFilter } from '../filters'
+import {
+  PeriodFilter,
+  ValidBloodPressureFilter,
+} from '../filters'
 import { StatisticsAggregator } from '../services'
 import type {
   StatisticsFilter,
   StatisticsSummary,
 } from '../models'
 
+function compareRecordDateAndId(
+  left: BloodPressureRecord,
+  right: BloodPressureRecord,
+): number {
+  const leftTime = Date.parse(left.dateTime)
+  const rightTime = Date.parse(right.dateTime)
+  const leftHasValidDate = Number.isFinite(leftTime)
+  const rightHasValidDate = Number.isFinite(rightTime)
+
+  if (leftHasValidDate && rightHasValidDate && leftTime !== rightTime) {
+    return leftTime - rightTime
+  }
+
+  if (leftHasValidDate !== rightHasValidDate) {
+    return leftHasValidDate ? -1 : 1
+  }
+
+  return left.id.localeCompare(right.id)
+}
+
+function selectExtremeRecord(
+  records: BloodPressureRecord[],
+  pressure: 'systolic' | 'diastolic',
+  direction: 'maximum' | 'minimum',
+): BloodPressureRecord | undefined {
+  let selected: BloodPressureRecord | undefined
+
+  for (const record of records) {
+    const value = record[pressure]
+
+    if (!Number.isFinite(value)) {
+      continue
+    }
+
+    if (!selected) {
+      selected = record
+      continue
+    }
+
+    const selectedValue = selected[pressure]
+    const isMoreExtreme =
+      direction === 'maximum'
+        ? value > selectedValue
+        : value < selectedValue
+
+    if (
+      isMoreExtreme ||
+      (value === selectedValue &&
+        compareRecordDateAndId(record, selected) < 0)
+    ) {
+      selected = record
+    }
+  }
+
+  return selected
+}
+
 export class StatisticsEngine {
   static summarize(
     records: BloodPressureRecord[],
     filter?: StatisticsFilter,
   ): StatisticsSummary {
-    const filteredRecords = filter
+    const periodRecords = filter
       ? PeriodFilter.apply(records, filter)
       : records
+    const filteredRecords =
+      ValidBloodPressureFilter.apply(periodRecords)
 
     const metrics =
       StatisticsAggregator.aggregate(
@@ -46,13 +106,13 @@ export class StatisticsEngine {
 
         averageSystolic: 0,
         averageDiastolic: 0,
-        averageHeartRate: 0,
+        averageHeartRate: undefined,
 
-        maximumSystolic: 0,
-        maximumDiastolic: 0,
+        maximumSystolic: undefined,
+        maximumDiastolic: undefined,
 
-        minimumSystolic: 0,
-        minimumDiastolic: 0,
+        minimumSystolic: undefined,
+        minimumDiastolic: undefined,
 
         pulsePressureAverage: 0,
         meanArterialPressureAverage: 0,
@@ -65,7 +125,7 @@ export class StatisticsEngine {
 
         hypertensionLoad: 0,
         timeInTarget: 0,
-        adherence: 0,
+        adherence: undefined,
 
 
         predominantClassification:
@@ -82,19 +142,14 @@ export class StatisticsEngine {
     const pulsePressure = metrics.pulsePressure
     const mapValues = metrics.meanArterialPressure
 
-    const maximumRecord =
-      filteredRecords.reduce((current, record) =>
-        record.systolic > current.systolic
-          ? record
-          : current,
-      )
-
-    const minimumRecord =
-      filteredRecords.reduce((current, record) =>
-        record.systolic < current.systolic
-          ? record
-          : current,
-      )
+    const maximumSystolicRecord =
+      selectExtremeRecord(filteredRecords, 'systolic', 'maximum')
+    const maximumDiastolicRecord =
+      selectExtremeRecord(filteredRecords, 'diastolic', 'maximum')
+    const minimumSystolicRecord =
+      selectExtremeRecord(filteredRecords, 'systolic', 'minimum')
+    const minimumDiastolicRecord =
+      selectExtremeRecord(filteredRecords, 'diastolic', 'minimum')
 
     return {
       totalMeasurements: filteredRecords.length,
@@ -106,23 +161,29 @@ export class StatisticsEngine {
         AverageCalculator.calculate(diastolic),
 
       averageHeartRate:
-        AverageCalculator.calculate(heartRate),
+        heartRate.length > 0
+          ? AverageCalculator.calculate(heartRate)
+          : undefined,
 
       maximumSystolic:
-        MaxCalculator.calculate(systolic),
+        maximumSystolicRecord?.systolic,
 
       maximumDiastolic:
-        MaxCalculator.calculate(diastolic),
+        maximumDiastolicRecord?.diastolic,
 
       minimumSystolic:
-        MinCalculator.calculate(systolic),
+        minimumSystolicRecord?.systolic,
 
       minimumDiastolic:
-        MinCalculator.calculate(diastolic),
+        minimumDiastolicRecord?.diastolic,
 
-      maximumRecord,
+      maximumRecord: maximumSystolicRecord,
 
-      minimumRecord,
+      minimumRecord: minimumSystolicRecord,
+      maximumSystolicRecord,
+      maximumDiastolicRecord,
+      minimumSystolicRecord,
+      minimumDiastolicRecord,
 
       pulsePressureAverage:
         AverageCalculator.calculate(pulsePressure),

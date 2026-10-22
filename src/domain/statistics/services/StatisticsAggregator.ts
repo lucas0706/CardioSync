@@ -1,4 +1,4 @@
-import { BloodPressureRecord } from '@/domain/measurements/BloodPressureRecord'
+import type { BloodPressureRecord } from '@/domain/measurements/BloodPressureRecord'
 
 import {
   MeanArterialPressureCalculator,
@@ -18,7 +18,10 @@ export class StatisticsAggregator {
 
       heartRate: records
         .map(r => r.heartRate)
-        .filter((v): v is number => v !== undefined),
+        .filter(
+          (value): value is number =>
+            value !== undefined && Number.isFinite(value),
+        ),
 
       pulsePressure: records.map(r =>
         PulsePressureCalculator.calculate(

@@ -56,7 +56,7 @@ function record(
  * - valores normales/elevados
  * - valores extremos
  * - tendencia
- * - adherencia
+ * - regularidad de registros
  * - promedio
  * - MAP
  * - presión de pulso

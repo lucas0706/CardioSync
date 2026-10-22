@@ -1,4 +1,4 @@
-import { BloodPressureRecord } from '@/domain/measurements/BloodPressureRecord'
+import type { BloodPressureRecord } from '@/domain/measurements/BloodPressureRecord'
 
 import type { StatisticsFilter } from '../models'
 
@@ -12,12 +12,19 @@ export class PeriodFilter {
         return records
       }
 
+      const start = new Date(filter.startDate)
+      start.setHours(0, 0, 0, 0)
+
+      const endExclusive = new Date(filter.endDate)
+      endExclusive.setHours(0, 0, 0, 0)
+      endExclusive.setDate(endExclusive.getDate() + 1)
+
       return records.filter(record => {
         const date = new Date(record.dateTime)
 
         return (
-          date >= filter.startDate! &&
-          date <= filter.endDate!
+          date >= start &&
+          date < endExclusive
         )
       })
     }

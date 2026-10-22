@@ -23,10 +23,10 @@ function normalizeDate(
   date: Date,
 ): Date {
   return new Date(
-    date.getUTCFullYear(),
-    date.getUTCMonth(),
-    date.getUTCDate(),
-    12,
+    date.getFullYear(),
+    date.getMonth(),
+    date.getDate(),
+    0,
     0,
     0,
     0,
